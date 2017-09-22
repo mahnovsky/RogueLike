@@ -1,6 +1,17 @@
 #include "Engine.h"
 #include "common.h"
 
+#include <Windows.h>
+
+extern "C"
+{
+#define STB_DEFINE
+#include <stb/stb.h>
+
+#define STB_SPRINTF_IMPLEMENTATION
+#include <stb/stb_sprintf.h>
+}
+
 SDL_GLContext glcontext;
 
 Engine::Engine()
@@ -26,6 +37,10 @@ bool Engine::initialize()
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+
+	char buff[256];
+	stb_snprintf(buff, 256, "hello %s", "world");
+	SDL_Log(buff);
 
 	_window = SDL_CreateWindow(
 		"some title",

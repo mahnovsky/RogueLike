@@ -7,5 +7,4 @@
 
 #include <SDL2/SDL.h>
 
-//#define STB_DEFINE
-#include <stb/stb.h>
+//#include <stb/stb.h>
