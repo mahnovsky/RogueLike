@@ -1,16 +1,6 @@
 #include "Engine.h"
 #include "common.h"
 
-#include <Windows.h>
-
-extern "C"
-{
-#define STB_DEFINE
-#include <stb/stb.h>
-
-#define STB_SPRINTF_IMPLEMENTATION
-#include <stb/stb_sprintf.h>
-}
 
 SDL_GLContext glcontext;
 
