@@ -1,17 +1,11 @@
-#include "common.h"
-#include "Engine.h"
+#include "basic/vector.hpp"
+#include "basic/string.hpp"
+#include "engine.hpp"
 
-int main(int argc, char *argv[])
+int
+main( )
 {
-	printf("hello");
+    Engine engine;
 
-	Engine engine;
-
-	engine.initialize();
-
-	while (engine.update());
-
-	engine.cleanup();
-
-	return 0;
+    return engine.run( 1024, 768 );
 }
