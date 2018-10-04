@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstddef>
+#include "types.hpp"
 
 namespace basic
 {
@@ -36,8 +36,8 @@ void log( int line,
 
 
 #ifdef _DEBUG
-#define ASSERT( cond ) if( !(cond) ) { assert_func( __LINE__, __FILE__, __PRETTY_FUNCTION__, #cond ); }
-#define ASSERT_M( cond, message ) if( !(cond) ) { assert_func(  __LINE__, __FILE__, __PRETTY_FUNCTION__, message ); }
+#define ASSERT( cond ) if( !(cond) ) { basic::assert_func( __LINE__, __FILE__, __PRETTY_FUNCTION__, #cond ); }
+#define ASSERT_M( cond, message ) if( !(cond) ) { basic::assert_func(  __LINE__, __FILE__, __PRETTY_FUNCTION__, message ); }
 #else
 #define ASSERT( cond ) ;
 #define ASSERT_M( cond, msg ) ;

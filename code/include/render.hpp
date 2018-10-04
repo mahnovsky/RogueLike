@@ -2,6 +2,8 @@
 
 #include "render_common.hpp"
 
+class RenderObject;
+
 class IRender
 {
 public:
@@ -11,7 +13,7 @@ public:
 
     virtual bool init( int width, int height ) = 0;
 
-    virtual void draw( const IRenderData* graphic ) = 0;
+    virtual void draw( const RenderObject* graphic ) = 0;
 
     virtual void draw_begin( ) = 0;
 

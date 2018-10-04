@@ -2,6 +2,16 @@
 #include "window.hpp"
 #include "basic/vector.hpp"
 #include "basic/file.hpp"
+#include "render_object.hpp"
+
+extern "C"
+{
+#define GLEW_STATIC
+#include <GL/glew.h>
+}
+
+#include <GL/gl.h>
+
 
 class Render : public IRender
 {
@@ -144,14 +154,15 @@ public:
     }
 
     void
-    draw( const IRenderData* graphic ) override
+    draw( const RenderObject* graphic ) override
     {
         glUseProgram( m_shader_program );
-        glBindVertexArray( graphic->get_buffer_array( ) );
 
+        graphic->bind();
+        
         glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, 0 );
 
-        glBindVertexArray( 0 );
+        graphic->unbind();
     }
 
     void
