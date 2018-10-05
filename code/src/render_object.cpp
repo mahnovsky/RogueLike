@@ -40,6 +40,11 @@ void RenderObject::init()
     bind_array_object( false );
 }
 
+bool RenderObject::is_initialized() const
+{
+    return m_array_object > 0 && m_vertex_object > 0 && m_index_object > 0;
+}
+
 void RenderObject::bind_array_object( bool on ) const
 {
     basic::uint32 object = ( on ? m_array_object : 0 );
@@ -79,6 +84,8 @@ void RenderObject::init_index_buffer( )
 
 void RenderObject::bind() const
 {
+    ASSERT( is_initialized() );
+
     bind_array_object( true );
 }
 

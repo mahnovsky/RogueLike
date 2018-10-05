@@ -1,15 +1,17 @@
 #pragma once
 
-#include "basic/util_functions.hpp"
 #include "basic/vector.hpp"
 
-using byte = unsigned char;
-using word = unsigned short;
 
 struct Vertex
 {
-    float x, y, z;
-    byte r, g, b, a;
+    float x;
+    float y;
+    float z;
+    basic::uint8 r;
+    basic::uint8 g;
+    basic::uint8 b;
+    basic::uint8 a;
 };
 
 

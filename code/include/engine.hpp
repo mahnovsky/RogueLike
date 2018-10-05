@@ -1,7 +1,6 @@
 #pragma once
 
 #include "render.hpp"
-#include "thread_pool.hpp"
 #include "window.hpp"
 
 class IDrawable
@@ -12,27 +11,43 @@ public:
     virtual void draw( IRender* render ) = 0;
 };
 
+enum EngineCallbackType 
+{
+    Init,
+    Frame,
+    Draw,
+    Clean,
+    OutOfMemory,
+    
+    Count
+};
+
+using engine_callback = void (*)( class Engine* );
+
 class Engine
 {
 public:
-    Engine( );
+    Engine( int argv, char** argc );
 
-    void add_drawable( IDrawable* drawable );
+    void set_callback( EngineCallbackType type, engine_callback callback ); 
 
     int run( int width, int height );
 
+    IRender* get_render();
+
 private:
     void process_event( );
+    
+    static void out_of_memory();
 
 private:
-    std::unique_ptr< IWindow > m_window;
+    static Engine* _instance;
 
-    std::unique_ptr< IRender > m_render;
+    IWindow* m_window;
 
-    async::ThreadPool m_pool;
+    IRender* m_render;
 
     bool m_quit;
 
-    std::vector< IDrawable* > m_init_drawables;
-    std::vector< IDrawable* > m_drawables;
+    engine_callback m_callbacks[Count];
 };

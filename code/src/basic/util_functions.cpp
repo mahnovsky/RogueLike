@@ -9,6 +9,8 @@
 namespace basic
 {
 
+mem_out_callback g_out_of_memory_callback;
+
 void assert_func( int line, const char* file, const char* function, const char* message )
 {
     puts("Assertion failed!");
@@ -39,7 +41,13 @@ void* mem_allocate( size_t byte_count )
 {
     ASSERT_M( byte_count > 0, "Bad alloc size" );
 
-    return malloc( byte_count );
+    void* res = malloc( byte_count );
+    if( !res && g_out_of_memory_callback )
+    {
+        g_out_of_memory_callback();
+    }
+
+    return res; 
 }
 
 void mem_free( void* mem )
@@ -69,7 +77,20 @@ void* mem_realloc( void* ptr, size_t byte_count )
 {
     ASSERT( byte_count > 0 );
 
-    return realloc( ptr, byte_count );
+    void* res = realloc( ptr, byte_count );
+    if( !res && g_out_of_memory_callback )
+    {
+        g_out_of_memory_callback();
+    }
+
+    return res;
+}
+
+void mem_set_out_of_memory( mem_out_callback callback )
+{
+    ASSERT( callback != nullptr );    
+
+    g_out_of_memory_callback = callback;
 }
 
 void

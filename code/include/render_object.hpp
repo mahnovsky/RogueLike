@@ -10,6 +10,8 @@ public:
 
     void init();
 
+    bool is_initialized() const;
+
     void set_vertex_buffer( VertexBuffer buffer );
 
     void set_index_buffer( IndexBuffer buffer );

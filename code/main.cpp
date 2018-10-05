@@ -12,9 +12,9 @@ public:
     void init() override
     {
 
-        byte red = 255;
-        byte green = 0;
-        byte blue = 0;
+        basic::uint8 red = 255;
+        basic::uint8 green = 0;
+        basic::uint8 blue = 0;
         VertexBuffer vb;
         vb.push( { 0.5f, 0.5f, 0.0f, red, green, blue, 255 } );
         vb.push( { 0.5f, -0.5f, 0.0f, red, green, blue, 255} );
@@ -36,7 +36,7 @@ public:
         m_object.init();
     }
 
-    void draw( IRender* render )
+    void draw( IRender* render ) override
     {
         render->draw( &m_object );
     }
@@ -45,13 +45,28 @@ private:
     RenderObject m_object;
 };
 
+static Sprite g_back;
+
+void game_init( Engine* engine )
+{
+    g_back.init();
+}
+
+void game_draw( Engine* engine )
+{
+    IRender* render = engine->get_render();
+    ASSERT( render != nullptr );
+
+    g_back.draw( render );
+}
 
 int
-main( )
+main( int argv, char** argc )
 {
-    Engine engine;
+    Engine engine( argv, argc );
 
-    engine.add_drawable( new Sprite() );
+    engine.set_callback( Init, &game_init );
+    engine.set_callback( Draw, &game_draw );
 
     return engine.run( 1024, 768 );
 }

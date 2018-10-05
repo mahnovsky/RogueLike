@@ -21,6 +21,10 @@ int mem_cmp( const void* ptr1, const void* ptr2, size_t byte_count );
 
 void* mem_realloc( void* ptr, size_t byte_count );
 
+using mem_out_callback = void (*)();
+
+void mem_set_out_of_memory( mem_out_callback callback );
+
 void log( int line,
           const char* file,
           const char* func,
