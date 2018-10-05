@@ -31,7 +31,7 @@ public:
 
     void set_callback( EngineCallbackType type, engine_callback callback ); 
 
-    int run( int width, int height );
+    int run( int width, int height, const char* wnd_title );
 
     IRender* get_render();
 
@@ -50,4 +50,6 @@ private:
     bool m_quit;
 
     engine_callback m_callbacks[Count];
+
+    basic::Vector<char*> m_cmd_args;
 };

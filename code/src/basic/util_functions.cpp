@@ -28,6 +28,21 @@ size_t str_length( const char* cstring, size_t max_len )
     return strnlen( cstring, max_len );
 }
 
+char* str_copy(const char* cstr, size_t max_len)
+{
+    size_t size = str_length( cstr, max_len );
+
+    char* res = static_cast<char*>( mem_allocate( size ) );
+    mem_copy( res, cstr, size );
+
+    if( size == max_len )
+    {
+        res[size] = 0;
+    }
+
+    return res;
+}
+
 void* mem_copy( void* destination, const void* source, size_t byte_count )
 {
     ASSERT_M( destination != nullptr, "Destination is nullptr" );

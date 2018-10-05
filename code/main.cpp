@@ -68,5 +68,5 @@ main( int argv, char** argc )
     engine.set_callback( Init, &game_init );
     engine.set_callback( Draw, &game_draw );
 
-    return engine.run( 1024, 768 );
+    return engine.run( 1024, 768, "Title" );
 }

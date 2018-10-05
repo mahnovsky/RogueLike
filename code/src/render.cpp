@@ -160,7 +160,7 @@ public:
 
         graphic->bind();
         
-        glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, 0 );
+        glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
 
         graphic->unbind();
     }
@@ -168,7 +168,7 @@ public:
     void
     draw_begin( ) override
     {
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glClear( GL_COLOR_BUFFER_BIT ); //| GL_DEPTH_BUFFER_BIT );
     }
 
     void

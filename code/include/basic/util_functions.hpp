@@ -9,6 +9,8 @@ void assert_func( int line, const char* file, const char* function, const char* 
 
 size_t str_length( const char* ptr, size_t max_len );
 
+char* str_copy( const char* cstr, size_t max_len );
+
 void* mem_copy( void* destination, const void* source, size_t byte_count );
 
 void* mem_allocate( size_t byte_count );

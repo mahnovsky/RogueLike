@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "window.hpp"
 #include "basic/util_functions.hpp"
+#include "basic/string.hpp"
 
 Engine* Engine::_instance;
 
@@ -15,11 +16,12 @@ void Engine::out_of_memory()
 
 static void dummy( Engine* ){}
 
-Engine::Engine( int argv, char** argc )
+Engine::Engine( int argc, char** argv )
     : m_window( IWindow::create( ) )
     , m_render( IRender::create( ) )
     , m_quit( false )
     , m_callbacks()
+    , m_cmd_args()
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -28,6 +30,12 @@ Engine::Engine( int argv, char** argc )
 
     m_callbacks[Frame] = &dummy;
     m_callbacks[Draw] = &dummy;
+
+    size_t uargc = argc < 0 ? 0 : argc;
+    for( size_t i = 0; i < uargc; ++i )
+    {
+       m_cmd_args.push( basic::str_copy( argv[i], basic::String::max_len ) );
+    }
 }
 
 IRender* Engine::get_render()
@@ -47,9 +55,9 @@ void Engine::set_callback( EngineCallbackType type, engine_callback callback )
 }
 
 int
-Engine::run( int width, int height )
+Engine::run( int width, int height, const char* wnd_title )
 {
-    if( !m_window->init( width, height, "Hello" ) )
+    if( !m_window->init( width, height, wnd_title ) )
     {
         LOG("Failed init window.");
 
