@@ -10,7 +10,7 @@ template <class T>
 class BaseString
 {
 public:
-    static const size_t max_len = 1 << 32;
+    static const size_t max_len = ((size_t)1 << 32);
     static const T cstr_end = 0;
 
     BaseString()
