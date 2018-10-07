@@ -2,6 +2,7 @@
 
 #include "render_common.hpp"
 
+using vertex_update = void (*)( Vertex*, void* );
 
 class RenderObject
 {
@@ -10,9 +11,11 @@ public:
 
     void init();
 
+    void update( vertex_update callback, void* user_data );
+
     bool is_initialized() const;
 
-    void set_vertex_buffer( VertexBuffer buffer );
+    void set_vertex_buffer( VertexBuffer buffer ); 
 
     void set_index_buffer( IndexBuffer buffer );
 

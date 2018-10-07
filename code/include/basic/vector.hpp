@@ -243,16 +243,28 @@ public:
         while( 1 );
     }
 
-    T get( size_t index ) const
+    const T& get( size_t index ) const
     {
         ASSERT( index < m_size ); 
 
         return m_data[ index ];
     }
 
-    T operator []( size_t index ) const
+    const T operator []( size_t index ) const
     {
         return get( index ); 
+    }
+
+    T& get( size_t index )
+    {
+        ASSERT( index < m_size );
+
+        return m_data[ index ];
+    }
+
+    T& operator [] ( size_t index )
+    {
+        return get( index );
     }
 
     void clear()

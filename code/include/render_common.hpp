@@ -2,16 +2,17 @@
 
 #include "basic/vector.hpp"
 
-
-struct Vertex
+struct Point
 {
     float x;
     float y;
     float z;
-    basic::uint8 r;
-    basic::uint8 g;
-    basic::uint8 b;
-    basic::uint8 a;
+};
+
+struct Vertex
+{
+    Point pos;
+    basic::Color color;    
 };
 
 

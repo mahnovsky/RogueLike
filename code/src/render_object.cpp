@@ -40,6 +40,17 @@ void RenderObject::init()
     bind_array_object( false );
 }
 
+void RenderObject::update( vertex_update callback, void* user_data )
+{
+    ASSERT( callback != nullptr );
+
+    for( size_t i = 0; i < m_vb.get_size(); ++i )
+    {
+        callback( &m_vb[i], user_data );
+    }
+    glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW );
+}
+
 bool RenderObject::is_initialized() const
 {
     return m_array_object > 0 && m_vertex_object > 0 && m_index_object > 0;
