@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dlfcn.h>
 
 // Get a matching FB config
 static int visual_attribs[] = {GLX_X_RENDERABLE,
@@ -141,6 +142,21 @@ IWindow::create( )
     return new X11Window( );
 }
 
+typedef GLXFBConfig* func_t(Display *, int, const int *, int *);
+GLXFBConfig *glXChooseFBConfig1(Display *dpy, int screen, const int *attribList, int *nitems)
+{
+    static func_t *func;
+    static const int attribs[] = {None};
+    if (!func) {
+         void *library = dlopen("libGL.so", RTLD_GLOBAL);
+         func = (func_t *) dlsym(library, "glXChooseFBConfig");
+    }
+    if (!attribList)
+        attribList = attribs;
+
+    return ((*func)(dpy, screen, attribList, nitems));
+}
+
 bool
 X11Window::init( int width, int height, const char* const title )
 {
@@ -152,7 +168,7 @@ X11Window::init( int width, int height, const char* const title )
     if ( m_display == NULL )
     {
         LOG( "\tcannot connect to X server" );
-        exit( 0 );
+        return false;
     }
 
     m_wm_delete_message = XInternAtom( m_display, "WM_DELETE_WINDOW", False );
@@ -164,17 +180,17 @@ X11Window::init( int width, int height, const char* const title )
          || ( ( glx_major == 1 ) && ( glx_minor < 3 ) )
          || ( glx_major < 1 ) )
     {
-        // printf( "Invalid GLX version" );
-        exit( 1 );
+        LOG( "Invalid GLX version" );
+        return false;
     }
-
-    int fbcount;
+    int visual_attribs[] = {0};
+    int fbcount = 1;
     GLXFBConfig* fbc
             = glXChooseFBConfig( m_display, DefaultScreen( m_display ), visual_attribs, &fbcount );
     if ( !fbc )
     {
         LOG( "Failed to retrieve a framebuffer config" );
-        exit( 1 );
+        return false;
     }
     LOG( "Found %d matching FB configs.", fbcount );
 
@@ -248,7 +264,8 @@ X11Window::init( int width, int height, const char* const title )
     if ( !m_win )
     {
         LOG( "Failed to create window." );
-        exit( 1 );
+
+        return false;
     }
 
     // Done with the visual info data
@@ -287,10 +304,8 @@ X11Window::init( int width, int height, const char* const title )
     {
         LOG( "glXCreateContextAttribsARB() not found" );
 
-        exit( 0 );
+        return false;
     }
-
-    // If it does, try to get a GL 3.0 context!
     else
     {
         int context_attribs[]
@@ -314,7 +329,7 @@ X11Window::init( int width, int height, const char* const title )
         {
             LOG( "Failed to create GL 3.0 context" );
 
-            exit( 0 );
+            return false;
         }
     }
 
@@ -327,7 +342,8 @@ X11Window::init( int width, int height, const char* const title )
     if ( ctxErrorOccurred || !m_ctx )
     {
         LOG( "Failed to create an OpenGL context" );
-        exit( 1 );
+        
+        return false;
     }
 
     // Verifying that context is a direct context

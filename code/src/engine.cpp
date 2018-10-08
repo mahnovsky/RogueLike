@@ -17,8 +17,8 @@ void Engine::out_of_memory()
 static void dummy( Engine* ){}
 
 Engine::Engine( int argc, char** argv )
-    : m_window( IWindow::create( ) )
-    , m_render( IRender::create( ) )
+    : m_window( nullptr ) 
+    , m_render( nullptr )
     , m_quit( false )
     , m_callbacks()
     , m_cmd_args()
@@ -57,6 +57,7 @@ void Engine::set_callback( EngineCallbackType type, engine_callback callback )
 int
 Engine::run( int width, int height, const char* wnd_title )
 {
+    m_window = IWindow::create();
     if( !m_window->init( width, height, wnd_title ) )
     {
         LOG("Failed init window.");
@@ -64,6 +65,7 @@ Engine::run( int width, int height, const char* wnd_title )
         return -1;
     }
 
+    m_render = IRender::create();
     if( !m_render->init( width, width ) )
     {
         LOG("Failed init render.");

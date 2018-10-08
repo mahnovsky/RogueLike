@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+#include <cstdarg> 
 
 #define MAX_BUFFER_LEN 1024
 

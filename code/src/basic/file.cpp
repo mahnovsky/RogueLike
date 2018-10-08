@@ -5,10 +5,13 @@
 namespace basic
 {
 
+String g_data_path = "./data/";
+
 Vector<char> get_file_content( const char* file_name )
 {
     Vector<char> result;
-    FILE* file = fopen( file_name, "r" );
+    String file_path = g_data_path + file_name;
+    FILE* file = fopen( file_path.get_cstr(), "r" );
 
     if( file )
     {

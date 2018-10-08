@@ -3,9 +3,41 @@
 #include "util_functions.hpp"
 
 #include <utility>
+#include <type_traits>
 
 namespace basic
 {
+
+template <bool B>
+struct Token
+{
+    using Value = decltype(B);
+};
+
+template <class T>
+struct Initializer
+{
+    static void construct( T* ptr, Token<true> ){} 
+
+    static void destruct( T* ptr, Token<true> ){}
+
+    static void copy( T* ptr, const T* src, Token<true> ){}
+
+    static void construct( T* ptr, Token<false> ) 
+    {
+        ptr->T();
+    }
+
+    static void destruct( T* ptr, Token<false> )
+    {
+        ptr->~T();
+    }
+    
+    static void copy( T* ptr, const T* src, Token<false> ) 
+    {
+        ptr->T(*src);
+    }
+};
 
 template <class T, size_t Capacity = 8>
 class Vector
@@ -51,6 +83,7 @@ public:
         if( realloc() )
         {
             mem_copy( m_data, v.m_data, sizeof(T) * m_size );
+            copy_elements( 0 );
         }
  
         return *this;
@@ -112,8 +145,11 @@ public:
     {
         reserve( count );
         m_size = count;
+
+        construct_elements(0);
     }
 
+    
     bool init( const T* ptr, size_t count )
     {
         ASSERT( ptr != nullptr );
@@ -130,6 +166,8 @@ public:
             size_t mem_size = count * sizeof(T);
             mem_copy( m_data, ptr, mem_size );
 
+            construct_elements(0);
+            
             return true;
         }
 
@@ -181,7 +219,7 @@ public:
         }
     }
 
-    int find_first( T value )
+    int find_first( T value ) const
     {
         for( T* pos = m_data; pos != (m_data + m_size); ++pos)
         {
@@ -194,7 +232,7 @@ public:
         return -1;
     }
 
-    int find_last( T value )
+    int find_last( T value ) const
     {
         for( T* pos = m_data + m_size; pos != m_data; --pos )
         {
@@ -213,6 +251,7 @@ public:
         {
             T* pos = m_data + index;
             size_t move_count = m_size - (index + 1);
+            Initializer<T>::destruct( pos, Token<std::is_pod<T>::value >() );
             mem_move(pos, pos + 1, sizeof(T) * move_count );
             --m_size;
         }
@@ -269,12 +308,13 @@ public:
 
     void clear()
     {
+        destruct_elements( 0 );
         m_size = 0;        
     }
 
     void force_clear( )
     {
-        m_size = 0;
+        clear();
         m_max_size = 0;
         if( m_data )
         {
@@ -291,9 +331,9 @@ public:
         {
             size_t new_count = max_count - curr_count;
             m_max_size = Capacity * new_count;
-            T* new_data = static_cast<T*>( malloc( sizeof(T) * m_max_size ) );
-            memcpy( new_data, m_data, sizeof(T) * m_size );
-            free( m_data );
+            T* new_data = static_cast<T*>( mem_allocate( sizeof(T) * m_max_size ) );
+            mem_copy( new_data, m_data, sizeof(T) * m_size );
+            mem_free( m_data );
             m_data = new_data;
         }
     }
@@ -335,6 +375,30 @@ private:
         m_max_size += Capacity;
 
         return realloc();
+    }
+
+    void construct_elements(size_t pos)
+    {
+        for( size_t i = pos; i < m_size; ++i )
+        {
+            Initializer<T>::construct( m_data + i, Token<std::is_pod<T>::value>() );    
+        }
+    }
+
+    void destruct_elements( size_t pos )
+    {
+        for( size_t i = pos; i < m_size; ++i )
+        {
+            Initializer<T>::destruct( m_data + i, Token<std::is_pod<T>::value>() );    
+        }
+    }
+
+    void copy_elements( size_t pos )
+    {
+        for( size_t i = pos; i < m_size; ++i )
+        {
+            Initializer<T>::copy( m_data + i, Token<std::is_pod<T>::value>() );    
+        }
     }
     
 private:

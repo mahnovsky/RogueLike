@@ -44,7 +44,10 @@ public:
     {
         m_color = { r, g, b, a };
 
-        m_object.update( &Sprite::update_color, this );
+        if( m_object.is_initialized() )
+        {
+            m_object.update( &Sprite::update_color, this );
+        }
     }
 
     static void update_color( Vertex* v, void* user_data )
