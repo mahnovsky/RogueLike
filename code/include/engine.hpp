@@ -2,14 +2,7 @@
 
 #include "render.hpp"
 #include "window.hpp"
-
-class IDrawable
-{
-public:
-    virtual void init( ) = 0;
-
-    virtual void draw( IRender* render ) = 0;
-};
+#include "basic/string.hpp"
 
 enum EngineCallbackType 
 {
@@ -51,5 +44,5 @@ private:
 
     engine_callback m_callbacks[Count];
 
-    basic::Vector<char*> m_cmd_args;
+    basic::Vector<basic::String> m_cmd_args;
 };

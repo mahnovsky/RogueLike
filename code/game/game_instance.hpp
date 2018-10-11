@@ -14,6 +14,9 @@ public:
     void frame();
 
     void cleanup();
+
+private:
+    
 };
 
 

@@ -34,7 +34,7 @@ Engine::Engine( int argc, char** argv )
     size_t uargc = argc < 0 ? 0 : argc;
     for( size_t i = 0; i < uargc; ++i )
     {
-       m_cmd_args.push( basic::str_copy( argv[i], basic::String::max_len ) );
+       m_cmd_args.emplace( argv[i] );
     }
 }
 

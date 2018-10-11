@@ -5,7 +5,7 @@ SOURCES="$PWD/code/linux_startup.cpp"
 
 INCLUDES="-I $PWD/code/include -I $PWD/code/src"
 LIBS="-L/usr/lib/x86_64-linux-gnu -lX11 -lSDL2 -lpthread -lstdc++ -lGL -ldl"
-CLANG_COMPILLER="gcc"
+CLANG_COMPILLER="clang"
 echo "$INCLUDES"
 echo "$SOURCES"
 echo "---------- start build ------------"

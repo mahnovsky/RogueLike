@@ -2,35 +2,44 @@
 #include "render.cpp"
 #include "engine.cpp"
 #include "render_object.cpp"
+#include "transform.cpp"
 #include "platform/x11_window.cpp"
 #include "basic/file.cpp"
 #include "basic/util_functions.cpp"
 #include "game.cpp"
 
-void set_data_path(const char* bin)
+
+#include <unistd.h>
+
+void set_data_path()
 {
-    basic::String bin_file = bin;
+    char current_path[FILENAME_MAX];
+
+    if ( !getcwd( current_path, sizeof(current_path) ) )
+    {
+        return ;
+    }
+    
+    basic::String bin_file = current_path;
     
     int pos = bin_file.find_last( '/' );
 
+    LOG( "init data path %s, %d", bin_file.get_cstr(), pos );
+
     if( pos >= 0 )
     {
-        basic::String path = bin_file.get_substr( 0, pos );
+        basic::String path = std::move( bin_file.get_substr( 0, pos + 1 ) );
 
-        pos = path.find_last( '/' );
-        if( pos >= 0 )
-        {
-            LOG("path %s", path.get_cstr() );
+        LOG("path %s", path.get_cstr() );
 
-            basic::g_data_path = path.get_substr( 0, pos ) + "/data/";
-        }
+        basic::g_data_path = path + "data/";
     }
 }
 
 int
 main( int argc, char** argv )
 {
-    set_data_path( argv[0] );
+    set_data_path( );
 
     Engine engine( argc, argv );
 

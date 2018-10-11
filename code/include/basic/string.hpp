@@ -114,7 +114,7 @@ public:
 
         BaseString<T> res( get_cstr() + pos, count );
 
-        return res;
+        return std::move( res );
     }
 
 private:

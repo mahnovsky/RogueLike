@@ -4,6 +4,7 @@
 
 #include <utility>
 #include <type_traits>
+#include <new>
 
 namespace basic
 {
@@ -17,6 +18,10 @@ struct Token
 template <class T>
 struct Initializer
 {
+    template <class ... Args>
+    static void construct( T*, Token<true>, Args ... args )
+    {}
+
     static void construct( T* ptr, Token<true> ){} 
 
     static void destruct( T* ptr, Token<true> ){}
@@ -24,8 +29,9 @@ struct Initializer
     static void copy( T* ptr, const T* src, Token<true> ){}
 
     static void construct( T* ptr, Token<false> ) 
+
     {
-        ptr->T();
+        new(static_cast<void*>(ptr)) T();
     }
 
     static void destruct( T* ptr, Token<false> )
@@ -37,6 +43,13 @@ struct Initializer
     {
         ptr->T(*src);
     }
+
+    template <class ... Args>
+    static void construct( T* ptr, Token<false>, Args ... args )
+    {
+        new(static_cast<void*>(ptr)) T( args ... );
+    }
+
 };
 
 template <class T, size_t Capacity = 8>
@@ -57,6 +70,7 @@ public:
         if( realloc() && m_size > 0 )
         {
             mem_copy( m_data, other.m_data, sizeof(T) * other.m_size );            
+            copy_elements( other.m_data, 0 );
         }
     }
 
@@ -83,7 +97,7 @@ public:
         if( realloc() )
         {
             mem_copy( m_data, v.m_data, sizeof(T) * m_size );
-            copy_elements( 0 );
+            copy_elements( v.m_data, 0 );
         }
  
         return *this;
@@ -207,9 +221,31 @@ public:
         }
 
         T* last = m_data + m_size;
+        Initializer<T>::construct( last, Token<std::is_pod<T>::value>() );
         (*last) = item;
         ++m_size;
     }
+
+    template < class ... Args >
+    void emplace( Args ... args )
+    {
+        if( !m_data )
+        {
+            init();
+        }
+
+        size_t need_size = m_size + 1;
+        if( need_size > m_max_size && !grow() )
+        {
+            ASSERT_M( 0, "Failed push item, realloc was failed" );
+            return;
+        }
+
+        T* last = m_data + m_size;
+        Initializer<T>::construct( last, Token<std::is_pod<T>::value>(), args ... );
+        ++m_size;
+    }
+
 
     void pop()
     {
@@ -393,11 +429,11 @@ private:
         }
     }
 
-    void copy_elements( size_t pos )
+    void copy_elements( const T* src, size_t pos )
     {
         for( size_t i = pos; i < m_size; ++i )
         {
-            Initializer<T>::copy( m_data + i, Token<std::is_pod<T>::value>() );    
+            Initializer<T>::copy( m_data + i, src, Token<std::is_pod<T>::value>() );    
         }
     }
     
