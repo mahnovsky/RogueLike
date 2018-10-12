@@ -15,7 +15,14 @@ RenderObject::RenderObject()
     , m_array_object( 0 )
     , m_vertex_object( 0 )
     , m_index_object( 0 )
+    , m_transform()
 {
+    m_transform.allocate();
+}
+
+RenderObject::~RenderObject()
+{
+    m_transform.free();
 }
 
 void RenderObject::init()
@@ -35,7 +42,6 @@ void RenderObject::init()
     size_t offset = sizeof( float ) * 3;
     glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( Vertex ), (GLvoid*)offset );
     glEnableVertexAttribArray( 1 );
-
 
     bind_array_object( false );
 }
@@ -105,4 +111,7 @@ void RenderObject::unbind() const
     bind_array_object( false );
 }
 
-
+void RenderObject::get_matrix( glm::mat4& out ) const
+{
+    m_transform->get_matrix( out );
+}

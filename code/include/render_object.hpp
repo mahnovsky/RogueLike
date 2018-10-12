@@ -1,6 +1,8 @@
 #pragma once
 
 #include "render_common.hpp"
+#include "basic/pool.hpp"
+#include "transform.hpp"
 
 using vertex_update = void (*)( Vertex*, void* );
 
@@ -8,6 +10,7 @@ class RenderObject
 {
 public:
     RenderObject();
+    ~RenderObject();
 
     void init();
 
@@ -25,6 +28,20 @@ public:
 
     size_t get_element_count() const { return m_ib.get_size(); }
 
+    void get_matrix( glm::mat4& out ) const;
+
+    // Dont save pointer, address will change
+    Transform* get_transform() 
+    {
+        return m_transform.get();
+    }
+
+    const Transform* get_transform() const
+    {
+        return m_transform.get();
+    }
+
+
 private:
     void init_vertex_buffer( );
 
@@ -38,4 +55,5 @@ private:
     basic::uint32 m_array_object;    
     basic::uint32 m_index_object;    
     basic::uint32 m_vertex_object;    
+    basic::PoolPtr<Transform> m_transform;
 }; 

@@ -3,6 +3,7 @@
 #include "basic/vector.hpp"
 #include "basic/file.hpp"
 #include "render_object.hpp"
+#include "transform.hpp"
 
 extern "C"
 {
@@ -11,7 +12,6 @@ extern "C"
 }
 
 #include <GL/gl.h>
-
 
 class Render : public IRender
 {
@@ -29,6 +29,14 @@ public:
 
         glViewport( 0, 0, width, height );
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
+
+        m_view = glm::lookAt(
+            glm::vec3(4,3,3), // Камера находится в мировых координатах (4,3,3)
+            glm::vec3(0,0,0), // И направлена в начало координат
+            glm::vec3(0,1,0)  // "Голова" находится сверху
+        );
+
+        m_projection = glm::perspective( glm::radians(45.0f), (float)width / height, 0.1f, 100.0f );
 
         init_shaders( );        
 
@@ -107,12 +115,18 @@ public:
         glAttachShader( m_shader_program, fshader );
         glLinkProgram( m_shader_program );
 
-        check_shader_link( m_shader_program );
+        bool result = false;
+        if( check_shader_link( m_shader_program ) )
+        {
+            m_mvp_uniform = glGetUniformLocation(m_shader_program, "MVP");
+
+            result = true;
+        }
 
         glDeleteShader( vshader );
         glDeleteShader( fshader );
 
-        return true;
+        return result;
     }
 
     void
@@ -158,6 +172,13 @@ public:
     {
         glUseProgram( m_shader_program );
 
+        glm::mat4 model(1.0f);
+        graphic->get_matrix( model );
+
+        glm::mat4 mvp = m_projection * m_view * model;
+
+        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[0][0]);
+
         graphic->bind();
         
         glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
@@ -179,6 +200,9 @@ public:
 
 private:
     GLuint m_shader_program;
+    glm::mat4 m_projection;
+    glm::mat4 m_view;
+    GLuint m_mvp_uniform;
 };
 
 IRender*

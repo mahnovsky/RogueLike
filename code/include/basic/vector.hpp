@@ -288,34 +288,41 @@ public:
             T* pos = m_data + index;
             size_t move_count = m_size - (index + 1);
             Initializer<T>::destruct( pos, Token<std::is_pod<T>::value >() );
-            mem_move(pos, pos + 1, sizeof(T) * move_count );
+
+            if( m_size > 1 )
+            {
+                mem_move(pos, pos + 1, sizeof(T) * move_count );
+            }
             --m_size;
         }
     }
 
-    void remove_by_value( T value, bool all )
+    void remove_by_value( T value, bool all = false )
     {   
+        if( m_size < 0 )
+        {
+            return;
+        }
+
         T* pos = m_data;     
         do
         {
             T* end = m_data + m_size;
 
-            if( memcmp( pos, &value, sizeof(T) ) == 0 )
+            if( *pos == value )
             {
                 size_t index = pos - m_data;
 
                 remove_by_index( index );
-
-                continue;
             }
             
             ++pos;
-            if( end == pos )
+            if( end == pos || m_size == 0)
             {
                 break;
             }
         }
-        while( 1 );
+        while( all );
     }
 
     const T& get( size_t index ) const

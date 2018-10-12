@@ -81,6 +81,10 @@ Engine::run( int width, int height, const char* wnd_title )
     while ( !m_quit )
     {
         process_event( );
+        if( m_window->is_quit() )
+        {
+            break;
+        }        
 
         m_callbacks[ Frame ]( this );
         

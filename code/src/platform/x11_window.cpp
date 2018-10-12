@@ -367,43 +367,46 @@ void
 X11Window::process_events( )
 {
     XEvent event;
-    XNextEvent( m_display, &event );
+    while( XPending(m_display) )
+    {
+        XNextEvent( m_display, &event );
 
-    if ( !m_running )
-    {
-        return;
-    }
-
-    switch ( event.type )
-    {
-    case ClientMessage:
-    {
-        if ( event.xclient.data.l[ 0 ] == m_wm_delete_message )
+        if ( !m_running )
         {
-            m_running = false;
+            return;
         }
-    }
-    break;
-    case KeyPress:
-    {
-    }
-    break;
-    case MotionNotify:
-    {
-        m_mouse_x = event.xmotion.x;
-        m_mouse_y = event.xmotion.y;
-    }
-    break;
-    case ButtonPress:
-    {
-    }
-    break;
-    case ButtonRelease:
-    {
-    }
-    break;
-    default:
+
+        switch ( event.type )
+        {
+        case ClientMessage:
+        {
+            if ( event.xclient.data.l[ 0 ] == m_wm_delete_message )
+            {
+                m_running = false;
+            }
+        }
         break;
+        case KeyPress:
+        {
+        }
+        break;
+        case MotionNotify:
+        {
+            m_mouse_x = event.xmotion.x;
+            m_mouse_y = event.xmotion.y;
+        }
+        break;
+        case ButtonPress:
+        {
+        }
+        break;
+        case ButtonRelease:
+        {
+        }
+        break;
+        default:
+            break;
+        }
     }
 }
 

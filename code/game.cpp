@@ -29,6 +29,11 @@ static void game_frame( Engine* engine )
         first = false;
     }
 
+    glm::vec3 pos = g_back.get_position();
+    pos.x += 0.01f;
+
+    g_back.set_position( pos );
+
     g_game_instance.frame();
 }
 

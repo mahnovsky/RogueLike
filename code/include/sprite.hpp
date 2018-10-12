@@ -37,6 +37,16 @@ public:
         render->draw( &m_object );
     }
 
+    void set_position( const glm::vec3& pos )
+    {
+        m_object.get_transform()->set_position( pos );        
+    }
+
+    glm::vec3 get_position() const
+    {
+        return m_object.get_transform()->get_position();
+    }
+
     void set_color( basic::uint8 r,
                     basic::uint8 g,
                     basic::uint8 b,
