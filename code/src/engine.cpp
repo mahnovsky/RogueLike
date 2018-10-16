@@ -2,6 +2,7 @@
 #include "window.hpp"
 #include "basic/util_functions.hpp"
 #include "basic/string.hpp"
+#include "timer_manager.hpp"
 
 Engine* Engine::_instance;
 
@@ -87,6 +88,8 @@ Engine::run( int width, int height, const char* wnd_title )
         }        
 
         m_callbacks[ Frame ]( this );
+
+        TimerManager::get().update();
         
         m_render->draw_begin( );
 

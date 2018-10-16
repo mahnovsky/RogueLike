@@ -6,6 +6,8 @@
 #include "platform/x11_window.cpp"
 #include "basic/file.cpp"
 #include "basic/util_functions.cpp"
+#include "platform/unix_time.cpp"
+#include "timer_manager.cpp"
 #include "game.cpp"
 
 
