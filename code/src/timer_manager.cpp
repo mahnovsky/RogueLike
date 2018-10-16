@@ -11,6 +11,7 @@ TimerManager& TimerManager::get()
 
 TimerManager::TimerManager()
     :m_timers()
+    ,m_remove_timers()
 {}
 
 void TimerManager::add( const Timer& timer )
@@ -20,18 +21,20 @@ void TimerManager::add( const Timer& timer )
     if( !m_remove_timers.is_empty() )
     {
         size_t pos = m_remove_timers.back();
-        
+ 
         ASSERT( pos < m_timers.get_size() );
         ASSERT( m_timers[pos].is_removed == true );
 
+        m_remove_timers.pop();
+
         m_timers[pos] = timer;
-        m_timers[pos].timestamp = basic::get_milliseconds(); 
+        m_timers[pos].timestamp = basic::get_milliseconds();
     }
     else
     {
         size_t pos = m_timers.get_size();
         m_timers.push( timer );
-        m_timers[pos].timestamp = basic::get_milliseconds(); 
+        m_timers[pos].timestamp = basic::get_milliseconds();
     }
 }
 
