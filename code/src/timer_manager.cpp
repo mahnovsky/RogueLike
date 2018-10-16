@@ -1,6 +1,6 @@
 #include "timer_manager.hpp"
 
-static const int MAX_REMOVED_TIMERS = 16;
+static const int MAX_REMOVED_TIMERS = 64;
 
 TimerManager& TimerManager::get()
 {
@@ -17,9 +17,22 @@ void TimerManager::add( const Timer& timer )
 {
     ASSERT( timer.func != nullptr );
 
-    size_t pos = m_timers.get_size();
-    m_timers.push( timer );
-    m_timers[pos].timestamp = basic::get_milliseconds(); 
+    if( !m_remove_timers.is_empty() )
+    {
+        size_t pos = m_remove_timers.back();
+        
+        ASSERT( pos < m_timers.get_size() );
+        ASSERT( m_timers[pos].is_removed == true );
+
+        m_timers[pos] = timer;
+        m_timers[pos].timestamp = basic::get_milliseconds(); 
+    }
+    else
+    {
+        size_t pos = m_timers.get_size();
+        m_timers.push( timer );
+        m_timers[pos].timestamp = basic::get_milliseconds(); 
+    }
 }
 
 void TimerManager::update( )
@@ -67,6 +80,8 @@ void TimerManager::remove_spant_timers()
 
             m_timers.remove_by_index( index );
         }
+
+        m_remove_timers.clear();
     }
 }
 
