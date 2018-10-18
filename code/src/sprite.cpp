@@ -1,9 +1,11 @@
 #include "sprite.hpp"
 
 Sprite::Sprite()
-    :m_object()
-    ,m_color()
-    ,m_texture()
+    : m_object()
+    , m_color()
+    , m_texture()
+    , m_width( 1.f )
+    , m_height( 1.f )
 {
     m_color = { 255, 255, 255, 255 };
 }
@@ -11,10 +13,10 @@ Sprite::Sprite()
 void Sprite::init( const char* texture_file )
 {
     VertexBuffer vb;
-    vb.push( { { 0.5f, 0.5f, 0.0f }, m_color, { 1.f, 0.f } } );
-    vb.push( { { 0.5f, -0.5f, 0.0f }, m_color, { 1.f, 1.f } } );
-    vb.push( { {-0.5f, -0.5f, 0.0f }, m_color, { 1.f, 0.f } } );
-    vb.push( { {-0.5f, 0.5f, 0.0f }, m_color, { 0.f, 0.f } } );
+    vb.push( { { 0.5f * m_width, 0.5f * m_height, 0.0f }, m_color, { 1.f, 0.f } } );
+    vb.push( { { 0.5f * m_width, -0.5f * m_height, 0.0f }, m_color, { 1.f, 1.f } } );
+    vb.push( { {-0.5f * m_width, -0.5f * m_height, 0.0f }, m_color, { 1.f, 0.f } } );
+    vb.push( { {-0.5f * m_width, 0.5f * m_height, 0.0f }, m_color, { 0.f, 0.f } } );
 
     m_object.set_vertex_buffer( std::move( vb ) );
 

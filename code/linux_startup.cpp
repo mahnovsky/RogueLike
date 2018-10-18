@@ -5,6 +5,7 @@
 #include "transform.cpp"
 #include "timer_manager.cpp"
 #include "texture.cpp"
+#include "sprite.cpp"
 
 #include "platform/x11_window.cpp"
 #include "platform/unix_time.cpp"
