@@ -8,6 +8,8 @@ extern "C"
 
 #include <GL/gl.h>
 
+#include "texture.hpp"
+
 
 RenderObject::RenderObject()
     : m_vb()
@@ -16,6 +18,7 @@ RenderObject::RenderObject()
     , m_vertex_object( 0 )
     , m_index_object( 0 )
     , m_transform()
+    , m_texture( nullptr )
 {
     m_transform.allocate();
 }
@@ -39,9 +42,13 @@ void RenderObject::init()
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)0 );
     glEnableVertexAttribArray( 0 );
 
-    size_t offset = sizeof( float ) * 3;
+    size_t offset = sizeof( glm::vec3 );
     glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( Vertex ), (GLvoid*)offset );
     glEnableVertexAttribArray( 1 );
+
+    offset = sizeof( glm::vec3 ) + sizeof( basic::Color );
+    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)offset );
+    glEnableVertexAttribArray( 2 );
 
     bind_array_object( false );
 }
@@ -104,10 +111,14 @@ void RenderObject::bind() const
     ASSERT( is_initialized() );
 
     bind_array_object( true );
+
+    m_texture->bind();
 }
 
 void RenderObject::unbind() const
 {
+    m_texture->unbind();
+
     bind_array_object( false );
 }
 

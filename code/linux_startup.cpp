@@ -3,11 +3,16 @@
 #include "engine.cpp"
 #include "render_object.cpp"
 #include "transform.cpp"
+#include "timer_manager.cpp"
+#include "texture.cpp"
+
 #include "platform/x11_window.cpp"
+#include "platform/unix_time.cpp"
+
 #include "basic/file.cpp"
 #include "basic/util_functions.cpp"
-#include "platform/unix_time.cpp"
-#include "timer_manager.cpp"
+#include "basic/image.cpp"
+
 #include "game.cpp"
 
 

@@ -9,13 +9,13 @@ public:
     Sprite()
     {}
 
-    void init()
+    void init( const char* texture_file )
     {
         VertexBuffer vb;
-        vb.push( { { 0.5f, 0.5f, 0.0f }, m_color } );
-        vb.push( { { 0.5f, -0.5f, 0.0f }, m_color } );
-        vb.push( { {-0.5f, -0.5f, 0.0f }, m_color } );
-        vb.push( { {-0.5f, 0.5f, 0.0f }, m_color } );
+        vb.push( { { 0.5f, 0.5f, 0.0f }, m_color, { 1.f, 0.f } } );
+        vb.push( { { 0.5f, -0.5f, 0.0f }, m_color, { 1.f, 1.f } } );
+        vb.push( { {-0.5f, -0.5f, 0.0f }, m_color, { 1.f, 0.f } } );
+        vb.push( { {-0.5f, 0.5f, 0.0f }, m_color, { 0.f, 0.f } } );
 
         m_object.set_vertex_buffer( std::move( vb ) );
 
@@ -30,6 +30,22 @@ public:
         m_object.set_index_buffer( std::move( ib ) );
 
         m_object.init();
+
+        basic::Vector<char> bmp_data = basic::get_file_content("my.bmp");
+
+        basic::Image image;
+    
+        if( !bmp_data.is_empty() && basic::load_image( bmp_data, image ) )
+        {
+            LOG( "Image loaded successfuly w: %d, h: %d", image.width, image.height ); 
+            m_texture.init( std::move( image ) );
+
+            m_object.set_texture( &m_texture );
+        }
+        else
+        {
+            LOG( "Failed load bmp image" );
+        }
     }
 
     void draw( IRender* render ) 
@@ -68,7 +84,7 @@ public:
 
 private:
     RenderObject m_object;
-
     basic::Color m_color;
+    Texture m_texture;
 };
 

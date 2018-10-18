@@ -5,6 +5,6 @@
 namespace basic
 {
 
-uint32 get_milliseconds();
+uint64 get_milliseconds();
 
 }

@@ -6,6 +6,8 @@
 
 using vertex_update = void (*)( Vertex*, void* );
 
+class Texture;
+
 class RenderObject
 {
 public:
@@ -41,6 +43,11 @@ public:
         return m_transform.get();
     }
 
+    void set_texture( Texture* texture )
+    {
+        m_texture = texture;
+    }
+
 
 private:
     void init_vertex_buffer( );
@@ -56,4 +63,5 @@ private:
     basic::uint32 m_index_object;    
     basic::uint32 m_vertex_object;    
     basic::PoolPtr<Transform> m_transform;
+    Texture* m_texture;
 }; 

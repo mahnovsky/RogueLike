@@ -30,6 +30,9 @@ public:
         glViewport( 0, 0, width, height );
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
 
+        glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
+
         m_view = glm::lookAt(
             glm::vec3(4,3,3), // Камера находится в мировых координатах (4,3,3)
             glm::vec3(0,0,0), // И направлена в начало координат
@@ -119,6 +122,7 @@ public:
         if( check_shader_link( m_shader_program ) )
         {
             m_mvp_uniform = glGetUniformLocation(m_shader_program, "MVP");
+            m_texture_uniform = glGetUniformLocation( m_shader_program, "texture_sampler");
 
             result = true;
         }
@@ -180,6 +184,8 @@ public:
         glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[0][0]);
 
         graphic->bind();
+
+        glUniform1i(m_texture_uniform, 0);
         
         glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
 
@@ -189,7 +195,7 @@ public:
     void
     draw_begin( ) override
     {
-        glClear( GL_COLOR_BUFFER_BIT ); //| GL_DEPTH_BUFFER_BIT );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     }
 
     void
@@ -203,6 +209,7 @@ private:
     glm::mat4 m_projection;
     glm::mat4 m_view;
     GLuint m_mvp_uniform;
+    GLuint m_texture_uniform;
 };
 
 IRender*

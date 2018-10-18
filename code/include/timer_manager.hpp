@@ -28,7 +28,7 @@ struct Timer
     timer_function func;
     void* user_data;
     int repeat_count;
-    basic::uint32 timestamp;
+    basic::uint64 timestamp;
     bool is_removed;
 };
 

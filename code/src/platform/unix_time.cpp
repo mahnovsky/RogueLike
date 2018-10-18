@@ -5,11 +5,11 @@
 namespace basic
 {
 
-uint32 get_milliseconds()
+uint64 get_milliseconds()
 {
     struct timeval te; 
     gettimeofday(&te, NULL);
-    uint32 milliseconds = te.tv_sec * 1000 + te.tv_usec / 1000;
+    uint64 milliseconds = te.tv_sec * 1000LL + te.tv_usec / 1000;
 
     return milliseconds;
 }

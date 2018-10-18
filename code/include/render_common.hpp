@@ -1,18 +1,13 @@
 #pragma once
 
 #include "basic/vector.hpp"
-
-struct Point
-{
-    float x;
-    float y;
-    float z;
-};
+#include "glm/glm.hpp"
 
 struct Vertex
 {
-    Point pos;
-    basic::Color color;    
+    glm::vec3 pos;
+    basic::Color color;
+    glm::vec2 uv;
 };
 
 

@@ -1,4 +1,5 @@
 #include "timer_manager.hpp"
+#include "basic/time.hpp"
 
 static const int MAX_REMOVED_TIMERS = 64;
 
@@ -40,7 +41,7 @@ void TimerManager::add( const Timer& timer )
 
 void TimerManager::update( )
 {
-    basic::uint32 current = basic::get_milliseconds();
+    basic::uint64 current = basic::get_milliseconds();
 
     for( size_t i = 0; i < m_timers.get_size(); ++i )
     {

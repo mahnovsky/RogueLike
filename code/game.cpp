@@ -24,8 +24,8 @@ static void game_init( Engine* engine )
     engine->set_callback( Draw, &game_draw );
     engine->set_callback( Frame, &game_frame );
 
-    g_back.set_color( 255, 0, 0, 255 );
-    g_back.init();
+    g_back.set_color( 255, 255, 255, 255 );
+    g_back.init("my.bmp");
 
     g_game_instance.init();
 
@@ -37,7 +37,7 @@ static void game_frame( Engine* engine )
     static bool first = true;
     if( first )
     {
-        g_back.set_color( 0, 255, 0, 255 ); 
+        //g_back.set_color( 0, 255, 0, 255 ); 
         first = false;
     }
 
