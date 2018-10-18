@@ -9,6 +9,7 @@
 
 #include "platform/x11_window.cpp"
 #include "platform/unix_time.cpp"
+#include "platform/unix_file.cpp"
 
 #include "basic/file.cpp"
 #include "basic/util_functions.cpp"
@@ -27,7 +28,19 @@ void set_data_path()
     {
         return ;
     }
-    
+
+    basic::String path = current_path;
+    path += "/data/";
+
+    if( is_dir_exist( path.get_cstr() ) )
+    {
+        basic::g_data_path = path;        
+
+        LOG("path %s", path.get_cstr() );
+
+        return;
+    }    
+
     basic::String bin_file = current_path;
     
     int pos = bin_file.find_last( '/' );
@@ -36,11 +49,13 @@ void set_data_path()
 
     if( pos >= 0 )
     {
-        basic::String path = std::move( bin_file.get_substr( 0, pos + 1 ) );
+        path = std::move( bin_file.get_substr( 0, pos + 1 ) );
 
         LOG("path %s", path.get_cstr() );
 
         basic::g_data_path = path + "data/";
+
+        ASSERT( is_dir_exist( basic::g_data_path.get_cstr() ) );
     }
 }
 
