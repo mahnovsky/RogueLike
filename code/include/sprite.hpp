@@ -25,6 +25,8 @@ public:
    
     static void update_color( Vertex* v, void* user_data );
 
+    static void update_size( Vertex* v, void* user_data );
+
 private:
     RenderObject m_object;
     basic::Color m_color;

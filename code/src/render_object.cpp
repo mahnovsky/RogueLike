@@ -55,11 +55,12 @@ void RenderObject::init()
 
 void RenderObject::update( vertex_update callback, void* user_data )
 {
-    ASSERT( callback != nullptr );
-
-    for( size_t i = 0; i < m_vb.get_size(); ++i )
+    if( callback )
     {
-        callback( &m_vb[i], user_data );
+        for( size_t i = 0; i < m_vb.get_size(); ++i )
+        {
+            callback( &m_vb[i], user_data );
+        }
     }
     glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW );
 }

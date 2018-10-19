@@ -2,6 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
+#include "basic/pool.hpp"
 
 class Transform
 {
@@ -27,3 +28,5 @@ private:
     glm::vec3 m_direction;
     glm::vec3 m_scale;
 };
+
+using TransformPtr = basic::PoolPtr<Transform>;

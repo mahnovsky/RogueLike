@@ -1,5 +1,16 @@
 #include "sprite.hpp"
 
+VertexBuffer make_quad( float w, float h, basic::Color c )
+{
+    VertexBuffer vb;
+    vb.push( { { 0.5f * w, 0.5f * h, 0.0f }, c, { 1.f, 0.f } } );
+    vb.push( { { 0.5f * w, -0.5f * h, 0.0f }, c, { 1.f, 1.f } } );
+    vb.push( { {-0.5f * w, -0.5f * h, 0.0f }, c, { 1.f, 0.f } } );
+    vb.push( { {-0.5f * w, 0.5f * h, 0.0f }, c, { 0.f, 0.f } } );
+
+    return std::move( vb );
+}
+
 Sprite::Sprite()
     : m_object()
     , m_color()
@@ -18,7 +29,7 @@ void Sprite::init( const char* texture_file )
     vb.push( { {-0.5f * m_width, -0.5f * m_height, 0.0f }, m_color, { 1.f, 0.f } } );
     vb.push( { {-0.5f * m_width, 0.5f * m_height, 0.0f }, m_color, { 0.f, 0.f } } );
 
-    m_object.set_vertex_buffer( std::move( vb ) );
+    m_object.set_vertex_buffer( std::move( make_quad( m_width, m_height, m_color ) ) );
 
     IndexBuffer ib;
     ib.push( 0 );
@@ -77,10 +88,27 @@ void Sprite::set_color( basic::uint8 r,
     }
 }
 
+void Sprite::set_size( float width, float height )
+{
+    m_width = width;
+    m_height = height;
+
+    m_object.set_vertex_buffer( std::move( make_quad( m_width, m_height, m_color ) ) );
+    if( m_object.is_initialized() )
+    {
+        m_object.update( nullptr, nullptr );
+    }
+}
+
 void Sprite::update_color( Vertex* v, void* user_data )
 {
     Sprite* sp = static_cast<Sprite*>( user_data );
     v->color = sp->m_color;
+}
+
+void Sprite::update_size( Vertex* v, void* user_data )
+{
+    Sprite* sp = static_cast<Sprite*>( user_data );
 }
 
 

@@ -25,6 +25,7 @@ static void game_init( Engine* engine )
     engine->set_callback( Frame, &game_frame );
 
     g_back.set_color( 255, 255, 255, 255 );
+    g_back.set_size( 2.f, 2.f );
     g_back.init("my.bmp");
 
     g_game_instance.init();
