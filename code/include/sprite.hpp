@@ -3,6 +3,8 @@
 #include "render.hpp"
 #include "render_object.hpp"
 
+class ICamera;
+
 class Sprite
 {
 public:
@@ -10,7 +12,7 @@ public:
 
     void init( const char* texture_file );
 
-    void draw( IRender* render );
+    void draw( ICamera* camera, IRender* render );
  
     void set_position( const glm::vec3& pos );
 

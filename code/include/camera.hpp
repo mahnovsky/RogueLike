@@ -2,19 +2,44 @@
 
 #include "transform.hpp"
 
-class Camera
+class ICamera
 {
 public:
-    Camera();
-    ~Camera();
+    virtual ~ICamera(){}
 
-    void init_perspective( float fov, float aspect, float near, float far );
+    virtual void init( const glm::vec3& pos, 
+                  const glm::vec3& dir, 
+                  const glm::vec3& up ) = 0;
 
-    void init_ortho( float width, float height );
+    virtual void get_matrix( glm::mat4& mat ) const = 0;
 
-    void set_position( const glm::vec3& pos );
+    virtual void set_position( const glm::vec3& pos ) = 0;
 
-    void get_matrix( glm::mat4& out ) const;
+    virtual void set_direction( const glm::vec3& dir ) = 0;
+
+    virtual void set_up( const glm::vec3& up ) = 0;
+};
+
+class PerspectiveCamera : public ICamera
+{
+public:
+    PerspectiveCamera(float fov, float aspect, float near, float far);
+    ~PerspectiveCamera();
+
+    void init( const glm::vec3& pos, 
+               const glm::vec3& dir, 
+               const glm::vec3& up ) override; 
+
+    void set_position( const glm::vec3& pos ) override;
+
+    void set_direction( const glm::vec3& dir ) override;
+
+    void set_up( const glm::vec3& up ) override;
+
+    void get_matrix( glm::mat4& out ) const override;
+
+private:
+    void update();
 
 private:
     glm::vec3 m_position;

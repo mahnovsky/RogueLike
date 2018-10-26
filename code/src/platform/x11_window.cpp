@@ -120,6 +120,8 @@ public:
 
     bool get_mouse_pos( int& out_x, int& out_y );
 
+    void get_size( int& out_width, int& out_height );
+
 private:
     bool m_running;
 
@@ -429,4 +431,10 @@ X11Window::get_mouse_pos( int& out_x, int& out_y )
     out_y = m_mouse_y;
 
     return true;
+}
+
+void X11Window::get_size( int& out_width, int& out_height )
+{
+    out_width = m_width;
+    out_height = m_height;
 }

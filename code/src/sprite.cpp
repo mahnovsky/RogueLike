@@ -60,9 +60,9 @@ void Sprite::init( const char* texture_file )
     }
 }
 
-void Sprite::draw( IRender* render ) 
+void Sprite::draw( ICamera* camera, IRender* render ) 
 {
-    render->draw( &m_object );
+    render->draw( camera, &m_object );
 }
 
 void Sprite::set_position( const glm::vec3& pos )

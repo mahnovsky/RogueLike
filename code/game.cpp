@@ -2,7 +2,7 @@
 #include "sprite.hpp"
 #include "game/game_instance.cpp"
 
-GameInstance g_game_instance;
+GameInstance* g_game_instance;
 
 static void game_frame( Engine* engine );
 static void game_draw( Engine* engine );
@@ -21,28 +21,24 @@ static void sprite_update( void* user_data )
 
 static void game_init( Engine* engine )
 {
+    int w, h;
+    engine->get_window_size( w, h );
+
+    g_game_instance = new GameInstance( engine, static_cast<float>(w) / h );
+
     engine->set_callback( Draw, &game_draw );
     engine->set_callback( Frame, &game_frame );
 
-    g_back.set_color( 255, 255, 255, 255 );
-    g_back.set_size( 2.f, 2.f );
-    g_back.init("my.bmp");
+    g_game_instance->init();
 
-    g_game_instance.init();
-
-    TimerManager::get().add( { 0.5f, &sprite_update, &g_back, 8 } );
+    //TimerManager::get().add( { 0.5f, &sprite_update, &g_back, 8 } );
 }
 
 static void game_frame( Engine* engine )
 {
-    static bool first = true;
-    if( first )
-    {
-        //g_back.set_color( 0, 255, 0, 255 ); 
-        first = false;
-    }
+    float delta = static_cast<float>(engine->get_frame_time()) / 1000;
 
-    g_game_instance.frame();
+    g_game_instance->frame(  delta );
 }
 
 static void game_draw( Engine* engine )
@@ -50,9 +46,7 @@ static void game_draw( Engine* engine )
     IRender* render = engine->get_render();
     ASSERT( render != nullptr );
 
-    g_back.draw( render );
-
-    g_game_instance.draw( render );
+    g_game_instance->draw( render );
 }
 
 

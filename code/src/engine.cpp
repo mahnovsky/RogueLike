@@ -2,6 +2,7 @@
 #include "window.hpp"
 #include "basic/util_functions.hpp"
 #include "basic/string.hpp"
+#include "basic/time.hpp"
 #include "timer_manager.hpp"
 
 Engine* Engine::_instance;
@@ -23,6 +24,7 @@ Engine::Engine( int argc, char** argv )
     , m_quit( false )
     , m_callbacks()
     , m_cmd_args()
+    , m_delta( 0.f )
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -44,6 +46,11 @@ IRender* Engine::get_render()
     return m_render;
 }
 
+basic::uint64 Engine::get_frame_time() const
+{
+    return m_delta;
+}
+
 void Engine::set_callback( EngineCallbackType type, engine_callback callback )
 {
     const size_t index = static_cast<size_t>( type );
@@ -53,6 +60,11 @@ void Engine::set_callback( EngineCallbackType type, engine_callback callback )
     }
 
     m_callbacks[ index ] = callback;
+}
+
+void Engine::get_window_size(int& out_width, int& out_height)
+{
+    m_window->get_size( out_width, out_height );
 }
 
 int
@@ -81,7 +93,10 @@ Engine::run( int width, int height, const char* wnd_title )
 
     while ( !m_quit )
     {
+        basic::uint64 begin = basic::get_milliseconds();
+ 
         process_event( );
+
         if( m_window->is_quit() )
         {
             break;
@@ -96,6 +111,8 @@ Engine::run( int width, int height, const char* wnd_title )
         m_callbacks[ Draw ]( this );
 
         m_render->draw_end( m_window );
+
+        m_delta = basic::get_milliseconds() - begin;
     }
 
     if( m_callbacks[ Clean ] )

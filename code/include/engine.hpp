@@ -28,6 +28,10 @@ public:
 
     IRender* get_render();
 
+    void get_window_size(int& out_width, int& out_height);
+
+    basic::uint64 get_frame_time() const;
+
 private:
     void process_event( );
     
@@ -45,4 +49,6 @@ private:
     engine_callback m_callbacks[Count];
 
     basic::Vector<basic::String> m_cmd_args;
+
+    basic::uint64 m_delta;
 };

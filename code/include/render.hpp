@@ -3,6 +3,7 @@
 #include "render_common.hpp"
 
 class RenderObject;
+class ICamera;
 
 class IRender
 {
@@ -13,7 +14,7 @@ public:
 
     virtual bool init( int width, int height ) = 0;
 
-    virtual void draw( const RenderObject* graphic ) = 0;
+    virtual void draw( ICamera* camera, const RenderObject* graphic ) = 0;
 
     virtual void draw_begin( ) = 0;
 

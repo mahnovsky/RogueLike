@@ -4,6 +4,7 @@
 #include "basic/file.hpp"
 #include "render_object.hpp"
 #include "transform.hpp"
+#include "camera.hpp"
 
 extern "C"
 {
@@ -172,14 +173,19 @@ public:
     }
 
     void
-    draw( const RenderObject* graphic ) override
+    draw( ICamera* camera, const RenderObject* graphic ) override
     {
         glUseProgram( m_shader_program );
 
+        glm::mat4 proj_view(1.0);
+
+        camera->get_matrix( proj_view );
+
         glm::mat4 model(1.0f);
+
         graphic->get_matrix( model );
 
-        glm::mat4 mvp = m_projection * m_view * model;
+        glm::mat4 mvp = proj_view * model;
 
         glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[0][0]);
 

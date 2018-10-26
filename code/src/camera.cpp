@@ -1,23 +1,62 @@
 #include "camera.hpp"
 
-Camera::Camera()
-    : m_distance( 10.f )
-    ,m_view()
+PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far )
+    : m_position()
+    , m_direction()
+    , m_up()
+    , m_projection()
+    , m_view()
+{
+    m_projection = glm::perspective( glm::radians(fov), aspect, near, far );
+}
+
+PerspectiveCamera::~PerspectiveCamera()
 {
 }
 
-Camera::~Camera()
+void PerspectiveCamera::init( 
+                const glm::vec3& pos, 
+                const glm::vec3& dir, 
+                const glm::vec3& up )
 {
+    m_position = pos;
+    m_direction = dir;
+    m_up = up;
+
+    update();
+} 
+
+void PerspectiveCamera::set_position( const glm::vec3& pos )
+{
+    m_position = pos;
+
+    update();
 }
 
-void Camera::init_perspective( float fov, float aspect, float near, float far )
+void PerspectiveCamera::set_direction( const glm::vec3& dir )
+{
+    m_direction = dir;
+
+    update();
+}
+
+void PerspectiveCamera::set_up( const glm::vec3& up )
+{
+    m_up = up;
+
+    update();
+}
+
+void PerspectiveCamera::get_matrix( glm::mat4& out ) const
+{
+    out = m_projection * m_view;
+}
+
+void PerspectiveCamera::update()
 {
     m_view = glm::lookAt(
-        glm::vec3(4,3,3), // Камера находится в мировых координатах (4,3,3)
-        glm::vec3(0,0,0), // И направлена в начало координат
-        glm::vec3(0,1,0)  // "Голова" находится сверху
-        );
-
-    m_projection = glm::perspective( glm::radians(fov), aspect, near, far );
-} 
+        m_position,
+        m_direction,
+        m_up );
+}
 

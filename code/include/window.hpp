@@ -15,5 +15,7 @@ public:
 
     virtual bool is_quit( ) const = 0;
 
+    virtual void get_size( int& out_width, int& out_height ) = 0;
+
     static IWindow* create( );
 };
