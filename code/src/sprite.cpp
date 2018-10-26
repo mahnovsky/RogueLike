@@ -13,31 +13,21 @@ VertexBuffer make_quad( float w, float h, basic::Color c )
 
 Sprite::Sprite()
     : m_object()
-    , m_color()
+    , m_color{ 255, 255, 255, 255 }
     , m_texture()
     , m_width( 1.f )
     , m_height( 1.f )
 {
-    m_color = { 255, 255, 255, 255 };
 }
 
 void Sprite::init( const char* texture_file )
 {
-    VertexBuffer vb;
-    vb.push( { { 0.5f * m_width, 0.5f * m_height, 0.0f }, m_color, { 1.f, 0.f } } );
-    vb.push( { { 0.5f * m_width, -0.5f * m_height, 0.0f }, m_color, { 1.f, 1.f } } );
-    vb.push( { {-0.5f * m_width, -0.5f * m_height, 0.0f }, m_color, { 1.f, 0.f } } );
-    vb.push( { {-0.5f * m_width, 0.5f * m_height, 0.0f }, m_color, { 0.f, 0.f } } );
-
     m_object.set_vertex_buffer( std::move( make_quad( m_width, m_height, m_color ) ) );
 
+    IndexBuffer::Item indices[] = { 0, 1, 3, 1, 2, 3 }; 
+
     IndexBuffer ib;
-    ib.push( 0 );
-    ib.push( 1 );
-    ib.push( 3 );
-    ib.push( 1 );
-    ib.push( 2 );
-    ib.push( 3 );
+    ib.init( indices, sizeof( indices ) );
 
     m_object.set_index_buffer( std::move( ib ) );
 

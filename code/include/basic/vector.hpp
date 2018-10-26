@@ -56,6 +56,8 @@ template <class T, size_t Capacity = 8>
 class Vector
 {
 public:
+    using Item = T;
+
     Vector()
         :m_data(nullptr)
         ,m_size(0)
