@@ -24,7 +24,10 @@ static void game_init( Engine* engine )
     int w, h;
     engine->get_window_size( w, h );
 
-    g_game_instance = new GameInstance( engine, static_cast<float>(w) / h );
+    float width = static_cast<float>( w );
+    float height = static_cast<float>( h );
+
+    g_game_instance = new GameInstance( engine, width, height );
 
     engine->set_callback( Draw, &game_draw );
     engine->set_callback( Frame, &game_frame );

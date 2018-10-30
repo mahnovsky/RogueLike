@@ -8,7 +8,21 @@ using vertex_update = void (*)( Vertex*, void* );
 
 class Texture;
 
-class RenderObject
+class IRenderObject
+{
+public:
+    virtual void bind() const = 0;
+    
+    virtual void unbind() const = 0;
+
+    virtual size_t get_element_count() const = 0;
+
+    virtual void get_matrix( glm::mat4& out ) const = 0;
+
+};
+
+
+class RenderObject : public IRenderObject
 {
 public:
     RenderObject();
@@ -28,26 +42,16 @@ public:
     
     void unbind() const;
 
-    size_t get_element_count() const { return m_ib.get_size(); }
+    size_t get_element_count() const; 
 
     void get_matrix( glm::mat4& out ) const;
 
     // Dont save pointer, address will change
-    Transform* get_transform() 
-    {
-        return m_transform.get();
-    }
+    Transform* get_transform();
 
-    const Transform* get_transform() const
-    {
-        return m_transform.get();
-    }
+    const Transform* get_transform() const;
 
-    void set_texture( Texture* texture )
-    {
-        m_texture = texture;
-    }
-
+    void set_texture( Texture* texture );
 
 private:
     void init_vertex_buffer( );
@@ -65,3 +69,11 @@ private:
     basic::PoolPtr<Transform> m_transform;
     Texture* m_texture;
 }; 
+
+struct Quad
+{
+    static void generate( VertexBuffer& out_vb, const glm::vec3& size, const glm::vec2& anchor, basic::Color c );
+
+    static IndexBuffer::Item indices[6];
+};
+

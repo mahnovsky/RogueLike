@@ -145,9 +145,21 @@ template <class T>
 class PoolPtr : public IPoolListener
 {
 public:
-    PoolPtr(const PoolPtr<T>& ) = delete;
-    PoolPtr(const PoolPtr<T>&& ) = delete;
-    PoolPtr(PoolPtr<T>&& ) = delete;
+    PoolPtr(const PoolPtr<T>& other)
+        :m_handle( other.m_handle )
+        ,m_cached_object( other.m_cached_object )
+    {
+        Pool<T>::get().add_listener( this );
+    }
+
+    PoolPtr(PoolPtr<T>&& other)
+        :m_handle( other.m_handle )
+        ,m_cached_object( other.m_cached_object )
+    {
+        other.m_handle = Pool<T>::INVALID_HANDLE;
+        other.m_cached_object = nullptr;
+        Pool<T>::get().add_listener( this );
+    }
 
     PoolPtr()
         :m_handle( Pool<T>::INVALID_HANDLE )

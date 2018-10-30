@@ -1,53 +1,29 @@
 #include "sprite.hpp"
 
-VertexBuffer make_quad( float w, float h, basic::Color c )
-{
-    VertexBuffer vb;
-    vb.push( { { 0.5f * w, 0.5f * h, 0.0f }, c, { 1.f, 0.f } } );
-    vb.push( { { 0.5f * w, -0.5f * h, 0.0f }, c, { 1.f, 1.f } } );
-    vb.push( { {-0.5f * w, -0.5f * h, 0.0f }, c, { 1.f, 0.f } } );
-    vb.push( { {-0.5f * w, 0.5f * h, 0.0f }, c, { 0.f, 0.f } } );
-
-    return std::move( vb );
-}
-
 Sprite::Sprite()
     : m_object()
     , m_color{ 255, 255, 255, 255 }
     , m_texture()
-    , m_width( 1.f )
-    , m_height( 1.f )
+    , m_size( 1.f, 1.f, 0.f )
+    , m_anchor( 0.5f, 0.5f )
 {
 }
 
-void Sprite::init( const char* texture_file )
+void Sprite::init( Texture* texture )
 {
-    m_object.set_vertex_buffer( std::move( make_quad( m_width, m_height, m_color ) ) );
+    VertexBuffer vb;
+    Quad::generate( vb, m_size, m_anchor, m_color );
 
-    IndexBuffer::Item indices[] = { 0, 1, 3, 1, 2, 3 }; 
+    m_object.set_vertex_buffer( std::move( vb ) );
 
     IndexBuffer ib;
-    ib.init( indices, sizeof( indices ) );
+    ib.init( Quad::indices, sizeof( Quad::indices ) );
 
     m_object.set_index_buffer( std::move( ib ) );
 
     m_object.init();
 
-    basic::Vector<char> bmp_data = basic::get_file_content("my.bmp");
-
-    basic::Image image;
-
-    if( !bmp_data.is_empty() && basic::load_image( bmp_data, image ) )
-    {
-        LOG( "Image loaded successfuly w: %d, h: %d", image.width, image.height ); 
-        m_texture.init( std::move( image ) );
-
-        m_object.set_texture( &m_texture );
-    }
-    else
-    {
-        LOG( "Failed load bmp image" );
-    }
+    m_object.set_texture( texture );
 }
 
 void Sprite::draw( ICamera* camera, IRender* render ) 
@@ -80,10 +56,12 @@ void Sprite::set_color( basic::uint8 r,
 
 void Sprite::set_size( float width, float height )
 {
-    m_width = width;
-    m_height = height;
+    m_size = { width, height, m_size.z };
 
-    m_object.set_vertex_buffer( std::move( make_quad( m_width, m_height, m_color ) ) );
+    VertexBuffer vb;
+    Quad::generate( vb, m_size, m_anchor, m_color );
+
+    m_object.set_vertex_buffer( std::move( vb ) );
     if( m_object.is_initialized() )
     {
         m_object.update( nullptr, nullptr );

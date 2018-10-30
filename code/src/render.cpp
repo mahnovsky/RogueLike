@@ -34,14 +34,6 @@ public:
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
 
-        m_view = glm::lookAt(
-            glm::vec3(4,3,3), // Камера находится в мировых координатах (4,3,3)
-            glm::vec3(0,0,0), // И направлена в начало координат
-            glm::vec3(0,1,0)  // "Голова" находится сверху
-        );
-
-        m_projection = glm::perspective( glm::radians(45.0f), (float)width / height, 0.1f, 100.0f );
-
         init_shaders( );        
 
         return true;
@@ -173,7 +165,7 @@ public:
     }
 
     void
-    draw( ICamera* camera, const RenderObject* graphic ) override
+    draw( ICamera* camera, const IRenderObject* graphic ) override
     {
         glUseProgram( m_shader_program );
 

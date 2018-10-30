@@ -117,9 +117,25 @@ public:
         return std::move( res );
     }
 
+    size_t get_size() const
+    {
+        return m_buffer.get_size();
+    }
+
 private:
     Vector<T> m_buffer;   
 };
+
+template <class T>
+bool operator == ( const BaseString<T>& s1, const BaseString<T>& s2 )
+{
+    if( s1.get_size() != s2.get_size() )
+    {
+        return false;
+    }
+
+    return mem_cmp( s1.get_cstr(), s2.get_cstr(), s2.get_size() ) == 0;
+}
 
 using String = BaseString<char>;
 }

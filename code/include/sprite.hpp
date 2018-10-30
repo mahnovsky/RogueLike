@@ -10,7 +10,7 @@ class Sprite
 public:
     Sprite();
 
-    void init( const char* texture_file );
+    void init( Texture* texture );
 
     void draw( ICamera* camera, IRender* render );
  
@@ -32,8 +32,8 @@ public:
 private:
     RenderObject m_object;
     basic::Color m_color;
-    Texture m_texture;
-    float m_width;
-    float m_height;
+    Texture* m_texture;
+    glm::vec3 m_size;
+    glm::vec2 m_anchor; 
 };
 

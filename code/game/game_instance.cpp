@@ -1,10 +1,15 @@
 #include "game_instance.hpp"
 
 
-GameInstance::GameInstance(Engine* engine, float aspect)
+GameInstance::GameInstance(Engine* engine, float width, float height)
     : m_engine( engine )
-    , m_game_camera( 45.f, aspect, 0.f, 100.f )
+    , m_texture_cache()
+    , m_game_camera( 45.f, width / height, 0.f, 100.f )
+    , m_ui_camera( width, height, 0.f, 100.f )
     , m_back()
+    , m_btn()
+    , m_width( width )
+    , m_height( height )
 {}
 
 void GameInstance::init()
@@ -13,20 +18,30 @@ void GameInstance::init()
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
     m_game_camera.init( {4.f, 5.f, 3.f}, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
+    m_ui_camera.init( { m_width / 2, m_height / 2, 0.f}, {}, {} );
 
-    m_back.set_color( 255, 255, 255, 255 );
-    m_back.set_size( 2.f, 2.f );
-    m_back.init("my.bmp");
+    TextureHandle handle;
+    if( m_texture_cache.load_texture( "my.bmp", handle ) )
+    {
+        Texture* texture = m_texture_cache.get_texture( handle );
+
+        m_back.init( texture );
+        m_back.set_size( 2.f, 2.f );
+
+        m_btn.init( texture );
+        m_btn.set_size( 100.f, 100.f );
+        m_btn.set_position( { 100.f, 100.f, 0.f } );
+    }
 }
 
 void GameInstance::draw( IRender* render )
 {
     m_back.draw( &m_game_camera, render );
+    m_btn.draw( &m_ui_camera, render );
 }
 
 void GameInstance::frame( float delta )
 {
-    LOG( "delta %f", delta );
     static float time;
     time += delta;
 

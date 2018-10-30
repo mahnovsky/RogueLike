@@ -10,6 +10,21 @@ extern "C"
 
 #include "texture.hpp"
 
+IndexBuffer::Item Quad::indices[6] = { 0, 1, 3, 1, 2, 3 }; 
+
+void Quad::generate( VertexBuffer& out_vb, const glm::vec3& size, const glm::vec2& anchor, basic::Color c )
+{
+    float left = (0.f - anchor.x) * size.x;
+    float right = (1.f - anchor.x) * size.x;
+    float bottom = (0.f - anchor.y) * size.y;
+    float top = (1.f - anchor.y) * size.y;
+    float z = size.z;
+
+    out_vb.push( { { right, top, z }, c, { 1.f, 0.f } } );
+    out_vb.push( { { right, bottom, z }, c, { 1.f, 1.f } } );
+    out_vb.push( { { left, bottom, z }, c, { 1.f, 0.f } } );
+    out_vb.push( { { left, top, z }, c, { 0.f, 0.f } } );
+}
 
 RenderObject::RenderObject()
     : m_vb()
@@ -127,3 +142,24 @@ void RenderObject::get_matrix( glm::mat4& out ) const
 {
     m_transform->get_matrix( out );
 }
+
+Transform* RenderObject::get_transform() 
+{
+    return m_transform.get();
+}
+
+const Transform* RenderObject::get_transform() const
+{
+    return m_transform.get();
+}
+
+void RenderObject::set_texture( Texture* texture )
+{
+    m_texture = texture;
+}
+
+size_t RenderObject::get_element_count() const 
+{ 
+    return m_ib.get_size(); 
+}
+
