@@ -70,10 +70,19 @@ private:
     Texture* m_texture;
 }; 
 
-struct Quad
+struct QuadGenerator
 {
-    static void generate( VertexBuffer& out_vb, const glm::vec3& size, const glm::vec2& anchor, basic::Color c );
+    QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color ); 
+
+    void generate( VertexBuffer& out_vb, int offset );
+
+    void generate( IndexBuffer& out_ib, int offset );
 
     static IndexBuffer::Item indices[6];
+
+private:
+    glm::vec3 m_size;
+    glm::vec2 m_anchor;
+    basic::Color m_color;
 };
 

@@ -6,7 +6,13 @@ class Texture
 {
 public:
     Texture();
+    Texture( Texture&& t );
+    Texture( basic::uint32 w,
+             basic::uint32 h,
+             basic::uint32 tex );
     ~Texture();
+
+    Texture& operator = (Texture&& t);
 
     void init( basic::Image image );
 

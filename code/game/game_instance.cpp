@@ -32,12 +32,14 @@ void GameInstance::init()
         m_btn.set_size( 100.f, 100.f );
         m_btn.set_position( { 100.f, 100.f, 0.f } );
     }
+    m_font.init( "arial.ttf" );
 }
 
 void GameInstance::draw( IRender* render )
 {
-    m_back.draw( &m_game_camera, render );
-    m_btn.draw( &m_ui_camera, render );
+    //m_back.draw( &m_game_camera, render );
+    //m_btn.draw( &m_ui_camera, render );
+    m_font.draw( &m_ui_camera, render, "Hello world" );
 }
 
 void GameInstance::frame( float delta )

@@ -12,12 +12,14 @@ Sprite::Sprite()
 void Sprite::init( Texture* texture )
 {
     VertexBuffer vb;
-    Quad::generate( vb, m_size, m_anchor, m_color );
+
+    QuadGenerator generator( m_size, m_anchor, m_color );
+    generator.generate( vb, 0 );
 
     m_object.set_vertex_buffer( std::move( vb ) );
 
     IndexBuffer ib;
-    ib.init( Quad::indices, sizeof( Quad::indices ) );
+    generator.generate( ib, 0 );
 
     m_object.set_index_buffer( std::move( ib ) );
 
@@ -59,9 +61,27 @@ void Sprite::set_size( float width, float height )
     m_size = { width, height, m_size.z };
 
     VertexBuffer vb;
-    Quad::generate( vb, m_size, m_anchor, m_color );
+    
+    QuadGenerator generator( m_size, m_anchor, m_color );
+    generator.generate( vb, 0 );
 
     m_object.set_vertex_buffer( std::move( vb ) );
+    if( m_object.is_initialized() )
+    {
+        m_object.update( nullptr, nullptr );
+    }
+}
+
+void Sprite::set_anchor( float x, float y )
+{
+    m_anchor = { x, y };
+
+    VertexBuffer vb;
+    QuadGenerator generator( m_size, m_anchor, m_color );
+    generator.generate( vb, 0 );
+
+    m_object.set_vertex_buffer( std::move( vb ) );
+
     if( m_object.is_initialized() )
     {
         m_object.update( nullptr, nullptr );

@@ -6,12 +6,34 @@ Texture::Texture()
 {
 }
 
+Texture::Texture(Texture&& t)
+    :m_texture( t.m_texture )
+{
+    t.m_texture = 0;
+}
+
+Texture::Texture( basic::uint32 w,
+         basic::uint32 h,
+         basic::uint32 tex )
+    :m_width( w )
+    ,m_height( h )
+    ,m_texture( tex )
+{
+}
+
 Texture::~Texture()
 {
     if( m_texture )
     {
         glDeleteTextures( 1, &m_texture );
     }
+}
+
+Texture& Texture::operator = (Texture&& t)
+{
+    m_texture = t.m_texture;
+    t.m_texture = 0;
+    return *this;
 }
 
 void Texture::init( basic::Image image )

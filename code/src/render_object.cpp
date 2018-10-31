@@ -10,20 +10,38 @@ extern "C"
 
 #include "texture.hpp"
 
-IndexBuffer::Item Quad::indices[6] = { 0, 1, 3, 1, 2, 3 }; 
+IndexBuffer::Item QuadGenerator::indices[6] = { 0, 1, 3, 1, 2, 3 }; 
 
-void Quad::generate( VertexBuffer& out_vb, const glm::vec3& size, const glm::vec2& anchor, basic::Color c )
+QuadGenerator::QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& c )
+    : m_size( size )
+    , m_anchor( anchor )
+    , m_color{ c }
 {
-    float left = (0.f - anchor.x) * size.x;
-    float right = (1.f - anchor.x) * size.x;
-    float bottom = (0.f - anchor.y) * size.y;
-    float top = (1.f - anchor.y) * size.y;
-    float z = size.z;
+}
 
-    out_vb.push( { { right, top, z }, c, { 1.f, 0.f } } );
-    out_vb.push( { { right, bottom, z }, c, { 1.f, 1.f } } );
-    out_vb.push( { { left, bottom, z }, c, { 1.f, 0.f } } );
-    out_vb.push( { { left, top, z }, c, { 0.f, 0.f } } );
+void QuadGenerator::generate( VertexBuffer& out_vb, int offset )
+{
+    float xoff = offset * m_size.x;
+    float left = (0.f - m_anchor.x) * m_size.x + xoff;
+    float right = (1.f - m_anchor.x) * m_size.x + xoff;
+    float bottom = (0.f - m_anchor.y) * m_size.y;
+    float top = (1.f - m_anchor.y) * m_size.y;
+    float z = m_size.z;
+
+    out_vb.push( { { right, top, z }, m_color, { 1.f, 0.f } } );
+    out_vb.push( { { right, bottom, z }, m_color, { 1.f, 1.f } } );
+    out_vb.push( { { left, bottom, z }, m_color, { 1.f, 0.f } } );
+    out_vb.push( { { left, top, z }, m_color, { 0.f, 0.f } } );
+}
+
+void QuadGenerator::generate( IndexBuffer& out_vb, int offset )
+{
+    float xoff = offset * 6;
+    for( int i = 0; i < 6; ++i )
+    {
+        auto index = indices[i] + xoff;
+        out_vb.push( index );
+    }
 }
 
 RenderObject::RenderObject()
@@ -46,14 +64,16 @@ RenderObject::~RenderObject()
 void RenderObject::init()
 {
     ASSERT( !m_vb.is_empty() );
-    ASSERT( !m_ib.is_empty() );
+   // ASSERT( !m_ib.is_empty() );
 
     glGenVertexArrays( 1, &m_array_object );
     bind_array_object( true );
 
     init_vertex_buffer();
-    init_index_buffer();
-
+    if( !m_ib.is_empty() )
+    {
+        init_index_buffer();
+    }
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)0 );
     glEnableVertexAttribArray( 0 );
 
@@ -82,7 +102,7 @@ void RenderObject::update( vertex_update callback, void* user_data )
 
 bool RenderObject::is_initialized() const
 {
-    return m_array_object > 0 && m_vertex_object > 0 && m_index_object > 0;
+    return m_array_object > 0 && m_vertex_object > 0  ;
 }
 
 void RenderObject::bind_array_object( bool on ) const

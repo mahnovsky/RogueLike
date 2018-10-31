@@ -32,6 +32,8 @@ private:
 
     float m_width;
     float m_height;
+
+    se::Font m_font;
 };
 
 

@@ -18,6 +18,8 @@ public:
 
     void set_size( float width, float height );
 
+    void set_anchor( float x, float y );
+
     glm::vec3 get_position() const;
 
     void set_color( basic::uint8 r,

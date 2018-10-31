@@ -1,6 +1,7 @@
 #pragma once
 
 #include "basic/types.hpp"
+#include "sprite.hpp"
 
 namespace se
 {
@@ -13,9 +14,12 @@ public:
 
     void init( const char* file );
 
+    void draw( ICamera* cam, IRender* render, const char* text );
+
 private:
-    basic::uint32 m_texture; 
+    Texture m_texture; 
     RenderObject m_quads;
+    Sprite m_sp;
 };
 
 }
