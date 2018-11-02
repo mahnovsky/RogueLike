@@ -6,6 +6,8 @@
 namespace se
 {
 
+struct bakedchar;
+
 class Font
 {
 public:
@@ -19,7 +21,8 @@ public:
 private:
     Texture m_texture; 
     RenderObject m_quads;
-    Sprite m_sp;
+    float m_height;
+    void* m_cdata;
 };
 
 }

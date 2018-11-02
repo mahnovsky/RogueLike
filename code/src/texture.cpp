@@ -32,6 +32,10 @@ Texture::~Texture()
 Texture& Texture::operator = (Texture&& t)
 {
     m_texture = t.m_texture;
+    m_width = t.m_width;
+    m_height = t.m_height;
+    m_components = t.m_components;
+
     t.m_texture = 0;
     return *this;
 }
@@ -88,3 +92,12 @@ void Texture::unbind() const
     glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
+basic::uint32 Texture::get_width() const
+{
+    return m_width;
+}
+
+basic::uint32 Texture::get_height() const
+{
+    return m_height;
+}

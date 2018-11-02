@@ -39,7 +39,7 @@ void GameInstance::draw( IRender* render )
 {
     //m_back.draw( &m_game_camera, render );
     //m_btn.draw( &m_ui_camera, render );
-    m_font.draw( &m_ui_camera, render, "Hello world" );
+    m_font.draw( &m_ui_camera, render, "Text test abcdefghijk" );
 }
 
 void GameInstance::frame( float delta )

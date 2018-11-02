@@ -25,6 +25,10 @@ public:
 
     void unbind() const;
 
+    basic::uint32 get_width() const;
+
+    basic::uint32 get_height() const;
+
 private:
     basic::uint32 m_texture;
     basic::uint32 m_width;
