@@ -75,19 +75,37 @@ void Font::draw( ICamera* cam, IRender* render, const char* text )
 
             LOG( "y == %f", q.y0 );
             float delta = q.y0 + m_height;
-            q.y0 -= (delta - m_height);
-            q.y1 -= (delta - m_height);
+            q.y0 = -q.y0; //-= (delta - m_height);
+            q.y1 = -q.y1; //-= (delta - m_height);
+            auto xmin = q.x0;
+    		auto xmax = q.x1;
+	    	auto ymin = -q.y1;
+		    auto ymax = -q.y0;
+            glm::vec3 p0 = {xmin, ymin, 0};
+		    glm::vec3 p1 = {xmin, ymax, 0};
+        	glm::vec3 p2 = {xmax, ymax, 0};
+		    glm::vec3 p3 = {xmax, ymin, 0};
+    		glm::vec2 t0 = {q.s0, q.t1};
+	    	glm::vec2 t1 = {q.s0, q.t0};
+		    glm::vec2 t2 = {q.s1, q.t0};
+    		glm::vec2 t3 = {q.s1, q.t1};
+            /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp
             vb.push( { { q.x0,  q.y0, 0.f }, {255, 255, 255, 255}, { q.s0, q.t1 } } );
             vb.push( { { q.x1,  q.y0, 0.f }, {255, 255, 255, 255}, { q.s1, q.t1 } } );
             vb.push( { { q.x1,  q.y1, 0.f }, {255, 255, 255, 255}, { q.s1, q.t0 } } );
             vb.push( { { q.x0,  q.y1, 0.f }, {255, 255, 255, 255}, { q.s0, q.t0 } } ); 
+*/
+            vb.push( { p0, {255, 255, 255, 255}, t0 } );
+            vb.push( { p1, {255, 255, 255, 255}, t1 } );
+            vb.push( { p2, {255, 255, 255, 255}, t2 } );
+            vb.push( { p3, {255, 255, 255, 255}, t3 } ); 
 
             ib.push( 0 + offset * 4 );
             ib.push( 1 + offset * 4 );
             ib.push( 2 + offset * 4 );
+            ib.push( 0 + offset * 4 );
             ib.push( 2 + offset * 4 );
             ib.push( 3 + offset * 4 );
-            ib.push( 0 + offset * 4 );
 
             LOG( "y == %f", q.y0 );
         }
