@@ -37,8 +37,8 @@ void GameInstance::init()
 
 void GameInstance::draw( IRender* render )
 {
-    //m_back.draw( &m_game_camera, render );
-    //m_btn.draw( &m_ui_camera, render );
+    m_back.draw( &m_game_camera, render );
+    m_btn.draw( &m_ui_camera, render );
     m_font.draw( &m_ui_camera, render, "Text test abcdefghijk" );
 }
 
@@ -50,7 +50,7 @@ void GameInstance::frame( float delta )
     glm::vec3 dpos = m_cam_move_direction * (4.f * delta * glm::sin( time ) );
     m_cam_pos += dpos;
 
-    m_game_camera.set_position( m_cam_pos );
+    //m_game_camera.set_position( m_cam_pos );
 }
 
 void GameInstance::cleanup()

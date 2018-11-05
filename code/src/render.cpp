@@ -5,6 +5,7 @@
 #include "render_object.hpp"
 #include "transform.hpp"
 #include "camera.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 extern "C"
 {
@@ -35,6 +36,8 @@ public:
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);          
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LESS);
+
+        m_stack.push( glm::mat4(1.f) );
 
         init_shaders( );        
 
@@ -204,12 +207,28 @@ public:
         wnd->swap_buffers();
     }
 
+    void push_mvp( const glm::mat4& mat )
+    {
+        m_stack.push( mat );
+        glUseProgram( m_shader_program );
+        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( mat ) );
+    }
+
+    void pop_mvp()
+    {
+        ASSERT( !m_stack.is_empty() );
+
+        m_stack.pop();
+
+        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( m_stack.back() ) );
+    }
+
 private:
     GLuint m_shader_program;
-    glm::mat4 m_projection;
-    glm::mat4 m_view;
     GLuint m_mvp_uniform;
     GLuint m_texture_uniform;
+
+    basic::Vector<glm::mat4> m_stack;
 };
 
 IRender*

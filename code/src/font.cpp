@@ -56,7 +56,7 @@ void Font::draw( ICamera* cam, IRender* render, const char* text )
     {
     VertexBuffer vb;
     IndexBuffer ib;
-    m_quads.get_transform()->set_position( { 100, 100, 0} );
+    m_quads.get_transform()->set_position( { 100, 100, 0 } );
     float x = 0;
     float y = 0;
     int offset = 0;
@@ -73,10 +73,6 @@ void Font::draw( ICamera* cam, IRender* render, const char* text )
 
             stbtt_GetBakedQuad( (stbtt_bakedchar*)m_cdata, w, h, ch-32, &x, &y, &q, 1 );
 
-            LOG( "y == %f", q.y0 );
-            float delta = q.y0 + m_height;
-            q.y0 = -q.y0; //-= (delta - m_height);
-            q.y1 = -q.y1; //-= (delta - m_height);
             auto xmin = q.x0;
     		auto xmax = q.x1;
 	    	auto ymin = -q.y1;
@@ -89,12 +85,7 @@ void Font::draw( ICamera* cam, IRender* render, const char* text )
 	    	glm::vec2 t1 = {q.s0, q.t0};
 		    glm::vec2 t2 = {q.s1, q.t0};
     		glm::vec2 t3 = {q.s1, q.t1};
-            /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp
-            vb.push( { { q.x0,  q.y0, 0.f }, {255, 255, 255, 255}, { q.s0, q.t1 } } );
-            vb.push( { { q.x1,  q.y0, 0.f }, {255, 255, 255, 255}, { q.s1, q.t1 } } );
-            vb.push( { { q.x1,  q.y1, 0.f }, {255, 255, 255, 255}, { q.s1, q.t0 } } );
-            vb.push( { { q.x0,  q.y1, 0.f }, {255, 255, 255, 255}, { q.s0, q.t0 } } ); 
-*/
+            /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp*/
             vb.push( { p0, {255, 255, 255, 255}, t0 } );
             vb.push( { p1, {255, 255, 255, 255}, t1 } );
             vb.push( { p2, {255, 255, 255, 255}, t2 } );
@@ -118,7 +109,8 @@ void Font::draw( ICamera* cam, IRender* render, const char* text )
    
         m_quads.init();
     }
-    render->draw( cam, &m_quads );
+
+    m_quads.draw( render, cam );
 }
 
 }

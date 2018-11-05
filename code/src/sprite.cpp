@@ -30,7 +30,7 @@ void Sprite::init( Texture* texture )
 
 void Sprite::draw( ICamera* camera, IRender* render ) 
 {
-    render->draw( camera, &m_object );
+    m_object.draw( render, camera );
 }
 
 void Sprite::set_position( const glm::vec3& pos )

@@ -15,6 +15,8 @@ public:
     
     virtual void unbind() const = 0;
 
+    virtual void draw( IRender* render, ICamera* cam ) const = 0;
+
     virtual size_t get_element_count() const = 0;
 
     virtual void get_matrix( glm::mat4& out ) const = 0;
@@ -41,6 +43,8 @@ public:
     void bind() const;
     
     void unbind() const;
+
+    void draw( IRender* render, ICamera* cam ) const override;
 
     size_t get_element_count() const; 
 

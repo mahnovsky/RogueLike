@@ -9,6 +9,7 @@
 #include "sprite.cpp"
 #include "camera.cpp"
 #include "font.cpp"
+#include "shader.cpp"
 
 #include "platform/x11_window.cpp"
 #include "platform/unix_time.cpp"

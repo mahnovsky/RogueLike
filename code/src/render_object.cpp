@@ -158,6 +158,27 @@ void RenderObject::unbind() const
     bind_array_object( false );
 }
 
+void RenderObject::draw( IRender* render, ICamera* cam ) const
+{
+    bind_array_object( true );
+
+    glm::mat4 model(1.f);
+    m_transform->get_matrix( model );
+
+    glm::mat4 pv(1.f);
+    cam->get_matrix( pv );
+
+    render->push_mvp( pv * model );
+    m_texture->bind();
+
+    glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
+
+    m_texture->unbind();
+    render->pop_mvp();
+
+    bind_array_object( false );
+}
+
 void RenderObject::get_matrix( glm::mat4& out ) const
 {
     m_transform->get_matrix( out );
