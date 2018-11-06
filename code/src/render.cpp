@@ -1,14 +1,13 @@
 #include "render.hpp"
-#include "window.hpp"
-#include "basic/vector.hpp"
 #include "basic/file.hpp"
-#include "render_object.hpp"
-#include "transform.hpp"
+#include "basic/vector.hpp"
 #include "camera.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "render_object.hpp"
+#include "transform.hpp"
+#include "window.hpp"
 
-extern "C"
-{
+extern "C" {
 #define GLEW_STATIC
 #include <GL/glew.h>
 }
@@ -32,14 +31,14 @@ public:
         glViewport( 0, 0, width, height );
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);          
-        glEnable(GL_DEPTH_TEST);
-        glDepthFunc(GL_LESS);
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        glEnable( GL_DEPTH_TEST );
+        glDepthFunc( GL_LESS );
 
-        m_stack.push( glm::mat4(1.f) );
+        m_stack.push( glm::mat4( 1.f ) );
 
-        init_shaders( );        
+        // init_shaders( );
 
         return true;
     }
@@ -65,9 +64,9 @@ public:
     init_shaders( )
     {
         basic::Vector< char > data = basic::get_file_content( "vshader.glsl" );
-        if ( data.is_empty() )
+        if ( data.is_empty( ) )
         {
-            LOG("Failed load vshader source file");
+            LOG( "Failed load vshader source file" );
 
             return false;
         }
@@ -89,9 +88,9 @@ public:
         data.clear( );
         data = basic::get_file_content( "fshader.glsl" );
 
-        if ( data.is_empty() ) 
+        if ( data.is_empty( ) )
         {
-            LOG("Failed read fshader source file");
+            LOG( "Failed read fshader source file" );
 
             return false;
         }
@@ -117,10 +116,10 @@ public:
         glLinkProgram( m_shader_program );
 
         bool result = false;
-        if( check_shader_link( m_shader_program ) )
+        if ( check_shader_link( m_shader_program ) )
         {
-            m_mvp_uniform = glGetUniformLocation(m_shader_program, "MVP");
-            m_texture_uniform = glGetUniformLocation( m_shader_program, "texture_sampler");
+            m_mvp_uniform = glGetUniformLocation( m_shader_program, "MVP" );
+            m_texture_uniform = glGetUniformLocation( m_shader_program, "texture_sampler" );
 
             result = true;
         }
@@ -174,25 +173,26 @@ public:
     {
         glUseProgram( m_shader_program );
 
-        glm::mat4 proj_view(1.0);
+        glm::mat4 proj_view( 1.0 );
 
         camera->get_matrix( proj_view );
 
-        glm::mat4 model(1.0f);
+        glm::mat4 model( 1.0f );
 
         graphic->get_matrix( model );
 
         glm::mat4 mvp = proj_view * model;
 
-        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[0][0]);
+        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[ 0 ][ 0 ] );
 
-        graphic->bind();
+        graphic->bind( );
 
-        glUniform1i(m_texture_uniform, 0);
-        
-        glDrawElements( GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
+        glUniform1i( m_texture_uniform, 0 );
 
-        graphic->unbind();
+        glDrawElements(
+                GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
+
+        graphic->unbind( );
     }
 
     void
@@ -204,23 +204,25 @@ public:
     void
     draw_end( IWindow* wnd ) override
     {
-        wnd->swap_buffers();
+        wnd->swap_buffers( );
     }
 
-    void push_mvp( const glm::mat4& mat )
+    void
+    push_mvp( const glm::mat4& mat )
     {
         m_stack.push( mat );
-        glUseProgram( m_shader_program );
+        // glUseProgram( m_shader_program );
         glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( mat ) );
     }
 
-    void pop_mvp()
+    void
+    pop_mvp( )
     {
-        ASSERT( !m_stack.is_empty() );
+        ASSERT( !m_stack.is_empty( ) );
 
-        m_stack.pop();
+        m_stack.pop( );
 
-        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( m_stack.back() ) );
+        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( m_stack.back( ) ) );
     }
 
 private:
@@ -228,7 +230,7 @@ private:
     GLuint m_mvp_uniform;
     GLuint m_texture_uniform;
 
-    basic::Vector<glm::mat4> m_stack;
+    basic::Vector< glm::mat4 > m_stack;
 };
 
 IRender*

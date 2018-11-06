@@ -1,29 +1,30 @@
 #pragma once
 
-#include "engine.hpp"
-#include "sprite.hpp"
 #include "camera.hpp"
-#include "texture_cache.hpp"
+#include "engine.hpp"
 #include "font.hpp"
+#include "shader.hpp"
+#include "sprite.hpp"
 #include "text.hpp"
 
 class GameInstance
 {
 public:
-    GameInstance(Engine* engine, float width, float height);
+    GameInstance( Engine* engine, float width, float height );
 
-    void init();
+    void init( );
 
     void draw( IRender* render );
 
     void frame( float delta );
 
-    void cleanup();
+    void cleanup( );
 
 private:
     Engine* m_engine;
 
     TextureCache m_texture_cache;
+    ShaderCache m_shader_cache;
     PerspectiveCamera m_game_camera;
     OrthoCamera m_ui_camera;
 
@@ -35,9 +36,6 @@ private:
     float m_width;
     float m_height;
 
-	se::Font m_font;
-	Text m_text;
+    se::Font m_font;
+    Text m_text;
 };
-
-
-

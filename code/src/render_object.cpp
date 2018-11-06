@@ -2,6 +2,7 @@
 #include "camera.hpp"
 #include "render.hpp"
 #include "render_common.hpp"
+#include "shader.hpp"
 #include "texture.hpp"
 
 IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
@@ -50,6 +51,7 @@ RenderObject::RenderObject( )
     , m_index_object( 0 )
     , m_transform( )
     , m_texture( nullptr )
+    , m_shader( nullptr )
 {
     m_transform.allocate( );
 }
@@ -171,6 +173,12 @@ RenderObject::unbind( ) const
 void
 RenderObject::draw( IRender* render, ICamera* cam ) const
 {
+    if ( !m_shader )
+    {
+        return;
+    }
+    m_shader->bind( );
+
     bind_array_object( true );
 
     glm::mat4 model = m_transform->get_matrix( );
@@ -190,6 +198,8 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
     render->pop_mvp( );
 
     bind_array_object( false );
+
+    m_shader->unbind( );
 }
 
 void
@@ -214,6 +224,12 @@ void
 RenderObject::set_texture( Texture* texture )
 {
     m_texture = texture;
+}
+
+void
+RenderObject::set_shader( Shader* shader )
+{
+    m_shader = shader;
 }
 
 size_t

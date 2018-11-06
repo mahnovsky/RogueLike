@@ -1,92 +1,93 @@
 #pragma once
 
-#include "render.hpp"
 #include "basic/pool.hpp"
+#include "render.hpp"
 #include "transform.hpp"
 
-using vertex_update = void (*)( Vertex*, void* );
+using vertex_update = void ( * )( Vertex*, void* );
 
 class Texture;
+class Shader;
 
 class IRenderObject
 {
 public:
-    virtual void bind() const = 0;
-    
-    virtual void unbind() const = 0;
+    virtual void bind( ) const = 0;
+
+    virtual void unbind( ) const = 0;
 
     virtual void draw( IRender* render, ICamera* cam ) const = 0;
 
-    virtual size_t get_element_count() const = 0;
+    virtual size_t get_element_count( ) const = 0;
 
     virtual void get_matrix( glm::mat4& out ) const = 0;
-
 };
-
 
 class RenderObject : public IRenderObject
 {
 public:
-    RenderObject();
-    ~RenderObject();
+    RenderObject( );
+    ~RenderObject( );
 
-    void init();
+    void init( );
 
     void update( vertex_update callback, void* user_data );
 
-    bool is_initialized() const;
+    bool is_initialized( ) const;
 
-    void set_vertex_buffer( VertexBuffer buffer ); 
+    void set_vertex_buffer( VertexBuffer buffer );
 
     void set_index_buffer( IndexBuffer buffer );
 
-    void bind() const;
-    
-    void unbind() const;
+    void bind( ) const override;
+
+    void unbind( ) const override;
 
     void draw( IRender* render, ICamera* cam ) const override;
 
-    size_t get_element_count() const; 
+    size_t get_element_count( ) const override;
 
-    void get_matrix( glm::mat4& out ) const;
+    void get_matrix( glm::mat4& out ) const override;
 
     // Dont save pointer, address will change
-    Transform* get_transform();
+    Transform* get_transform( );
 
-    const Transform* get_transform() const;
+    const Transform* get_transform( ) const;
 
     void set_texture( Texture* texture );
+
+    void set_shader( Shader* shader );
 
 private:
     void init_vertex_buffer( );
 
     void init_index_buffer( );
 
-    void bind_array_object( bool on ) const; 
+    void bind_array_object( bool on ) const;
 
     VertexBuffer m_vb;
     IndexBuffer m_ib;
 
-    basic::uint32 m_array_object;    
-    basic::uint32 m_index_object;    
-    basic::uint32 m_vertex_object;    
-    basic::PoolPtr<Transform> m_transform;
+    basic::uint32 m_array_object;
+    basic::uint32 m_index_object;
+    basic::uint32 m_vertex_object;
+    basic::PoolPtr< Transform > m_transform;
     Texture* m_texture;
-}; 
+    Shader* m_shader;
+};
 
 struct QuadGenerator
 {
-    QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color ); 
+    QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color );
 
     void generate( VertexBuffer& out_vb, int offset );
 
     void generate( IndexBuffer& out_ib, int offset );
 
-    static IndexBuffer::Item indices[6];
+    static IndexBuffer::Item indices[ 6 ];
 
 private:
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     basic::Color m_color;
 };
-
