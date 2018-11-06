@@ -1,14 +1,8 @@
 #include "render_object.hpp"
-
-extern "C"
-{
-#define GLEW_STATIC
-#include <GL/glew.h>
-}
-
-#include <GL/gl.h>
-
 #include "texture.hpp"
+#include "render_common.hpp"
+#include "render.hpp"
+#include "camera.hpp"
 
 IndexBuffer::Item QuadGenerator::indices[6] = { 0, 1, 3, 1, 2, 3 }; 
 
@@ -162,8 +156,7 @@ void RenderObject::draw( IRender* render, ICamera* cam ) const
 {
     bind_array_object( true );
 
-    glm::mat4 model(1.f);
-    m_transform->get_matrix( model );
+    glm::mat4 model = m_transform->get_matrix( );
 
     glm::mat4 pv(1.f);
     cam->get_matrix( pv );
@@ -181,7 +174,7 @@ void RenderObject::draw( IRender* render, ICamera* cam ) const
 
 void RenderObject::get_matrix( glm::mat4& out ) const
 {
-    m_transform->get_matrix( out );
+    out = m_transform->get_matrix( );
 }
 
 Transform* RenderObject::get_transform() 

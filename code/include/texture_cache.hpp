@@ -1,6 +1,7 @@
 #pragma once 
 
 #include "texture.hpp"
+#include "basic/string.hpp"
 
 using TextureHandle = size_t;
 

@@ -1,4 +1,5 @@
 #include "basic/file.hpp"
+#include "basic/string.hpp"
 
 #include <cstdio>
 

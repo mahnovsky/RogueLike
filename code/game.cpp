@@ -1,6 +1,6 @@
 #include "engine.hpp"
 #include "sprite.hpp"
-#include "game/game_instance.cpp"
+#include "game/game_instance.hpp"
 
 GameInstance* g_game_instance;
 
@@ -19,7 +19,7 @@ static void sprite_update( void* user_data )
     sprite->set_position( pos );
 }
 
-static void game_init( Engine* engine )
+void game_init( Engine* engine )
 {
     int w, h;
     engine->get_window_size( w, h );

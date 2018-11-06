@@ -1,15 +1,8 @@
+
 #include <windows.h>
+#include "engine.hpp"
 
-#define __PRETTY_FUNCTION__ __FUNCTION__
-
-#include "engine.cpp"
-#include "render_object.cpp"
-#include "render.cpp"
-#include "glew.c"
-#include "basic/file.cpp"
-#include "basic/util_functions.cpp"
-#include "platform/win32_window.cpp"
-#include "game.cpp"
+void game_init(Engine*);
 
 HINSTANCE g_instance;
 

@@ -14,10 +14,10 @@ GameInstance::GameInstance(Engine* engine, float width, float height)
 
 void GameInstance::init()
 {
-    m_cam_pos = {4.f, 5.f, 3.f};
+	m_cam_pos = { 3.f, 3.f, 3.f };
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
-    m_game_camera.init( {4.f, 5.f, 3.f}, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
+    m_game_camera.init(m_cam_pos*3.f, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     m_ui_camera.init( { m_width / 2, m_height / 2, 0.f}, {}, {} );
 
     TextureHandle handle;
@@ -32,14 +32,21 @@ void GameInstance::init()
         m_btn.set_size( 100.f, 100.f );
         m_btn.set_position( { 100.f, 100.f, 0.f } );
     }
-    m_font.init( "arial.ttf" );
+
+	if (m_font.init("arial.ttf"))
+	{
+		m_text.set_font(&m_font);
+		m_text.set_text("hello world");
+		m_text.set_scale(0.1f);
+		//m_text.set_position({ 10.f, 10.f, 0.f });
+	}
 }
 
 void GameInstance::draw( IRender* render )
 {
     m_back.draw( &m_game_camera, render );
-    m_btn.draw( &m_ui_camera, render );
-    m_font.draw( &m_ui_camera, render, "Text test abcdefghijk" );
+    //m_btn.draw( &m_ui_camera, render );
+    m_text.draw( render, &m_game_camera );
 }
 
 void GameInstance::frame( float delta )
@@ -51,6 +58,11 @@ void GameInstance::frame( float delta )
     m_cam_pos += dpos;
 
     //m_game_camera.set_position( m_cam_pos );
+	auto pos = m_back.get_position();
+	pos.x += (0.1f * delta);
+	pos.y += (0.1f * delta);
+
+	m_back.set_position(pos);
 }
 
 void GameInstance::cleanup()

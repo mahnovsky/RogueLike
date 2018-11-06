@@ -4,6 +4,8 @@
 #include "sprite.hpp"
 #include "camera.hpp"
 #include "texture_cache.hpp"
+#include "font.hpp"
+#include "text.hpp"
 
 class GameInstance
 {
@@ -33,7 +35,8 @@ private:
     float m_width;
     float m_height;
 
-    se::Font m_font;
+	se::Font m_font;
+	Text m_text;
 };
 
 

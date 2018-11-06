@@ -1,6 +1,7 @@
 #include "window.hpp"
-#include <GL/gl.h>
-#include <GL/wglew.h>
+#include "render_common.hpp"
+#include "basic/string.hpp"
+
 
 extern HINSTANCE g_instance;
 
@@ -8,6 +9,9 @@ class Win32_Window : public IWindow
 {
 public:
     Win32_Window();
+
+    virtual void get_size( int& out_width, int& out_height );
+
     ~Win32_Window();
 
     virtual bool init( int width, int height, const char* const title );
@@ -36,6 +40,8 @@ private:
     HGLRC m_render_context;
     basic::String m_class_name;
     bool m_is_running;
+    int m_width;
+    int m_height;
 };
 
 IWindow* IWindow::create()
@@ -72,6 +78,12 @@ Win32_Window::~Win32_Window()
 {
 }
 
+void Win32_Window::get_size( int& out_width, int& out_height )
+{
+    out_width = m_width;
+    out_height = m_height;
+}
+
 bool Win32_Window::init( int width, int height, const char* const title )
 {
     m_class_name = title;
@@ -102,6 +114,9 @@ bool Win32_Window::init( int width, int height, const char* const title )
 	rect.bottom = y + height;
 
 	AdjustWindowRectEx (&rect, style, FALSE, exStyle);
+
+    m_width = width;
+    m_height = height;
 
 	m_handle = CreateWindowEx(exStyle, m_class_name.get_cstr(), title, style, rect.left, rect.top,
 		rect.right - rect.left, rect.bottom - rect.top, NULL, NULL, m_instance, NULL);

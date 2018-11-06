@@ -109,6 +109,8 @@ bool Shader::compile( basic::Vector<char> data, basic::uint32 type, basic::uint3
     glCompileShader( index );
 
     out_id = index;
+
+	return true;
 }
    
 bool Shader::link_program( basic::uint32 vshader, basic::uint32 fshader )
@@ -121,7 +123,6 @@ bool Shader::link_program( basic::uint32 vshader, basic::uint32 fshader )
 
     if( check_shader_link( m_shader_program ) )
     {
-        
         return true;
     }
 

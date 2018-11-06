@@ -1,4 +1,5 @@
 #include "texture_cache.hpp"
+#include "basic/file.hpp"
 
 TextureCache::TextureCache()
     :m_textures()

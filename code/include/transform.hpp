@@ -13,19 +13,20 @@ public:
 
     glm::vec3 get_position() const;
 
-    void set_direction( const glm::vec3& dir );
+    void set_forward( const glm::vec3& dir );
 
-    glm::vec3 get_direction() const;
+    glm::vec3 get_forward() const;
 
     void set_scale( const glm::vec3& scale );
 
     glm::vec3 get_scale() const;
 
-    void get_matrix(glm::mat4& out) const;
+	glm::mat4 get_matrix() const;
 
 private:
     glm::vec3 m_pos;
-    glm::vec3 m_direction;
+    glm::vec3 m_forward;
+	glm::vec3 m_up;
     glm::vec3 m_scale;
 };
 

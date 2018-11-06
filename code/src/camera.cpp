@@ -1,4 +1,5 @@
 #include "camera.hpp"
+#include "glm/glm.hpp"
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far )
     : m_position()

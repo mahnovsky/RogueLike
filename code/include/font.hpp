@@ -2,6 +2,7 @@
 
 #include "basic/types.hpp"
 #include "sprite.hpp"
+#include "texture.hpp"
 
 namespace se
 {
@@ -14,13 +15,12 @@ public:
     Font();
     ~Font();
 
-    void init( const char* file );
+    bool init( const char* file );
 
-    void draw( ICamera* cam, IRender* render, const char* text );
+    void generate( const char* text, float height, RenderObject& out_object );
 
 private:
     Texture m_texture; 
-    RenderObject m_quads;
     float m_height;
     void* m_cdata;
 };

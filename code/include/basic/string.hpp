@@ -10,7 +10,7 @@ template <class T>
 class BaseString
 {
 public:
-    static const size_t max_len = ((size_t)1 << 32);
+    static const size_t max_len = 0xffffffff;
     static const T cstr_end = 0;
 
     BaseString()
@@ -57,6 +57,11 @@ public:
         m_buffer.pop();
         m_buffer.append( cstr, str_length( cstr, max_len ) + 1 );
     }
+
+	bool is_empty() const
+	{
+		return m_buffer.is_empty();
+	}
 
     const T* get_cstr() const 
     {
