@@ -1,72 +1,77 @@
 #include "render_object.hpp"
-#include "texture.hpp"
-#include "render_common.hpp"
-#include "render.hpp"
 #include "camera.hpp"
+#include "render.hpp"
+#include "render_common.hpp"
+#include "texture.hpp"
 
-IndexBuffer::Item QuadGenerator::indices[6] = { 0, 1, 3, 1, 2, 3 }; 
+IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
 
-QuadGenerator::QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& c )
+QuadGenerator::QuadGenerator( const glm::vec3& size,
+                              const glm::vec2& anchor,
+                              const basic::Color& c )
     : m_size( size )
     , m_anchor( anchor )
-    , m_color{ c }
+    , m_color{c}
 {
 }
 
-void QuadGenerator::generate( VertexBuffer& out_vb, int offset )
+void
+QuadGenerator::generate( VertexBuffer& out_vb, int offset )
 {
     float xoff = offset * m_size.x;
-    float left = (0.f - m_anchor.x) * m_size.x + xoff;
-    float right = (1.f - m_anchor.x) * m_size.x + xoff;
-    float bottom = (0.f - m_anchor.y) * m_size.y;
-    float top = (1.f - m_anchor.y) * m_size.y;
+    float left = ( 0.f - m_anchor.x ) * m_size.x + xoff;
+    float right = ( 1.f - m_anchor.x ) * m_size.x + xoff;
+    float bottom = ( 0.f - m_anchor.y ) * m_size.y;
+    float top = ( 1.f - m_anchor.y ) * m_size.y;
     float z = m_size.z;
 
-    out_vb.push( { { right, top, z }, m_color, { 1.f, 0.f } } );
-    out_vb.push( { { right, bottom, z }, m_color, { 1.f, 1.f } } );
-    out_vb.push( { { left, bottom, z }, m_color, { 1.f, 0.f } } );
-    out_vb.push( { { left, top, z }, m_color, { 0.f, 0.f } } );
+    out_vb.push( {{right, top, z}, m_color, {1.f, 0.f}} );
+    out_vb.push( {{right, bottom, z}, m_color, {1.f, 1.f}} );
+    out_vb.push( {{left, bottom, z}, m_color, {1.f, 0.f}} );
+    out_vb.push( {{left, top, z}, m_color, {0.f, 0.f}} );
 }
 
-void QuadGenerator::generate( IndexBuffer& out_vb, int offset )
+void
+QuadGenerator::generate( IndexBuffer& out_vb, int offset )
 {
     float xoff = offset * 6;
-    for( int i = 0; i < 6; ++i )
+    for ( int i = 0; i < 6; ++i )
     {
-        auto index = indices[i] + xoff;
+        auto index = indices[ i ] + xoff;
         out_vb.push( index );
     }
 }
 
-RenderObject::RenderObject()
-    : m_vb()
-    , m_ib()
+RenderObject::RenderObject( )
+    : m_vb( )
+    , m_ib( )
     , m_array_object( 0 )
     , m_vertex_object( 0 )
     , m_index_object( 0 )
-    , m_transform()
+    , m_transform( )
     , m_texture( nullptr )
 {
-    m_transform.allocate();
+    m_transform.allocate( );
 }
 
-RenderObject::~RenderObject()
+RenderObject::~RenderObject( )
 {
-    m_transform.free();
+    m_transform.free( );
 }
 
-void RenderObject::init()
+void
+RenderObject::init( )
 {
-    ASSERT( !m_vb.is_empty() );
-   // ASSERT( !m_ib.is_empty() );
+    ASSERT( !m_vb.is_empty( ) );
+    // ASSERT( !m_ib.is_empty() );
 
     glGenVertexArrays( 1, &m_array_object );
     bind_array_object( true );
 
-    init_vertex_buffer();
-    if( !m_ib.is_empty() )
+    init_vertex_buffer( );
+    if ( !m_ib.is_empty( ) )
     {
-        init_index_buffer();
+        init_index_buffer( );
     }
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)0 );
     glEnableVertexAttribArray( 0 );
@@ -82,118 +87,137 @@ void RenderObject::init()
     bind_array_object( false );
 }
 
-void RenderObject::update( vertex_update callback, void* user_data )
+void
+RenderObject::update( vertex_update callback, void* user_data )
 {
-    if( callback )
+    if ( callback )
     {
-        for( size_t i = 0; i < m_vb.get_size(); ++i )
+        for ( size_t i = 0; i < m_vb.get_size( ); ++i )
         {
-            callback( &m_vb[i], user_data );
+            callback( &m_vb[ i ], user_data );
         }
     }
-    glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW );
+    glBufferData(
+            GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size( ), m_vb.get_raw( ), GL_STATIC_DRAW );
 }
 
-bool RenderObject::is_initialized() const
+bool
+RenderObject::is_initialized( ) const
 {
-    return m_array_object > 0 && m_vertex_object > 0  ;
+    return m_array_object > 0 && m_vertex_object > 0;
 }
 
-void RenderObject::bind_array_object( bool on ) const
+void
+RenderObject::bind_array_object( bool on ) const
 {
     basic::uint32 object = ( on ? m_array_object : 0 );
 
     glBindVertexArray( object );
 }
 
-void RenderObject::set_vertex_buffer( VertexBuffer buffer )
+void
+RenderObject::set_vertex_buffer( VertexBuffer buffer )
 {
     m_vb = std::move( buffer );
 }
 
-void RenderObject::set_index_buffer( IndexBuffer buffer )
+void
+RenderObject::set_index_buffer( IndexBuffer buffer )
 {
     m_ib = std::move( buffer );
 }
 
-void RenderObject::init_vertex_buffer( )
+void
+RenderObject::init_vertex_buffer( )
 {
     glGenBuffers( 1, &m_vertex_object );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_vertex_object );
 
-    glBufferData( GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW );
+    glBufferData(
+            GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size( ), m_vb.get_raw( ), GL_STATIC_DRAW );
 }
 
-void RenderObject::init_index_buffer( )
+void
+RenderObject::init_index_buffer( )
 {
     glGenBuffers( 1, &m_index_object );
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_index_object );
 
-    const size_t size = sizeof( basic::uint16 ) * m_ib.get_size();
+    const size_t size = sizeof( basic::uint16 ) * m_ib.get_size( );
 
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, m_ib.get_raw(), GL_STATIC_DRAW );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, m_ib.get_raw( ), GL_STATIC_DRAW );
 }
 
-void RenderObject::bind() const
+void
+RenderObject::bind( ) const
 {
-    ASSERT( is_initialized() );
+    ASSERT( is_initialized( ) );
 
     bind_array_object( true );
 
-    m_texture->bind();
+    m_texture->bind( );
 }
 
-void RenderObject::unbind() const
+void
+RenderObject::unbind( ) const
 {
-    m_texture->unbind();
+    m_texture->unbind( );
 
     bind_array_object( false );
 }
 
-void RenderObject::draw( IRender* render, ICamera* cam ) const
+void
+RenderObject::draw( IRender* render, ICamera* cam ) const
 {
     bind_array_object( true );
 
     glm::mat4 model = m_transform->get_matrix( );
 
-    glm::mat4 pv(1.f);
+    glm::mat4 pv( 1.f );
     cam->get_matrix( pv );
 
     render->push_mvp( pv * model );
-    m_texture->bind();
+    if ( m_texture )
+    {
+        m_texture->bind( );
+    }
 
     glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
 
-    m_texture->unbind();
-    render->pop_mvp();
+    m_texture->unbind( );
+    render->pop_mvp( );
 
     bind_array_object( false );
 }
 
-void RenderObject::get_matrix( glm::mat4& out ) const
+void
+RenderObject::get_matrix( glm::mat4& out ) const
 {
     out = m_transform->get_matrix( );
 }
 
-Transform* RenderObject::get_transform() 
+Transform*
+RenderObject::get_transform( )
 {
-    return m_transform.get();
+    return m_transform.get( );
 }
 
-const Transform* RenderObject::get_transform() const
+const Transform*
+RenderObject::get_transform( ) const
 {
-    return m_transform.get();
+    return m_transform.get( );
 }
 
-void RenderObject::set_texture( Texture* texture )
+void
+RenderObject::set_texture( Texture* texture )
 {
     m_texture = texture;
 }
 
-size_t RenderObject::get_element_count() const 
-{ 
-    return m_ib.get_size(); 
+size_t
+RenderObject::get_element_count( ) const
+{
+    return m_ib.get_size( );
 }
-

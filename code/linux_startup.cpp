@@ -1,72 +1,42 @@
-
-#include "render.cpp"
-#include "engine.cpp"
-#include "render_object.cpp"
-#include "transform.cpp"
-#include "timer_manager.cpp"
-#include "texture.cpp"
-#include "texture_cache.cpp"
-#include "sprite.cpp"
-#include "camera.cpp"
-#include "font.cpp"
-#include "shader.cpp"
-
-#include "platform/x11_window.cpp"
-#include "platform/unix_time.cpp"
-#include "platform/unix_file.cpp"
-
-#include "basic/file.cpp"
-#include "basic/util_functions.cpp"
-#include "basic/image.cpp"
-
-#include "game.cpp"
-
+#include "basic/file.hpp"
+#include "engine.hpp"
 
 #include <unistd.h>
 
-void set_data_path()
-{
-    char current_path[FILENAME_MAX];
+using namespace basic;
 
-    if ( !getcwd( current_path, sizeof(current_path) ) )
+namespace basic
+{
+extern String g_data_path;
+}
+
+#define FILENAME_MAX 1024
+
+void game_init( Engine* );
+
+void
+set_data_path( const char* binary_path )
+{
+    basic::String path = binary_path;
+    size_t index = 0;
+
+    if ( path.find_last( index, '/' ) && path.find_last( index, '/', index - 1 ) )
     {
-        return ;
+        path = path.get_substr( 0, index ) + "/data/";
     }
 
-    basic::String path = current_path;
-    path += "/data/";
-
-    if( is_dir_exist( path.get_cstr() ) )
+    if ( is_dir_exist( path.get_cstr( ) ) )
     {
-        basic::g_data_path = path;        
+        basic::g_data_path = path;
 
-        LOG("path %s", path.get_cstr() );
-
-        return;
-    }    
-
-    basic::String bin_file = current_path;
-    
-    int pos = bin_file.find_last( '/' );
-
-    LOG( "init data path %s, %d", bin_file.get_cstr(), pos );
-
-    if( pos >= 0 )
-    {
-        path = std::move( bin_file.get_substr( 0, pos + 1 ) );
-
-        LOG("path %s", path.get_cstr() );
-
-        basic::g_data_path = path + "data/";
-
-        ASSERT( is_dir_exist( basic::g_data_path.get_cstr() ) );
+        LOG( "path %s", path.get_cstr( ) );
     }
 }
 
 int
 main( int argc, char** argv )
 {
-    set_data_path( );
+    set_data_path( argv[ 0 ] );
 
     Engine engine( argc, argv );
 
