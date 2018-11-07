@@ -19,7 +19,8 @@ GameInstance::init( )
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
     m_game_camera.init( m_cam_pos * 3.f, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
-    m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
+    m_ui_camera.init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
+    // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
     Shader* shader = nullptr;
     ShaderCache::Handle shandle;
@@ -39,15 +40,22 @@ GameInstance::init( )
 
         m_btn.init( shader, texture );
         m_btn.set_size( 100.f, 100.f );
-        m_btn.set_position( {100.f, 100.f, 0.f} );
+        m_btn.set_position( {0.f, 0.f, 0.f} );
     }
 
-    if ( m_font.init( "arial.ttf" ) )
+    Shader* text_shader = nullptr;
+    ShaderCache::Handle text_shandle;
+    if ( load_shader( m_shader_cache, "vshader.glsl", "text_fshader.glsl", text_shandle ) )
+    {
+        text_shader = m_shader_cache.get( text_shandle );
+    }
+
+    if ( text_shader && m_font.init( "arial.ttf", text_shader ) )
     {
         m_text.set_font( &m_font );
         m_text.set_text( "hello world" );
-        m_text.set_scale( 0.1f );
-        // m_text.set_position({ 10.f, 10.f, 0.f });
+        // m_text.set_scale( 0.1f );
+        m_text.set_position( {200.f, 200.f, 0.f} );
     }
 }
 
@@ -56,7 +64,7 @@ GameInstance::draw( IRender* render )
 {
     m_back.draw( &m_game_camera, render );
     m_btn.draw( &m_ui_camera, render );
-    m_text.draw( render, &m_game_camera );
+    m_text.draw( render, &m_ui_camera );
 }
 
 void

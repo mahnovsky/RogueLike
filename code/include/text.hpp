@@ -3,25 +3,25 @@
 #include "basic/string.hpp"
 #include "font.hpp"
 
-class Text 
+class Text
 {
 public:
-    Text();
+    Text( );
 
     void set_text( const char* text );
 
     void set_font( se::Font* font );
 
-	void set_font_size( float size );
+    void set_font_size( float size );
 
-	void set_position(const glm::vec3& pos);
+    void set_position( const glm::vec3& pos );
 
-	void set_scale(float scale);
+    void set_scale( float scale );
 
-	void draw(IRender* render, ICamera* cam);
+    void draw( IRender* render, ICamera* cam );
 
 private:
-	void update();
+    void update( );
 
 private:
     se::Font* m_font;
@@ -30,5 +30,5 @@ private:
 
     RenderObject m_render_object;
 
-	float m_font_size;
+    float m_font_size;
 };

@@ -127,6 +127,7 @@ private:
         {
             if ( m_objects[ i ].handle == handle )
             {
+                out_index = i;
                 return true;
             }
         }
