@@ -1,4 +1,5 @@
 #include "game_instance.hpp"
+#include "render_common.hpp"
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
@@ -15,10 +16,10 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 void
 GameInstance::init( )
 {
-    m_cam_pos = {3.f, 3.f, 3.f};
+    m_cam_pos = {100.f, 100.f, 100.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
-    m_game_camera.init( m_cam_pos * 3.f, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
+    m_game_camera.init( m_cam_pos * 10.f, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     m_ui_camera.init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
@@ -57,11 +58,25 @@ GameInstance::init( )
         // m_text.set_scale( 0.1f );
         m_text.set_position( {200.f, 200.f, 0.f} );
     }
+
+    Mesh m;
+    TextureCache::Handle model_shandle;
+    if ( load_texture( m_texture_cache, "tex/Rock.bmp", model_shandle )
+         && load_mesh( "Rck-Wtrfll_obj.obj", m ) )
+    {
+        // m_model.set_index_buffer( std::move( m.ib ) );
+        m_model.set_vertex_buffer( std::move( m.vb ) );
+        m_model.set_shader( shader );
+        m_model.set_texture( m_texture_cache.get( model_shandle ) );
+        m_model.get_transform( )->set_scale( {0.001f, 0.001f, 0.001f} );
+        m_model.init( );
+    }
 }
 
 void
 GameInstance::draw( IRender* render )
 {
+    m_model.draw( render, &m_game_camera );
     m_back.draw( &m_game_camera, render );
     m_btn.draw( &m_ui_camera, render );
     m_text.draw( render, &m_ui_camera );

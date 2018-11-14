@@ -139,6 +139,83 @@ public:
         return m_buffer.get_size( );
     }
 
+    void
+    split( basic::Vector< BaseString< T > >& out, T item )
+    {
+        size_t pos = 0;
+        size_t next_index = max_len;
+
+        while ( pos < get_size( ) )
+        {
+            if ( !find_first( next_index, item, pos ) )
+            {
+                out.push( std::move( get_substr( pos, get_size( ) - pos ) ) );
+                break;
+            }
+
+            out.push( std::move( get_substr( pos, next_index - pos ) ) );
+
+            pos = next_index + 1;
+        }
+    }
+
+    template < class Type, class Convert >
+    void
+    split_to( basic::Vector< Type >& out, T item, Convert convert_func )
+    {
+        size_t pos = 0;
+        size_t next_index = max_len;
+
+        while ( pos < get_size( ) )
+        {
+            if ( !find_first( next_index, item, pos ) )
+            {
+                Type t = convert_func( std::move( get_substr( pos, get_size( ) - pos ) ) );
+                out.push( std::move( t ) );
+                break;
+            }
+
+            Type t = convert_func( std::move( get_substr( pos, next_index - pos ) ) );
+
+            out.push( std::move( t ) );
+
+            pos = next_index + 1;
+        }
+    }
+
+    T
+    front( ) const
+    {
+        return m_buffer.front( );
+    }
+
+    T
+    back( ) const
+    {
+        return m_buffer.back( );
+    }
+
+    static BaseString< T >
+    read_line( T* cstr, size_t max_size )
+    {
+        BaseString< T > result;
+
+        for ( size_t i = 0; i < max_size; ++i )
+        {
+            T item = *( cstr + i );
+            const T next_line = static_cast< T >( '\n' );
+
+            if ( item == next_line )
+            {
+                break;
+            }
+
+            result.m_buffer.push( item );
+        }
+
+        return std::move( result );
+    }
+
 private:
     Vector< T > m_buffer;
 };
@@ -153,6 +230,22 @@ operator==( const BaseString< T >& s1, const BaseString< T >& s2 )
     }
 
     return mem_cmp( s1.get_cstr( ), s2.get_cstr( ), s2.get_size( ) ) == 0;
+}
+
+template < class T >
+bool
+operator==( const BaseString< T >& s1, const T* s2 )
+{
+    ASSERT( s2 != nullptr );
+
+    size_t size = str_length< T >( s2, basic::BaseString< T >::max_len ) + 1;
+
+    if ( s1.get_size( ) != size )
+    {
+        return false;
+    }
+
+    return mem_cmp( s1.get_cstr( ), s2, size ) == 0;
 }
 
 using String = BaseString< char >;

@@ -30,6 +30,7 @@ private:
 
     Sprite m_back;
     Sprite m_btn;
+    RenderObject m_model;
     glm::vec3 m_cam_pos;
     glm::vec3 m_cam_move_direction;
 

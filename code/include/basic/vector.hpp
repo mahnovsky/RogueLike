@@ -250,7 +250,7 @@ public:
 
         T* last = m_data + m_size;
         Initializer< T >::construct( last, Token< std::is_pod< T >::value >( ) );
-        ( *last ) = item;
+        ( *last ) = std::move( item );
         ++m_size;
     }
 
