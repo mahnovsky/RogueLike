@@ -13,6 +13,10 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 {
 }
 
+GameInstance::~GameInstance( )
+{
+}
+
 void
 GameInstance::init( )
 {

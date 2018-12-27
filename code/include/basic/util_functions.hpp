@@ -44,6 +44,9 @@ str_length( const T* cstring, size_t max_len )
 void* operator new( std::size_t n );
 void operator delete( void* p );
 
+void* operator new[]( std::size_t s );
+void operator delete[]( void* p );
+
 #define LOG( ... ) basic::log( __LINE__, __FILE__, __PRETTY_FUNCTION__, __VA_ARGS__ )
 
 #ifdef _DEBUG

@@ -148,3 +148,15 @@ operator delete( void* p )
 {
     basic::mem_free( p );
 }
+
+void*
+operator new[]( std::size_t s )
+{
+    return basic::mem_allocate( s );
+}
+
+void
+operator delete[]( void* p )
+{
+    basic::mem_free( p );
+}

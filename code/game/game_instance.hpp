@@ -11,6 +11,7 @@ class GameInstance
 {
 public:
     GameInstance( Engine* engine, float width, float height );
+    ~GameInstance( );
 
     void init( );
 
