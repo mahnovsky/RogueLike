@@ -7,7 +7,7 @@ set( SOURCE_PATH "./code/src" )
 
 if(UNIX AND NOT APPLE)
     set(TARGET_BUILD_PLATFORM "linux")
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ldl -lpthread" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ldl" )
     set( PLATFORM_SRC ${BASE_PATH}/linux_startup.cpp )
 endif()
 

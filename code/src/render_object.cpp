@@ -191,8 +191,14 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
     {
         m_texture->bind( );
     }
-
-    glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
+    if ( m_ib.is_empty( ) )
+    {
+        glDrawArrays( GL_TRIANGLES, 0, m_vb.get_size( ) );
+    }
+    else
+    {
+        glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, NULL );
+    }
 
     m_texture->unbind( );
     render->pop_mvp( );

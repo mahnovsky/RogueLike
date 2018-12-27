@@ -13,6 +13,8 @@ struct MeshVertex
     glm::vec3 pos;
     glm::vec2 uv;
     basic::uint16 index;
+    basic::uint16 vi;
+    basic::uint16 ti;
 };
 
 bool
@@ -75,43 +77,46 @@ load_mesh( const char* file, Mesh& out_mesh )
             for ( size_t i = 0; i < faces.get_size( ); i += step )
             {
                 MeshVertex v;
-                v.pos = vert_coords.get( faces[ i ] );
+                v.vi = faces[ i ];
+                v.pos = vert_coords.get( v.vi );
+
                 if ( step > 1 )
                 {
+                    v.ti = faces[ i + 1 ];
                     v.uv = tex_coords.get( faces[ i + 1 ] );
                 }
 
-                basic::uint16 index = 0;
+                int index = -1;
                 bool has_vertex = false;
                 for ( size_t i = 0; i < vertexes.get_size( ); ++i )
                 {
                     auto& vv = vertexes[ i ];
-                    has_vertex = vv.pos == v.pos && vv.uv == v.uv;
+                    has_vertex = vv.vi == v.vi && vv.ti == v.ti;
                     if ( has_vertex )
                     {
                         index = vv.index;
                         break;
                     }
                 }
-                if ( !has_vertex )
+                if ( index < 0 )
                 {
                     index = vertexes.get_size( );
                     v.index = index;
                     vertexes.push( v );
                 }
 
-                // out_mesh.ib.push( index );
-                out_mesh.vb.push( {v.pos, {255, 255, 255, 255}, v.uv} );
+                out_mesh.ib.push( index );
+                // out_mesh.vb.push( {v.pos, {255, 255, 255, 255}, v.uv} );
             }
         }
     }
 
-    out_mesh.vb.reserve( vertexes.get_size( ) );
+    out_mesh.vb.resize( vertexes.get_size( ) );
     for ( size_t i = 0; i < vertexes.get_size( ); ++i )
     {
         auto& vv = vertexes[ i ];
 
-        // out_mesh.vb.push( {vv.pos, {255, 255, 255, 255}, vv.uv} );
+        out_mesh.vb.push( {vv.pos, {255, 255, 255, 255}, vv.uv} );
     }
 
     return true;

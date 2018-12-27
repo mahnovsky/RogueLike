@@ -211,12 +211,11 @@ public:
     push_mvp( const glm::mat4& mat )
     {
         m_stack.push( mat );
-        // glUseProgram( m_shader_program );
         glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( mat ) );
     }
 
     void
-    pop_mvp( )
+    pop_mvp( ) override
     {
         ASSERT( !m_stack.is_empty( ) );
 
