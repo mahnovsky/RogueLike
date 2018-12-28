@@ -30,142 +30,18 @@ public:
 
         glViewport( 0, 0, width, height );
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
+        glClearDepth(1.0f);
 
         glEnable( GL_BLEND );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
         glEnable( GL_DEPTH_TEST );
         glDepthFunc( GL_LESS );
+        //glEnable(GL_CULL_FACE);
 
         m_stack.push( glm::mat4( 1.f ) );
 
-        // init_shaders( );
-
         return true;
-    }
-
-    bool
-    init_shader( const char* const data, size_t size, GLuint shader_type, GLuint& out )
-    {
-        GLuint index = glCreateShader( shader_type );
-
-        GLchar* data_ptr = (GLchar*)data;
-        GLint gsize = size;
-
-        glShaderSource( index, 1, &data_ptr, &gsize );
-
-        glCompileShader( index );
-
-        out = index;
-
-        return true;
-    }
-
-    bool
-    init_shaders( )
-    {
-        basic::Vector< char > data = basic::get_file_content( "vshader.glsl" );
-        if ( data.is_empty( ) )
-        {
-            LOG( "Failed load vshader source file" );
-
-            return false;
-        }
-
-        GLuint vshader = 0;
-        if ( init_shader( data.get_raw( ), data.get_size( ), GL_VERTEX_SHADER, vshader ) )
-        {
-            LOG( "vshader %u", vshader );
-
-            check_shader( vshader );
-        }
-        else
-        {
-            LOG( "failed vshader %u", vshader );
-
-            return false;
-        }
-
-        data.clear( );
-        data = basic::get_file_content( "fshader.glsl" );
-
-        if ( data.is_empty( ) )
-        {
-            LOG( "Failed read fshader source file" );
-
-            return false;
-        }
-
-        GLuint fshader = 0;
-        if ( init_shader( data.get_raw( ), data.get_size( ), GL_FRAGMENT_SHADER, fshader ) )
-        {
-            LOG( "fshader %u", fshader );
-
-            check_shader( fshader );
-        }
-        else
-        {
-            LOG( "failed fshader %u", fshader );
-
-            return false;
-        }
-
-        m_shader_program = glCreateProgram( );
-
-        glAttachShader( m_shader_program, vshader );
-        glAttachShader( m_shader_program, fshader );
-        glLinkProgram( m_shader_program );
-
-        bool result = false;
-        if ( check_shader_link( m_shader_program ) )
-        {
-            m_mvp_uniform = glGetUniformLocation( m_shader_program, "MVP" );
-            m_texture_uniform = glGetUniformLocation( m_shader_program, "texture_sampler" );
-
-            result = true;
-        }
-
-        glDeleteShader( vshader );
-        glDeleteShader( fshader );
-
-        return result;
-    }
-
-    void
-    check_shader( GLuint shader )
-    {
-        GLint success;
-        GLchar infoLog[ 512 ];
-        glGetShaderiv( shader, GL_COMPILE_STATUS, &success );
-
-        if ( success )
-        {
-            LOG( "Shader compiled successfuly %u", shader );
-        }
-        else
-        {
-            glGetShaderInfoLog( shader, 512, NULL, infoLog );
-            LOG( "ERROR vshader compilation failed  %s", infoLog );
-        }
-    }
-
-    bool
-    check_shader_link( GLuint shader )
-    {
-        GLint success;
-        GLchar infoLog[ 512 ];
-        glGetProgramiv( shader, GL_LINK_STATUS, &success );
-
-        if ( success )
-        {
-            LOG( "Shader linked successfuly %u", shader );
-        }
-        else
-        {
-            glGetProgramInfoLog( shader, 512, NULL, infoLog );
-            LOG( "Shader link failed %s", infoLog );
-        }
-
-        return success > 0;
     }
 
     void

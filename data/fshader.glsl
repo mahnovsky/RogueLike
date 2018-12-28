@@ -9,5 +9,6 @@ uniform sampler2D texture_sampler;
 
 void main()
 {
+    //color = texture(texture_sampler, UV) * in_color;
     color = in_color;
 }

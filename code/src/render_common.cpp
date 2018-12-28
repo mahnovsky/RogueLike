@@ -15,6 +15,13 @@ struct MeshVertex
     basic::uint16 index;
     basic::uint16 vi;
     basic::uint16 ti;
+
+    MeshVertex()
+        :pos()
+        ,uv()
+        ,vi(0)
+        ,ti(0)
+    {}
 };
 
 bool
@@ -51,6 +58,11 @@ load_mesh( const char* file, Mesh& out_mesh )
         basic::Vector< basic::String > items;
         line.split( items, ' ' );
 
+        if( items.is_empty() )
+        {
+            continue;
+        }
+
         if ( items.front( ) == "v" && items.get_size( ) > 3 )
         {
             float x = atof( items[ 1 ].get_cstr( ) );
@@ -73,17 +85,17 @@ load_mesh( const char* file, Mesh& out_mesh )
             items[ 2 ].split_to< basic::uint16 >( faces, '/', convert );
             items[ 3 ].split_to< basic::uint16 >( faces, '/', convert );
 
-            size_t step = faces.get_size( ) == 6 ? 2 : 1;
+            size_t step = faces.get_size( ) >= 6 ? 2 : 1;
             for ( size_t i = 0; i < faces.get_size( ); i += step )
             {
                 MeshVertex v;
                 v.vi = faces[ i ];
-                v.pos = vert_coords.get( v.vi );
+                v.pos = vert_coords.get( v.vi - 1 );
 
-                if ( step > 1 )
+                if ( step > 1 && !tex_coords.is_empty() )
                 {
                     v.ti = faces[ i + 1 ];
-                    v.uv = tex_coords.get( faces[ i + 1 ] );
+                    v.uv = tex_coords.get( faces[ v.ti - 1 ] );
                 }
 
                 int index = -1;
@@ -106,12 +118,11 @@ load_mesh( const char* file, Mesh& out_mesh )
                 }
 
                 out_mesh.ib.push( index );
-                // out_mesh.vb.push( {v.pos, {255, 255, 255, 255}, v.uv} );
             }
         }
     }
 
-    out_mesh.vb.resize( vertexes.get_size( ) );
+    out_mesh.vb.reserve( vertexes.get_size( ) );
     for ( size_t i = 0; i < vertexes.get_size( ); ++i )
     {
         auto& vv = vertexes[ i ];

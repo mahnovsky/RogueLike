@@ -153,6 +153,13 @@ public:
                 break;
             }
 
+            if( next_index == pos )
+            {
+                ++next_index;
+                pos = next_index;
+                continue;
+            }
+
             out.push( std::move( get_substr( pos, next_index - pos ) ) );
 
             pos = next_index + 1;
@@ -173,6 +180,13 @@ public:
                 Type t = convert_func( std::move( get_substr( pos, get_size( ) - pos ) ) );
                 out.push( std::move( t ) );
                 break;
+            }
+
+            if( next_index == pos )
+            {
+                ++next_index;
+                pos = next_index;
+                continue;
             }
 
             Type t = convert_func( std::move( get_substr( pos, next_index - pos ) ) );
