@@ -42,7 +42,7 @@ public:
     BaseString( BaseString< T >&& other )
         : m_buffer( )
     {
-        m_buffer = std::move( Vector< T >( other.m_buffer ) );
+        m_buffer = std::move( other.m_buffer );
     }
 
     void

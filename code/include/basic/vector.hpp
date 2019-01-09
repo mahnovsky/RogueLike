@@ -405,12 +405,17 @@ public:
     void
     force_clear( )
     {
-        clear( );
-        m_max_size = 0;
         if ( m_data )
         {
+            clear( );
+            m_max_size = 0;
             mem_free( m_data );
             m_data = nullptr;
+        }
+        else
+        {
+            m_size = 0;
+            m_max_size = 0;
         }
     }
 

@@ -64,7 +64,7 @@ GameInstance::init( )
     }
 
     Mesh m;
-    TextureCache::Handle model_shandle;
+
     if (  // load_texture( m_texture_cache, "tex/Rock.bmp", model_shandle )
             load_mesh( "cow.obj", m ) )  //"Rck-Wtrfll_obj.obj", m ) )
     {

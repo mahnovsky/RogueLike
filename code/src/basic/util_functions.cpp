@@ -4,12 +4,14 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <malloc.h>
 
 #define MAX_BUFFER_LEN 1024
 
 namespace basic
 {
 mem_out_callback g_out_of_memory_callback;
+size_t total_memory_usage = 0;
 
 void
 assert_func( int line, const char* file, const char* function, const char* message )
@@ -56,24 +58,66 @@ mem_copy( void* destination, const void* source, size_t byte_count )
     return memcpy( destination, source, byte_count );
 }
 
+template <class T>
+static T* ptr_plus(void* ptr, size_t offset)
+{
+    return reinterpret_cast<T*>( ( (static_cast<char*>(ptr)) + offset ) );
+}
+
+template <class T>
+static T* ptr_minus(void* ptr, size_t offset)
+{
+    return reinterpret_cast<T*>( ( (static_cast<char*>(ptr)) - offset ) );
+}
+
+static void* internal_malloc(size_t byte_count, size_t& real_size)
+{
+    const size_t offset = sizeof( size_t );
+
+    real_size = byte_count + offset;
+
+    void* res = malloc( real_size );
+
+    (*(size_t*)res) = real_size;
+
+    return ptr_plus<void>(res, offset);
+}
+
+static void internal_free(void* ptr, size_t& free_bytes )
+{
+    const size_t offset = sizeof( size_t );
+
+    free_bytes = *ptr_minus<size_t>( ptr, offset );
+
+    free( ptr_minus<void>( ptr, offset ) );
+}
+
 void*
 mem_allocate( size_t byte_count )
 {
     ASSERT_M( byte_count > 0, "Bad alloc size" );
 
-    void* res = malloc( byte_count );
+    size_t out_bytes = 0;
+    void* res = internal_malloc( byte_count, out_bytes );
+
     if ( !res && g_out_of_memory_callback )
     {
         g_out_of_memory_callback( );
     }
 
+    total_memory_usage += out_bytes;
+
     return res;
 }
 
 void
-mem_free( void* mem )
+mem_free( void* ptr )
 {
-    free( mem );
+    size_t free_bytes = 0;
+
+    internal_free( ptr, free_bytes );
+
+    total_memory_usage -= free_bytes;
 }
 
 void*
@@ -101,11 +145,16 @@ mem_realloc( void* ptr, size_t byte_count )
 {
     ASSERT( byte_count > 0 );
 
-    void* res = realloc( ptr, byte_count );
-    if ( !res && g_out_of_memory_callback )
+    if( ptr == nullptr )
     {
-        g_out_of_memory_callback( );
+        return mem_allocate( byte_count );
     }
+
+    void* res = mem_allocate( byte_count );
+
+    mem_copy( res, ptr, byte_count );
+
+    mem_free( ptr );
 
     return res;
 }
@@ -135,6 +184,12 @@ log( int line, const char* file, const char* func, const char* format, ... )
     puts( buffer );
     fflush( stdout );
 }
+
+size_t get_total_memory_usage()
+{
+    return total_memory_usage;
+}
+
 }
 
 void*

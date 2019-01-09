@@ -39,6 +39,9 @@ str_length( const T* cstring, size_t max_len )
 
     return offset;
 }
+
+size_t get_total_memory_usage();
+
 }
 
 void* operator new( std::size_t n );

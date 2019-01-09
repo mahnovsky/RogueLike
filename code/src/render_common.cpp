@@ -33,6 +33,7 @@ load_mesh( const char* file, Mesh& out_mesh )
     {
         return false;
     }
+
     basic::Vector< glm::vec3 > vert_coords;
     basic::Vector< glm::vec2 > tex_coords;
     basic::Vector< MeshVertex > vertexes;

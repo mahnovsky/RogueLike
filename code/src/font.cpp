@@ -120,8 +120,6 @@ Font::generate( const char* text, float height, RenderObject& out_object )
             ib.push( 0 + offset * 4 );
             ib.push( 2 + offset * 4 );
             ib.push( 3 + offset * 4 );
-
-            LOG( "y == %f", q.y0 );
         }
         ++offset;
     }

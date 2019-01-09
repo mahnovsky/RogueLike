@@ -91,6 +91,9 @@ Engine::run( int width, int height, const char* wnd_title )
         m_callbacks[ Init ]( this );
     }
 
+    LOG( "Engine initialization done. Memory usage %lu",
+        basic::get_total_memory_usage() );
+
     while ( !m_quit )
     {
         basic::uint64 begin = basic::get_milliseconds();
@@ -124,6 +127,9 @@ Engine::run( int width, int height, const char* wnd_title )
     m_render = nullptr;
     delete m_window;
     m_render = nullptr;
+
+    LOG( "Engine free done. Memory usage %lu",
+        basic::get_total_memory_usage() );
 
     return 0;
 }
