@@ -42,6 +42,13 @@ str_length( const T* cstring, size_t max_len )
 
 size_t get_total_memory_usage();
 
+using memory_size = uint32;
+using ref_count = uint32;
+
+ref_count increment_ref(void* ptr);
+ref_count decrement_ref(void* ptr);
+ref_count get_refs(void* ptr);
+
 }
 
 void* operator new( std::size_t n );

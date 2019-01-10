@@ -170,6 +170,13 @@ public:
         return m_size;
     }
 
+    bool is_contains(T item)
+    {
+        size_t index;
+
+        return find_first( index, item );
+    }
+
     void
     reserve( size_t count )
     {

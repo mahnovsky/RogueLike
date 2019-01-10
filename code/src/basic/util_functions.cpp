@@ -10,6 +10,7 @@
 
 namespace basic
 {
+
 mem_out_callback g_out_of_memory_callback;
 size_t total_memory_usage = 0;
 
@@ -72,22 +73,28 @@ static T* ptr_minus(void* ptr, size_t offset)
 
 static void* internal_malloc(size_t byte_count, size_t& real_size)
 {
-    const size_t offset = sizeof( size_t );
+    const uint32 mem_offset = sizeof( memory_size );
+    const uint32 offset = mem_offset + sizeof( ref_count );
 
     real_size = byte_count + offset;
 
     void* res = malloc( real_size );
 
-    (*(size_t*)res) = real_size;
+    (*(memory_size*)res) = real_size;
+    ref_count* refs = ptr_plus<ref_count>( res, mem_offset );
+    (*refs) = 0;
 
     return ptr_plus<void>(res, offset);
 }
 
 static void internal_free(void* ptr, size_t& free_bytes )
 {
-    const size_t offset = sizeof( size_t );
+    const size_t offset = sizeof( memory_size ) + sizeof( ref_count );
 
-    free_bytes = *ptr_minus<size_t>( ptr, offset );
+    free_bytes = *ptr_minus<memory_size>( ptr, offset );
+
+    ref_count* refs = ptr_minus<ref_count>( ptr, sizeof(ref_count) );
+    ASSERT( (*refs) == 0 );
 
     free( ptr_minus<void>( ptr, offset ) );
 }
@@ -188,6 +195,27 @@ log( int line, const char* file, const char* func, const char* format, ... )
 size_t get_total_memory_usage()
 {
     return total_memory_usage;
+}
+
+ref_count increment_ref(void *ptr)
+{
+    ref_count* refs = ptr_minus<ref_count>(ptr, sizeof(ref_count));
+
+    ++(*refs);
+}
+
+ref_count decrement_ref(void *ptr)
+{
+    ref_count* refs = ptr_minus<ref_count>(ptr, sizeof(ref_count));
+
+    --(*refs);
+}
+
+ref_count get_refs(void *ptr)
+{
+    ref_count* refs = ptr_minus<ref_count>(ptr, sizeof(ref_count));
+
+    return (*refs);
 }
 
 }
