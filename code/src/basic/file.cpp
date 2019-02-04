@@ -12,7 +12,7 @@ Vector<char> get_file_content( const char* file_name )
 {
     Vector<char> result;
     String file_path = g_data_path + file_name;
-    FILE* file = fopen( file_path.get_cstr(), "r" );
+    FILE* file = fopen( file_path.get_cstr(), "rb" );
 
     if( file )
     {
@@ -26,7 +26,7 @@ Vector<char> get_file_content( const char* file_name )
         fclose( file );
     }
 
-    return result;
+    return std::move( result );
 }
 
 }

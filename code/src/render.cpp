@@ -17,6 +17,13 @@ extern "C" {
 class Render : public IRender
 {
 public:
+	Render()
+		:m_shader_program(0)
+		,m_mvp_uniform(0)
+		,m_texture_uniform(0)
+		,m_stack()
+	{}
+
     bool
     init( int width, int height ) override
     {

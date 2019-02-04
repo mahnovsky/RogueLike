@@ -35,7 +35,7 @@ QuadGenerator::generate( VertexBuffer& out_vb, int offset )
 void
 QuadGenerator::generate( IndexBuffer& out_vb, int offset )
 {
-    float xoff = offset * 6;
+    int xoff = offset * 6;
     for ( int i = 0; i < 6; ++i )
     {
         auto index = indices[ i ] + xoff;
@@ -177,6 +177,7 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
     {
         return;
     }
+
     m_shader->bind( );
 
     bind_array_object( true );
@@ -187,6 +188,7 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
     cam->get_matrix( pv );
 
     render->push_mvp( pv * model );
+
     if ( m_texture )
     {
         m_texture->bind( );
@@ -200,7 +202,11 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
         glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, NULL );
     }
 
-    m_texture->unbind( );
+	if (m_texture)
+	{
+		m_texture->unbind();
+	}
+
     render->pop_mvp( );
 
     bind_array_object( false );

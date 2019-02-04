@@ -91,7 +91,7 @@ public:
         }
     }
 
-    Vector( Vector< T >&& other )
+    Vector( Vector< T >&& other ) noexcept
         : m_data( other.m_data )
         , m_size( other.m_size )
         , m_max_size( other.m_max_size )
@@ -122,7 +122,7 @@ public:
     }
 
     Vector< T >&
-    operator=( Vector< T >&& v )
+    operator=( Vector< T >&& v ) noexcept
     {
         m_size = v.m_size;
         m_max_size = v.m_max_size;

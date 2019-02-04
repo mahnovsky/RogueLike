@@ -80,10 +80,10 @@ GameInstance::init( )
 void
 GameInstance::draw( IRender* render )
 {
-    m_model.draw( render, &m_game_camera );
-    //m_back.draw( &m_game_camera, render );
-    //m_btn.draw( &m_ui_camera, render );
-    //m_text.draw( render, &m_ui_camera );
+    //m_model.draw( render, &m_game_camera );
+    m_back.draw( &m_game_camera, render );
+    m_btn.draw( &m_ui_camera, render );
+    m_text.draw( render, &m_ui_camera );
 }
 
 void
@@ -97,10 +97,10 @@ GameInstance::frame( float delta )
 
     // m_game_camera.set_position( m_cam_pos );
     auto pos = m_back.get_position( );
-    pos.x += ( 0.1f * delta );
-    pos.y += ( 0.1f * delta );
+    pos.x += ( 0.8f * delta );
+    pos.y += ( 0.8f * delta );
 
-    m_back.set_position( pos );
+	m_back.set_position( pos );
 }
 
 void

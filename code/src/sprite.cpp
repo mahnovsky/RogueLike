@@ -3,7 +3,8 @@
 Sprite::Sprite( )
     : m_object( )
     , m_color{255, 255, 255, 255}
-    , m_texture( )
+    , m_texture( nullptr )
+	, m_shader( nullptr )
     , m_size( 1.f, 1.f, 0.f )
     , m_anchor( 0.5f, 0.5f )
 {

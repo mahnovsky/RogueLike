@@ -71,6 +71,8 @@ Win32_Window::Win32_Window()
     ,m_device_context( nullptr )
     ,m_render_context(nullptr)
     ,m_is_running(true)
+	,m_width(800)
+	,m_height(600)
 {
 }
 

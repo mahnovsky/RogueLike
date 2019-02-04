@@ -3,7 +3,7 @@
 #include "basic/string.hpp"
 
 static basic::uint16
-convert( const basic::String& str )
+convert( basic::String str )
 {
     return static_cast< basic::uint16 >( atoi( str.get_cstr( ) ) );
 }
@@ -15,13 +15,6 @@ struct MeshVertex
     basic::uint16 index;
     basic::uint16 vi;
     basic::uint16 ti;
-
-    MeshVertex()
-        :pos()
-        ,uv()
-        ,vi(0)
-        ,ti(0)
-    {}
 };
 
 bool
@@ -39,9 +32,12 @@ load_mesh( const char* file, Mesh& out_mesh )
     basic::Vector< MeshVertex > vertexes;
 
     size_t offset = 0;
+	int line_counter = 0;
 
     while ( offset < data.get_size( ) )
     {
+		++line_counter;
+
         basic::String line
                 = basic::String::read_line( data.get_raw( ) + offset, data.get_size( ) - offset );
 

@@ -24,7 +24,7 @@ Engine::Engine( int argc, char** argv )
     , m_quit( false )
     , m_callbacks()
     , m_cmd_args()
-    , m_delta( 0.f )
+    , m_delta( 0 )
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -79,7 +79,7 @@ Engine::run( int width, int height, const char* wnd_title )
     }
 
     m_render = IRender::create();
-    if( !m_render->init( width, width ) )
+    if( !m_render->init( width, height ) )
     {
         LOG("Failed init render.");
 
@@ -116,6 +116,11 @@ Engine::run( int width, int height, const char* wnd_title )
         m_render->draw_end( m_window );
 
         m_delta = basic::get_milliseconds() - begin;
+
+		if (m_delta <= 0)
+		{
+			m_delta = 1;
+		}
     }
 
     if( m_callbacks[ Clean ] )

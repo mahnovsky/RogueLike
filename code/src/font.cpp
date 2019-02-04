@@ -17,6 +17,7 @@ Font::Font( )
     : m_texture( )
     , m_height( 32.f )
     , m_cdata( basic::mem_allocate( 96 * sizeof( stbtt_bakedchar ) ) )
+	, m_shader(nullptr)
 {
 }
 
@@ -36,8 +37,8 @@ Font::init( const char* file, Shader* shader )
 
     m_shader = shader;
 
-    float tw = 512;
-    float th = 512;
+    basic::uint32 tw = 512;
+	basic::uint32 th = 512;
 
     unsigned char* temp_bitmap = (unsigned char*)basic::mem_allocate( tw * th );
     stbtt_BakeFontBitmap( (unsigned char*)data.get_raw( ),

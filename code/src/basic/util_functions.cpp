@@ -6,6 +6,10 @@
 #include <cstring>
 #include <malloc.h>
 
+#ifdef __WINDOWS__
+#include <Windows.h>
+#endif
+
 #define MAX_BUFFER_LEN 1024
 
 namespace basic
@@ -71,6 +75,27 @@ static T* ptr_minus(void* ptr, size_t offset)
     return reinterpret_cast<T*>( ( (static_cast<char*>(ptr)) - offset ) );
 }
 
+static memory_size get_mem_size(void* ptr) 
+{
+	const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+
+	return *ptr_minus<memory_size>( ptr, offset );
+}
+
+static memory_size get_user_mem_size(void* ptr)
+{
+	const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+
+	return (*ptr_minus<memory_size>(ptr, offset)) - offset;
+}
+
+static void* get_base_ptr(void* ptr)
+{
+	const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+
+	return ptr_minus<void>( ptr, offset );
+}
+
 static void* internal_malloc(size_t byte_count, size_t& real_size)
 {
     const uint32 mem_offset = sizeof( memory_size );
@@ -79,28 +104,32 @@ static void* internal_malloc(size_t byte_count, size_t& real_size)
     real_size = byte_count + offset;
 
     void* res = malloc( real_size );
+	if (res)
+	{
+		(*(memory_size*)res) = real_size;
+		ref_count* refs = ptr_plus<ref_count>(res, mem_offset);
+		(*refs) = 0;
 
-    (*(memory_size*)res) = real_size;
-    ref_count* refs = ptr_plus<ref_count>( res, mem_offset );
-    (*refs) = 0;
+		return ptr_plus<void>(res, offset);
+	}
 
-    return ptr_plus<void>(res, offset);
+	return nullptr;
 }
 
 static void internal_free(void* ptr, size_t& free_bytes )
 {
-    const size_t offset = sizeof( memory_size ) + sizeof( ref_count );
+    free_bytes = get_mem_size( ptr );
 
-    free_bytes = *ptr_minus<memory_size>( ptr, offset );
+	ref_count refs = get_refs(ptr);
+    ASSERT( refs == 0 );
 
-    ref_count* refs = ptr_minus<ref_count>( ptr, sizeof(ref_count) );
-    ASSERT( (*refs) == 0 );
+	void* base_ptr = get_base_ptr(ptr);
 
-    free( ptr_minus<void>( ptr, offset ) );
+    free( base_ptr );
 }
 
 void*
-mem_allocate( size_t byte_count )
+mem_allocate( uint32 byte_count )
 {
     ASSERT_M( byte_count > 0, "Bad alloc size" );
 
@@ -152,16 +181,25 @@ mem_realloc( void* ptr, size_t byte_count )
 {
     ASSERT( byte_count > 0 );
 
-    if( ptr == nullptr )
-    {
-        return mem_allocate( byte_count );
-    }
+	void* res = ptr;
 
-    void* res = mem_allocate( byte_count );
+	if ( ptr )
+	{
+		const memory_size mem_size = get_user_mem_size(ptr);
 
-    mem_copy( res, ptr, byte_count );
+		if (byte_count > mem_size)
+		{
+			res = mem_allocate(byte_count);
 
-    mem_free( ptr );
+			mem_copy(res, ptr, mem_size);
+
+			mem_free(ptr);
+		}
+	}
+	else
+	{
+		res = mem_allocate(byte_count);
+	}
 
     return res;
 }
@@ -181,15 +219,24 @@ log( int line, const char* file, const char* func, const char* format, ... )
 
     snprintf( buffer, MAX_BUFFER_LEN, "%s: %d\n\t [ %s ] ", file, line, func );
 
+#ifdef __WINDOWS__
+	OutputDebugStringA(buffer);
+	OutputDebugStringA("\n");
+#else
     puts( buffer );
-
+#endif
     va_list args;
     va_start( args, format );
     vsnprintf( buffer, MAX_BUFFER_LEN, format, args );
     va_end( args );
 
-    puts( buffer );
-    fflush( stdout );
+#ifdef __WINDOWS__
+	OutputDebugStringA(buffer);
+	OutputDebugStringA("\n");
+#else
+	puts(buffer);
+	fflush(stdout);
+#endif
 }
 
 size_t get_total_memory_usage()
@@ -202,6 +249,8 @@ ref_count increment_ref(void *ptr)
     ref_count* refs = ptr_minus<ref_count>(ptr, sizeof(ref_count));
 
     ++(*refs);
+
+	return (*refs);
 }
 
 ref_count decrement_ref(void *ptr)
@@ -209,6 +258,8 @@ ref_count decrement_ref(void *ptr)
     ref_count* refs = ptr_minus<ref_count>(ptr, sizeof(ref_count));
 
     --(*refs);
+
+	return (*refs);
 }
 
 ref_count get_refs(void *ptr)

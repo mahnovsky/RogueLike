@@ -2,21 +2,31 @@
 #include "GL/glew.h"
 #include "basic/file.hpp"
 
-Texture::Texture( )
+Texture::Texture( ) noexcept
     : m_texture( 0 )
+	, m_width(0)
+	, m_height(0)
+	, m_components(basic::ColorComponents::BGR)
 {
 }
 
-Texture::Texture( Texture&& t )
+Texture::Texture( Texture&& t ) noexcept
     : m_texture( t.m_texture )
+	, m_width(t.m_width)
+	, m_height(t.m_height)
+	, m_components(t.m_components)
 {
     t.m_texture = 0;
+	t.m_width = 0;
+	t.m_height = 0;
+	t.m_components = basic::ColorComponents::BGR;
 }
 
-Texture::Texture( basic::uint32 w, basic::uint32 h, basic::uint32 tex )
-    : m_width( w )
+Texture::Texture( basic::uint32 w, basic::uint32 h, basic::uint32 tex ) noexcept
+    : m_texture(tex)
+	, m_width( w )
     , m_height( h )
-    , m_texture( tex )
+    , m_components(basic::ColorComponents::BGR)
 {
 }
 
@@ -74,6 +84,7 @@ Texture::init( basic::uint32 width,
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+
     glGenerateMipmap( GL_TEXTURE_2D );
 }
 

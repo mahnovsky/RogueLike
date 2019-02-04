@@ -163,6 +163,7 @@ public:
 
     PoolPtr()
         :m_handle( Pool<T>::INVALID_HANDLE )
+		,m_cached_object(nullptr)
     {
         Pool<T>::get().add_listener( this );
     }

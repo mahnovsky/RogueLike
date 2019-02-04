@@ -53,5 +53,5 @@ Transform::get_matrix( ) const
     glm::mat4 translate = glm::translate( glm::mat4( 1.f ), m_pos );
     glm::mat4 rot = glm::lookAt( m_pos, m_pos + m_forward, up );
 
-    return translate * rot * glm::scale( glm::mat4( 1.f ), m_scale );
+    return translate * glm::scale( glm::mat4( 1.f ), m_scale );
 }
