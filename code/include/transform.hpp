@@ -1,8 +1,10 @@
 #pragma once
 
+#define GLM_ENABLE_EXPERIMENTAL
+
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "basic/pool.hpp"
+#include "glm/gtx/quaternion.hpp"
 
 class Transform
 {
@@ -12,6 +14,8 @@ public:
     void set_position( const glm::vec3& pos );
 
     glm::vec3 get_position() const;
+
+    void set_euler_angles( const glm::vec3& angles );
 
     void set_forward( const glm::vec3& dir );
 
@@ -25,9 +29,8 @@ public:
 
 private:
     glm::vec3 m_pos;
+    glm::quat m_quat;
     glm::vec3 m_forward;
 	glm::vec3 m_up;
     glm::vec3 m_scale;
 };
-
-using TransformPtr = basic::PoolPtr<Transform>;

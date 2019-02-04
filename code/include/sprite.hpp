@@ -20,6 +20,10 @@ public:
 
     void set_anchor( float x, float y );
 
+    void set_angle( float angle );
+
+    float get_angle() const;
+
     glm::vec3 get_position( ) const;
 
     void set_color( basic::uint8 r, basic::uint8 g, basic::uint8 b, basic::uint8 a );
@@ -35,4 +39,5 @@ private:
     Shader* m_shader;
     glm::vec3 m_size;
     glm::vec2 m_anchor;
+    float m_angle;
 };

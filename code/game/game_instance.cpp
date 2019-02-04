@@ -45,7 +45,7 @@ GameInstance::init( )
 
         m_btn.init( shader, texture );
         m_btn.set_size( 100.f, 100.f );
-        m_btn.set_position( {0.f, 0.f, 0.f} );
+        m_btn.set_position( {100.f, 100.f, 0.f} );
     }
 
     Shader* text_shader = nullptr;
@@ -100,7 +100,11 @@ GameInstance::frame( float delta )
     pos.x += ( 0.8f * delta );
     pos.y += ( 0.8f * delta );
 
-	m_back.set_position( pos );
+    m_back.set_position( pos );
+
+    //float angle = m_btn.get_angle();
+
+    //m_btn.set_angle( angle + 0.03f );
 }
 
 void

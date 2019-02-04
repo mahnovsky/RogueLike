@@ -7,6 +7,7 @@ Sprite::Sprite( )
 	, m_shader( nullptr )
     , m_size( 1.f, 1.f, 0.f )
     , m_anchor( 0.5f, 0.5f )
+    , m_angle(0.f)
 {
 }
 
@@ -95,15 +96,30 @@ Sprite::set_anchor( float x, float y )
     }
 }
 
+void Sprite::set_angle(float angle)
+{
+    m_angle = angle;
+
+    Transform* transform = m_object.get_transform();
+
+    transform->set_euler_angles( {0.f, 0.f, m_angle} );
+}
+
+float Sprite::get_angle() const
+{
+    return m_angle;
+}
+
 void
 Sprite::update_color( Vertex* v, void* user_data )
 {
     Sprite* sp = static_cast< Sprite* >( user_data );
+
     v->color = sp->m_color;
 }
 
 void
-Sprite::update_size( Vertex* v, void* user_data )
+Sprite::update_size( Vertex* /*v*/, void* /*user_data*/ )
 {
-    Sprite* sp = static_cast< Sprite* >( user_data );
+    //Sprite* sp = static_cast< Sprite* >( user_data );
 }

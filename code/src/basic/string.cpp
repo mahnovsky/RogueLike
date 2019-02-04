@@ -78,7 +78,7 @@ namespace basic
 
 		res.append(cstr);
 
-		return std::move(res);
+        return res;
 	}
 
 	void String::operator+=(const char_t* cstr)
@@ -176,7 +176,7 @@ namespace basic
 			result.m_buffer.push(item);
 		}
 
-		return std::move(result);
+        return result;
 	}
 
 	bool operator==(const String& s1, const String& s2)
@@ -193,7 +193,7 @@ namespace basic
 	{
 		ASSERT(s2 != nullptr);
 
-		size_t size = str_length< char_t >(s2, basic::String::MAX_LEN) + 1;
+        size_t size = str_length(s2, basic::String::MAX_LEN) + 1;
 
 		if (s1.get_size() != size)
 		{

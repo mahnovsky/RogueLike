@@ -92,7 +92,7 @@ Engine::run( int width, int height, const char* wnd_title )
     }
 
     LOG( "Engine initialization done. Memory usage %lu",
-        basic::get_total_memory_usage() );
+        basic::get_memory_usage() );
 
     while ( !m_quit )
     {
@@ -134,7 +134,7 @@ Engine::run( int width, int height, const char* wnd_title )
     m_render = nullptr;
 
     LOG( "Engine free done. Memory usage %lu",
-        basic::get_total_memory_usage() );
+        basic::get_memory_usage() );
 
     return 0;
 }

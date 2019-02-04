@@ -1,61 +1,19 @@
 #pragma once
 
-#include "types.hpp"
+#include "memory.hpp"
 
 namespace basic
 {
+
 void assert_func( int line, const char* file, const char* function, const char* message );
 
-size_t str_length( const char* ptr, size_t max_len );
+memory_size str_length( const char* ptr, memory_size max_len );
 
-char* str_copy( const char* cstr, size_t max_len );
+char* str_copy(const char* cstr, memory_size max_len );
 
-void* mem_copy( void* destination, const void* source, size_t byte_count );
-
-void* mem_allocate( size_t byte_count );
-
-void mem_free( void* mem );
-
-void* mem_move( void* destination, const void* source, size_t byte_count );
-
-int mem_cmp( const void* ptr1, const void* ptr2, size_t byte_count );
-
-void* mem_realloc( void* ptr, size_t byte_count );
-
-using mem_out_callback = void ( * )( );
-
-void mem_set_out_of_memory( mem_out_callback callback );
-
-void log( int line, const char* file, const char* func, const char* format, ... );
-
-template < class T >
-size_t
-str_length( const T* cstring, size_t max_len )
-{
-    const T* pos = cstring;
-    size_t offset = 0;
-    while ( *( pos + offset ) != 0 && ( offset < max_len ) )
-        ++offset;
-
-    return offset;
-}
-
-size_t get_total_memory_usage();
-
-using memory_size = uint32;
-using ref_count = uint32;
-
-ref_count increment_ref(void* ptr);
-ref_count decrement_ref(void* ptr);
-ref_count get_refs(void* ptr);
+void log(int line, const char* file, const char * const func, const char* format, ... );
 
 }
-
-void* operator new( std::size_t n );
-void operator delete( void* p );
-
-void* operator new[]( std::size_t s );
-void operator delete[]( void* p );
 
 #define LOG( ... ) basic::log( __LINE__, __FILE__, __PRETTY_FUNCTION__, __VA_ARGS__ )
 
