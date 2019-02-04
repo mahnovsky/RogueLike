@@ -8,6 +8,7 @@
 class SceneNode : public Object
 {
 public:
+    SceneNode();
     virtual ~SceneNode();
 
     void remove_children();

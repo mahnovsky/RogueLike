@@ -1,6 +1,11 @@
 #include "scene_node.h"
 
-
+SceneNode::SceneNode()
+    :transform()
+    ,m_parent(nullptr)
+    ,m_children()
+{
+}
 
 SceneNode::~SceneNode()
 {
