@@ -75,12 +75,13 @@ class Vector
 {
 public:
     using Item = T;
-    static constexpr uint32 MAX_LEN = 0xffffffff;
+    static constexpr const uint32 MAX_LEN = 0xffffffff;
+    static constexpr const uint32 DEFAULT_CAPACITY = 4;
 
     Vector( )
         : m_data( nullptr )
         , m_size( 0 )
-        , m_capacity( 4 )
+        , m_capacity( DEFAULT_CAPACITY )
     {
     }
 
@@ -218,8 +219,7 @@ public:
         return false;
     }
 
-    void
-    append( const T* ptr, uint32 count )
+    void append( const T* ptr, uint32 count )
     {
         ASSERT( ptr != nullptr );
         ASSERT( count > 0 );
@@ -237,8 +237,7 @@ public:
         mem_copy( last, ptr, mem_size );
     }
 
-    void
-    push( T item )
+    void push( T item )
     {
         if ( !m_data )
         {
@@ -259,8 +258,7 @@ public:
     }
 
     template < class... Args >
-    void
-    emplace( Args... args )
+    void emplace( Args... args )
     {
         if ( !m_data )
         {
@@ -279,8 +277,7 @@ public:
         ++m_size;
     }
 
-    void
-    pop( )
+    void pop( )
     {
         if ( m_size > 0 )
         {
@@ -288,10 +285,9 @@ public:
         }
     }
 
-    bool
-    find_first( uint32& out_index, T value, uint32 pos = 0 ) const
+    bool find_first( uint32& out_index, T value, uint32 pos = 0 ) const
     {
-        if ( pos > m_size )
+        if ( pos >= m_size )
         {
             return false;
         }
@@ -308,8 +304,7 @@ public:
         return false;
     }
 
-    bool
-    find_last( uint32& out_index, T value, uint32 pos = MAX_LEN ) const
+    bool find_last( uint32& out_index, T value, uint32 pos = MAX_LEN ) const
     {
         if ( pos > m_size )
         {
@@ -328,8 +323,7 @@ public:
         return false;
     }
 
-    void
-    remove_by_index( uint32 index )
+    void remove_by_index( uint32 index )
     {
         if ( m_size > index )
         {
@@ -345,8 +339,7 @@ public:
         }
     }
 
-    void
-    remove_by_value( T value, bool all = false )
+    void remove_by_value( T value, bool all = false )
     {
         if ( m_size < 0 )
         {
@@ -373,8 +366,7 @@ public:
         } while ( all );
     }
 
-    const T&
-    get( uint32 index ) const
+    const T& get( uint32 index ) const
     {
         ASSERT( index < m_size );
 
@@ -386,8 +378,7 @@ public:
         return get( index );
     }
 
-    T&
-    get( uint32 index )
+    T& get( uint32 index )
     {
         ASSERT( index < m_size );
 
@@ -399,15 +390,13 @@ public:
         return get( index );
     }
 
-    void
-    clear( )
+    void clear( )
     {
         destruct_elements( 0 );
         m_size = 0;
     }
 
-    void
-    force_clear( )
+    void force_clear( )
     {
         if ( m_data )
         {
@@ -457,23 +446,22 @@ private:
         return true;
     }
 
-    void
-    init( )
+    void init( )
     {
         m_size = 0;
+        m_capacity = DEFAULT_CAPACITY;
+
         realloc( );
     }
 
-    bool
-    grow( )
+    bool grow( )
     {
         m_capacity = grow_func( m_capacity );
 
         return realloc( );
     }
 
-    void
-    construct_elements( uint32 pos )
+    void construct_elements( uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
@@ -481,8 +469,7 @@ private:
         }
     }
 
-    void
-    destruct_elements( uint32 pos )
+    void destruct_elements( uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
@@ -490,8 +477,7 @@ private:
         }
     }
 
-    void
-    copy_elements( const T* src, uint32 pos )
+    void copy_elements( const T* src, uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {

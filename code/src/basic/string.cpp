@@ -37,7 +37,7 @@ namespace basic
 
 	void String::init(const char_t* cstr)
 	{
-		m_buffer.init(cstr, str_length(cstr, MAX_LEN) + 1);
+        m_buffer.init(cstr, static_cast<uint32>( str_length(cstr, MAX_LEN) + 1 ) );
 	}
 
 	void String::append(const char_t* cstr)
@@ -45,7 +45,7 @@ namespace basic
 		ASSERT(m_buffer.back() == CSTR_END);
 
 		m_buffer.pop();
-		m_buffer.append(cstr, str_length(cstr, MAX_LEN) + 1);
+        m_buffer.append(cstr, static_cast<uint32>( str_length(cstr, MAX_LEN) + 1) );
 	}
 
 	bool String::is_empty() const
@@ -107,7 +107,7 @@ namespace basic
 	{
 		ASSERT((pos + count) <= m_buffer.get_size());
 
-		String res(get_cstr() + pos, count);
+        String res(get_cstr() + pos, count);
 
         return res;
 	}
@@ -132,7 +132,7 @@ namespace basic
 					count -= 1;
 				}
 
-				out.push(std::move(get_substr(pos, count)));
+                out.push(get_substr(pos, count));
 				break;
 			}
 
@@ -143,7 +143,7 @@ namespace basic
 				continue;
 			}
 
-			out.push(std::move(get_substr(pos, next_index - pos)));
+            out.push(get_substr(pos, next_index - pos));
 
 			pos = next_index + 1;
 		}
@@ -162,11 +162,11 @@ namespace basic
     String String::read_line(char_t* cstr, uint32 max_size)
 	{
 		String result;
+        const char_t next_line = '\n';
 
         for (uint32 i = 0; i < max_size; ++i)
 		{
 			char_t item = *(cstr + i);
-			const char_t next_line = '\n';
 
 			if (item == next_line)
 			{
@@ -191,9 +191,10 @@ namespace basic
 
 	bool operator==(const String& s1, const char* s2)
 	{
+        ASSERT(!s1.is_empty());
 		ASSERT(s2 != nullptr);
 
-        uint32 size = str_length(s2, basic::String::MAX_LEN) + 1;
+        uint32 size = static_cast<uint32>( str_length(s2, basic::String::MAX_LEN) + 1 );
 
 		if (s1.get_size() != size)
 		{
