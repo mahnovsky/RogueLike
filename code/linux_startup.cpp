@@ -18,7 +18,7 @@ void
 set_data_path( const char* binary_path )
 {
     basic::String path = binary_path;
-    size_t index = 0;
+    uint32 index = 0;
 
     if ( path.find_last( index, '/' ) && path.find_last( index, '/', index - 1 ) )
     {

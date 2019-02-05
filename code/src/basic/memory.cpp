@@ -30,23 +30,23 @@ static T* ptr_minus(void* ptr, size_t offset)
 
 static memory_size get_mem_size(void* ptr)
 {
-        const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+    const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
 
-        return *ptr_minus<memory_size>( ptr, offset );
+    return *ptr_minus<memory_size>( ptr, offset );
 }
 
 static memory_size get_user_mem_size(void* ptr)
 {
-        const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+    const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
 
-        return (*ptr_minus<memory_size>(ptr, offset)) - offset;
+    return (*ptr_minus<memory_size>(ptr, offset)) - offset;
 }
 
 static void* get_base_ptr(void* ptr)
 {
-        const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
+    const uint32 offset = sizeof(memory_size) + sizeof(ref_count);
 
-        return ptr_minus<void>( ptr, offset );
+    return ptr_minus<void>( ptr, offset );
 }
 
 static void* internal_malloc(memory_size byte_count, memory_size& real_size)
@@ -73,8 +73,7 @@ static void internal_free(void* ptr, size_t& free_bytes )
 {
     free_bytes = get_mem_size( ptr );
 
-    ref_count refs = get_refs(ptr);
-    ASSERT( refs == 0 );
+    ASSERT( get_refs(ptr) == 0 );
 
     void* base_ptr = get_base_ptr(ptr);
 

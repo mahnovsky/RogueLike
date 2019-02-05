@@ -13,7 +13,7 @@ namespace basic
 		init(cstr);
 	}
 
-	String::String(const char_t* cstr, size_t count)
+    String::String(const char_t* cstr, uint32 count)
 		: m_buffer()
 	{
 		ASSERT(str_length(cstr, MAX_LEN) >= count);
@@ -86,47 +86,47 @@ namespace basic
 		append(cstr);
 	}
 
-	char_t String::operator[](size_t index) const
+    char_t String::operator[](uint32 index) const
 	{
 		ASSERT(index < m_buffer.get_size());
 
 		return m_buffer[index];
 	}
 
-	bool String::find_first(size_t& out_index, char_t value, size_t pos) const
+    bool String::find_first(uint32& out_index, char_t value, uint32 pos) const
 	{
 		return m_buffer.find_first(out_index, value, pos);
 	}
 
-	bool String::find_last(size_t& out_index, char_t value, size_t pos) const
+    bool String::find_last(uint32& out_index, char_t value, uint32 pos) const
 	{
 		return m_buffer.find_last(out_index, value, pos);
 	}
 
-	String String::get_substr(size_t pos, size_t count) const
+    String String::get_substr(uint32 pos, uint32 count) const
 	{
 		ASSERT((pos + count) <= m_buffer.get_size());
 
 		String res(get_cstr() + pos, count);
 
-		return std::move(res);
+        return res;
 	}
 
-	size_t String::get_size() const
+    uint32 String::get_size() const
 	{
 		return m_buffer.get_size();
 	}
 
 	void String::split(basic::Vector< String >& out, char_t item) const
 	{
-		size_t pos = 0;
-		size_t next_index = MAX_LEN;
+        uint32 pos = 0;
+        uint32 next_index = MAX_LEN;
 
 		while (pos < get_size())
 		{
 			if (!find_first(next_index, item, pos))
 			{
-				size_t count = get_size() - pos;
+                uint32 count = get_size() - pos;
 				if (count > 1 && count == get_size() && m_buffer[count - 1] == 0)
 				{
 					count -= 1;
@@ -159,11 +159,11 @@ namespace basic
 		return m_buffer.back();
 	}
 
-	String String::read_line(char_t* cstr, size_t max_size)
+    String String::read_line(char_t* cstr, uint32 max_size)
 	{
 		String result;
 
-		for (size_t i = 0; i < max_size; ++i)
+        for (uint32 i = 0; i < max_size; ++i)
 		{
 			char_t item = *(cstr + i);
 			const char_t next_line = '\n';
@@ -193,7 +193,7 @@ namespace basic
 	{
 		ASSERT(s2 != nullptr);
 
-        size_t size = str_length(s2, basic::String::MAX_LEN) + 1;
+        uint32 size = str_length(s2, basic::String::MAX_LEN) + 1;
 
 		if (s1.get_size() != size)
 		{

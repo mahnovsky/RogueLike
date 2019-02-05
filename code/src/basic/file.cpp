@@ -17,7 +17,7 @@ Vector<char> get_file_content( const char* file_name )
     if( file )
     {
         fseek( file, 0, SEEK_END );
-        size_t size = ftell( file );
+        uint32 size = ftell( file );
         fseek( file, 0, SEEK_SET );
 
         result.resize( size );
@@ -26,7 +26,7 @@ Vector<char> get_file_content( const char* file_name )
         fclose( file );
     }
 
-    return std::move( result );
+    return result;
 }
 
 }

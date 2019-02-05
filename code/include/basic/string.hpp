@@ -10,12 +10,12 @@ using char_t = char;
 class String
 {
 public:
-    static const size_t MAX_LEN = Vector<char>::MAX_LEN;
+    static const uint32 MAX_LEN = Vector<char_t>::MAX_LEN;
     static const char CSTR_END = 0;
 
 	String();
 	String(const char_t* cstr);
-	String(const char_t* cstr, size_t count);
+    String(const char_t* cstr, uint32 count);
 	String(const String& other);
 	String(String&& other);
 
@@ -35,23 +35,23 @@ public:
 
 	void operator+=(const char_t* cstr);
 
-	char operator[](size_t index) const;
+    char operator[](uint32 index) const;
 
-	bool find_first(size_t& out_index, char_t value, size_t pos = 0) const;
+    bool find_first(uint32& out_index, char_t value, uint32 pos = 0) const;
 
-	bool find_last(size_t& out_index, char_t value, size_t pos = MAX_LEN) const;
+    bool find_last(uint32& out_index, char_t value, uint32 pos = MAX_LEN) const;
 
-	String get_substr(size_t pos, size_t count) const;
+    String get_substr(uint32 pos, uint32 count) const;
 
-	size_t get_size() const;
+    uint32 get_size() const;
 
 	void split(basic::Vector< String >& out, char item) const;
 
     template < class Type, class Convert >
 	void split_to(basic::Vector< Type >& out, char_t item, Convert convert_func) const
     {
-        size_t pos = 0;
-        size_t next_index = MAX_LEN;
+        uint32 pos = 0;
+        uint32 next_index = MAX_LEN;
 
 		Vector<String> splits;
 		split(splits, item);
@@ -69,7 +69,7 @@ public:
 
 	char_t back() const;
 
-	static String read_line(char_t* cstr, size_t max_size);
+    static String read_line(char_t* cstr, uint32 max_size);
 
 private:
     Vector< char_t > m_buffer;

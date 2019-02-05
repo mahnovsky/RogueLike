@@ -71,7 +71,7 @@ private:
     basic::uint32 m_array_object;
     basic::uint32 m_index_object;
     basic::uint32 m_vertex_object;
-    basic::PoolPtr< Transform > m_transform;
+    Transform m_transform;
     Texture* m_texture;
     Shader* m_shader;
 };

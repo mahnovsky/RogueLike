@@ -47,18 +47,16 @@ RenderObject::RenderObject( )
     : m_vb( )
     , m_ib( )
     , m_array_object( 0 )
-    , m_vertex_object( 0 )
     , m_index_object( 0 )
+    , m_vertex_object( 0 )
     , m_transform( )
     , m_texture( nullptr )
     , m_shader( nullptr )
 {
-    m_transform.allocate( );
 }
 
 RenderObject::~RenderObject( )
 {
-    m_transform.free( );
 }
 
 void
@@ -182,7 +180,7 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
 
     bind_array_object( true );
 
-    glm::mat4 model = m_transform->get_matrix( );
+    glm::mat4 model = m_transform.get_matrix( );
 
     glm::mat4 pv( 1.f );
     cam->get_matrix( pv );
@@ -217,19 +215,19 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
 void
 RenderObject::get_matrix( glm::mat4& out ) const
 {
-    out = m_transform->get_matrix( );
+    out = m_transform.get_matrix( );
 }
 
 Transform*
 RenderObject::get_transform( )
 {
-    return m_transform.get( );
+    return &m_transform;
 }
 
 const Transform*
 RenderObject::get_transform( ) const
 {
-    return m_transform.get( );
+    return &m_transform;
 }
 
 void
