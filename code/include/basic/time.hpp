@@ -5,7 +5,7 @@
 namespace basic
 {
 
-uint64 get_milliseconds();
+double get_milliseconds();
 
 
 }

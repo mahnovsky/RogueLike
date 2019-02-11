@@ -72,7 +72,7 @@ Shader::unbind( ) const
 }
 
 bool
-Shader::init( basic::Vector< char > vertex_data, basic::Vector< char > fragment_data )
+Shader::init( basic::Vector< basic::uint8 > vertex_data, basic::Vector< basic::uint8 > fragment_data )
 {
     GLuint vshader = 0;
     if ( compile( std::move( vertex_data ), GL_VERTEX_SHADER, vshader ) )
@@ -114,7 +114,7 @@ Shader::init( basic::Vector< char > vertex_data, basic::Vector< char > fragment_
 }
 
 bool
-Shader::compile( basic::Vector< char > data, basic::uint32 type, basic::uint32& out_id )
+Shader::compile( basic::Vector< basic::uint8 > data, basic::uint32 type, basic::uint32& out_id )
 {
     GLuint index = glCreateShader( type );
 
@@ -153,8 +153,8 @@ load_shader( ShaderCache& cache,
              const char* fshader_file,
              ShaderCache::Handle& out_handle )
 {
-    basic::Vector< char > vertex_data = basic::get_file_content( vshader_file );
-    basic::Vector< char > fragment_data = basic::get_file_content( fshader_file );
+    basic::Vector< basic::uint8 > vertex_data = basic::get_file_content( vshader_file );
+    basic::Vector< basic::uint8 > fragment_data = basic::get_file_content( fshader_file );
 
     if ( !vertex_data.is_empty( ) && !fragment_data.is_empty( ) )
     {

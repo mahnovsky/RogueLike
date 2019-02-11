@@ -20,7 +20,7 @@ struct MeshVertex
 bool
 load_mesh( const char* file, Mesh& out_mesh )
 {
-    basic::Vector< char > data{std::move( basic::get_file_content( file ) )};
+    basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
 
     if ( data.is_empty( ) )
     {
@@ -31,7 +31,7 @@ load_mesh( const char* file, Mesh& out_mesh )
     basic::Vector< glm::vec2 > tex_coords;
     basic::Vector< MeshVertex > vertexes;
 
-    size_t offset = 0;
+    basic::uint32 offset = 0;
 	int line_counter = 0;
 
     while ( offset < data.get_size( ) )
@@ -39,7 +39,8 @@ load_mesh( const char* file, Mesh& out_mesh )
 		++line_counter;
 
         basic::String line
-                = basic::String::read_line( data.get_raw( ) + offset, data.get_size( ) - offset );
+                = basic::String::read_line( reinterpret_cast<basic::char_t*>(data.get_raw( ) + offset),
+                                            static_cast<basic::uint32>(data.get_size( ) - offset) );
 
         offset += line.get_size( ) + 1;
         if ( offset >= data.get_size( ) )
@@ -62,16 +63,16 @@ load_mesh( const char* file, Mesh& out_mesh )
 
         if ( items.front( ) == "v" && items.get_size( ) > 3 )
         {
-            float x = atof( items[ 1 ].get_cstr( ) );
-            float y = atof( items[ 2 ].get_cstr( ) );
-            float z = atof( items[ 3 ].get_cstr( ) );
+            float x = static_cast<float>( atof( items[ 1 ].get_cstr( ) ) );
+            float y = static_cast<float>( atof( items[ 2 ].get_cstr( ) ) );
+            float z = static_cast<float>( atof( items[ 3 ].get_cstr( ) ) );
 
             vert_coords.push( {x, y, z} );
         }
         else if ( items.front( ) == "vt" && items.get_size( ) > 2 )
         {
-            float tx = atof( items[ 1 ].get_cstr( ) );
-            float ty = atof( items[ 2 ].get_cstr( ) );
+            float tx = static_cast<float>( atof( items[ 1 ].get_cstr( ) ) );
+            float ty = static_cast<float>( atof( items[ 2 ].get_cstr( ) ) );
 
             tex_coords.push( {tx, ty} );
         }
@@ -82,8 +83,8 @@ load_mesh( const char* file, Mesh& out_mesh )
             items[ 2 ].split_to< basic::uint16 >( faces, '/', convert );
             items[ 3 ].split_to< basic::uint16 >( faces, '/', convert );
 
-            size_t step = faces.get_size( ) >= 6 ? 2 : 1;
-            for ( size_t i = 0; i < faces.get_size( ); i += step )
+            basic::uint32 step = faces.get_size( ) >= 6 ? 2 : 1;
+            for ( basic::uint32 i = 0; i < faces.get_size( ); i += step )
             {
                 MeshVertex v;
                 v.vi = faces[ i ];
@@ -97,7 +98,7 @@ load_mesh( const char* file, Mesh& out_mesh )
 
                 int index = -1;
                 bool has_vertex = false;
-                for ( size_t i = 0; i < vertexes.get_size( ); ++i )
+                for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
                 {
                     auto& vv = vertexes[ i ];
                     has_vertex = vv.vi == v.vi && vv.ti == v.ti;
@@ -120,7 +121,7 @@ load_mesh( const char* file, Mesh& out_mesh )
     }
 
     out_mesh.vb.reserve( vertexes.get_size( ) );
-    for ( size_t i = 0; i < vertexes.get_size( ); ++i )
+    for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
     {
         auto& vv = vertexes[ i ];
 

@@ -16,10 +16,10 @@ public:
 
     void init( basic::Image image );
 
-    void init( basic::uint32 width,
+    void init(basic::uint32 width,
                basic::uint32 height,
-               basic::Vector< char > image_data,
-               basic::ColorComponents cc );
+               basic::Vector<basic::uint8> image_data,
+               basic::uint32 cc );
 
     void bind( ) const;
 
@@ -33,7 +33,7 @@ private:
     basic::uint32 m_texture;
     basic::uint32 m_width;
     basic::uint32 m_height;
-    basic::ColorComponents m_components;
+    basic::uint32 m_components;
 };
 
 using TextureCache = Cache< Texture >;

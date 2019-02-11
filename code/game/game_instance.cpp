@@ -1,6 +1,8 @@
 #include "game_instance.hpp"
 #include "render_common.hpp"
 
+#include <stdio.h>
+
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
     , m_texture_cache( )
@@ -64,9 +66,9 @@ GameInstance::init( )
     }
 
     Mesh m;
-
-    if (  // load_texture( m_texture_cache, "tex/Rock.bmp", model_shandle )
-            load_mesh( "cow.obj", m ) )  //"Rck-Wtrfll_obj.obj", m ) )
+    /*TextureCache::Handle model_shandle;
+    if (   load_texture( m_texture_cache, "tex/Rock.jpg", model_shandle ) &&
+            load_mesh( "Rck-Wtrfll_obj.obj", m ) )
     {
         m_model.set_index_buffer( std::move( m.ib ) );
         m_model.set_vertex_buffer( std::move( m.vb ) );
@@ -74,7 +76,7 @@ GameInstance::init( )
         // m_model.set_texture( m_texture_cache.get( handle ) );
         // m_model.get_transform( )->set_scale( {10.f, 10.f, 10.f} );
         m_model.init( );
-    }
+    }*/
 }
 
 void
@@ -102,6 +104,9 @@ GameInstance::frame( float delta )
 
     m_back.set_position( pos );
 
+    char buff[128];
+    snprintf( buff, 128, "fps: %u", m_engine->get_fps() );
+    m_text.set_text( buff );
     //float angle = m_btn.get_angle();
 
     //m_btn.set_angle( angle + 0.03f );

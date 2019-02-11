@@ -30,7 +30,9 @@ public:
 
     void get_window_size(int& out_width, int& out_height);
 
-    basic::uint64 get_frame_time() const;
+    double get_frame_time() const;
+
+    basic::uint32 get_fps() const;
 
 private:
     void process_event( );
@@ -50,5 +52,9 @@ private:
 
     basic::Vector<basic::String> m_cmd_args;
 
-    basic::uint64 m_delta;
+    double m_time;
+
+    double m_delta;
+
+    basic::uint32 m_fps;
 };

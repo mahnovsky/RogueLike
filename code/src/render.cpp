@@ -12,6 +12,7 @@ extern "C" {
 #include <GL/glew.h>
 }
 
+#include <GL/eglew.h>
 #include <GL/gl.h>
 
 class Render : public IRender
@@ -44,6 +45,7 @@ public:
 
         glEnable( GL_DEPTH_TEST );
         glDepthFunc( GL_LESS );
+
         //glEnable(GL_CULL_FACE);
 
         m_stack.push( glm::mat4( 1.f ) );

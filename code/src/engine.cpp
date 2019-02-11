@@ -24,7 +24,9 @@ Engine::Engine( int argc, char** argv )
     , m_quit( false )
     , m_callbacks()
     , m_cmd_args()
-    , m_delta( 0 )
+    , m_time( 0.0 )
+    , m_delta( 0.0 )
+    , m_fps( 0 )
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -46,9 +48,14 @@ IRender* Engine::get_render()
     return m_render;
 }
 
-basic::uint64 Engine::get_frame_time() const
+double Engine::get_frame_time() const
 {
     return m_delta;
+}
+
+basic::uint32 Engine::get_fps() const
+{
+    return m_fps;
 }
 
 void Engine::set_callback( EngineCallbackType type, engine_callback callback )
@@ -94,10 +101,12 @@ Engine::run( int width, int height, const char* wnd_title )
     LOG( "Engine initialization done. Memory usage %lu",
         basic::get_memory_usage() );
 
+
+    static basic::uint32 fps_counter;
     while ( !m_quit )
     {
-        basic::uint64 begin = basic::get_milliseconds();
- 
+        double begin = basic::get_milliseconds();
+
         process_event( );
 
         if( m_window->is_quit() )
@@ -116,11 +125,15 @@ Engine::run( int width, int height, const char* wnd_title )
         m_render->draw_end( m_window );
 
         m_delta = basic::get_milliseconds() - begin;
+        m_time += m_delta;
 
-		if (m_delta <= 0)
-		{
-			m_delta = 1;
-		}
+        ++fps_counter;
+        if( m_time >= 1000.0 )
+        {
+            m_fps = fps_counter;
+            m_time = 0.0;
+            fps_counter = 0;
+        }
     }
 
     if( m_callbacks[ Clean ] )

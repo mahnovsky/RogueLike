@@ -17,11 +17,11 @@ struct Image
 {
     uint32 width;
     uint32 height;
-    ColorComponents components; 
+    uint32 components;
 
-    Vector<char> data;
+    Vector<uint8> data;
 };
 
-bool load_image( Vector<char> data, Image& out_image );
+bool load_image( Vector<uint8> data, Image& out_image );
 
 }

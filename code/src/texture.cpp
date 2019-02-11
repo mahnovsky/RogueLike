@@ -6,7 +6,7 @@ Texture::Texture( ) noexcept
     : m_texture( 0 )
 	, m_width(0)
 	, m_height(0)
-	, m_components(basic::ColorComponents::BGR)
+    , m_components(0)
 {
 }
 
@@ -19,14 +19,14 @@ Texture::Texture( Texture&& t ) noexcept
     t.m_texture = 0;
 	t.m_width = 0;
 	t.m_height = 0;
-	t.m_components = basic::ColorComponents::BGR;
+    t.m_components = 0;
 }
 
 Texture::Texture( basic::uint32 w, basic::uint32 h, basic::uint32 tex ) noexcept
     : m_texture(tex)
 	, m_width( w )
     , m_height( h )
-    , m_components(basic::ColorComponents::BGR)
+    , m_components(0)
 {
 }
 
@@ -59,8 +59,8 @@ Texture::init( basic::Image image )
 void
 Texture::init( basic::uint32 width,
                basic::uint32 height,
-               basic::Vector< char > image_data,
-               basic::ColorComponents cc )
+               basic::Vector< basic::uint8 > image_data,
+               basic::uint32 cc )
 {
     m_width = width;
     m_height = height;
@@ -70,13 +70,16 @@ Texture::init( basic::uint32 width,
 
     glBindTexture( GL_TEXTURE_2D, m_texture );
 
+    GLuint format = (cc == 3 ? GL_RGB : GL_RGBA);
+    GLint internalFormat = (format == GL_BGR ? GL_RGB8 : GL_RGBA8);
+
     glTexImage2D( GL_TEXTURE_2D,
                   0,
-                  GL_RGB,
-                  width,
-                  height,
+                  internalFormat,
+                  static_cast<int>(width),
+                  static_cast<int>(height),
                   0,
-                  GL_BGR,
+                  format,
                   GL_UNSIGNED_BYTE,
                   image_data.get_raw( ) );
 
@@ -117,7 +120,7 @@ Texture::get_height( ) const
 bool
 load_texture( TextureCache& cache, const char* file, TextureCache::Handle& out_handle )
 {
-    basic::Vector< char > bmp_data = basic::get_file_content( file );
+    basic::Vector< basic::uint8 > bmp_data = basic::get_file_content( file );
 
     basic::Image image;
 

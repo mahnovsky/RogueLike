@@ -7,7 +7,7 @@ namespace
 extern "C" {
 #include <stdio.h>
 #define STB_TRUETYPE_IMPLEMENTATION
-#include "stb_truetype.h"
+#include "stb/stb_truetype.h"
 }
 }
 
@@ -29,7 +29,7 @@ Font::~Font( )
 bool
 Font::init( const char* file, Shader* shader )
 {
-    basic::Vector< char > data = basic::get_file_content( file );
+    basic::Vector< basic::uint8 > data = basic::get_file_content( file );
     if ( data.is_empty( ) )
     {
         return false;
@@ -82,20 +82,22 @@ Font::generate( const char* text, float height, RenderObject& out_object )
 
     float x = 0;
     float y = 0;
-    int offset = 0;
+    basic::uint16 offset = 0;
     while ( *( text + offset ) )
     {
         char ch = *( text + offset );
         if ( !ch )
+        {
             break;
+        }
 
-        if ( ( ch >= 32 ) && ( ch <= 127 ) )
+        if ( ch >= 32 )
         {
             stbtt_aligned_quad q;
-            basic::uint32 w = m_texture.get_width( );
-            basic::uint32 h = m_texture.get_height( );
+            int w = static_cast<int>( m_texture.get_width( ) );
+            int h = static_cast<int>( m_texture.get_height( ) );
 
-            stbtt_GetBakedQuad( (stbtt_bakedchar*)m_cdata, w, h, ch - 32, &x, &y, &q, 1 );
+            stbtt_GetBakedQuad( static_cast<stbtt_bakedchar*>(m_cdata), w, h, ch - 32, &x, &y, &q, 1 );
 
             auto xmin = q.x0;
             auto xmax = q.x1;
@@ -127,12 +129,13 @@ Font::generate( const char* text, float height, RenderObject& out_object )
 
     out_object.set_vertex_buffer( std::move( vb ) );
     out_object.set_index_buffer( std::move( ib ) );
-    out_object.set_texture( &m_texture );
-    out_object.set_shader( m_shader );
 
     if ( !out_object.is_initialized( ) )
     {
-        out_object.init( );
+        out_object.set_texture( &m_texture );
+        out_object.set_shader( m_shader );
     }
+
+    out_object.init( );
 }
 }

@@ -28,7 +28,7 @@ QuadGenerator::generate( VertexBuffer& out_vb, int offset )
 
     out_vb.push( {{right, top, z}, m_color, {1.f, 0.f}} );
     out_vb.push( {{right, bottom, z}, m_color, {1.f, 1.f}} );
-    out_vb.push( {{left, bottom, z}, m_color, {1.f, 0.f}} );
+    out_vb.push( {{left, bottom, z}, m_color, {0.f, 1.f}} );
     out_vb.push( {{left, top, z}, m_color, {0.f, 0.f}} );
 }
 
