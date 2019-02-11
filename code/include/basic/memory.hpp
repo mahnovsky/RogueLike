@@ -34,7 +34,7 @@ ref_count get_refs(void* ptr);
 }
 
 void* operator new( std::size_t n );
-void operator delete( void* p );
+void operator delete( void* p ) noexcept;
 
 void* operator new[]( std::size_t s );
-void operator delete[]( void* p );
+void operator delete[]( void* p ) noexcept;

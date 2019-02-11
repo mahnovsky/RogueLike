@@ -28,10 +28,10 @@ static int visual_attribs[] = {GLX_X_RENDERABLE,
                                8,
                                GLX_ALPHA_SIZE,
                                8,
-                               GLX_DEPTH_SIZE,
-                               24,
-                               GLX_STENCIL_SIZE,
-                               8,
+                               //GLX_DEPTH_SIZE,
+                               //24,
+                               //GLX_STENCIL_SIZE,
+                               //8,
                                GLX_DOUBLEBUFFER,
                                True,
                                // GLX_SAMPLE_BUFFERS  , 1,
@@ -94,7 +94,7 @@ public:
         , m_display( nullptr )
         , m_win( 0 )
         , m_cmap( 0 )
-        , m_ctx( 0 )
+        , m_ctx( )
     {
     }
 
@@ -185,7 +185,7 @@ X11Window::init( int width, int height, const char* const title )
         LOG( "Invalid GLX version" );
         return false;
     }
-    int visual_attribs[] = {0};
+    //int visual_attribs[] = {0};
     int fbcount = 1;
     GLXFBConfig* fbc
             = glXChooseFBConfig( m_display, DefaultScreen( m_display ), visual_attribs, &fbcount );

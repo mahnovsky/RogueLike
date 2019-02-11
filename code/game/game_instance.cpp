@@ -66,23 +66,25 @@ GameInstance::init( )
     }
 
     Mesh m;
-    /*TextureCache::Handle model_shandle;
-    if (   load_texture( m_texture_cache, "tex/Rock.jpg", model_shandle ) &&
-            load_mesh( "Rck-Wtrfll_obj.obj", m ) )
+    TextureCache::Handle model_shandle;
+    if ( //load_texture( m_texture_cache, "my.bmp", model_shandle ) &&
+         load_mesh( "cow.obj", m ) )
     {
+        Texture* texture = m_texture_cache.get( handle );
+
         m_model.set_index_buffer( std::move( m.ib ) );
         m_model.set_vertex_buffer( std::move( m.vb ) );
         m_model.set_shader( shader );
-        // m_model.set_texture( m_texture_cache.get( handle ) );
-        // m_model.get_transform( )->set_scale( {10.f, 10.f, 10.f} );
+        m_model.set_texture( texture );
+        //m_model.get_transform( )->set_scale( {10.f, 10.f, 10.f} );
         m_model.init( );
-    }*/
+    }
 }
 
 void
 GameInstance::draw( IRender* render )
 {
-    //m_model.draw( render, &m_game_camera );
+    m_model.draw( render, &m_game_camera );
     m_back.draw( &m_game_camera, render );
     m_btn.draw( &m_ui_camera, render );
     m_text.draw( render, &m_ui_camera );

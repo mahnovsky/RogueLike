@@ -209,7 +209,7 @@ operator new( std::size_t n )
 }
 
 void
-operator delete( void* p )
+operator delete( void* p ) noexcept
 {
     basic::mem_free( p );
 }
@@ -221,7 +221,7 @@ operator new[]( std::size_t s )
 }
 
 void
-operator delete[]( void* p )
+operator delete[]( void* p ) noexcept
 {
     basic::mem_free( p );
 }
