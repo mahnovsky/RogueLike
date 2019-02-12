@@ -1,13 +1,34 @@
 #pragma once
 
+#include "object.hpp"
 #include "basic/vector.hpp"
 #include "cache.hpp"
 
-class Shader
+enum class ShaderType
+{
+    VERTEX,
+    FRAGMENT
+};
+
+class Shader : public Object
 {
 public:
-    Shader( );
-    ~Shader( );
+    Shader();
+
+    bool init( ShaderType type, basic::Vector<basic::uint8> data );
+
+    basic::uint32 get_handle() const;
+
+private:
+    basic::uint32 m_handle;
+    ShaderType m_type;
+};
+
+class ShaderProgram
+{
+public:
+    ShaderProgram( );
+    ~ShaderProgram( );
 
     void bind( ) const;
 
@@ -24,9 +45,11 @@ private:
 
 private:
     basic::uint32 m_shader_program;
+    Shader* m_vertex_shader;
+    Shader* m_fragment_shader;
 };
 
-using ShaderCache = Cache< Shader >;
+using ShaderCache = Cache< ShaderProgram >;
 
 bool load_shader( ShaderCache& cache,
                   const char* vshader_file,

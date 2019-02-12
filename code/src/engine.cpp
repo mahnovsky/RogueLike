@@ -1,6 +1,6 @@
 #include "engine.hpp"
 #include "window.hpp"
-#include "basic/util_functions.hpp"
+#include "basic/debug.hpp"
 #include "basic/string.hpp"
 #include "basic/time.hpp"
 #include "timer_manager.hpp"
@@ -36,8 +36,8 @@ Engine::Engine( int argc, char** argv )
     m_callbacks[Frame] = &dummy;
     m_callbacks[Draw] = &dummy;
 
-    size_t uargc = argc < 0 ? 0 : argc;
-    for( size_t i = 0; i < uargc; ++i )
+    basic::uint32 uargc = argc < 0 ? 0 : static_cast<basic::uint32>(argc);
+    for( basic::uint32 i = 0; i < uargc; ++i )
     {
        m_cmd_args.emplace( argv[i] );
     }

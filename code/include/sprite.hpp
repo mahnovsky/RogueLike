@@ -10,7 +10,7 @@ class Sprite
 public:
     Sprite( );
 
-    void init( Shader* shader, Texture* texture );
+    void init( ShaderProgram* shader, Texture* texture );
 
     void draw( ICamera* camera, IRender* render );
 
@@ -36,7 +36,7 @@ private:
     RenderObject m_object;
     basic::Color m_color;
     Texture* m_texture;
-    Shader* m_shader;
+    ShaderProgram* m_shader;
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     float m_angle;

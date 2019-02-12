@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util_functions.hpp"
+#include "debug.hpp"
 
 #include <new>
 #include <type_traits>
@@ -363,7 +363,8 @@ public:
             {
                 break;
             }
-        } while ( all );
+        }
+        while ( all );
     }
 
     const T& get( uint32 index ) const

@@ -1,5 +1,5 @@
 #include "window.hpp"
-#include "basic/util_functions.hpp"
+#include "basic/debug.hpp"
 
 #include <GL/gl.h>
 #include <GL/glx.h>

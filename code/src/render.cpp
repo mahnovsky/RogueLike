@@ -25,6 +25,8 @@ public:
 		,m_stack()
 	{}
 
+    virtual ~Render() override {}
+
     bool
     init( int width, int height ) override
     {
@@ -38,7 +40,7 @@ public:
 
         glViewport( 0, 0, width, height );
         glClearColor( 0.0, 0.0, 0.0, 1.0 );
-        glClearDepth(1.0f);
+        glClearDepth( 1.0 );
 
         glEnable( GL_BLEND );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -75,7 +77,7 @@ public:
         glUniform1i( m_texture_uniform, 0 );
 
         glDrawElements(
-                GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, (GLvoid*)0 );
+                GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, nullptr );
 
         graphic->unbind( );
     }
@@ -93,7 +95,7 @@ public:
     }
 
     void
-    push_mvp( const glm::mat4& mat )
+    push_mvp( const glm::mat4& mat ) override
     {
         m_stack.push( mat );
         glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( mat ) );
@@ -111,8 +113,8 @@ public:
 
 private:
     GLuint m_shader_program;
-    GLuint m_mvp_uniform;
-    GLuint m_texture_uniform;
+    GLint m_mvp_uniform;
+    GLint m_texture_uniform;
 
     basic::Vector< glm::mat4 > m_stack;
 };

@@ -27,7 +27,7 @@ Font::~Font( )
 }
 
 bool
-Font::init( const char* file, Shader* shader )
+Font::init( const char* file, ShaderProgram* shader )
 {
     basic::Vector< basic::uint8 > data = basic::get_file_content( file );
     if ( data.is_empty( ) )

@@ -1,6 +1,6 @@
-#include "object.h"
+#include "object.hpp"
 
-#include "basic/util_functions.hpp"
+#include "basic/memory.hpp"
 
 Object::Object()
     :m_name()
@@ -9,6 +9,16 @@ Object::Object()
 
 Object::~Object()
 {
+}
+
+void Object::set_tag(basic::int32 tag)
+{
+    m_tag = tag;
+}
+
+basic::int32 Object::get_tag() const
+{
+    return m_tag;
 }
 
 void Object::set_name(const basic::String &name)

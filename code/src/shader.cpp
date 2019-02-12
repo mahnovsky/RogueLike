@@ -2,12 +2,12 @@
 #include "GL/glew.h"
 #include "basic/file.hpp"
 
-Shader::Shader( )
+ShaderProgram::ShaderProgram( )
     : m_shader_program( 0 )
 {
 }
 
-Shader::~Shader( )
+ShaderProgram::~ShaderProgram( )
 {
     if ( m_shader_program )
     {
@@ -54,25 +54,25 @@ check_shader_link( GLuint shader )
 }
 
 basic::uint32
-Shader::get_uniform( const char* name ) const
+ShaderProgram::get_uniform( const char* name ) const
 {
     return glGetUniformLocation( m_shader_program, name );
 }
 
 void
-Shader::bind( ) const
+ShaderProgram::bind( ) const
 {
     glUseProgram( m_shader_program );
 }
 
 void
-Shader::unbind( ) const
+ShaderProgram::unbind( ) const
 {
     glUseProgram( 0 );
 }
 
 bool
-Shader::init( basic::Vector< basic::uint8 > vertex_data, basic::Vector< basic::uint8 > fragment_data )
+ShaderProgram::init( basic::Vector< basic::uint8 > vertex_data, basic::Vector< basic::uint8 > fragment_data )
 {
     GLuint vshader = 0;
     if ( compile( std::move( vertex_data ), GL_VERTEX_SHADER, vshader ) )
@@ -114,7 +114,7 @@ Shader::init( basic::Vector< basic::uint8 > vertex_data, basic::Vector< basic::u
 }
 
 bool
-Shader::compile( basic::Vector< basic::uint8 > data, basic::uint32 type, basic::uint32& out_id )
+ShaderProgram::compile( basic::Vector< basic::uint8 > data, basic::uint32 type, basic::uint32& out_id )
 {
     GLuint index = glCreateShader( type );
 
@@ -131,7 +131,7 @@ Shader::compile( basic::Vector< basic::uint8 > data, basic::uint32 type, basic::
 }
 
 bool
-Shader::link_program( basic::uint32 vshader, basic::uint32 fshader )
+ShaderProgram::link_program( basic::uint32 vshader, basic::uint32 fshader )
 {
     m_shader_program = glCreateProgram( );
 
@@ -158,7 +158,7 @@ load_shader( ShaderCache& cache,
 
     if ( !vertex_data.is_empty( ) && !fragment_data.is_empty( ) )
     {
-        Shader* shader = new Shader( );
+        ShaderProgram* shader = new ShaderProgram( );
 
         if ( shader->init( vertex_data, fragment_data ) )
         {

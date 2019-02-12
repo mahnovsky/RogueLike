@@ -1,5 +1,8 @@
 #include "basic/string.hpp"
 
+#define STB_SPRINTF_IMPLEMENTATION
+#include "stb/stb_sprintf.h"
+
 namespace basic
 {
 	String::String()
@@ -156,8 +159,42 @@ namespace basic
 
 	char_t String::back() const
 	{
-		return m_buffer.back();
-	}
+        return m_buffer.back();
+    }
+
+    void String::trim()
+    {
+        const uint32 size = m_buffer.get_size();
+        if(size == 0)
+        {
+            return;
+        }
+
+        uint32 beg = 0;
+        while (beg < size)
+        {
+            if(m_buffer[beg] != ' ')
+            {
+                break;
+            }
+            ++beg;
+        }
+
+        uint32 end = m_buffer.get_size() - 1;
+        while (end > 0)
+        {
+            if(m_buffer[end] != ' ')
+            {
+                break;
+            }
+            --end;
+        }
+
+        if( end > beg )
+        {
+            get_substr( beg, end - beg );
+        }
+    }
 
     String String::read_line(char_t* cstr, uint32 max_size)
 	{
@@ -177,7 +214,19 @@ namespace basic
 		}
 
         return result;
-	}
+    }
+
+    bool String::format(char_t *buffer, uint32 size, const char* fmt, ...)
+    {
+        va_list args;
+        va_start( args, fmt );
+
+        int result = stbsp_vsnprintf( buffer, static_cast<int>(size), fmt, args );
+
+        va_end( args );
+
+        return result > 0;
+    }
 
 	bool operator==(const String& s1, const String& s2)
 	{

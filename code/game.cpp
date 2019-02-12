@@ -2,7 +2,7 @@
 #include "game/game_instance.hpp"
 #include "sprite.hpp"
 
-GameInstance* g_game_instance;
+static GameInstance* g_game_instance;
 
 static void game_frame( Engine* engine );
 static void game_draw( Engine* engine );
@@ -21,7 +21,7 @@ sprite_update( void* user_data )
 }
 
 static void
-game_free( Engine* engine )
+game_free( Engine* )
 {
     delete g_game_instance;
     g_game_instance = nullptr;

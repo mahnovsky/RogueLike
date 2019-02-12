@@ -14,6 +14,5 @@ public:
 
 private:
     World* m_world;
-    TransformPtr m_transform;
     basic::Vector<IComponent*> m_components;
 };

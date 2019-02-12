@@ -29,7 +29,7 @@ GameInstance::init( )
     m_ui_camera.init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
-    Shader* shader = nullptr;
+    ShaderProgram* shader = nullptr;
     ShaderCache::Handle shandle;
     if ( load_shader( m_shader_cache, "vshader.glsl", "fshader.glsl", shandle ) )
     {
@@ -50,7 +50,7 @@ GameInstance::init( )
         m_btn.set_position( {100.f, 100.f, 0.f} );
     }
 
-    Shader* text_shader = nullptr;
+    ShaderProgram* text_shader = nullptr;
     ShaderCache::Handle text_shandle;
     if ( load_shader( m_shader_cache, "vshader.glsl", "text_fshader.glsl", text_shandle ) )
     {
@@ -106,9 +106,8 @@ GameInstance::frame( float delta )
 
     m_back.set_position( pos );
 
-    char buff[128];
-    snprintf( buff, 128, "fps: %u", m_engine->get_fps() );
-    m_text.set_text( buff );
+    print_fps();
+
     //float angle = m_btn.get_angle();
 
     //m_btn.set_angle( angle + 0.03f );
@@ -117,4 +116,20 @@ GameInstance::frame( float delta )
 void
 GameInstance::cleanup( )
 {
+}
+
+void GameInstance::print_fps()
+{
+    #define BUFF_SIZE 32
+    static basic::char_t buff[BUFF_SIZE];
+    static basic::uint32 fps;
+
+    if( fps != m_engine->get_fps() )
+    {
+        fps = m_engine->get_fps();
+        if( basic::String::format( buff, BUFF_SIZE, "fps: %u", fps ) )
+        {
+            m_text.set_text( buff );
+        }
+    }
 }

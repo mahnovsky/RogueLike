@@ -92,7 +92,7 @@ RenderObject::update( vertex_update callback, void* user_data )
 {
     if ( callback )
     {
-        for ( size_t i = 0; i < m_vb.get_size( ); ++i )
+        for ( basic::uint32 i = 0; i < m_vb.get_size( ); ++i )
         {
             callback( &m_vb[ i ], user_data );
         }
@@ -145,7 +145,7 @@ RenderObject::init_index_buffer( )
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_index_object );
 
-    const size_t size = sizeof( basic::uint16 ) * m_ib.get_size( );
+    const basic::uint32 size = sizeof( basic::uint16 ) * m_ib.get_size( );
 
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, m_ib.get_raw( ), GL_STATIC_DRAW );
 }
@@ -197,7 +197,7 @@ RenderObject::draw( IRender* render, ICamera* cam ) const
     }
     else
     {
-        glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, NULL );
+        glDrawElements( GL_TRIANGLES, get_element_count( ), GL_UNSIGNED_SHORT, nullptr );
     }
 
 	if (m_texture)
@@ -237,13 +237,12 @@ RenderObject::set_texture( Texture* texture )
 }
 
 void
-RenderObject::set_shader( Shader* shader )
+RenderObject::set_shader( ShaderProgram* shader )
 {
     m_shader = shader;
 }
 
-size_t
-RenderObject::get_element_count( ) const
+basic::uint32 RenderObject::get_element_count( ) const
 {
     return m_ib.get_size( );
 }

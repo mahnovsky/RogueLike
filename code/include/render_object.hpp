@@ -7,7 +7,7 @@
 using vertex_update = void ( * )( Vertex*, void* );
 
 class Texture;
-class Shader;
+class ShaderProgram;
 
 class IRenderObject
 {
@@ -18,7 +18,7 @@ public:
 
     virtual void draw( IRender* render, ICamera* cam ) const = 0;
 
-    virtual size_t get_element_count( ) const = 0;
+    virtual basic::uint32 get_element_count( ) const = 0;
 
     virtual void get_matrix( glm::mat4& out ) const = 0;
 };
@@ -45,7 +45,7 @@ public:
 
     void draw( IRender* render, ICamera* cam ) const override;
 
-    size_t get_element_count( ) const override;
+    basic::uint32 get_element_count( ) const override;
 
     void get_matrix( glm::mat4& out ) const override;
 
@@ -56,7 +56,7 @@ public:
 
     void set_texture( Texture* texture );
 
-    void set_shader( Shader* shader );
+    void set_shader( ShaderProgram* shader );
 
 private:
     void init_vertex_buffer( );
@@ -73,7 +73,7 @@ private:
     basic::uint32 m_vertex_object;
     Transform m_transform;
     Texture* m_texture;
-    Shader* m_shader;
+    ShaderProgram* m_shader;
 };
 
 struct QuadGenerator

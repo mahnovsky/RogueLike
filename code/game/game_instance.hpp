@@ -22,6 +22,9 @@ public:
     void cleanup( );
 
 private:
+    void print_fps();
+
+private:
     Engine* m_engine;
 
     TextureCache m_texture_cache;

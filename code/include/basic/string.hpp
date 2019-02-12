@@ -1,6 +1,6 @@
 #pragma once
 
-#include "util_functions.hpp"
+#include "debug.hpp"
 #include "vector.hpp"
 
 namespace basic
@@ -50,18 +50,12 @@ public:
     template < class Type, class Convert >
 	void split_to(basic::Vector< Type >& out, char_t item, Convert convert_func) const
     {
-        uint32 pos = 0;
-        uint32 next_index = MAX_LEN;
-
 		Vector<String> splits;
-		split(splits, item);
+        split(splits, item);
 
-		if (splits.get_size() > 0)
-		{
-			for (int i = 0; i < splits.get_size(); ++i)
-			{
-				out.push( convert_func(std::move(splits[i])) );
-			}
+        for (uint32 i = 0; i < splits.get_size(); ++i)
+        {
+            out.push( convert_func(std::move(splits[i])) );
         }
     }
 
@@ -69,7 +63,11 @@ public:
 
 	char_t back() const;
 
+    void trim();
+
     static String read_line(char_t* cstr, uint32 max_size);
+
+    static bool format( char_t* buffer, uint32 size, const char* const fmt, ... );
 
 private:
     Vector< char_t > m_buffer;

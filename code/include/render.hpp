@@ -8,9 +8,7 @@ class IRenderObject;
 class IRender
 {
 public:
-    virtual ~IRender( )
-    {
-    }
+    virtual ~IRender( ) {}
 
     virtual bool init( int width, int height ) = 0;
 

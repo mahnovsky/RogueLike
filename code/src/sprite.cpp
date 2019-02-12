@@ -12,7 +12,7 @@ Sprite::Sprite( )
 }
 
 void
-Sprite::init( Shader* shader, Texture* texture )
+Sprite::init( ShaderProgram* shader, Texture* texture )
 {
     VertexBuffer vb;
 
