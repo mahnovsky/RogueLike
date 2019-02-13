@@ -4,10 +4,10 @@ project(RogueLike)
 
 set( BASE_PATH "./code" )
 set( SOURCE_PATH "./code/src" )
-
+add_definitions(-D_DEBUG)
 if(UNIX AND NOT APPLE)
     set(TARGET_BUILD_PLATFORM "linux")
-    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ldl" )
+    set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--no-as-needed -ldl" )
     set( PLATFORM_SRC ${BASE_PATH}/linux_startup.cpp )
 endif()
 

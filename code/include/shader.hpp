@@ -3,55 +3,51 @@
 #include "object.hpp"
 #include "basic/vector.hpp"
 #include "cache.hpp"
+#include "resource_storage.hpp"
 
-enum class ShaderType
-{
-    VERTEX,
-    FRAGMENT
-};
-
-class Shader : public Object
+class BaseShader : public FileResource
 {
 public:
-    Shader();
+    BaseShader(basic::uint32 type, const char* file);
+    ~BaseShader() override;
 
-    bool init( ShaderType type, basic::Vector<basic::uint8> data );
+    bool load(ResourceStorage* storage) override;
 
     basic::uint32 get_handle() const;
 
+    bool is_valid() const;
+
+    static BaseShader* create(const char* file);
+
 private:
     basic::uint32 m_handle;
-    ShaderType m_type;
 };
 
-class ShaderProgram
+class ShaderProgram : public FileResource
 {
 public:
-    ShaderProgram( );
-    ~ShaderProgram( );
+    ShaderProgram( const char* file );
+    ~ShaderProgram( ) override;
+
+    bool load( ResourceStorage* storage ) override;
 
     void bind( ) const;
 
-    void unbind( ) const;
-
-    bool init(basic::Vector<basic::uint8> vertex_data, basic::Vector<basic::uint8> fragmet_data );
+    void unbind( ) const;    
 
     basic::uint32 get_uniform( const char* name ) const;
 
+    static ShaderProgram* create( const char* file );
+
 private:
-    bool compile(basic::Vector<basic::uint8> data, basic::uint32 type, basic::uint32& out_id );
+
+    bool init( BaseShader* vertex, BaseShader* fragment );
 
     bool link_program( basic::uint32 vshader, basic::uint32 fshader );
 
 private:
     basic::uint32 m_shader_program;
-    Shader* m_vertex_shader;
-    Shader* m_fragment_shader;
+    BaseShader* m_vertex_shader;
+    BaseShader* m_fragment_shader;
 };
 
-using ShaderCache = Cache< ShaderProgram >;
-
-bool load_shader( ShaderCache& cache,
-                  const char* vshader_file,
-                  const char* fshader_file,
-                  ShaderCache::Handle& out_handle );

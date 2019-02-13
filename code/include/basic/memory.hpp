@@ -6,7 +6,7 @@ namespace basic
 {
 
 using memory_size = uint64;
-using ref_count = uint32;
+using ref_count = int32;
 using mem_out_callback = void ( * )( );
 
 void* mem_allocate( memory_size byte_count );

@@ -12,6 +12,8 @@ class ShaderProgram;
 class IRenderObject
 {
 public:
+    virtual ~IRenderObject();
+
     virtual void bind( ) const = 0;
 
     virtual void unbind( ) const = 0;
@@ -27,7 +29,7 @@ class RenderObject : public IRenderObject
 {
 public:
     RenderObject( );
-    ~RenderObject( );
+    ~RenderObject( ) override;
 
     void init( );
 
@@ -49,7 +51,6 @@ public:
 
     void get_matrix( glm::mat4& out ) const override;
 
-    // Dont save pointer, address will change
     Transform* get_transform( );
 
     const Transform* get_transform( ) const;
@@ -65,6 +66,7 @@ private:
 
     void bind_array_object( bool on ) const;
 
+private:
     VertexBuffer m_vb;
     IndexBuffer m_ib;
 

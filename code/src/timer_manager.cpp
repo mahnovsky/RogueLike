@@ -21,7 +21,7 @@ void TimerManager::add( const Timer& timer )
 
     if( !m_remove_timers.is_empty() )
     {
-        size_t pos = m_remove_timers.back();
+        basic::uint32 pos = m_remove_timers.back();
  
         ASSERT( pos < m_timers.get_size() );
         ASSERT( m_timers[pos].is_removed == true );
@@ -33,17 +33,28 @@ void TimerManager::add( const Timer& timer )
     }
     else
     {
-        size_t pos = m_timers.get_size();
+        basic::uint32 pos = m_timers.get_size();
         m_timers.push( timer );
         m_timers[pos].timestamp = basic::get_milliseconds();
     }
 }
 
+void TimerManager::add(float delay, timer_function func, void *user_data, int repeat)
+{
+    Timer t;
+    t.func = func;
+    t.delay = delay;
+    t.user_data = user_data;
+    t.repeat_count = repeat;
+
+    add( t );
+}
+
 void TimerManager::update( )
 {
-    basic::uint64 current = basic::get_milliseconds();
+    double current = basic::get_milliseconds();
 
-    for( size_t i = 0; i < m_timers.get_size(); ++i )
+    for( basic::uint32 i = 0; i < m_timers.get_size(); ++i )
     {
         Timer& timer = m_timers[i];
 
@@ -78,9 +89,9 @@ void TimerManager::remove_spant_timers()
     if( !m_remove_timers.is_empty() && 
         m_remove_timers.get_size() > MAX_REMOVED_TIMERS )
     {
-        for( size_t i = 0; i < m_remove_timers.get_size(); ++i )
+        for( basic::uint32 i = 0; i < m_remove_timers.get_size(); ++i )
         {
-            size_t index = m_remove_timers[i];
+            basic::uint32 index = m_remove_timers[i];
 
             m_timers.remove_by_index( index );
         }

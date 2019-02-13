@@ -4,7 +4,15 @@
 
 Object::Object()
     :m_name()
+    , m_tag(0)
 {
+}
+
+Object::Object(const char *name)
+    :m_name(name)
+    , m_tag(0)
+{
+
 }
 
 Object::~Object()
@@ -42,4 +50,9 @@ void Object::release()
     {
         delete this;
     }
+}
+
+basic::ref_count Object::get_refs() const
+{
+    return basic::get_refs( const_cast<Object*>(this) );
 }

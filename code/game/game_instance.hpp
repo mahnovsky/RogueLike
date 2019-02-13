@@ -6,6 +6,7 @@
 #include "shader.hpp"
 #include "sprite.hpp"
 #include "text.hpp"
+#include "resource_storage.hpp"
 
 class GameInstance
 {
@@ -28,7 +29,7 @@ private:
     Engine* m_engine;
 
     TextureCache m_texture_cache;
-    ShaderCache m_shader_cache;
+    ResourceStorage m_rs;
     PerspectiveCamera m_game_camera;
     OrthoCamera m_ui_camera;
 

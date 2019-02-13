@@ -41,7 +41,9 @@ public:
 
     bool find_last(uint32& out_index, char_t value, uint32 pos = MAX_LEN) const;
 
-    String get_substr(uint32 pos, uint32 count) const;
+    bool ends_of( const String& str );
+
+    String get_substr(uint32 from, uint32 to) const;
 
     uint32 get_size() const;
 
@@ -68,6 +70,9 @@ public:
     static String read_line(char_t* cstr, uint32 max_size);
 
     static bool format( char_t* buffer, uint32 size, const char* const fmt, ... );
+
+private:
+    void push_cend();
 
 private:
     Vector< char_t > m_buffer;

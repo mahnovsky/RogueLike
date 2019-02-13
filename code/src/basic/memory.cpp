@@ -82,7 +82,11 @@ static void internal_free(void* ptr, size_t& free_bytes )
 void*
 mem_allocate( memory_size byte_count )
 {
-    ASSERT_M( byte_count > 0, "Bad alloc size" );
+    if(byte_count == 0)
+    {
+        return nullptr;
+    }
+    //ASSERT_M( byte_count > 0, "Bad alloc size" );
 
     memory_size out_bytes = 0;
     void* res = internal_malloc( byte_count, out_bytes );

@@ -21,7 +21,7 @@ void SceneNode::add_child(SceneNode *node)
 {
     ASSERT( node != nullptr );
 
-    size_t index = 0;
+    basic::uint32 index = 0;
     if( get_child_index( node, index ) )
     {
         node->retain();
@@ -36,7 +36,7 @@ void SceneNode::remove_child(SceneNode *node)
 {
     ASSERT(node->get_parent() == this);
 
-    size_t index;
+    basic::uint32 index;
     if( get_child_index( node, index ) )
     {
         m_children.remove_by_index( index );
@@ -64,7 +64,7 @@ bool SceneNode::is_contains(SceneNode *child)
     return m_children.is_contains( child );
 }
 
-bool SceneNode::get_child_index(SceneNode *node, size_t &out_index)
+bool SceneNode::get_child_index(SceneNode *node, basic::uint32 &out_index)
 {
     if( node->get_parent() == this )
     {

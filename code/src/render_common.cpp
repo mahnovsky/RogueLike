@@ -42,7 +42,7 @@ load_mesh( const char* file, Mesh& out_mesh )
                 = basic::String::read_line( reinterpret_cast<basic::char_t*>(data.get_raw( ) + offset),
                                             static_cast<basic::uint32>(data.get_size( ) - offset) );
 
-        offset += line.get_size( ) + 1;
+        offset += line.get_size( );
         if ( offset >= data.get_size( ) )
         {
             break;

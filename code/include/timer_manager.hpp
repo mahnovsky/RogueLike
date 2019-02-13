@@ -28,7 +28,7 @@ struct Timer
     timer_function func;
     void* user_data;
     int repeat_count;
-    basic::uint64 timestamp;
+    double timestamp;
     bool is_removed;
 };
 
@@ -51,5 +51,5 @@ private:
 
 private:
     basic::Vector<Timer> m_timers;
-    basic::Vector<size_t> m_remove_timers;
+    basic::Vector<basic::uint32> m_remove_timers;
 };

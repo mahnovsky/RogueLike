@@ -323,6 +323,12 @@ public:
         return false;
     }
 
+    void swap_remove( uint32 index )
+    {
+        m_data[index] = back();
+        pop();
+    }
+
     void remove_by_index( uint32 index )
     {
         if ( m_size > index )

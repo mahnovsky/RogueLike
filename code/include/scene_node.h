@@ -2,7 +2,7 @@
 
 #include "basic/vector.hpp"
 
-#include "object.h"
+#include "object.hpp"
 #include "transform.hpp"
 
 class SceneNode : public Object
@@ -21,7 +21,7 @@ public:
 
     bool is_contains( SceneNode* child );
 
-    bool get_child_index( SceneNode* node, size_t& out_index );
+    bool get_child_index(SceneNode* node, basic::uint32 &out_index );
 
     SceneNode* get_parent();
 

@@ -6,6 +6,7 @@ class Object
 {
 public:
     Object();
+    Object(const char* name);
     virtual ~Object();
 
     void set_tag( basic::int32 tag );
@@ -20,7 +21,9 @@ public:
 
     void release();
 
+    basic::ref_count get_refs() const;
+
 private:
-    basic::int32 m_tag;
     basic::String m_name;
+    basic::int32 m_tag;
 };

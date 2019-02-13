@@ -19,12 +19,13 @@ namespace basic
     String::String(const char_t* cstr, uint32 count)
 		: m_buffer()
 	{
-		ASSERT(str_length(cstr, MAX_LEN) >= count);
+        basic::memory_size len = str_length( cstr, MAX_LEN ) + 1;
+
+        ASSERT( len >= count );
+
 		m_buffer.init(cstr, count);
-		if (m_buffer.back() != CSTR_END)
-		{
-			m_buffer.push(CSTR_END);
-		}
+
+        push_cend();
 	}
 
 	String::String(const String& other)
@@ -103,14 +104,43 @@ namespace basic
 
     bool String::find_last(uint32& out_index, char_t value, uint32 pos) const
 	{
-		return m_buffer.find_last(out_index, value, pos);
-	}
+        return m_buffer.find_last(out_index, value, pos);
+    }
 
-    String String::get_substr(uint32 pos, uint32 count) const
+    bool String::ends_of(const String &str)
+    {
+        uint32 size = str.get_size();
+
+        if( size < get_size() )
+        {
+            uint32 pos = get_size() - size;
+
+            for( uint32 i = 0; i < size; ++i )
+            {
+                char_t sym = m_buffer[pos + i];
+                char_t sym1 = str.m_buffer[i];
+                if( sym != sym1 )
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+        else if( size == get_size() )
+        {
+            return str == (*this);
+        }
+
+        return false;
+    }
+
+    String String::get_substr( uint32 from, uint32 to ) const
 	{
-		ASSERT((pos + count) <= m_buffer.get_size());
+        ASSERT( from <= to );
+        ASSERT( to < get_size() );
 
-        String res(get_cstr() + pos, count);
+        String res( get_cstr() + from, to - from + 1 );
 
         return res;
 	}
@@ -122,33 +152,36 @@ namespace basic
 
 	void String::split(basic::Vector< String >& out, char_t item) const
 	{
-        uint32 pos = 0;
-        uint32 next_index = MAX_LEN;
+        if( is_empty() )
+        {
+            return;
+        }
 
-		while (pos < get_size())
+        uint32 from = 0;
+        uint32 next_index = 0;
+
+        while ( from < get_size() )
 		{
-			if (!find_first(next_index, item, pos))
-			{
-                uint32 count = get_size() - pos;
-				if (count > 1 && count == get_size() && m_buffer[count - 1] == 0)
-				{
-					count -= 1;
-				}
+            if ( !find_first( next_index, item, from ) )
+            {
+                if( from < (get_size() - 1) )
+                {
+                    out.push( get_substr( from, get_size() - 1 ) );
+                }
 
-                out.push(get_substr(pos, count));
 				break;
 			}
 
-			if (next_index == pos)
+            if ( next_index <= from )
 			{
 				++next_index;
-				pos = next_index;
+                from = next_index;
 				continue;
 			}
 
-            out.push(get_substr(pos, next_index - pos));
+            out.push( get_substr( from, next_index - 1 ) );
 
-			pos = next_index + 1;
+            from = next_index + 1;
 		}
 	}
 
@@ -212,8 +245,17 @@ namespace basic
 
 			result.m_buffer.push(item);
 		}
+        result.push_cend();
 
         return result;
+    }
+
+    void String::push_cend()
+    {
+        if( back() != CSTR_END )
+        {
+            m_buffer.push( CSTR_END );
+        }
     }
 
     bool String::format(char_t *buffer, uint32 size, const char* fmt, ...)

@@ -29,12 +29,7 @@ GameInstance::init( )
     m_ui_camera.init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
-    ShaderProgram* shader = nullptr;
-    ShaderCache::Handle shandle;
-    if ( load_shader( m_shader_cache, "vshader.glsl", "fshader.glsl", shandle ) )
-    {
-        shader = m_shader_cache.get( shandle );
-    }
+    ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "shaders/default.prog" );
 
     TextureCache::Handle handle;
     if ( shader && load_texture( m_texture_cache, "my.bmp", handle ) )
@@ -50,12 +45,7 @@ GameInstance::init( )
         m_btn.set_position( {100.f, 100.f, 0.f} );
     }
 
-    ShaderProgram* text_shader = nullptr;
-    ShaderCache::Handle text_shandle;
-    if ( load_shader( m_shader_cache, "vshader.glsl", "text_fshader.glsl", text_shandle ) )
-    {
-        text_shader = m_shader_cache.get( text_shandle );
-    }
+    ShaderProgram* text_shader = m_rs.get_resorce<ShaderProgram>( "shaders/text.prog" );
 
     if ( text_shader && m_font.init( "arial.ttf", text_shader ) )
     {

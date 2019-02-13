@@ -240,9 +240,16 @@ void
 RenderObject::set_shader( ShaderProgram* shader )
 {
     m_shader = shader;
+
+    m_shader->retain();
 }
 
 basic::uint32 RenderObject::get_element_count( ) const
 {
     return m_ib.get_size( );
+}
+
+IRenderObject::~IRenderObject()
+{
+
 }
