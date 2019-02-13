@@ -7,7 +7,7 @@ namespace basic
 
 void assert_func( int line, const char* file, const char* function, const char* message );
 
-memory_size str_length( const char* ptr, memory_size max_len );
+uint32 str_length( const char* ptr, memory_size max_len );
 
 char* str_copy(const char* cstr, memory_size max_len );
 

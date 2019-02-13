@@ -192,7 +192,18 @@ namespace basic
 
 	char_t String::back() const
 	{
-        return m_buffer.back();
+        uint32 last = last_index();
+
+        return m_buffer[last];
+    }
+
+    uint32 String::last_index() const
+    {
+        ASSERT( get_size() > 1 );
+
+        uint32 last = get_size() - 2;
+
+        return last;
     }
 
     void String::trim()
@@ -233,18 +244,29 @@ namespace basic
 	{
 		String result;
         const char_t next_line = '\n';
+        char_t item = 0;
 
         for (uint32 i = 0; i < max_size; ++i)
 		{
-			char_t item = *(cstr + i);
+            item = *(cstr + i);
 
-			if (item == next_line)
+            if (item == next_line)
 			{
+                if( result.is_empty() && (i + 1) < max_size )
+                {
+                    continue;
+                }
 				break;
 			}
 
 			result.m_buffer.push(item);
 		}
+
+        if( item != next_line && result.is_empty() )
+        {
+            result.init( cstr );
+        }
+
         result.push_cend();
 
         return result;
@@ -252,7 +274,7 @@ namespace basic
 
     void String::push_cend()
     {
-        if( back() != CSTR_END )
+        if( !is_empty() && m_buffer.back() != CSTR_END )
         {
             m_buffer.push( CSTR_END );
         }

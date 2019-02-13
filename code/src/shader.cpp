@@ -1,6 +1,7 @@
 #include "shader.hpp"
 #include "GL/glew.h"
 #include "basic/file.hpp"
+#include "config.hpp"
 
 ShaderProgram::ShaderProgram(const char *file)
     : FileResource ( file )
@@ -28,40 +29,28 @@ ShaderProgram::~ShaderProgram( )
 
 bool ShaderProgram::load( ResourceStorage *storage )
 {
-    basic::Vector<basic::uint8> data = basic::get_file_content( get_name().get_cstr() );
+    Config* config = storage->get_resorce<Config>( "shaders/programs.conf" );
 
-    if( !data.is_empty() )
+    if( config )
     {
+        basic::String name = get_name();
+        basic::Vector<basic::String> values = config->get_values( name.get_cstr() );
+
         basic::String vertex_file;
         basic::String fragment_file;
 
-        basic::uint32 offset = 0;
-        do
+        for(basic::uint32 i = 0; i < values.get_size(); ++i)
         {
-            basic::String line = basic::String::
-                    read_line( reinterpret_cast<basic::char_t*>(data.get_raw() + offset),
-                               data.get_size() - offset );
-
-            if( !line.is_empty() )
+            basic::String& line = values[i];
+            if( line.ends_of( ".vs" ) )
             {
-                if( line.ends_of( ".vs" ) )
-                {
-                    vertex_file = line;
-                }
-                else if( line.ends_of( ".fs" ) )
-                {
-                    fragment_file = line;
-                }
+                vertex_file = line;
             }
-
-            if( !vertex_file.is_empty() && !fragment_file.is_empty() )
+            else if( line.ends_of( ".fs" ) )
             {
-                break;
+                fragment_file = line;
             }
-
-            offset += line.get_size();
         }
-        while( offset < data.get_size() );
 
         if( !vertex_file.is_empty() && !fragment_file.is_empty() )
         {

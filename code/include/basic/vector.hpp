@@ -53,7 +53,9 @@ struct Initializer
     static void
     copy( T* ptr, const T* src, Token< false > )
     {
-        ptr->T( *src );
+        const T& ref = *src;
+
+        new ( static_cast< void* >( ptr ) ) T( ref );
     }
 
     template < class... Args >
@@ -488,7 +490,7 @@ private:
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
-            Initializer< T >::copy( m_data + i, src, Token< std::is_pod< T >::value >( ) );
+            Initializer< T >::copy( m_data + i, src + i, Token< std::is_pod< T >::value >( ) );
         }
     }
 

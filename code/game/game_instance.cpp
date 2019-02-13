@@ -29,7 +29,7 @@ GameInstance::init( )
     m_ui_camera.init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
-    ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "shaders/default.prog" );
+    ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
 
     TextureCache::Handle handle;
     if ( shader && load_texture( m_texture_cache, "my.bmp", handle ) )
@@ -38,14 +38,14 @@ GameInstance::init( )
 
         m_back.init( shader, texture );
         m_back.set_size( 2.f, 2.f );
-        // m_back.set_color( 255, 255, 255, 20 );
+        m_back.set_color( 255, 255, 255, 20 );
 
         m_btn.init( shader, texture );
         m_btn.set_size( 100.f, 100.f );
         m_btn.set_position( {100.f, 100.f, 0.f} );
     }
 
-    ShaderProgram* text_shader = m_rs.get_resorce<ShaderProgram>( "shaders/text.prog" );
+    ShaderProgram* text_shader = m_rs.get_resorce<ShaderProgram>( "text" );
 
     if ( text_shader && m_font.init( "arial.ttf", text_shader ) )
     {
@@ -55,17 +55,16 @@ GameInstance::init( )
         m_text.set_position( {200.f, 200.f, 0.f} );
     }
 
+    ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
     TextureCache::Handle model_shandle;
     if ( //load_texture( m_texture_cache, "my.bmp", model_shandle ) &&
-         load_mesh( "cow.obj", m ) )
+         load_mesh( "cow.obj", m ) && def_shader )
     {
-        Texture* texture = m_texture_cache.get( handle );
-
         m_model.set_index_buffer( std::move( m.ib ) );
         m_model.set_vertex_buffer( std::move( m.vb ) );
-        m_model.set_shader( shader );
-        m_model.set_texture( texture );
+        m_model.set_shader( def_shader );
+        //m_model.set_texture( texture );
         //m_model.get_transform( )->set_scale( {10.f, 10.f, 10.f} );
         m_model.init( );
     }

@@ -24,12 +24,12 @@ assert_func( int line, const char* file, const char* function, const char* messa
     abort( );
 }
 
-memory_size str_length(const char* cstring, memory_size max_len )
+uint32 str_length(const char* cstring, memory_size max_len )
 {
     ASSERT_M( cstring != nullptr, "cstring is nullptr" );
     ASSERT_M( max_len > 0, "max_len must be > 0" );
 
-    return strnlen( cstring, max_len );
+    return static_cast<uint32>( strnlen( cstring, max_len ) );
 }
 
 char*

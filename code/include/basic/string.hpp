@@ -65,6 +65,8 @@ public:
 
 	char_t back() const;
 
+    uint32 last_index() const;
+
     void trim();
 
     static String read_line(char_t* cstr, uint32 max_size);
