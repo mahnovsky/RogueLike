@@ -39,7 +39,7 @@ str_copy( const char* cstr, memory_size max_len )
 {
     size_t size = str_length( cstr, max_len );
 
-    char* res = static_cast< char* >( mem_allocate( size ) );
+    char* res = static_cast< char* >( mem_alloc( size ) );
     mem_copy( res, cstr, size );
 
     if ( size == max_len )

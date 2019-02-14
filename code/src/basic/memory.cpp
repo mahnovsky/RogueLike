@@ -80,16 +80,16 @@ static void internal_free(void* ptr, size_t& free_bytes )
 }
 
 void*
-mem_allocate( memory_size byte_count )
+_mem_alloc(memory_size bytes )
 {
-    if(byte_count == 0)
+    if(bytes == 0)
     {
         return nullptr;
     }
     //ASSERT_M( byte_count > 0, "Bad alloc size" );
 
     memory_size out_bytes = 0;
-    void* res = internal_malloc( byte_count, out_bytes );
+    void* res = internal_malloc( bytes, out_bytes );
 
     if ( !res && g_out_of_memory_callback )
     {
@@ -99,6 +99,45 @@ mem_allocate( memory_size byte_count )
     memory_usage += out_bytes;
 
     return res;
+}
+
+
+void*
+_mem_realloc(void* ptr, memory_size bytes )
+{
+    ASSERT( bytes > 0 );
+
+    void* res = ptr;
+
+    if ( ptr )
+    {
+        const memory_size mem_size = get_user_mem_size(ptr);
+
+        if (bytes > mem_size)
+        {
+            res = _mem_alloc(bytes);
+
+            mem_copy(res, ptr, mem_size);
+
+            mem_free(ptr);
+        }
+    }
+    else
+    {
+        res = _mem_alloc(bytes);
+    }
+
+    return res;
+}
+
+void *_checked_mem_alloc( memory_size bytes, const char *file, int line )
+{
+    return _mem_alloc( bytes );
+}
+
+void *_checked_mem_realloc( void* ptr, memory_size bytes, const char* file, int line )
+{
+    return _mem_realloc( ptr, bytes );
 }
 
 void
@@ -112,61 +151,33 @@ mem_free( void* ptr )
 }
 
 void*
-mem_move(void* destination, const void* source, memory_size byte_count )
+mem_move(void* destination, const void* source, memory_size bytes )
 {
     ASSERT_M( destination != nullptr, "Destination is nullptr" );
     ASSERT_M( source != nullptr, "Source is nullptr" );
-    ASSERT_M( byte_count > 0, "Bad alloc size" );
+    ASSERT_M( bytes > 0, "Bad alloc size" );
 
-    return memmove( destination, source, byte_count );
+    return memmove( destination, source, bytes );
 }
 
 void*
-mem_copy( void* destination, const void* source, memory_size byte_count )
+mem_copy( void* destination, const void* source, memory_size bytes )
 {
-    ASSERT_M( destination != nullptr, "Destination is nullptr" );
+    ASSERT( destination != source );
     ASSERT_M( source != nullptr, "Source is nullptr" );
-    ASSERT_M( byte_count > 0, "Bad alloc size" );
+    ASSERT_M( bytes > 0, "Bad alloc size" );
 
-    return memcpy( destination, source, byte_count );
+    return memcpy( destination, source, bytes );
 }
 
 int
-mem_cmp(const void* ptr1, const void* ptr2, memory_size byte_count )
+mem_cmp(const void* ptr1, const void* ptr2, memory_size bytes )
 {
     ASSERT( ptr1 != nullptr );
     ASSERT( ptr2 != nullptr );
-    ASSERT( byte_count > 0 );
+    ASSERT( bytes > 0 );
 
-    return memcmp( ptr1, ptr2, byte_count );
-}
-
-void*
-mem_realloc(void* ptr, memory_size byte_count )
-{
-    ASSERT( byte_count > 0 );
-
-    void* res = ptr;
-
-    if ( ptr )
-    {
-        const memory_size mem_size = get_user_mem_size(ptr);
-
-        if (byte_count > mem_size)
-        {
-            res = mem_allocate(byte_count);
-
-            mem_copy(res, ptr, mem_size);
-
-            mem_free(ptr);
-        }
-    }
-    else
-    {
-        res = mem_allocate(byte_count);
-    }
-
-    return res;
+    return memcmp( ptr1, ptr2, bytes );
 }
 
 void
@@ -208,7 +219,7 @@ ref_count get_refs(void *ptr)
 void*
 operator new( std::size_t n )
 {
-    return basic::mem_allocate( static_cast<basic::memory_size>(n) );
+    return basic::mem_alloc( static_cast<basic::memory_size>(n) );
 }
 
 void
@@ -220,7 +231,7 @@ operator delete( void* p ) noexcept
 void*
 operator new[]( std::size_t s )
 {
-    return basic::mem_allocate( static_cast<basic::memory_size>(s) );
+    return basic::mem_alloc( static_cast<basic::memory_size>(s) );
 }
 
 void

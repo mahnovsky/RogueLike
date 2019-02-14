@@ -16,7 +16,7 @@ namespace se
 Font::Font( )
     : m_texture( )
     , m_height( 32.f )
-    , m_cdata( basic::mem_allocate( 96 * sizeof( stbtt_bakedchar ) ) )
+    , m_cdata( basic::mem_alloc( 96 * sizeof( stbtt_bakedchar ) ) )
 	, m_shader(nullptr)
 {
 }
@@ -37,11 +37,11 @@ Font::init( const char* file, ShaderProgram* shader )
 
     m_shader = shader;
 
-    basic::uint32 tw = 512;
-	basic::uint32 th = 512;
+    int tw = 512;
+    int th = 512;
 
-    unsigned char* temp_bitmap = (unsigned char*)basic::mem_allocate( tw * th );
-    stbtt_BakeFontBitmap( (unsigned char*)data.get_raw( ),
+    basic::uint8* temp_bitmap = static_cast<basic::uint8*>( basic::mem_alloc( tw * th ) );
+    stbtt_BakeFontBitmap( data.get_raw( ),
                           0,
                           m_height,
                           temp_bitmap,
@@ -49,7 +49,7 @@ Font::init( const char* file, ShaderProgram* shader )
                           th,
                           32,
                           96,
-                          (stbtt_bakedchar*)m_cdata );
+                          static_cast<stbtt_bakedchar*>( m_cdata ) );
     basic::uint32 texture;
 
     glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );

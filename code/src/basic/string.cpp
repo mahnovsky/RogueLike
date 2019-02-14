@@ -209,7 +209,7 @@ namespace basic
     void String::trim()
     {
         const uint32 size = m_buffer.get_size();
-        if(size == 0)
+        if( size <= 1 )
         {
             return;
         }
@@ -224,7 +224,7 @@ namespace basic
             ++beg;
         }
 
-        uint32 end = m_buffer.get_size() - 1;
+        uint32 end = m_buffer.get_size() - 2;
         while (end > 0)
         {
             if(m_buffer[end] != ' ')
@@ -232,6 +232,10 @@ namespace basic
                 break;
             }
             --end;
+        }
+        if( beg == 0 && end == (get_size() - 1) )
+        {
+            return;
         }
 
         if( end > beg )
