@@ -236,7 +236,7 @@ namespace basic
 
         if( end > beg )
         {
-            get_substr( beg, end - beg );
+            (*this) = get_substr( beg, end );
         }
     }
 

@@ -1,5 +1,7 @@
 #include "basic/debug.hpp"
 
+#include "stb/stb_sprintf.h"
+
 #include <cstdarg>
 #include <cstdio>
 #include <cstdlib>
@@ -53,7 +55,7 @@ log( int line, const char* file, const char* const func, const char* format, ...
 {
     char buffer[ MAX_BUFFER_LEN ];
 
-    snprintf( buffer, MAX_BUFFER_LEN, "%s: %d\n\t [ %s ] ", file, line, func );
+    stbsp_snprintf( buffer, MAX_BUFFER_LEN, "%s: %d\n\t [ %s ] ", file, line, func );
 
 #ifdef __WINDOWS__
 	OutputDebugStringA(buffer);
@@ -63,7 +65,7 @@ log( int line, const char* file, const char* const func, const char* format, ...
 #endif
     va_list args;
     va_start( args, format );
-    vsnprintf( buffer, MAX_BUFFER_LEN, format, args );
+    stbsp_vsnprintf( buffer, MAX_BUFFER_LEN, format, args );
     va_end( args );
 
 #ifdef __WINDOWS__
