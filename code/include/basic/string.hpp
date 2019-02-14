@@ -86,4 +86,6 @@ operator==(const String& s1, const String& s2);
 bool
 operator==(const String& s1, const char* s2);
 
+String operator+(const String& s1, const String& s2);
+
 }

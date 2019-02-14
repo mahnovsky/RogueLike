@@ -28,7 +28,6 @@ private:
 private:
     Engine* m_engine;
 
-    TextureCache m_texture_cache;
     ResourceStorage m_rs;
     PerspectiveCamera m_game_camera;
     OrthoCamera m_ui_camera;

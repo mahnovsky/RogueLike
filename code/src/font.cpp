@@ -14,7 +14,7 @@ extern "C" {
 namespace se
 {
 Font::Font( )
-    : m_texture( )
+    : m_texture( nullptr )
     , m_height( 32.f )
     , m_cdata( basic::mem_alloc( 96 * sizeof( stbtt_bakedchar ) ) )
 	, m_shader(nullptr)
@@ -24,12 +24,19 @@ Font::Font( )
 Font::~Font( )
 {
     basic::mem_free( m_cdata );
+	if (m_texture)
+	{
+		m_texture->release();
+	}
 }
 
 bool
 Font::init( const char* file, ShaderProgram* shader )
 {
-    basic::Vector< basic::uint8 > data = basic::get_file_content( file );
+	basic::String path = "fonts/";
+	path += file;
+    basic::Vector< basic::uint8 > data = basic::get_file_content( path.get_cstr() );
+
     if ( data.is_empty( ) )
     {
         return false;
@@ -37,34 +44,27 @@ Font::init( const char* file, ShaderProgram* shader )
 
     m_shader = shader;
 
-    int tw = 512;
-    int th = 512;
+    const int tw = 512;
+	const int th = 512;
 
-    basic::uint8* temp_bitmap = static_cast<basic::uint8*>( basic::mem_alloc( tw * th ) );
+	basic::Vector<basic::uint8> bitmap;
+	bitmap.resize(tw * th);
+    
     stbtt_BakeFontBitmap( data.get_raw( ),
                           0,
                           m_height,
-                          temp_bitmap,
+                          bitmap.get_raw(),
                           tw,
                           th,
                           32,
                           96,
                           static_cast<stbtt_bakedchar*>( m_cdata ) );
-    basic::uint32 texture;
 
-    glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+	basic::String name = "bitmap_";
 
-    glGenTextures( 1, &texture );
-    glBindTexture( GL_TEXTURE_2D, texture );
-    glTexImage2D( GL_TEXTURE_2D, 0, GL_RED, tw, th, 0, GL_RED, GL_UNSIGNED_BYTE, temp_bitmap );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-    m_texture = std::move( Texture( tw, th, texture ) );
-
-    basic::mem_free( temp_bitmap );
+    m_texture = new Texture( (name + file).get_cstr() );
+	m_texture->init_font(tw, th, std::move(bitmap));
+	m_texture->retain();
 
     return true;
 }
@@ -94,8 +94,8 @@ Font::generate( const char* text, float height, RenderObject& out_object )
         if ( ch >= 32 )
         {
             stbtt_aligned_quad q;
-            int w = static_cast<int>( m_texture.get_width( ) );
-            int h = static_cast<int>( m_texture.get_height( ) );
+            int w = static_cast<int>( m_texture->get_width( ) );
+            int h = static_cast<int>( m_texture->get_height( ) );
 
             stbtt_GetBakedQuad( static_cast<stbtt_bakedchar*>(m_cdata), w, h, ch - 32, &x, &y, &q, 1 );
 
@@ -132,7 +132,7 @@ Font::generate( const char* text, float height, RenderObject& out_object )
 
     if ( !out_object.is_initialized( ) )
     {
-        out_object.set_texture( &m_texture );
+        out_object.set_texture( m_texture );
         out_object.set_shader( m_shader );
     }
 

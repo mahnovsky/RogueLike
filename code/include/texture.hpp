@@ -1,25 +1,34 @@
 #pragma once
 
-#include "basic/image.hpp"
-#include "basic/string.hpp"
-#include "cache.hpp"
+#include "basic/common.hpp"
+#include "resource_storage.hpp"
 
-class Texture
+class Texture : public FileResource
 {
 public:
-    Texture( ) noexcept;
-    Texture( Texture&& t ) noexcept;
-    Texture( basic::uint32 w, basic::uint32 h, basic::uint32 tex ) noexcept;
-    ~Texture( );
+	
+    Texture( const char* file );
+    ~Texture( ) override;
 
-    Texture& operator=( Texture&& t );
+	bool load(ResourceStorage*) override;
+
+	static Texture* create(const char* file);
 
     void init( basic::Image image );
 
-    void init(basic::uint32 width,
+    void init( basic::uint32 width,
                basic::uint32 height,
                basic::Vector<basic::uint8> image_data,
                basic::uint32 cc );
+
+	void init_font(basic::uint32 width,
+		basic::uint32 height,
+		basic::Vector<basic::uint8> image_data);
+
+	void set(basic::uint32 width,
+		basic::uint32 height,
+		basic::uint32 handle,
+		basic::uint32 cc);
 
     void bind( ) const;
 
@@ -35,7 +44,3 @@ private:
     basic::uint32 m_height;
     basic::uint32 m_components;
 };
-
-using TextureCache = Cache< Texture >;
-
-bool load_texture( TextureCache& cache, const char* file, TextureCache::Handle& out_handle );

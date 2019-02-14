@@ -321,4 +321,10 @@ namespace basic
 
 		return mem_cmp(s1.get_cstr(), s2, size) == 0;
 	}
+	String operator+(const String & s1, const String & s2)
+	{
+		String res( s1 );
+		res.append(s2.get_cstr());
+		return res;
+	}
 }

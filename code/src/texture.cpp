@@ -2,30 +2,12 @@
 #include "GL/glew.h"
 #include "basic/file.hpp"
 
-Texture::Texture( ) noexcept
-    : m_texture( 0 )
+
+Texture::Texture( const char* file )
+    : FileResource( file )
+	, m_texture( 0 )
 	, m_width(0)
 	, m_height(0)
-    , m_components(0)
-{
-}
-
-Texture::Texture( Texture&& t ) noexcept
-    : m_texture( t.m_texture )
-	, m_width(t.m_width)
-	, m_height(t.m_height)
-	, m_components(t.m_components)
-{
-    t.m_texture = 0;
-	t.m_width = 0;
-	t.m_height = 0;
-    t.m_components = 0;
-}
-
-Texture::Texture( basic::uint32 w, basic::uint32 h, basic::uint32 tex ) noexcept
-    : m_texture(tex)
-	, m_width( w )
-    , m_height( h )
     , m_components(0)
 {
 }
@@ -38,16 +20,29 @@ Texture::~Texture( )
     }
 }
 
-Texture&
-Texture::operator=( Texture&& t )
+bool Texture::load(ResourceStorage* storage)
 {
-    m_texture = t.m_texture;
-    m_width = t.m_width;
-    m_height = t.m_height;
-    m_components = t.m_components;
+	basic::String path = "textures/";
+	basic::String file = path + get_name();
 
-    t.m_texture = 0;
-    return *this;
+	basic::Vector<basic::uint8> data = basic::get_file_content(file.get_cstr());
+
+	basic::Image img;
+	if ( !data.is_empty() && basic::load_image( data, img ) )
+	{
+		init(img);
+
+		return true;
+	}
+
+	return false;
+}
+
+Texture* Texture::create(const char* file)
+{
+	Texture* tex = new Texture(file);
+
+	return tex;
 }
 
 void
@@ -89,6 +84,35 @@ Texture::init( basic::uint32 width,
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 
     glGenerateMipmap( GL_TEXTURE_2D );
+
+	unbind();
+}
+
+void Texture::init_font(basic::uint32 width, basic::uint32 height, basic::Vector<basic::uint8> image_data)
+{
+	m_width = width;
+	m_height = height;
+	m_components = 1;
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glGenTextures(1, &m_texture);
+	glBindTexture(GL_TEXTURE_2D, m_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, m_width, m_height, 0, GL_RED, GL_UNSIGNED_BYTE, image_data.get_raw());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	unbind();
+}
+
+void Texture::set(basic::uint32 width, basic::uint32 height, basic::uint32 handle, basic::uint32 cc)
+{
+	m_width = width;
+	m_height = height;
+	m_components = cc;
+	m_texture = handle;
 }
 
 void
@@ -115,31 +139,4 @@ basic::uint32
 Texture::get_height( ) const
 {
     return m_height;
-}
-
-bool
-load_texture( TextureCache& cache, const char* file, TextureCache::Handle& out_handle )
-{
-    basic::Vector< basic::uint8 > bmp_data = basic::get_file_content( file );
-
-    basic::Image image;
-
-    if ( !bmp_data.is_empty( ) && basic::load_image( bmp_data, image ) )
-    {
-        LOG( "Image loaded successfuly w: %d, h: %d", image.width, image.height );
-
-        Texture* texture = new Texture( );
-
-        texture->init( std::move( image ) );
-
-        cache.add( texture, file, &out_handle );
-    }
-    else
-    {
-        LOG( "Failed load bmp image" );
-
-        return false;
-    }
-
-    return true;
 }

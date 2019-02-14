@@ -5,7 +5,6 @@
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
-    , m_texture_cache( )
     , m_game_camera( 60.f, width / height, 1.f, 1000.f )
     , m_ui_camera( width, height, 0.f, 100.f )
     , m_back( )
@@ -30,20 +29,15 @@ GameInstance::init( )
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
+	Texture* texture = m_rs.get_resorce<Texture>( "SoM_Icon_2.png" );
 
-    TextureCache::Handle handle;
-    if ( shader && load_texture( m_texture_cache, "my.bmp", handle ) )
-    {
-        Texture* texture = m_texture_cache.get( handle );
+	m_back.init(shader, texture);
+	m_back.set_size(2.f, 2.f);
+	//m_back.set_color( 255, 255, 255, 20 );
 
-        m_back.init( shader, texture );
-        m_back.set_size( 2.f, 2.f );
-        //m_back.set_color( 255, 255, 255, 20 );
-
-        m_btn.init( shader, texture );
-        m_btn.set_size( 100.f, 100.f );
-        m_btn.set_position( {100.f, 100.f, 0.f} );
-    }
+	m_btn.init(shader, texture);
+	m_btn.set_size(100.f, 100.f);
+	m_btn.set_position({ 100.f, 100.f, 0.f });
 
     ShaderProgram* text_shader = m_rs.get_resorce<ShaderProgram>( "text" );
 
@@ -57,9 +51,7 @@ GameInstance::init( )
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
-    TextureCache::Handle model_shandle;
-    if (//load_texture( m_texture_cache, "my.bmp", model_shandle ) &&
-         load_mesh( "cow.obj", m ) && def_shader )
+    if ( load_mesh( "cow.obj", m ) && def_shader )
     {
         m_model.set_index_buffer( std::move( m.ib ) );
         m_model.set_vertex_buffer( std::move( m.vb ) );

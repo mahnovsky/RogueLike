@@ -57,6 +57,14 @@ RenderObject::RenderObject( )
 
 RenderObject::~RenderObject( )
 {
+	if (m_shader)
+	{
+		m_shader->release();
+	}
+	if (m_texture)
+	{
+		m_texture->release();
+	}
 }
 
 void
@@ -234,6 +242,8 @@ void
 RenderObject::set_texture( Texture* texture )
 {
     m_texture = texture;
+
+	m_texture->retain();
 }
 
 void
