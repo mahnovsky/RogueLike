@@ -7,11 +7,11 @@
 namespace basic
 {
 
-uint64 get_milliseconds()
+double get_milliseconds()
 {
     uint64 milliseconds = GetTickCount64();
 
-	return milliseconds;
+	return static_cast<double>(milliseconds);
 }
 
 }

@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="code">
+      <UniqueIdentifier>{ca9db7c2-9354-4096-8706-fdf29661c096}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\src">
+      <UniqueIdentifier>{2beb9d1a-5319-4254-bb86-1a9e9b800ae8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\src\platform">
+      <UniqueIdentifier>{bec68dbf-d41a-40b7-b6aa-a19cec6c39a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\include">
+      <UniqueIdentifier>{a8427720-6f1d-4f3a-936f-09b1eedb1157}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\include\basic">
+      <UniqueIdentifier>{d1c88780-2910-432a-97ce-9de6653cc48e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\src\basic">
+      <UniqueIdentifier>{77577800-b920-4714-a7b0-300ac0116efe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\game">
+      <UniqueIdentifier>{35aa6373-4101-4019-8029-85b319a11016}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\code\game.cpp">
+      <Filter>code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\win32_startup.cpp">
+      <Filter>code</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\camera.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\engine.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\font.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\glew.c">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\render.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\render_object.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\shader.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\sprite.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\text.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\texture.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\timer_manager.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\transform.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\platform\win32_window.cpp">
+      <Filter>code\src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\file.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\image.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\game\game_instance.cpp">
+      <Filter>code\game</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\platform\win32_file.cpp">
+      <Filter>code\src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\platform\win32_time.cpp">
+      <Filter>code\src\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\render_common.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\string.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\memory.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\debug.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\resource_storage.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\object.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\config.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\code\include\actor.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\camera.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\engine.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\font.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\render.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\render_common.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\render_object.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\shader.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\sprite.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\stb_truetype.h">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\text.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\texture.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\texture_cache.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\timer_manager.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\transform.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\window.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\world.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\file.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\image.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\pool.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\string.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\time.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\types.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\vector.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\game\game_instance.hpp">
+      <Filter>code\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\debug.hpp">
+      <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\resource_storage.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

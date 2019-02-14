@@ -243,14 +243,15 @@ namespace basic
     String String::read_line(char_t* cstr, uint32 max_size)
 	{
 		String result;
-        const char_t next_line = '\n';
+		const char_t r = '\r';
+        const char_t n = '\n';
         char_t item = 0;
 
         for (uint32 i = 0; i < max_size; ++i)
 		{
             item = *(cstr + i);
 
-            if (item == next_line)
+            if (item == n || item == r)
 			{
                 if( result.is_empty() && (i + 1) < max_size )
                 {
@@ -262,7 +263,7 @@ namespace basic
 			result.m_buffer.push(item);
 		}
 
-        if( item != next_line && result.is_empty() )
+        if( item != n && result.is_empty() )
         {
             result.init( cstr );
         }
