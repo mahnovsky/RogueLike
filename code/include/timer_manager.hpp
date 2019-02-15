@@ -1,28 +1,13 @@
 #pragma once
 
-#include "basic/vector.hpp"
+#include "defines.hpp"
 
 typedef void (*timer_function) (void*);
 
 struct Timer
 {
-    Timer()
-        :delay( 0.f )
-        ,func( nullptr )
-        ,user_data( nullptr )
-        ,repeat_count( 0 )
-        ,timestamp( 0 )
-        ,is_removed( false )
-    {}
-
-    Timer( float delay, timer_function func, void* data, int repeat = 1 )
-        :delay( delay )
-        ,func( func )
-        ,user_data( data )
-        ,repeat_count( repeat )
-        ,timestamp( 0 )
-        ,is_removed( false )
-    {}
+    Timer();
+    Timer( float delay, timer_function func, void* data, int repeat = 1 );
 
     float delay;
     timer_function func;

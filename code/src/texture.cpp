@@ -20,7 +20,7 @@ Texture::~Texture( )
     }
 }
 
-bool Texture::load(ResourceStorage* storage)
+bool Texture::load(ResourceStorage* )
 {
 	basic::String path = "textures/";
 	basic::String file = path + get_name();

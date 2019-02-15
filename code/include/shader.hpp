@@ -1,8 +1,6 @@
 #pragma once
 
-#include "object.hpp"
-#include "basic/vector.hpp"
-#include "cache.hpp"
+#include "defines.hpp"
 #include "resource_storage.hpp"
 
 class BaseShader : public FileResource

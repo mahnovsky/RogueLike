@@ -1,5 +1,4 @@
 #include "timer_manager.hpp"
-#include "basic/time.hpp"
 
 static const int MAX_REMOVED_TIMERS = 64;
 
@@ -100,3 +99,21 @@ void TimerManager::remove_spant_timers()
     }
 }
 
+
+Timer::Timer()
+    :delay( 0.f )
+    ,func( nullptr )
+    ,user_data( nullptr )
+    ,repeat_count( 0 )
+    ,timestamp( 0 )
+    ,is_removed( false )
+{}
+
+Timer::Timer(float delay, timer_function func, void *data, int repeat)
+    :delay( delay )
+    ,func( func )
+    ,user_data( data )
+    ,repeat_count( repeat )
+    ,timestamp( 0 )
+    ,is_removed( false )
+{}

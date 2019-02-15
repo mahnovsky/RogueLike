@@ -1,13 +1,11 @@
 #pragma once
 
-#include "basic/pool.hpp"
-#include "render.hpp"
+#include "defines.hpp"
+
+#include "render_common.hpp"
 #include "transform.hpp"
 
 using vertex_update = void ( * )( Vertex*, void* );
-
-class Texture;
-class ShaderProgram;
 
 class IRenderObject
 {

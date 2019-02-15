@@ -5,6 +5,9 @@
 #include "basic/time.hpp"
 #include "timer_manager.hpp"
 
+#include "render.hpp"
+#include "window.hpp"
+
 Engine* Engine::_instance;
 
 void Engine::out_of_memory()

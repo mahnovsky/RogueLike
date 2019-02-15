@@ -1,9 +1,6 @@
 #pragma once
 
-#include "basic/types.hpp"
-#include "shader.hpp"
-#include "sprite.hpp"
-#include "texture.hpp"
+#include "defines.hpp"
 
 namespace se
 {

@@ -15,13 +15,13 @@ public:
 
     void add_child( SceneNode* node );
 
-    void remove_child(SceneNode* node);
+    void remove_child( SceneNode* node );
 
     void remove_from_parent( );
 
     bool is_contains( SceneNode* child );
 
-    bool get_child_index(SceneNode* node, basic::uint32 &out_index );
+    bool get_child_index( SceneNode* node, basic::uint32 &out_index );
 
     SceneNode* get_parent();
 

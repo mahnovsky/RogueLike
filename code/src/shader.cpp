@@ -1,4 +1,5 @@
 #include "shader.hpp"
+
 #include "GL/glew.h"
 #include "basic/file.hpp"
 #include "config.hpp"

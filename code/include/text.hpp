@@ -1,7 +1,7 @@
 #pragma once
 
-#include "basic/string.hpp"
-#include "font.hpp"
+#include "defines.hpp"
+#include "render_object.hpp"
 
 class Text
 {

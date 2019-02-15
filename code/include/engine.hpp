@@ -1,8 +1,6 @@
 #pragma once
 
-#include "render.hpp"
-#include "window.hpp"
-#include "basic/string.hpp"
+#include "defines.hpp"
 
 enum EngineCallbackType 
 {

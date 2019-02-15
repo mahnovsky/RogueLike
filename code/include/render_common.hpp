@@ -13,7 +13,7 @@ extern "C" {
 #include <GL/gl.h>
 #endif
 
-#include "basic/vector.hpp"
+#include "defines.hpp"
 #include "glm/glm.hpp"
 
 struct Vertex

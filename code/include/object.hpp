@@ -1,12 +1,13 @@
 #pragma once
 
-#include "basic/string.hpp"
+#include "defines.hpp"
 
 class Object
 {
 public:
     Object();
     Object(const char* name);
+
     virtual ~Object();
 
     void set_tag( basic::int32 tag );

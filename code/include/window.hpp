@@ -3,9 +3,7 @@
 class IWindow
 {
 public:
-    virtual ~IWindow( )
-    {
-    }
+    virtual ~IWindow( ){}
 
     virtual bool init( int width, int height, const char* const title ) = 0;
 

@@ -1,14 +1,14 @@
 #include "font.hpp"
 #include "GL/glew.h"
-#include "basic/file.hpp"
+
+#include "texture.hpp"
+#include "shader.hpp"
+#include "render_object.hpp"
 
 namespace
 {
-extern "C" {
-#include <stdio.h>
 #define STB_TRUETYPE_IMPLEMENTATION
 #include "stb/stb_truetype.h"
-}
 }
 
 namespace se

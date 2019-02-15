@@ -1,6 +1,4 @@
 #include "render_common.hpp"
-#include "basic/file.hpp"
-#include "basic/string.hpp"
 
 static basic::uint16
 convert( basic::String str )

@@ -3,16 +3,15 @@
 #include "basic/memory.hpp"
 
 Object::Object()
-    :m_name()
+    : m_name()
     , m_tag(0)
 {
 }
 
 Object::Object(const char *name)
-    :m_name(name)
+    : m_name(name)
     , m_tag(0)
 {
-
 }
 
 Object::~Object()

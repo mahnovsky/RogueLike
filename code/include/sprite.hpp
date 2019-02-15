@@ -1,9 +1,7 @@
 #pragma once
 
-#include "render.hpp"
+#include "defines.hpp"
 #include "render_object.hpp"
-
-class ICamera;
 
 class Sprite
 {

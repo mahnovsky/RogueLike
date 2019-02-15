@@ -1,5 +1,5 @@
 #include "camera.hpp"
-#include "glm/glm.hpp"
+#include "transform.hpp"
 
 PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far )
     : m_position()
@@ -112,3 +112,5 @@ void OrthoCamera::get_matrix( glm::mat4& out ) const
     out = m_projection;
 }
 
+
+ICamera::~ICamera(){}

@@ -1,4 +1,5 @@
 #include "render_object.hpp"
+
 #include "camera.hpp"
 #include "render.hpp"
 #include "render_common.hpp"

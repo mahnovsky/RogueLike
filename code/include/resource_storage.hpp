@@ -1,9 +1,8 @@
 #pragma once
 
-#include "basic/common.hpp"
+#include "defines.hpp"
 #include "object.hpp"
 
-class TimerManager;
 class ResourceStorage;
 
 class FileResource : public Object

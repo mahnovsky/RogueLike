@@ -1,8 +1,8 @@
 #pragma once
 
-#include "transform.hpp"
+#include "defines.hpp"
 
-class World;
+class IComponent;
 
 class Actor
 {

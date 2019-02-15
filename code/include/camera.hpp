@@ -1,11 +1,11 @@
 #pragma once
 
-#include "transform.hpp"
+#include "defines.hpp"
 
 class ICamera
 {
 public:
-    virtual ~ICamera(){}
+    virtual ~ICamera();
 
     virtual void init( const glm::vec3& pos, 
                   const glm::vec3& dir, 
@@ -24,7 +24,7 @@ class PerspectiveCamera : public ICamera
 {
 public:
     PerspectiveCamera(float fov, float aspect, float near, float far);
-    ~PerspectiveCamera();
+    ~PerspectiveCamera() override;
 
     void init( const glm::vec3& pos, 
                const glm::vec3& dir, 

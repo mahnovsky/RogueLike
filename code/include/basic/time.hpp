@@ -4,8 +4,5 @@
 
 namespace basic
 {
-
 double get_milliseconds();
-
-
 }

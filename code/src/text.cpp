@@ -1,10 +1,12 @@
 #include "text.hpp"
 
+#include "font.hpp"
+
 Text::Text( )
     : m_font( nullptr )
     , m_text( )
-    , m_font_size( 32.f )
     , m_render_object( )
+    , m_font_size( 32.f )
 {
     m_render_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );
 }

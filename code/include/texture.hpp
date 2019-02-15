@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basic/common.hpp"
+#include "defines.hpp"
 #include "resource_storage.hpp"
 
 class Texture : public FileResource

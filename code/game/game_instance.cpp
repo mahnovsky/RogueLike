@@ -1,5 +1,6 @@
 #include "game_instance.hpp"
 #include "render_common.hpp"
+#include "texture.hpp"
 
 #include <stdio.h>
 
@@ -45,8 +46,7 @@ GameInstance::init( )
     {
         m_text.set_font( &m_font );
         m_text.set_text( "hello world" );
-        // m_text.set_scale( 0.1f );
-        m_text.set_position( {200.f, 200.f, 0.f} );
+        m_text.set_position( {20.f, m_height - 40.f, 0.f} );
     }
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );

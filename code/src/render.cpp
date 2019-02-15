@@ -119,6 +119,8 @@ private:
     basic::Vector< glm::mat4 > m_stack;
 };
 
+IRender::~IRender() {}
+
 IRender*
 IRender::create( )
 {
