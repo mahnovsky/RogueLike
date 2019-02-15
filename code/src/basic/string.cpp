@@ -29,14 +29,14 @@ namespace basic
 	}
 
 	String::String(const String& other)
-		: m_buffer(other.m_buffer)
+        : m_buffer(other.m_buffer)
 	{
 	}
 
 	String::String(String&& other)
-		: m_buffer()
-	{
-		m_buffer = std::move(other.m_buffer);
+        : m_buffer()
+    {
+        m_buffer = std::move(other.m_buffer);
 	}
 
 	void String::init(const char_t* cstr)

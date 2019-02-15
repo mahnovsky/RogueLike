@@ -73,7 +73,7 @@ bool load_image(Vector<uint8> data, Image& out_image )
         return false;
     }
 
-    return ::load_image( data, out_image );
+    return ::load_image( std::move( data ), out_image );
 }
 
 }

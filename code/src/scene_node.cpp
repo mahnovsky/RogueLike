@@ -1,4 +1,4 @@
-#include "scene_node.h"
+#include "scene_node.hpp"
 
 SceneNode::SceneNode()
     :transform()

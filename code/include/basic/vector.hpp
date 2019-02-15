@@ -66,13 +66,16 @@ struct Initializer
     }
 };
 
-template <class T>
-T default_grow_func(T capacity)
+struct DefaultAllocator
 {
-    return capacity * 2;
-}
+    static uint32 grow( uint32 capacity ) { return capacity * 2; }
 
-template < class T, uint32 (*grow_func)(uint32) = default_grow_func<uint32> >
+    static void* alloc_mem( void* ptr, memory_size bytes ) { return mem_realloc( ptr, bytes ); }
+
+    static void free_mem( void* ptr ) { mem_free( ptr ); }
+};
+
+template < class T, class Allocator = DefaultAllocator >
 class Vector
 {
 public:
@@ -130,6 +133,8 @@ public:
 
     Vector< T >& operator=( Vector< T >&& v ) noexcept
     {
+        force_clear();
+
         m_size = v.m_size;
         m_capacity = v.m_capacity;
         m_data = v.m_data;
@@ -411,7 +416,8 @@ public:
         {
             clear( );
             m_capacity = 0;
-            mem_free( m_data );
+            Allocator::free_mem( m_data );
+
             m_data = nullptr;
         }
         else
@@ -444,7 +450,7 @@ private:
     bool realloc( )
     {
         uint32 max_mem_size = m_capacity * sizeof( T );
-        T* new_data = static_cast< T* >( mem_realloc( m_data, max_mem_size ) );
+        T* new_data = static_cast< T* >( Allocator::alloc_mem( m_data, max_mem_size ) );
         if ( !new_data )
         {
             return false;
@@ -465,7 +471,7 @@ private:
 
     bool grow( )
     {
-        m_capacity = grow_func( m_capacity );
+        m_capacity = Allocator::grow( m_capacity );
 
         return realloc( );
     }

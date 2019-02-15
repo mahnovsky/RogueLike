@@ -7,19 +7,6 @@ static GameInstance* g_game_instance;
 static void game_frame( Engine* engine );
 static void game_draw( Engine* engine );
 
-static Sprite g_back;
-
-static void
-sprite_update( void* user_data )
-{
-    Sprite* sprite = static_cast< Sprite* >( user_data );
-
-    glm::vec3 pos = sprite->get_position( );
-    pos.x += 0.03f;
-
-    sprite->set_position( pos );
-}
-
 static void
 game_free( Engine* )
 {
@@ -43,8 +30,6 @@ game_init( Engine* engine )
     engine->set_callback( Clean, &game_free );
 
     g_game_instance->init( );
-
-    // TimerManager::get().add( { 0.5f, &sprite_update, &g_back, 8 } );
 }
 
 static void

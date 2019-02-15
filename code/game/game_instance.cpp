@@ -51,7 +51,7 @@ GameInstance::init( )
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
-    if ( load_mesh( "cow.obj", m ) && def_shader )
+    if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
     {
         m_model.set_index_buffer( std::move( m.ib ) );
         m_model.set_vertex_buffer( std::move( m.vb ) );

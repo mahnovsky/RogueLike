@@ -111,6 +111,7 @@ Font::generate( const char* text, float height, RenderObject& out_object )
             glm::vec2 t1 = {q.s0, q.t0};
             glm::vec2 t2 = {q.s1, q.t0};
             glm::vec2 t3 = {q.s1, q.t1};
+
             /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp*/
             vb.push( {p0, {255, 255, 255, 255}, t0} );
             vb.push( {p1, {255, 255, 255, 255}, t1} );

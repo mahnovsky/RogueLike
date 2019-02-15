@@ -28,9 +28,9 @@ bool Texture::load(ResourceStorage* )
 	basic::Vector<basic::uint8> data = basic::get_file_content(file.get_cstr());
 
 	basic::Image img;
-	if ( !data.is_empty() && basic::load_image( data, img ) )
+    if ( !data.is_empty() && basic::load_image( std::move( data ), img ) )
 	{
-		init(img);
+        init(std::move(img));
 
 		return true;
 	}

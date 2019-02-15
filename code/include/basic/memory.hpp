@@ -13,11 +13,11 @@ void* _mem_alloc( memory_size bytes );
 
 void* _mem_realloc( void* ptr, memory_size bytes );
 
+void mem_free( void* mem );
+
 void* _checked_mem_alloc( memory_size bytes, const char* file, int line );
 
 void* _checked_mem_realloc( void* ptr, memory_size bytes, const char* file, int line );
-
-void mem_free( void* mem );
 
 void* mem_move( void* destination, const void* source, memory_size bytes );
 
