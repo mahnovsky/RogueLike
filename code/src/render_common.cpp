@@ -18,7 +18,7 @@ struct MeshVertex
 bool
 load_mesh( const char* file, Mesh& out_mesh )
 {
-    basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
+	basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
 
     if ( data.is_empty( ) )
     {
@@ -26,21 +26,25 @@ load_mesh( const char* file, Mesh& out_mesh )
     }
 
     basic::Vector< glm::vec3 > vert_coords;
+	vert_coords.reserve(1000);
     basic::Vector< glm::vec2 > tex_coords;
     basic::Vector< MeshVertex > vertexes;
+	vertexes.reserve(1000);
 
     basic::uint32 offset = 0;
 	int line_counter = 0;
 
+	double s = basic::get_milliseconds() ;
+	
+	basic::String line;
+
     while ( offset < data.get_size( ) )
     {
 		++line_counter;
+		
+		offset += basic::String::read_line( reinterpret_cast<basic::char_t*>(data.get_raw( ) + offset),
+                                            static_cast<basic::uint32>(data.get_size( ) - offset), line );
 
-        basic::String line
-                = basic::String::read_line( reinterpret_cast<basic::char_t*>(data.get_raw( ) + offset),
-                                            static_cast<basic::uint32>(data.get_size( ) - offset) );
-
-        offset += line.get_size( );
         if ( offset >= data.get_size( ) )
         {
             break;
@@ -96,7 +100,7 @@ load_mesh( const char* file, Mesh& out_mesh )
 
                 int index = -1;
                 bool has_vertex = false;
-                for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
+                /*(for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
                 {
                     auto& vv = vertexes[ i ];
                     has_vertex = vv.vi == v.vi && vv.ti == v.ti;
@@ -105,7 +109,7 @@ load_mesh( const char* file, Mesh& out_mesh )
                         index = vv.index;
                         break;
                     }
-                }
+                }*/
                 if ( index < 0 )
                 {
                     index = vertexes.get_size( );
@@ -117,6 +121,9 @@ load_mesh( const char* file, Mesh& out_mesh )
             }
         }
     }
+
+	double delta = basic::get_milliseconds() - s;
+	delta = 0.0;
 
     out_mesh.vb.reserve( vertexes.get_size( ) );
     for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )

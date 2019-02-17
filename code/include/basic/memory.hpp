@@ -13,7 +13,7 @@ void* _mem_alloc( memory_size bytes );
 
 void* _mem_realloc( void* ptr, memory_size bytes );
 
-void mem_free( void* mem );
+void _mem_free( void* mem );
 
 void* _checked_mem_alloc( memory_size bytes, const char* file, int line );
 
@@ -29,11 +29,11 @@ void mem_set_out_of_memory( mem_out_callback callback );
 
 size_t get_memory_usage();
 
-ref_count increment_ref(void* ptr);
+void* wrapper_malloc(size_t size);
 
-ref_count decrement_ref(void* ptr);
+void* wrapper_realloc(void* ptr, size_t size);
 
-ref_count get_refs(void* ptr);
+void wrapper_free(void* ptr);
 
 }
 
@@ -47,10 +47,22 @@ void operator delete[]( void* p ) noexcept;
 
 #define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
 #define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
+#define mem_free _mem_free
+
+#elif 0
+#include <stdio.h>
+
+#define mem_alloc wrapper_malloc
+#define mem_realloc wrapper_realloc
+#define mem_free wrapper_free
 
 #else
 
-#define mem_alloc _mem_alloc
-#define mem_realloc _mem_realloc
+//#define mem_alloc _mem_alloc
+//#define mem_realloc _mem_realloc
+
+#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
+#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
+#define mem_free _mem_free
 
 #endif

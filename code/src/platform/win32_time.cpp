@@ -9,9 +9,17 @@ namespace basic
 
 double get_milliseconds()
 {
-    uint64 milliseconds = GetTickCount64();
+	LARGE_INTEGER frequency; 
+	LARGE_INTEGER t1;
 
-	return static_cast<double>(milliseconds);
+	double elapsedTime;
+	QueryPerformanceFrequency(&frequency);
+
+	QueryPerformanceCounter(&t1);
+
+    elapsedTime = t1.QuadPart * 1000 / frequency.QuadPart; 
+
+	return elapsedTime;
 }
 
 }

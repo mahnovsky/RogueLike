@@ -47,7 +47,7 @@ public:
 
     uint32 get_size() const;
 
-	void split(basic::Vector< String >& out, char item) const;
+	void split(Vector< String >& out, char_t item) const;
 
     template < class Type, class Convert >
 	void split_to(basic::Vector< Type >& out, char_t item, Convert convert_func) const
@@ -69,7 +69,7 @@ public:
 
     void trim();
 
-    static String read_line(char_t* cstr, uint32 max_size);
+    static uint32 read_line(char_t* cstr, uint32 max_size, String& out);
 
     static bool format( char_t* buffer, uint32 size, const char* const fmt, ... );
 

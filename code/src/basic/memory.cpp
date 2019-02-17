@@ -34,18 +34,49 @@ struct InternalAllocator
 struct MemoryChunk
 {
     memory_size chunk_size;
-    ref_count refs;
 
-#ifdef _DEBUG
     uint32 index;
     const char* file;
     int line;
-#endif
 };
 
-#ifdef _DEBUG
+static MemoryChunk* internal_get_chunk(void* ptr)
+{
+	return ptr_minus<MemoryChunk>(ptr, sizeof(MemoryChunk));
+}
+
+static void* internal_get_user_ptr(MemoryChunk* ptr)
+{
+	return ptr_plus<MemoryChunk>(ptr, sizeof(MemoryChunk));
+}
+
+static memory_size internal_get_user_mem_size(void* ptr)
+{
+	MemoryChunk* chunck = internal_get_chunk(ptr);
+
+	return chunck->chunk_size - sizeof(MemoryChunk);
+}
+
+static bool max(uint32 a, uint32 b)
+{
+	return (a > b ? a : b);
+}
+
+static bool is_manager_alive = true;
 class MemoryManager final
 {
+	struct FreeChunk
+	{
+		MemoryChunk* ptr;
+		memory_size size;
+	};
+
+	enum
+	{
+		MIN_BLOCK_SIZE = 128,
+		MAX_BLOCK_SIZE = 2048
+	};
+
 public:
     MemoryManager()
         :m_chunks()
@@ -54,28 +85,33 @@ public:
 
     ~MemoryManager()
     {
-        printf("lost memory %u\n", m_memory_usage);
-
+		uint32 lost_memory = 0;
         for(uint32 i = 0; i < m_chunks.get_size(); ++i)
         {
             MemoryChunk* chunk = m_chunks[i];
             void* address = ptr_plus<void>( chunk, sizeof (MemoryChunk));
-            printf( "\tmemory leak %u bytes at address %x: %s: %d\n", chunk->chunk_size, address,
+
+            LOG( "\tmemory leak %u bytes at address %x: %s: %d\n", chunk->chunk_size, address,
                     chunk->file, chunk->line );
+
+			lost_memory += chunk->chunk_size;
 
             free( chunk );
         }
+
+		LOG("total lost memory %u\n", lost_memory);
+		is_manager_alive = false;
     }
 
     void add( MemoryChunk* chunk )
     {
+		if (!is_manager_alive)return;
         if( chunk->index < m_chunks.get_size() &&
             m_chunks[chunk->index] == chunk )
         {
             return;
         }
 
-        m_memory_usage += chunk->chunk_size;
         chunk->index = m_chunks.get_size();
 
         m_chunks.push( chunk );
@@ -83,18 +119,15 @@ public:
 
     void remove( MemoryChunk* chunk )
     {
-        m_memory_usage -= chunk->chunk_size;
-
-        if( chunk == m_chunks.back() )
-        {
-            m_chunks.pop();
-            return;
-        }
+		if (!is_manager_alive) return;
+        //m_memory_usage -= chunk->chunk_size;
 
         uint32 index = chunk->index;
-        m_chunks.swap_remove( index );
-
-        m_chunks[index]->index = index;
+		ASSERT(m_chunks[index] == chunk);
+		if (m_chunks.swap_remove(index))
+		{
+			m_chunks[index]->index = index;
+		}
     }
 
     memory_size get_mem_usage() const
@@ -102,34 +135,104 @@ public:
         return m_memory_usage;
     }
 
+	MemoryChunk* get_free_chunk(Vector< MemoryChunk*, InternalAllocator >& cont)
+	{
+		MemoryChunk* result = nullptr;
+		if (!cont.is_empty())
+		{
+			result = cont.back();
+			cont.pop();
+		}
+
+		return result;
+	}
+
+	uint32 get_index(memory_size size, memory_size& need_size) const
+	{
+		uint32 index = ceil(static_cast<float>(size) / MIN_BLOCK_SIZE);
+		need_size = index * MIN_BLOCK_SIZE;
+
+		return index - 1;
+	}
+
+	void* alloc(memory_size size)
+	{
+		MemoryChunk* chunk = nullptr;
+		memory_size need_size = size;
+
+		if (size <= MAX_BLOCK_SIZE)
+		{
+			uint32 index = get_index(size, need_size);
+
+			chunk = get_free_chunk(m_free_stacks[index]);
+		}
+		else 
+		{
+			for (uint32 i = 0; i < m_free.get_size(); ++i)
+			{
+				if (m_free[i].size >= size)
+				{
+					chunk = m_free[i].ptr;
+					m_free.swap_remove(i);
+					
+					break;
+				}
+			}
+		}
+
+		if (!chunk)
+		{
+			void* ptr = _mem_alloc(need_size);
+
+			chunk = internal_get_chunk(ptr);
+
+			m_memory_usage += chunk->chunk_size;
+		}
+		
+		add(chunk);
+
+		return internal_get_user_ptr(chunk);
+	}
+
+	void free_chunck(MemoryChunk* chunk)
+	{
+		uint32 user_size = chunk->chunk_size - sizeof(MemoryChunk);
+
+		if (user_size <= MAX_BLOCK_SIZE)
+		{
+			memory_size nsize;
+			uint32 index = get_index(user_size, nsize);
+
+			m_free_stacks[index].push(chunk);
+		}
+		else
+		{
+			FreeChunk fchunk;
+			fchunk.ptr = chunk;
+			fchunk.size = user_size;
+			m_free.push(fchunk);
+		}
+
+		remove(chunk);
+	}
+
 private:
     Vector< MemoryChunk*, InternalAllocator > m_chunks;
+
+	Vector< MemoryChunk*, InternalAllocator > m_free_stacks[16];
+
+	Vector< FreeChunk, InternalAllocator > m_free;
     memory_size m_memory_usage;
 }
 static memory_manager;
-#endif
 
 static mem_out_callback g_out_of_memory_callback;
-static memory_size memory_usage;
-
-
-static MemoryChunk* internal_get_chunk( void* ptr )
-{
-    return ptr_minus<MemoryChunk>( ptr, sizeof (MemoryChunk) );
-}
 
 static memory_size get_mem_size(void* ptr)
 {
     MemoryChunk* chunck = internal_get_chunk( ptr );
 
     return chunck->chunk_size;
-}
-
-static memory_size get_user_mem_size(void* ptr)
-{
-    MemoryChunk* chunck = internal_get_chunk( ptr );
-
-    return chunck->chunk_size - sizeof (MemoryChunk);
 }
 
 static void* internal_get_base_ptr(void* ptr)
@@ -149,7 +252,6 @@ static void* internal_malloc(memory_size bytes, memory_size& real_size)
         MemoryChunk* chunk = static_cast<MemoryChunk*>(res);
 
         chunk->chunk_size = real_size;
-        chunk->refs = 0;
 
         return ptr_plus<void>(res, offset);
     }
@@ -160,8 +262,6 @@ static void* internal_malloc(memory_size bytes, memory_size& real_size)
 static void internal_free(void* ptr, size_t& free_bytes )
 {
     free_bytes = get_mem_size( ptr );
-
-    ASSERT( get_refs(ptr) == 0 );
 
     void* base_ptr = internal_get_base_ptr(ptr);
 
@@ -184,11 +284,8 @@ _mem_alloc(memory_size bytes )
         g_out_of_memory_callback( );
     }
 
-    memory_usage += out_bytes;
-
     return res;
 }
-
 
 void*
 _mem_realloc( void* ptr, memory_size bytes )
@@ -199,11 +296,11 @@ _mem_realloc( void* ptr, memory_size bytes )
 
     if ( ptr )
     {
-        const memory_size mem_size = get_user_mem_size(ptr);
+        const memory_size mem_size = internal_get_user_mem_size(ptr);
 
         if (bytes > mem_size)
         {
-            res = _mem_alloc(bytes);
+			res = memory_manager.alloc(bytes);
 
             mem_copy(res, ptr, mem_size);
 
@@ -212,56 +309,43 @@ _mem_realloc( void* ptr, memory_size bytes )
     }
     else
     {
-        res = _mem_alloc(bytes);
+        res = memory_manager.alloc(bytes);
     }
 
     return res;
 }
 
-void mem_free( void* ptr )
+void _mem_free( void* ptr )
 {
-#ifdef _DEBUG
-   memory_manager.remove( internal_get_chunk( ptr ) );
-#endif
-
-    size_t free_bytes = 0;
-
-    internal_free( ptr, free_bytes );
-
-    memory_usage -= free_bytes;
+	memory_manager.free_chunck(internal_get_chunk(ptr));
 }
 
 void *_checked_mem_alloc( memory_size bytes, const char *file, int line )
 {
-    void* ptr = _mem_alloc( bytes );
-#ifdef _DEBUG
+	void* ptr = memory_manager.alloc(bytes);
+
     if( ptr )
     {
-        MemoryChunk* chunk = ptr_minus< MemoryChunk >( ptr, sizeof(MemoryChunk) );
-        chunk->index = 0;
+        MemoryChunk* chunk = internal_get_chunk( ptr );
         chunk->file = file;
         chunk->line = line;
-
-        memory_manager.add( chunk );
     }
-#endif
+
     return ptr;
 }
 
 void *_checked_mem_realloc( void* ptr, memory_size bytes, const char* file, int line )
 {
     void* nptr = _mem_realloc( ptr, bytes );
-#ifdef _DEBUG
+
     if( nptr != ptr )
     {
         MemoryChunk* chunk = ptr_minus< MemoryChunk >( nptr, sizeof(MemoryChunk) );
-        chunk->index = 0;
+        
         chunk->file = file;
         chunk->line = line;
-
-        memory_manager.add( chunk );
     }
-#endif
+
     return nptr;
 }
 
@@ -305,28 +389,22 @@ mem_set_out_of_memory( mem_out_callback callback )
 
 size_t get_memory_usage()
 {
-    return memory_usage;
+    return memory_manager.get_mem_usage();
 }
 
-ref_count increment_ref(void *ptr)
+void* wrapper_malloc(size_t size)
 {
-    MemoryChunk* chunk = internal_get_chunk( ptr );
-
-    return ++chunk->refs;
+	return malloc(size);
 }
 
-ref_count decrement_ref(void *ptr)
+void* wrapper_realloc(void* ptr, size_t size)
 {
-    MemoryChunk* chunk = internal_get_chunk( ptr );
-
-    return --chunk->refs;
+	return realloc(ptr, size);
 }
 
-ref_count get_refs(void *ptr)
+void wrapper_free(void * ptr)
 {
-    MemoryChunk* chunk = internal_get_chunk( ptr );
-
-    return chunk->refs;
+	free(ptr);
 }
 
 }

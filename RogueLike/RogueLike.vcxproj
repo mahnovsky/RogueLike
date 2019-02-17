@@ -120,10 +120,13 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>opengl32.lib;user32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -161,6 +164,7 @@
     <ClInclude Include="..\code\include\basic\debug.hpp" />
     <ClInclude Include="..\code\include\basic\file.hpp" />
     <ClInclude Include="..\code\include\basic\image.hpp" />
+    <ClInclude Include="..\code\include\basic\memory.hpp" />
     <ClInclude Include="..\code\include\basic\pool.hpp" />
     <ClInclude Include="..\code\include\basic\string.hpp" />
     <ClInclude Include="..\code\include\basic\time.hpp" />

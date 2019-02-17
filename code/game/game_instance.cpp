@@ -44,9 +44,15 @@ GameInstance::init( )
 
     if ( text_shader && m_font.init( "arial.ttf", text_shader ) )
     {
-        m_text.set_font( &m_font );
-        m_text.set_text( "hello world" );
-        m_text.set_position( {20.f, m_height - 40.f, 0.f} );
+        m_fps_text.set_font( &m_font );
+        m_fps_text.set_text( "fps: " );
+        m_fps_text.set_position( {20.f, m_height - 40.f, 0.f} );
+		m_fps_text.set_scale(0.8f);
+
+		m_mem_text.set_font(&m_font);
+		m_mem_text.set_text("memory usage: ");
+		m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
+		m_mem_text.set_scale(0.8f);
     }
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
@@ -68,7 +74,8 @@ GameInstance::draw( IRender* render )
     m_model.draw( render, &m_game_camera );
     m_back.draw( &m_game_camera, render );
     m_btn.draw( &m_ui_camera, render );
-    m_text.draw( render, &m_ui_camera );
+    m_fps_text.draw( render, &m_ui_camera );
+	m_mem_text.draw(render, &m_ui_camera);
 }
 
 void
@@ -101,7 +108,7 @@ GameInstance::cleanup( )
 
 void GameInstance::print_fps()
 {
-    #define BUFF_SIZE 32
+    #define BUFF_SIZE 256
     static basic::char_t buff[BUFF_SIZE];
     static basic::uint32 fps;
 
@@ -110,7 +117,10 @@ void GameInstance::print_fps()
         fps = m_engine->get_fps();
         if( basic::String::format( buff, BUFF_SIZE, "fps: %u", fps ) )
         {
-            m_text.set_text( buff );
+            m_fps_text.set_text( buff );
         }
     }
+
+	basic::String::format(buff, BUFF_SIZE, "memory usage: %u", basic::get_memory_usage());
+	m_mem_text.set_text(buff);
 }

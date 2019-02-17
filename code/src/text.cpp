@@ -14,6 +14,10 @@ Text::Text( )
 void
 Text::set_text( const char* text )
 {
+	if (m_text == text)
+	{
+		return;
+	}
     m_text = text;
     update( );
 }

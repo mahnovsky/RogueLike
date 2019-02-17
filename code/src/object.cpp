@@ -9,7 +9,8 @@ Object::Object()
 }
 
 Object::Object(const char *name)
-    : m_name(name)
+    : m_refs(0)
+	, m_name(name)
     , m_tag(0)
 {
 }
@@ -40,18 +41,19 @@ const basic::String &Object::get_name() const
 
 void Object::retain()
 {
-    basic::increment_ref( this );
+	++m_refs;
 }
 
 void Object::release()
 {
-    if( basic::decrement_ref( this ) <= 0 )
+	--m_refs;
+    if( m_refs <= 0 )
     {
         delete this;
     }
 }
 
-basic::ref_count Object::get_refs() const
+basic::int32 Object::get_refs() const
 {
-    return basic::get_refs( const_cast<Object*>(this) );
+    return m_refs;
 }

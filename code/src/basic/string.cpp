@@ -150,7 +150,7 @@ namespace basic
 		return m_buffer.get_size();
 	}
 
-	void String::split(basic::Vector< String >& out, char_t item) const
+	void String::split(Vector< String >& out, char_t item) const
 	{
         if( is_empty() )
         {
@@ -244,37 +244,39 @@ namespace basic
         }
     }
 
-    String String::read_line(char_t* cstr, uint32 max_size)
+    uint32 String::read_line(char_t* cstr, uint32 max_size, String& out)
 	{
-		String result;
+		out.m_buffer.clear();
+
 		const char_t r = '\r';
         const char_t n = '\n';
         char_t item = 0;
 
-        for (uint32 i = 0; i < max_size; ++i)
+		uint32 index = 0;
+        for (; index < max_size; ++index)
 		{
-            item = *(cstr + i);
+            item = *(cstr + index);
 
             if (item == n || item == r)
 			{
-                if( result.is_empty() && (i + 1) < max_size )
+                if( out.is_empty() && (index + 1) < max_size )
                 {
                     continue;
                 }
 				break;
 			}
 
-			result.m_buffer.push(item);
+			out.m_buffer.push(item);
 		}
 
-        if( item != n && result.is_empty() )
+        if( item != n && out.is_empty() )
         {
-            result.init( cstr );
+			out.init( cstr );
         }
 
-        result.push_cend();
+		out.push_cend();
 
-        return result;
+        return index;
     }
 
     void String::push_cend()
@@ -309,7 +311,10 @@ namespace basic
 
 	bool operator==(const String& s1, const char* s2)
 	{
-        ASSERT(!s1.is_empty());
+		if (s1.is_empty())
+		{
+			return false;
+		}
 		ASSERT(s2 != nullptr);
 
         uint32 size = static_cast<uint32>( str_length(s2, basic::String::MAX_LEN) + 1 );

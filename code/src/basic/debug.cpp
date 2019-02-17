@@ -19,10 +19,10 @@ namespace basic
 void
 assert_func( int line, const char* file, const char* function, const char* message )
 {
-    puts( "Assertion failed!" );
-    printf( "\t%s : %d\n", file, line );
-    printf( "\tfunction: %s\n", function );
-    printf( "\tmessage: %s\n", message );
+    LOG( "Assertion failed!" );
+	LOG( "\t%s : %d\n", file, line );
+	LOG( "\tfunction: %s\n", function );
+	LOG( "\tmessage: %s\n", message );
     abort( );
 }
 

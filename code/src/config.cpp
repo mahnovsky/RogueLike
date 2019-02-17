@@ -20,9 +20,10 @@ bool Config::load(ResourceStorage *)
         basic::uint32 offset = 0;
         do
         {
-            basic::String line = basic::String::
+			basic::String line;
+			offset += basic::String::
                     read_line( reinterpret_cast<basic::char_t*>(data.get_raw() + offset),
-                               data.get_size() - offset );
+                               data.get_size() - offset, line );
 
             if( !line.is_empty() )
             {
@@ -49,8 +50,6 @@ bool Config::load(ResourceStorage *)
                     p.values.push( line );
                 }
             }
-
-            offset += line.get_size();
         }
         while( offset < data.get_size() );
 

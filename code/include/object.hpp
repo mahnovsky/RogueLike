@@ -22,9 +22,10 @@ public:
 
     void release();
 
-    basic::ref_count get_refs() const;
+    basic::int32 get_refs() const;
 
 private:
+	basic::int32 m_refs;
+	basic::int32 m_tag;
     basic::String m_name;
-    basic::int32 m_tag;
 };

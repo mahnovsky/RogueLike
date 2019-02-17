@@ -330,10 +330,18 @@ public:
         return false;
     }
 
-    void swap_remove( uint32 index )
+    bool swap_remove( uint32 index )
     {
+		ASSERT(index < m_size);
+		if (index == m_size - 1)
+		{
+			pop();
+			return false;
+		}
         m_data[index] = back();
         pop();
+
+		return true;
     }
 
     void remove_by_index( uint32 index )
