@@ -128,15 +128,22 @@ Font::generate( const char* text, float height, RenderObject& out_object )
         ++offset;
     }
 
-    out_object.set_vertex_buffer( std::move( vb ) );
-    out_object.set_index_buffer( std::move( ib ) );
+	
 
-    if ( !out_object.is_initialized( ) )
+	if (out_object.is_initialized())
+	{
+		out_object.update_indices(std::move(ib));
+		out_object.update_vertices(std::move(vb));
+	}
+	else
     {
+		out_object.set_vertex_buffer(std::move(vb));
+		out_object.set_index_buffer(std::move(ib));
+
         out_object.set_texture( m_texture );
         out_object.set_shader( m_shader );
-    }
 
-    out_object.init( );
+		out_object.init();
+    }
 }
 }

@@ -57,10 +57,48 @@ static memory_size internal_get_user_mem_size(void* ptr)
 	return chunck->chunk_size - sizeof(MemoryChunk);
 }
 
-static bool max(uint32 a, uint32 b)
+static mem_out_callback g_out_of_memory_callback;
+
+static memory_size get_mem_size(void* ptr)
 {
-	return (a > b ? a : b);
+	MemoryChunk* chunck = internal_get_chunk(ptr);
+
+	return chunck->chunk_size;
 }
+
+static void* internal_get_base_ptr(void* ptr)
+{
+	return ptr_minus<void>(ptr, sizeof(MemoryChunk));
+}
+
+static void* internal_malloc(memory_size bytes, memory_size& real_size)
+{
+	const uint32 offset = sizeof(MemoryChunk);
+
+	real_size = bytes + offset;
+
+	void* res = malloc(real_size);
+	if (res)
+	{
+		MemoryChunk* chunk = static_cast<MemoryChunk*>(res);
+
+		chunk->chunk_size = real_size;
+
+		return ptr_plus<void>(res, offset);
+	}
+
+	return nullptr;
+}
+
+static void internal_free(void* ptr, size_t& free_bytes)
+{
+	free_bytes = get_mem_size(ptr);
+
+	void* base_ptr = internal_get_base_ptr(ptr);
+
+	free(base_ptr);
+}
+
 
 static bool is_manager_alive = true;
 class MemoryManager final
@@ -166,19 +204,6 @@ public:
 
 			chunk = get_free_chunk(m_free_stacks[index]);
 		}
-		else 
-		{
-			for (uint32 i = 0; i < m_free.get_size(); ++i)
-			{
-				if (m_free[i].size >= size)
-				{
-					chunk = m_free[i].ptr;
-					m_free.swap_remove(i);
-					
-					break;
-				}
-			}
-		}
 
 		if (!chunk)
 		{
@@ -198,6 +223,8 @@ public:
 	{
 		uint32 user_size = chunk->chunk_size - sizeof(MemoryChunk);
 
+		remove(chunk);
+
 		if (user_size <= MAX_BLOCK_SIZE)
 		{
 			memory_size nsize;
@@ -207,13 +234,9 @@ public:
 		}
 		else
 		{
-			FreeChunk fchunk;
-			fchunk.ptr = chunk;
-			fchunk.size = user_size;
-			m_free.push(fchunk);
+			m_memory_usage -= chunk->chunk_size;
+			free(chunk);
 		}
-
-		remove(chunk);
 	}
 
 private:
@@ -221,52 +244,9 @@ private:
 
 	Vector< MemoryChunk*, InternalAllocator > m_free_stacks[16];
 
-	Vector< FreeChunk, InternalAllocator > m_free;
     memory_size m_memory_usage;
 }
 static memory_manager;
-
-static mem_out_callback g_out_of_memory_callback;
-
-static memory_size get_mem_size(void* ptr)
-{
-    MemoryChunk* chunck = internal_get_chunk( ptr );
-
-    return chunck->chunk_size;
-}
-
-static void* internal_get_base_ptr(void* ptr)
-{
-    return ptr_minus<void>( ptr, sizeof( MemoryChunk ) );
-}
-
-static void* internal_malloc(memory_size bytes, memory_size& real_size)
-{
-    const uint32 offset = sizeof( MemoryChunk );
-
-    real_size = bytes + offset;
-
-    void* res = malloc( real_size );
-    if (res)
-    {
-        MemoryChunk* chunk = static_cast<MemoryChunk*>(res);
-
-        chunk->chunk_size = real_size;
-
-        return ptr_plus<void>(res, offset);
-    }
-
-    return nullptr;
-}
-
-static void internal_free(void* ptr, size_t& free_bytes )
-{
-    free_bytes = get_mem_size( ptr );
-
-    void* base_ptr = internal_get_base_ptr(ptr);
-
-    free( base_ptr );
-}
 
 void*
 _mem_alloc(memory_size bytes )

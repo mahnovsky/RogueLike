@@ -106,8 +106,30 @@ RenderObject::update( vertex_update callback, void* user_data )
             callback( &m_vb[ i ], user_data );
         }
     }
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_object);
     glBufferData(
             GL_ARRAY_BUFFER, sizeof( Vertex ) * m_vb.get_size( ), m_vb.get_raw( ), GL_STATIC_DRAW );
+}
+
+void RenderObject::update_vertices(VertexBuffer buffer)
+{
+	m_vb = std::move(buffer);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vertex_object);
+
+	glBufferData(
+		GL_ARRAY_BUFFER, sizeof(Vertex) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW);
+}
+
+void RenderObject::update_indices(IndexBuffer buffer)
+{
+	m_ib = std::move(buffer);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_index_object);
+
+	const basic::uint32 size = sizeof(basic::uint16) * m_ib.get_size();
+	glBufferData(
+		GL_ELEMENT_ARRAY_BUFFER, size, m_ib.get_raw(), GL_STATIC_DRAW);
 }
 
 bool
@@ -139,6 +161,11 @@ RenderObject::set_index_buffer( IndexBuffer buffer )
 void
 RenderObject::init_vertex_buffer( )
 {
+	if (m_vertex_object != 0)
+	{
+		glDeleteBuffers(1, &m_vertex_object);
+	}
+
     glGenBuffers( 1, &m_vertex_object );
 
     glBindBuffer( GL_ARRAY_BUFFER, m_vertex_object );
@@ -150,6 +177,11 @@ RenderObject::init_vertex_buffer( )
 void
 RenderObject::init_index_buffer( )
 {
+	if (m_index_object != 0)
+	{
+		glDeleteBuffers(1, &m_index_object);
+	}
+
     glGenBuffers( 1, &m_index_object );
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_index_object );

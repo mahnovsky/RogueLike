@@ -33,6 +33,10 @@ public:
 
     void update( vertex_update callback, void* user_data );
 
+	void update_vertices(VertexBuffer buffer);
+
+	void update_indices(IndexBuffer buffer);
+
     bool is_initialized( ) const;
 
     void set_vertex_buffer( VertexBuffer buffer );
