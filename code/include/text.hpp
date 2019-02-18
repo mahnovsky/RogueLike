@@ -8,6 +8,7 @@ class Text
 public:
     Text( );
 	Text(const char* font_file);
+	~Text();
 
 	void init(ResourceStorage* storage);
 

@@ -22,6 +22,14 @@ Text::Text(const char * font_file)
 
 }
 
+Text::~Text()
+{
+	if (m_font)
+	{
+		m_font->release();
+	}
+}
+
 void Text::init(ResourceStorage * storage)
 {
 	m_font = storage->get_resorce<se::Font>(m_font_file.get_cstr());
