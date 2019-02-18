@@ -12,6 +12,8 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_btn( )
     , m_width( width )
     , m_height( height )
+	, m_fps_text("arial.ttf")
+	, m_mem_text("arial.ttf")
 {
 }
 
@@ -40,20 +42,16 @@ GameInstance::init( )
 	m_btn.set_size(100.f, 100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
 
-    ShaderProgram* text_shader = m_rs.get_resorce<ShaderProgram>( "text" );
 
-    if ( text_shader && m_font.init( "arial.ttf", text_shader ) )
-    {
-        m_fps_text.set_font( &m_font );
-        m_fps_text.set_text( "fps: " );
-        m_fps_text.set_position( {20.f, m_height - 40.f, 0.f} );
-		m_fps_text.set_scale(0.8f);
+    m_fps_text.set_text( "fps: " );
+    m_fps_text.set_position( {20.f, m_height - 40.f, 0.f} );
+	m_fps_text.set_scale(0.8f);
+	m_fps_text.init(&m_rs);
 
-		m_mem_text.set_font(&m_font);
-		m_mem_text.set_text("memory usage: ");
-		m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
-		m_mem_text.set_scale(0.8f);
-    }
+	m_mem_text.set_text("memory usage: ");
+	m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
+	m_mem_text.set_scale(0.8f);
+	m_mem_text.init(&m_rs);
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;

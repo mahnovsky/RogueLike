@@ -41,7 +41,6 @@ private:
     float m_width;
     float m_height;
 
-    se::Font m_font;
     Text m_fps_text;
 	Text m_mem_text;
 };

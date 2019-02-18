@@ -134,9 +134,6 @@
     <ClInclude Include="..\code\include\sprite.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\stb_truetype.h">
-      <Filter>code\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\text.hpp">
       <Filter>code\include</Filter>
     </ClInclude>

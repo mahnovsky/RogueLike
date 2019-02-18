@@ -46,10 +46,17 @@ namespace basic
 
 	void String::append(const char_t* cstr)
 	{
+		uint32 count = static_cast<uint32>(str_length(cstr, MAX_LEN));
+		append(cstr, count);
+	}
+
+	void String::append(const char_t * cstr, uint32 count)
+	{
 		ASSERT(m_buffer.back() == CSTR_END);
 
 		m_buffer.pop();
-        m_buffer.append(cstr, static_cast<uint32>( str_length(cstr, MAX_LEN) + 1) );
+		m_buffer.append(cstr, count);
+		push_cend();
 	}
 
 	bool String::is_empty() const
@@ -88,6 +95,11 @@ namespace basic
 	void String::operator+=(const char_t* cstr)
 	{
 		append(cstr);
+	}
+
+	void String::operator+=(const String & str)
+	{
+		append(str.get_cstr(), str.get_size());
 	}
 
     char_t String::operator[](uint32 index) const

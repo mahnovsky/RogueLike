@@ -34,7 +34,6 @@ struct InternalAllocator
 struct MemoryChunk
 {
     memory_size chunk_size;
-
     uint32 index;
     const char* file;
     int line;
@@ -158,7 +157,6 @@ public:
     void remove( MemoryChunk* chunk )
     {
 		if (!is_manager_alive) return;
-        //m_memory_usage -= chunk->chunk_size;
 
         uint32 index = chunk->index;
 		ASSERT(m_chunks[index] == chunk);

@@ -13,8 +13,9 @@ namespace
 
 namespace se
 {
-Font::Font( )
-    : m_texture( nullptr )
+Font::Font( const char* file )
+    : FileResource( file )
+	, m_texture( nullptr )
     , m_height( 32.f )
     , m_cdata( basic::mem_alloc( 96 * sizeof( stbtt_bakedchar ) ) )
 	, m_shader(nullptr)
@@ -28,6 +29,55 @@ Font::~Font( )
 	{
 		m_texture->release();
 	}
+	if (m_shader)
+	{
+		m_shader->release();
+	}
+}
+
+bool Font::load(ResourceStorage *storage)
+{
+	m_shader = storage->get_resorce<ShaderProgram>("text");
+	if (!m_shader)
+	{
+		LOG("Failed load text shader");
+
+		return false;
+	}
+	m_shader->retain();
+
+	basic::String path = "fonts/";
+	path += get_name();
+	basic::Vector< basic::uint8 > data = basic::get_file_content(path.get_cstr());
+
+	if (!data.is_empty())
+	{
+		const int tw = 512;
+		const int th = 512;
+
+		basic::Vector<basic::uint8> bitmap;
+		bitmap.resize(tw * th);
+
+		stbtt_BakeFontBitmap(data.get_raw(),
+			0,
+			m_height,
+			bitmap.get_raw(),
+			tw,
+			th,
+			32,
+			96,
+			static_cast<stbtt_bakedchar*>(m_cdata));
+
+		basic::String name = "bitmap_";
+
+		m_texture = new Texture((name + get_name()).get_cstr());
+		m_texture->init_font(tw, th, std::move(bitmap));
+		m_texture->retain();
+
+		return true;
+	}
+
+	return false;
 }
 
 bool
@@ -145,5 +195,9 @@ Font::generate( const char* text, float height, RenderObject& out_object )
 
 		out_object.init();
     }
+}
+Font * Font::create(const char * file)
+{
+	return new Font(file);
 }
 }

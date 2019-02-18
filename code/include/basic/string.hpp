@@ -23,6 +23,8 @@ public:
 
 	void append(const char_t* cstr);
 
+	void append(const char_t* cstr, uint32 count);
+
 	bool is_empty() const;
 
 	const char_t* get_cstr() const;
@@ -34,6 +36,8 @@ public:
 	String operator+(const char_t* cstr) const;
 
 	void operator+=(const char_t* cstr);
+
+	void operator+=(const String& str);
 
     char operator[](uint32 index) const;
 

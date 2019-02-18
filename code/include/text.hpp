@@ -7,6 +7,9 @@ class Text
 {
 public:
     Text( );
+	Text(const char* font_file);
+
+	void init(ResourceStorage* storage);
 
     void set_text( const char* text );
 
@@ -24,7 +27,9 @@ private:
     void update( );
 
 private:
-    se::Font* m_font;
+	se::Font* m_font;
+
+	basic::String m_font_file;
 
     basic::String m_text;
 

@@ -179,7 +179,6 @@
     <ClInclude Include="..\code\include\resource_storage.hpp" />
     <ClInclude Include="..\code\include\shader.hpp" />
     <ClInclude Include="..\code\include\sprite.hpp" />
-    <ClInclude Include="..\code\include\stb_truetype.h" />
     <ClInclude Include="..\code\include\text.hpp" />
     <ClInclude Include="..\code\include\texture.hpp" />
     <ClInclude Include="..\code\include\texture_cache.hpp" />

@@ -4,11 +4,33 @@
 
 Text::Text( )
     : m_font( nullptr )
-    , m_text( )
+	, m_font_file("arial.ttf")
+    , m_text()
     , m_render_object( )
     , m_font_size( 32.f )
 {
     m_render_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );
+}
+
+Text::Text(const char * font_file)
+	: m_font(nullptr)
+	, m_font_file(font_file)
+	, m_text()
+	, m_render_object()
+	, m_font_size(32.f)
+{
+
+}
+
+void Text::init(ResourceStorage * storage)
+{
+	m_font = storage->get_resorce<se::Font>(m_font_file.get_cstr());
+	if (m_font)
+	{
+		m_font->retain();
+		
+		update();
+	}
 }
 
 void
