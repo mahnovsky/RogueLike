@@ -4,6 +4,7 @@
 
 #include <cstring>
 #include <malloc.h>
+#include <tgmath.h>
 
 #define MAX_BUFFER_LEN 1024
 
@@ -193,6 +194,11 @@ public:
 
 	void* alloc(memory_size size)
 	{
+        if(size == 0)
+        {
+            return nullptr;
+        }
+
 		MemoryChunk* chunk = nullptr;
 		memory_size need_size = size;
 
