@@ -142,6 +142,7 @@
     <ClCompile Include="..\code\src\engine.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
+    <ClCompile Include="..\code\src\line.cpp" />
     <ClCompile Include="..\code\src\object.cpp" />
     <ClCompile Include="..\code\src\platform\win32_file.cpp" />
     <ClCompile Include="..\code\src\platform\win32_time.cpp" />
@@ -156,6 +157,7 @@
     <ClCompile Include="..\code\src\texture.cpp" />
     <ClCompile Include="..\code\src\timer_manager.cpp" />
     <ClCompile Include="..\code\src\transform.cpp" />
+    <ClCompile Include="..\code\src\widget.cpp" />
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -173,6 +175,7 @@
     <ClInclude Include="..\code\include\camera.hpp" />
     <ClInclude Include="..\code\include\engine.hpp" />
     <ClInclude Include="..\code\include\font.hpp" />
+    <ClInclude Include="..\code\include\line.hpp" />
     <ClInclude Include="..\code\include\render.hpp" />
     <ClInclude Include="..\code\include\render_common.hpp" />
     <ClInclude Include="..\code\include\render_object.hpp" />
@@ -184,6 +187,7 @@
     <ClInclude Include="..\code\include\texture_cache.hpp" />
     <ClInclude Include="..\code\include\timer_manager.hpp" />
     <ClInclude Include="..\code\include\transform.hpp" />
+    <ClInclude Include="..\code\include\widget.hpp" />
     <ClInclude Include="..\code\include\window.hpp" />
     <ClInclude Include="..\code\include\world.hpp" />
   </ItemGroup>

@@ -1,23 +1,23 @@
-#include "scene_node.hpp"
+#include "widget.hpp"
 
-SceneNode::SceneNode()
+Widget::Widget()
     :transform()
     ,m_parent(nullptr)
     ,m_children()
 {
 }
 
-SceneNode::~SceneNode()
+Widget::~Widget()
 {
     remove_from_parent();
 }
 
-void SceneNode::remove_children()
+void Widget::remove_children()
 {
     m_children.clear();
 }
 
-void SceneNode::add_child(SceneNode *node)
+void Widget::add_child(Widget *node)
 {
     ASSERT( node != nullptr );
 
@@ -32,7 +32,7 @@ void SceneNode::add_child(SceneNode *node)
     }
 }
 
-void SceneNode::remove_child(SceneNode *node)
+void Widget::remove_child(Widget *node)
 {
     ASSERT(node->get_parent() == this);
 
@@ -49,7 +49,7 @@ void SceneNode::remove_child(SceneNode *node)
     ASSERT_M( false, "Child not found something wrong" );
 }
 
-void SceneNode::remove_from_parent()
+void Widget::remove_from_parent()
 {
     if( m_parent )
     {
@@ -57,14 +57,14 @@ void SceneNode::remove_from_parent()
     }
 }
 
-bool SceneNode::is_contains(SceneNode *child)
+bool Widget::is_contains(Widget *child)
 {
     ASSERT( child->get_parent() == this );
 
     return m_children.is_contains( child );
 }
 
-bool SceneNode::get_child_index(SceneNode *node, basic::uint32 &out_index)
+bool Widget::get_child_index(Widget *node, basic::uint32 &out_index)
 {
     if( node->get_parent() == this )
     {
@@ -74,7 +74,7 @@ bool SceneNode::get_child_index(SceneNode *node, basic::uint32 &out_index)
     return false;
 }
 
-SceneNode *SceneNode::get_parent()
+Widget *Widget::get_parent()
 {
     return m_parent;
 }

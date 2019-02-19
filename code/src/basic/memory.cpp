@@ -4,7 +4,7 @@
 
 #include <cstring>
 #include <malloc.h>
-#include <tgmath.h>
+#include <math.h>
 
 #define MAX_BUFFER_LEN 1024
 
