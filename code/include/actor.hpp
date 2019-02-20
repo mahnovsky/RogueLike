@@ -1,13 +1,14 @@
 #pragma once
 
 #include "defines.hpp"
+#include "object.hpp"
 
 class IComponent;
 
-class Actor
+class Actor : public Object
 {
 public:
-    Actor(World* world);
+    Actor( World* world );
     virtual ~Actor();
 
     void attach_component( IComponent* component );
