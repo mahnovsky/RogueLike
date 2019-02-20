@@ -15,11 +15,13 @@ ShaderProgram::~ShaderProgram( )
     if( m_vertex_shader )
     {
         m_vertex_shader->release();
+        m_vertex_shader = nullptr;
     }
 
     if( m_fragment_shader )
     {
         m_fragment_shader->release();
+        m_fragment_shader = nullptr;
     }
 
     if ( m_shader_program )
@@ -101,10 +103,10 @@ check_shader_link( GLuint shader )
     return success > 0;
 }
 
-basic::uint32
+basic::int32
 ShaderProgram::get_uniform( const char* name ) const
 {
-    return static_cast<basic::uint32>( glGetUniformLocation( m_shader_program, name ) );
+    return glGetUniformLocation( m_shader_program, name );
 }
 
 ShaderProgram *ShaderProgram::create(const char *file)
@@ -170,8 +172,8 @@ ShaderProgram::link_program( basic::uint32 vshader, basic::uint32 fshader )
 static GLuint compile( basic::Vector<basic::uint8> data, basic::uint32 type )
 {
     GLuint handle = glCreateShader( type );
-
-    GLchar* data_ptr = reinterpret_cast<GLchar*>( data.get_raw( ) );
+    data.push(0);
+    char* data_ptr = reinterpret_cast<GLchar*>( data.get_raw( ) );
     GLint gsize = static_cast<GLint>( data.get_size( ) );
 
     glShaderSource( handle, 1, &data_ptr, &gsize );
@@ -180,7 +182,7 @@ static GLuint compile( basic::Vector<basic::uint8> data, basic::uint32 type )
     return handle;
 }
 
-BaseShader::BaseShader(basic::uint32 type, const char* file)
+BaseShader::BaseShader( basic::uint32 type, const char* file )
     :FileResource (file)
     ,m_handle(0)
 {

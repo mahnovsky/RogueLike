@@ -13,10 +13,6 @@ public:
 
 	void init(ShaderProgram* shader);
 
-	void bind() const override;
-
-	void unbind() const override;
-
 	void draw(IRender* render, ICamera* cam) const override;
 	
 	basic::uint32 get_element_count() const override;

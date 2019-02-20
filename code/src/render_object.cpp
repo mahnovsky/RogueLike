@@ -192,24 +192,6 @@ RenderObject::init_index_buffer( )
 }
 
 void
-RenderObject::bind( ) const
-{
-    ASSERT( is_initialized( ) );
-
-    bind_array_object( true );
-
-    m_texture->bind( );
-}
-
-void
-RenderObject::unbind( ) const
-{
-    m_texture->unbind( );
-
-    bind_array_object( false );
-}
-
-void
 RenderObject::draw( IRender* render, ICamera* cam ) const
 {
     if ( !m_shader )

@@ -12,16 +12,13 @@ class IRenderObject
 public:
     virtual ~IRenderObject();
 
-    virtual void bind( ) const = 0;
-
-    virtual void unbind( ) const = 0;
-
     virtual void draw( IRender* render, ICamera* cam ) const = 0;
 
     virtual basic::uint32 get_element_count( ) const = 0;
 
     virtual void get_matrix( glm::mat4& out ) const = 0;
 };
+
 
 class RenderObject : public IRenderObject
 {
@@ -42,10 +39,6 @@ public:
     void set_vertex_buffer( VertexBuffer buffer );
 
     void set_index_buffer( IndexBuffer buffer );
-
-    void bind( ) const override;
-
-    void unbind( ) const override;
 
     void draw( IRender* render, ICamera* cam ) const override;
 

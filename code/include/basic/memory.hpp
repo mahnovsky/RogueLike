@@ -2,6 +2,30 @@
 
 #include "types.hpp"
 
+#ifdef _DEBUG
+
+#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
+#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
+#define mem_free _mem_free
+
+#elif 0
+#include <stdio.h>
+
+#define mem_alloc wrapper_malloc
+#define mem_realloc wrapper_realloc
+#define mem_free wrapper_free
+
+#else
+
+//#define mem_alloc _mem_alloc
+//#define mem_realloc _mem_realloc
+
+#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
+#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
+#define mem_free _mem_free
+
+#endif
+
 namespace basic
 {
 
@@ -35,6 +59,45 @@ void* wrapper_realloc(void* ptr, size_t size);
 
 void wrapper_free(void* ptr);
 
+template <typename... Args>
+struct Sizeof;
+
+template <typename First, typename... Args>
+struct Sizeof<First, Args...>
+{
+    static uint32 size()
+    {
+        return sizeof(First) + Sizeof<Args...>::size();
+    }
+};
+
+template <>
+struct Sizeof<>
+{
+    static uint32 size()
+    {
+        return 0;
+    }
+};
+
+template <typename T, typename ... Args>
+void* alloc_objects( )
+{
+    uint32 size = Sizeof<Args ...>::size();
+
+    return mem_alloc( size );
+}
+
+
+template <typename T, typename ... Args>
+T* init_object( void* ptr, uint32& offset, Args ... args )
+{
+    uint32 off = offset;
+    offset += sizeof (T);
+    char* cptr = static_cast<char*>(ptr);
+    return  new (cptr + off) T( args ... );
+}
+
 }
 
 void* operator new( std::size_t n );
@@ -43,26 +106,3 @@ void operator delete( void* p ) noexcept;
 void* operator new[]( std::size_t s );
 void operator delete[]( void* p ) noexcept;
 
-#ifdef _DEBUG
-
-#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
-#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
-#define mem_free _mem_free
-
-#elif 0
-#include <stdio.h>
-
-#define mem_alloc wrapper_malloc
-#define mem_realloc wrapper_realloc
-#define mem_free wrapper_free
-
-#else
-
-//#define mem_alloc _mem_alloc
-//#define mem_realloc _mem_realloc
-
-#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
-#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
-#define mem_free _mem_free
-
-#endif

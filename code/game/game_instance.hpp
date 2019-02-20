@@ -45,5 +45,5 @@ private:
 
     Text m_fps_text;
 	Text m_mem_text;
-	Line m_line;
+    //Line m_line;
 };

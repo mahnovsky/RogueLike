@@ -18,13 +18,11 @@ class Render : public IRender
 {
 public:
 	Render()
-		:m_shader_program(0)
-		,m_mvp_uniform(0)
-		,m_texture_uniform(0)
+        :m_mvp_uniform(0)
 		,m_stack()
 	{}
 
-    virtual ~Render() override {}
+    ~Render() override;
 
     bool
     init( int width, int height ) override
@@ -34,7 +32,8 @@ public:
             return false;
         }
 
-        const char* gl_version = (const char*)glGetString( GL_VERSION );
+        const char* gl_version = reinterpret_cast<const char*>(glGetString( GL_VERSION ));
+
         LOG( "gl version %s", gl_version );
 
         glViewport( 0, 0, width, height );
@@ -53,33 +52,6 @@ public:
         m_stack.push( glm::mat4( 1.f ) );
 
         return true;
-    }
-
-    void
-    draw( ICamera* camera, const IRenderObject* graphic ) override
-    {
-        glUseProgram( m_shader_program );
-
-        glm::mat4 proj_view( 1.0 );
-
-        camera->get_matrix( proj_view );
-
-        glm::mat4 model( 1.0f );
-
-        graphic->get_matrix( model );
-
-        glm::mat4 mvp = proj_view * model;
-
-        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, &mvp[ 0 ][ 0 ] );
-
-        graphic->bind( );
-
-        glUniform1i( m_texture_uniform, 0 );
-
-        glDrawElements(
-                GL_TRIANGLES, graphic->get_element_count( ), GL_UNSIGNED_SHORT, nullptr );
-
-        graphic->unbind( );
     }
 
     void
@@ -112,9 +84,7 @@ public:
     }
 
 private:
-    GLuint m_shader_program;
     GLint m_mvp_uniform;
-    GLint m_texture_uniform;
 
     basic::Vector< glm::mat4 > m_stack;
 };
@@ -126,3 +96,5 @@ IRender::create( )
 {
     return new Render( );
 }
+
+Render::~Render() {}

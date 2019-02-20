@@ -1,5 +1,34 @@
 #include "render_common.hpp"
 
+#include "resource_storage.hpp"
+#include "shader.hpp"
+#include "material.hpp"
+#include "transform.hpp"
+#include "camera.hpp"
+#include "texture.hpp"
+
+struct EnableArrayBuffer
+{
+    EnableArrayBuffer( basic::uint32 object )
+        :m_object(object)
+    {
+        if( m_object > 0 )
+        {
+            glBindVertexArray( m_object );
+        }
+    }
+
+    ~EnableArrayBuffer()
+    {
+        if( m_object > 0 )
+        {
+            glBindVertexArray( 0 );
+        }
+    }
+private:
+    basic::uint32 m_object;
+};
+
 static basic::uint16
 convert( basic::String str )
 {
@@ -134,4 +163,162 @@ load_mesh( const char* file, Mesh& out_mesh )
     }
 
     return true;
+}
+
+RenderNode *create_node( ShaderProgram* program, Texture* texture )
+{
+    RenderNode* node = nullptr;
+
+    if( program )
+    {
+        void* objects_ptr = basic::alloc_objects<RenderNode, Material, Transform>();
+
+        basic::uint32 offset = 0;
+        node = basic::init_object<RenderNode>(objects_ptr, offset);
+        node->material = basic::init_object<Material>(objects_ptr, offset, program, texture);
+        node->transform = basic::init_object<Transform>(objects_ptr, offset);
+    }
+
+    return node;
+}
+
+void draw_node( RenderNode *node )
+{
+    if( !node || !node->material )
+    {
+        return;
+    }
+
+    EnableArrayBuffer ao( node->array_object );
+
+    node->material->enable();
+
+    glm::mat4 mvp(1.f);
+
+    if( node->transform )
+    {
+        mvp = node->transform->get_matrix();
+    }
+
+    if( node->camera )
+    {
+        glm::mat4 pv( 1.f );
+        node->camera->get_matrix( pv );
+
+        mvp = pv * mvp;
+    }
+
+    node->material->load_matrix( "MVP", mvp );
+
+    if( node->index_object > 0 )
+    {
+        glDrawElements( GL_TRIANGLES, node->elements, GL_UNSIGNED_SHORT, nullptr );
+    }
+    else
+    {
+        glDrawArrays( GL_TRIANGLES, 0, node->elements );
+    }
+
+    node->material->disable();
+
+    for( basic::uint32 i = 0; i < node->children.get_size(); ++i )
+    {
+        EnableArrayBuffer ao( node->array_object );
+
+        RenderNode* child = node->children[i];
+
+        draw_node( child );
+    }
+}
+
+void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices )
+{
+    ASSERT( node != nullptr );
+    ASSERT( vertices != nullptr );
+
+    node->color = basic::Color{255,255,255,255};
+
+    glGenVertexArrays( 1, &node->array_object );
+    glBindVertexArray( node->array_object );
+
+    glGenBuffers( 1, &node->vertex_object );
+    update_vertices( node, vertices );
+    node->elements = static_cast<basic::int32>(vertices->get_size());
+    if( indices )
+    {
+        glGenBuffers( 1, &node->index_object );
+
+        update_indices( node, indices );
+
+        node->elements = static_cast<basic::int32>(indices->get_size());
+    }
+
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), nullptr );
+    glEnableVertexAttribArray( 0 );
+
+    size_t offset = sizeof( glm::vec3 );
+    glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( Vertex ), (GLvoid*)offset );
+    glEnableVertexAttribArray( 1 );
+
+    offset = sizeof( glm::vec3 ) + sizeof( basic::Color );
+    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)offset );
+    glEnableVertexAttribArray( 2 );
+
+    glBindVertexArray( 0 );
+}
+
+void init_node(RenderNode *node, VertexBufferT *vertices, IndexBuffer *indices )
+{
+    ASSERT( node != nullptr );
+    ASSERT( vertices != nullptr );
+
+    node->color = basic::Color{255,255,255,255};
+
+    glGenVertexArrays( 1, &node->array_object );
+    glBindVertexArray( node->array_object );
+
+    glGenBuffers( 1, &node->vertex_object );
+    update_vertices( node, vertices );
+
+    node->elements = static_cast<basic::int32>(vertices->get_size());
+
+    if( indices )
+    {
+        glGenBuffers( 1, &node->index_object );
+
+        update_indices( node, indices );
+
+        node->elements = static_cast<basic::int32>(indices->get_size());
+    }
+
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex_T ), nullptr );
+    glEnableVertexAttribArray( 0 );
+
+    basic::uint32 offset = sizeof( glm::vec3 );
+
+    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex_T ), (GLvoid*)offset );
+    glEnableVertexAttribArray( 1 );
+
+    glBindVertexArray( 0 );
+}
+
+void update_indices(RenderNode *node, IndexBuffer *indices )
+{
+    ASSERT( node != nullptr );
+    ASSERT( indices != nullptr );
+    ASSERT( node->index_object > 0 );
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, node->index_object );
+    const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
+}
+
+void remove_node( RenderNode *node )
+{
+    node->material->~Material();
+    node->transform->~Transform();
+
+    node->material = nullptr;
+    node->transform = nullptr;
+    basic::mem_free( node );
 }

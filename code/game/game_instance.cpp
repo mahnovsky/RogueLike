@@ -15,7 +15,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_height( height )
 	, m_fps_text("arial.ttf")
 	, m_mem_text("arial.ttf")
-	, m_line()
+    //, m_line()
 {
 }
 
@@ -44,20 +44,19 @@ GameInstance::init( )
 	m_btn.set_size(100.f, 100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
 
-
+    m_fps_text.init(&m_rs);
     m_fps_text.set_text( "fps: " );
     m_fps_text.set_position( {20.f, m_height - 40.f, 0.f} );
 	m_fps_text.set_scale(0.8f);
-	m_fps_text.init(&m_rs);
 
+    m_mem_text.init(&m_rs);
 	m_mem_text.set_text("memory usage: ");
 	m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
 	m_mem_text.set_scale(0.8f);
-	m_mem_text.init(&m_rs);
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
-	m_line.init(def_shader);
-	m_line.set_coords({ 0.f, 0.f, 0.f }, { 1000.f, 600.f, 0.f });
+    //m_line.init(def_shader);
+    //m_line.set_coords({ 0.f, 0.f, 0.f }, { 1000.f, 600.f, 0.f });
 
     Mesh m;
     if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
@@ -79,7 +78,7 @@ GameInstance::draw( IRender* render )
     m_btn.draw( &m_ui_camera, render );
     m_fps_text.draw( render, &m_ui_camera );
 	m_mem_text.draw(render, &m_ui_camera);
-	m_line.draw(render, &m_ui_camera);
+    //m_line.draw(render, &m_ui_camera);
 }
 
 void

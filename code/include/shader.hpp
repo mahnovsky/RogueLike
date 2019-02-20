@@ -33,7 +33,7 @@ public:
 
     void unbind( ) const;    
 
-    basic::uint32 get_uniform( const char* name ) const;
+    basic::int32 get_uniform( const char* name ) const;
 
     static ShaderProgram* create( const char* file );
 
