@@ -71,21 +71,33 @@ struct Sizeof<First, Args...>
     }
 };
 
-template <>
-struct Sizeof<>
+template <typename First>
+struct Sizeof<First>
 {
     static uint32 size()
     {
-        return 0;
+        return sizeof(First);
     }
 };
 
-template <typename T, typename ... Args>
-void* alloc_objects( )
+template<class T>
+uint32 size_of()
 {
-    uint32 size = Sizeof<Args ...>::size();
+    return sizeof (T);
+}
 
-    return mem_alloc( size );
+template<class T, class T1, class ... Args>
+uint32 size_of()
+{
+    return sizeof (T) + size_of<T1, Args ...>();
+}
+
+template <typename ... Args>
+void* alloc_objects( const char* file, int line )
+{
+    uint32 size = size_of<Args ...>();//::size();
+
+    return _checked_mem_alloc( size, file, line );
 }
 
 
@@ -105,4 +117,6 @@ void operator delete( void* p ) noexcept;
 
 void* operator new[]( std::size_t s );
 void operator delete[]( void* p ) noexcept;
+
+#define ALLOC_OBJECTS( ... ) basic::alloc_objects<__VA_ARGS__>(__FILE__, __LINE__)
 

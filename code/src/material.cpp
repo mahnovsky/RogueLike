@@ -40,11 +40,12 @@ void Material::enable() const
 
 void Material::disable() const
 {
-    m_shader->unbind();
     if(m_texture)
     {
         m_texture->unbind();
     }
+
+    m_shader->unbind();
 }
 
 void Material::load_color( const char *name, const basic::Color &color ) const
@@ -62,5 +63,5 @@ void Material::load_matrix( const char *name, const glm::mat4 &mat ) const
 {
     basic::int32 upos = m_shader->get_uniform( name );
 
-    glUniformMatrix4fv( upos, 1, GL_TRUE, glm::value_ptr( mat ) );
+    glUniformMatrix4fv( upos, 1, GL_FALSE, glm::value_ptr( mat ) );
 }

@@ -7,6 +7,7 @@ class Sprite
 {
 public:
     Sprite( );
+    ~Sprite();
 
     void init( ShaderProgram* shader, Texture* texture );
 
@@ -38,4 +39,5 @@ private:
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     float m_angle;
+    RenderNode* m_render_node;
 };

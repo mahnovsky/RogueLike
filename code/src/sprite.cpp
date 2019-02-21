@@ -8,7 +8,16 @@ Sprite::Sprite( )
     , m_size( 1.f, 1.f, 0.f )
     , m_anchor( 0.5f, 0.5f )
     , m_angle(0.f)
+    , m_render_node(nullptr)
 {
+}
+
+Sprite::~Sprite()
+{
+    if(m_render_node)
+    {
+        remove_node( m_render_node );
+    }
 }
 
 void
@@ -19,36 +28,58 @@ Sprite::init( ShaderProgram* shader, Texture* texture )
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    m_object.set_vertex_buffer( std::move( vb ) );
+    //m_object.set_vertex_buffer( std::move( vb ) );
 
     IndexBuffer ib;
     generator.generate( ib, 0 );
 
-    m_object.set_index_buffer( std::move( ib ) );
+    //m_object.set_index_buffer( std::move( ib ) );
 
-    m_object.init( );
+    /*m_object.init( );
 
     m_object.set_texture( texture );
     m_object.set_shader( shader );
-    m_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );
+    m_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );*/
+
+    m_render_node = create_node( shader, texture );
+    if( m_render_node )
+    {
+        init_node( m_render_node, &vb, &ib );
+    }
 }
 
 void
 Sprite::draw( ICamera* camera, IRender* render )
 {
-    m_object.draw( render, camera );
+    //m_object.draw( render, camera );
+
+    if( m_render_node )
+    {
+        m_render_node->camera = camera;
+
+        draw_node( m_render_node );
+    }
 }
 
 void
 Sprite::set_position( const glm::vec3& pos )
 {
-    m_object.get_transform( )->set_position( pos );
+    //m_object.get_transform( )->set_position( pos );
+    if(m_render_node)
+    {
+        m_render_node->transform->set_position( pos );
+    }
 }
 
 glm::vec3
 Sprite::get_position( ) const
 {
-    return m_object.get_transform( )->get_position( );
+    if(m_render_node)
+    {
+        return m_render_node->transform->get_position();
+    }
+
+    return glm::vec3(); //m_object.get_transform( )->get_position( );
 }
 
 void

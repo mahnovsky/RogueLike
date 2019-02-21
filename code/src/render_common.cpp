@@ -171,7 +171,7 @@ RenderNode *create_node( ShaderProgram* program, Texture* texture )
 
     if( program )
     {
-        void* objects_ptr = basic::alloc_objects<RenderNode, Material, Transform>();
+        void* objects_ptr = ALLOC_OBJECTS(RenderNode, Material, Transform);
 
         basic::uint32 offset = 0;
         node = basic::init_object<RenderNode>(objects_ptr, offset);
@@ -181,6 +181,17 @@ RenderNode *create_node( ShaderProgram* program, Texture* texture )
 
     return node;
 }
+
+void remove_node( RenderNode *node )
+{
+    node->material->~Material();
+    node->transform->~Transform();
+
+    node->material = nullptr;
+    node->transform = nullptr;
+    basic::mem_free( node );
+}
+
 
 void draw_node( RenderNode *node )
 {
@@ -220,15 +231,6 @@ void draw_node( RenderNode *node )
     }
 
     node->material->disable();
-
-    for( basic::uint32 i = 0; i < node->children.get_size(); ++i )
-    {
-        EnableArrayBuffer ao( node->array_object );
-
-        RenderNode* child = node->children[i];
-
-        draw_node( child );
-    }
 }
 
 void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices )
@@ -311,14 +313,4 @@ void update_indices(RenderNode *node, IndexBuffer *indices )
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, node->index_object );
     const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
-}
-
-void remove_node( RenderNode *node )
-{
-    node->material->~Material();
-    node->transform->~Transform();
-
-    node->material = nullptr;
-    node->transform = nullptr;
-    basic::mem_free( node );
 }

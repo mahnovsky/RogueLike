@@ -239,7 +239,7 @@ public:
 		else
 		{
 			m_memory_usage -= chunk->chunk_size;
-			free(chunk);
+            free(chunk);
 		}
 	}
 
