@@ -223,11 +223,11 @@ void draw_node( RenderNode *node )
 
     if( node->index_object > 0 )
     {
-        glDrawElements( GL_TRIANGLES, node->elements, GL_UNSIGNED_SHORT, nullptr );
+        glDrawElements( GL_TRIANGLES, node->index_elements, GL_UNSIGNED_SHORT, nullptr );
     }
     else
     {
-        glDrawArrays( GL_TRIANGLES, 0, node->elements );
+        glDrawArrays( GL_TRIANGLES, 0, node->vertex_elements );
     }
 
     node->material->disable();
@@ -245,14 +245,12 @@ void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices )
 
     glGenBuffers( 1, &node->vertex_object );
     update_vertices( node, vertices );
-    node->elements = static_cast<basic::int32>(vertices->get_size());
+
     if( indices )
     {
         glGenBuffers( 1, &node->index_object );
 
         update_indices( node, indices );
-
-        node->elements = static_cast<basic::int32>(indices->get_size());
     }
 
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), nullptr );
@@ -282,15 +280,11 @@ void init_node(RenderNode *node, VertexBufferT *vertices, IndexBuffer *indices )
     glGenBuffers( 1, &node->vertex_object );
     update_vertices( node, vertices );
 
-    node->elements = static_cast<basic::int32>(vertices->get_size());
-
     if( indices )
     {
         glGenBuffers( 1, &node->index_object );
 
         update_indices( node, indices );
-
-        node->elements = static_cast<basic::int32>(indices->get_size());
     }
 
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex_T ), nullptr );
@@ -304,7 +298,7 @@ void init_node(RenderNode *node, VertexBufferT *vertices, IndexBuffer *indices )
     glBindVertexArray( 0 );
 }
 
-void update_indices(RenderNode *node, IndexBuffer *indices )
+void update_indices( RenderNode *node, IndexBuffer *indices )
 {
     ASSERT( node != nullptr );
     ASSERT( indices != nullptr );
@@ -312,5 +306,26 @@ void update_indices(RenderNode *node, IndexBuffer *indices )
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, node->index_object );
     const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
+
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
+
+    basic::int32 need_elements = static_cast<basic::int32>( indices->get_size() );
+
+    if( node->index_elements == 0 || node->index_elements < need_elements )
+    {
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER,
+                      size,
+                      indices->get_raw( ),
+                      GL_STATIC_DRAW );
+
+        node->index_elements = need_elements;
+
+        return;
+    }
+
+    node->index_elements = need_elements;
+
+    glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw() );
+
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }

@@ -43,8 +43,10 @@ struct RenderNode
 {
     basic::uint32 array_object = 0;
     basic::uint32 vertex_object = 0;
+    basic::int32 vertex_elements = 0;
     basic::uint32 index_object = 0;
-    basic::int32 elements = 0;
+    basic::int32 index_elements = 0;
+    bool use_dynamic_buffer = false;
 
     ICamera* camera = nullptr;
     Material* material = nullptr;
@@ -81,13 +83,29 @@ void update_vertices( RenderNode *node, basic::Vector<VertexType> *vertices )
     ASSERT( node->vertex_object > 0 );
 
     glBindBuffer( GL_ARRAY_BUFFER, node->vertex_object );
-    glBufferData( GL_ARRAY_BUFFER,
-                  sizeof( VertexType ) * vertices->get_size( ),
-                  vertices->get_raw( ),
-                  GL_STATIC_DRAW );
+    basic::uint32 size = sizeof( VertexType ) * vertices->get_size( );
+    basic::int32 need_elements = static_cast<basic::int32>( vertices->get_size() );
+
+    if( node->vertex_elements == 0 || node->vertex_elements < need_elements )
+    {
+        glBufferData( GL_ARRAY_BUFFER,
+                      size,
+                      vertices->get_raw( ),
+                      GL_STATIC_DRAW );
+
+        node->vertex_elements = need_elements;
+
+        return;
+    }
+
+    node->vertex_elements = need_elements;
+
+    glBufferSubData( GL_ARRAY_BUFFER, 0, size, vertices->get_raw() );
+
+    glBindBuffer( GL_ARRAY_BUFFER, 0 );
 }
 
-void update_indices( RenderNode* node, IndexBuffer* indices );
+void update_indices(RenderNode* node, IndexBuffer* indices );
 
 void draw_node( RenderNode* node );
 

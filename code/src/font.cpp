@@ -162,11 +162,6 @@ RenderNode *Font::create_text_node()
 {
     RenderNode* node = create_node( m_shader, m_texture );
 
-    if( node && node->transform )
-    {
-        node->transform->set_forward( {0.f, 0.f, 1.f} );
-    }
-
     return node;
 }
 
@@ -232,12 +227,13 @@ void Font::update(const char *text, RenderNode *node)
 
     if( node->array_object == 0 )
     {
+        node->use_dynamic_buffer = true;
         init_node( node, &vb, &ib );
     }
     else
     {
-        update_vertices( node, &vb );
         update_indices( node, &ib );
+        update_vertices( node, &vb );
     }
 }
 

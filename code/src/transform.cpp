@@ -56,7 +56,7 @@ Transform::get_matrix( ) const
     glm::mat4 const identity( 1.f );
 
     glm::mat4 translate = glm::translate( identity, m_pos );
-    glm::mat4 rot(1.f);// = glm::mat4_cast( m_quat );
+    glm::mat4 rot = glm::mat4_cast( m_quat );
     glm::mat4 scale = glm::scale( identity, m_scale );
 
     return translate * rot * scale;

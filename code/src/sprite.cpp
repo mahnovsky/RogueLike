@@ -103,10 +103,9 @@ Sprite::set_size( float width, float height )
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    m_object.set_vertex_buffer( std::move( vb ) );
-    if ( m_object.is_initialized( ) )
+    if( m_render_node && m_render_node->vertex_object != 0 )
     {
-        m_object.update( nullptr, nullptr );
+        update_vertices( m_render_node, &vb );
     }
 }
 
@@ -119,11 +118,9 @@ Sprite::set_anchor( float x, float y )
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    m_object.set_vertex_buffer( std::move( vb ) );
-
-    if ( m_object.is_initialized( ) )
+    if( m_render_node && m_render_node->vertex_object != 0 )
     {
-        m_object.update( nullptr, nullptr );
+        update_vertices( m_render_node, &vb );
     }
 }
 
@@ -131,9 +128,10 @@ void Sprite::set_angle(float angle)
 {
     m_angle = angle;
 
-    Transform* transform = m_object.get_transform();
-
-    transform->set_euler_angles( {0.f, 0.f, m_angle} );
+    if( m_render_node )
+    {
+        m_render_node->transform->set_euler_angles( {0.f, 0.f, m_angle} );
+    }
 }
 
 float Sprite::get_angle() const
