@@ -29,6 +29,7 @@ struct Vertex
     glm::vec2 uv;
 };
 
+using VertexBufferP = basic::Vector< glm::vec3 >;
 using VertexBufferT = basic::Vector< Vertex_T >;
 using VertexBuffer = basic::Vector< Vertex >;
 using IndexBuffer = basic::Vector< basic::uint16 >;

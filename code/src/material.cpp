@@ -52,11 +52,13 @@ void Material::load_color( const char *name, const basic::Color &color ) const
 {
     basic::int32 upos = m_shader->get_uniform( name );
 
-    glm::vec4 c{ color.red, color.blue, color.green, color.alpha };
+    glm::vec4 c{
+        static_cast<float>(color.red) / 255,
+        static_cast<float>(color.blue) / 255,
+        static_cast<float>(color.green) / 255,
+        static_cast<float>(color.alpha) / 255 };
 
-    c = glm::normalize( c );
-
-    glUniform4fv( upos, 4, glm::value_ptr( c ) );
+    glUniform4fv( upos, 1, glm::value_ptr( c ) );
 }
 
 void Material::load_matrix( const char *name, const glm::mat4 &mat ) const

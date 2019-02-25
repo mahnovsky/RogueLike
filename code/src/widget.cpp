@@ -1,7 +1,8 @@
 #include "widget.hpp"
 
-Widget::Widget()
-    :transform()
+Widget::Widget(const glm::vec2& size)
+    :m_size(size)
+    , m_rect({0, size.y}, {size.x, 0})
     ,m_parent(nullptr)
     ,m_children()
 {

@@ -32,7 +32,6 @@ public:
     static void update_size( Vertex* v, void* user_data );
 
 private:
-    RenderObject m_object;
     basic::Color m_color;
     Texture* m_texture;
     ShaderProgram* m_shader;

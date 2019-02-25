@@ -77,7 +77,7 @@ struct QuadGenerator
 {
     QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color );
 
-    void generate( VertexBuffer& out_vb, int offset );
+    void generate(VertexBufferT &out_vb, int offset );
 
     void generate( IndexBuffer& out_ib, int offset );
 

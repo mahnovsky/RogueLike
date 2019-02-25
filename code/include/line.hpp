@@ -9,7 +9,15 @@ public:
 	Line();
 	~Line() override;
 
-	void set_coords(const glm::vec3& p1, const glm::vec3& p2);
+    void set_color( const basic::Color& color );
+
+    void set_pos0( const glm::vec3& p0 );
+
+    void set_pos1( const glm::vec3& p1 );
+
+    void set_coords(const glm::vec3& p0, const glm::vec3& p1);
+
+    void set_width( float width );
 
 	void init(ShaderProgram* shader);
 
@@ -20,15 +28,12 @@ public:
 	void get_matrix(glm::mat4& out) const override;
 
 private:
-	void update();
+    void update( VertexBufferT& vb );
 
 private:
 	float m_width;
 	glm::vec3 m_pos0;
-	glm::vec3 m_pos1;
-	basic::uint32 m_vao_handle;
-	basic::uint32 m_vbo_handle;
-	VertexBuffer m_vb;
-	basic::Color m_color;
-	ShaderProgram* m_shader;
+    glm::vec3 m_pos1;
+    basic::Color m_color;
+    RenderNode* m_render_node;
 };

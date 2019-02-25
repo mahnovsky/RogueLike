@@ -5,10 +5,21 @@
 #include "object.hpp"
 #include "transform.hpp"
 
+struct Rect
+{
+    glm::vec2 left_top;
+    glm::vec2 right_bottom;
+
+    Rect( const glm::vec2& lt, const glm::vec2& tb )
+        :left_top(lt)
+        ,right_bottom(tb)
+    {}
+};
+
 class Widget : public Object
 {
 public:
-    Widget();
+    Widget(const glm::vec2& size);
     virtual ~Widget();
 
     void remove_children();
@@ -25,10 +36,9 @@ public:
 
     Widget* get_parent();
 
-public:
-    Transform transform;
-
 private:
+    glm::vec2 m_size;
+    Rect m_rect;
     Widget* m_parent;
     basic::Vector<Widget*> m_children;
 };

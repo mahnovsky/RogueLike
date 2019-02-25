@@ -5,7 +5,6 @@ layout (location = 1) in vec4 color;
 layout (location = 2) in vec2 vertexUV;
 
 out vec2 UV;
-
 out vec4 in_color;
 
 uniform mat4 MVP;

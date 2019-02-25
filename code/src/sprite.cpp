@@ -1,8 +1,7 @@
 #include "sprite.hpp"
 
 Sprite::Sprite( )
-    : m_object( )
-    , m_color{255, 255, 255, 255}
+    : m_color{255, 255, 255, 255}
     , m_texture( nullptr )
 	, m_shader( nullptr )
     , m_size( 1.f, 1.f, 0.f )
@@ -23,23 +22,13 @@ Sprite::~Sprite()
 void
 Sprite::init( ShaderProgram* shader, Texture* texture )
 {
-    VertexBuffer vb;
+    VertexBufferT vb;
 
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    //m_object.set_vertex_buffer( std::move( vb ) );
-
     IndexBuffer ib;
     generator.generate( ib, 0 );
-
-    //m_object.set_index_buffer( std::move( ib ) );
-
-    /*m_object.init( );
-
-    m_object.set_texture( texture );
-    m_object.set_shader( shader );
-    m_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );*/
 
     m_render_node = create_node( shader, texture );
     if( m_render_node )
@@ -51,8 +40,6 @@ Sprite::init( ShaderProgram* shader, Texture* texture )
 void
 Sprite::draw( ICamera* camera, IRender* render )
 {
-    //m_object.draw( render, camera );
-
     if( m_render_node )
     {
         m_render_node->camera = camera;
@@ -64,7 +51,6 @@ Sprite::draw( ICamera* camera, IRender* render )
 void
 Sprite::set_position( const glm::vec3& pos )
 {
-    //m_object.get_transform( )->set_position( pos );
     if(m_render_node)
     {
         m_render_node->transform->set_position( pos );
@@ -79,18 +65,14 @@ Sprite::get_position( ) const
         return m_render_node->transform->get_position();
     }
 
-    return glm::vec3(); //m_object.get_transform( )->get_position( );
+    return glm::vec3();
 }
 
 void
 Sprite::set_color( basic::uint8 r, basic::uint8 g, basic::uint8 b, basic::uint8 a )
 {
     m_color = {r, g, b, a};
-
-    if ( m_object.is_initialized( ) )
-    {
-        m_object.update( &Sprite::update_color, this );
-    }
+    m_render_node->color = m_color;
 }
 
 void
@@ -98,7 +80,7 @@ Sprite::set_size( float width, float height )
 {
     m_size = {width, height, m_size.z};
 
-    VertexBuffer vb;
+    VertexBufferT vb;
 
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
@@ -114,7 +96,7 @@ Sprite::set_anchor( float x, float y )
 {
     m_anchor = {x, y};
 
-    VertexBuffer vb;
+    VertexBufferT vb;
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
@@ -137,18 +119,4 @@ void Sprite::set_angle(float angle)
 float Sprite::get_angle() const
 {
     return m_angle;
-}
-
-void
-Sprite::update_color( Vertex* v, void* user_data )
-{
-    Sprite* sp = static_cast< Sprite* >( user_data );
-
-    v->color = sp->m_color;
-}
-
-void
-Sprite::update_size( Vertex* /*v*/, void* /*user_data*/ )
-{
-    //Sprite* sp = static_cast< Sprite* >( user_data );
 }

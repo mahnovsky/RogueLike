@@ -15,12 +15,13 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_height( height )
 	, m_fps_text("arial.ttf")
 	, m_mem_text("arial.ttf")
-    //, m_line()
+    , m_line()
 {
 }
 
 GameInstance::~GameInstance( )
 {
+    remove_node( m_cow );
 }
 
 void
@@ -36,11 +37,11 @@ GameInstance::init( )
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
 	Texture* texture = m_rs.get_resorce<Texture>( "SoM_Icon_2.png" );
 
-	m_back.init(shader, texture);
+    m_back.init(shader, texture);
 	m_back.set_size(2.f, 2.f);
-	//m_back.set_color( 255, 255, 255, 20 );
+    m_back.set_color( 255, 255, 50, 180 );
 
-	m_btn.init(shader, texture);
+    m_btn.init(shader, texture);
 	m_btn.set_size(100.f, 100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
 
@@ -54,31 +55,31 @@ GameInstance::init( )
 	m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
 	m_mem_text.set_scale(0.8f);
 
-    ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
-    //m_line.init(def_shader);
-    //m_line.set_coords({ 0.f, 0.f, 0.f }, { 1000.f, 600.f, 0.f });
+    ShaderProgram* def_shader_pt = m_rs.get_resorce<ShaderProgram>( "default_pt" );
+    m_line.init(def_shader_pt);
+    m_line.set_color( {255, 255, 0, 255} );
+    m_line.set_coords({ 0.f, 0.f, 0.f }, { 1000.f, 600.f, 0.f });
 
+    ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
     if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
     {
-        m_model.set_index_buffer( std::move( m.ib ) );
-        m_model.set_vertex_buffer( std::move( m.vb ) );
-        m_model.set_shader( def_shader );
-        //m_model.set_texture( texture );
-        //m_model.get_transform( )->set_scale( {10.f, 10.f, 10.f} );
-        m_model.init( );
+        m_cow = create_node( def_shader, nullptr );
+        m_cow->camera = &m_game_camera;
+        m_cow->color = basic::Color{255, 255, 255, 255};
+        init_node( m_cow, &m.vb, &m.ib );
     }
 }
 
 void
 GameInstance::draw( IRender* render )
 {
-    m_model.draw( render, &m_game_camera );
+    draw_node( m_cow );
     m_back.draw( &m_game_camera, render );
     m_btn.draw( &m_ui_camera, render );
     m_fps_text.draw( render, &m_ui_camera );
 	m_mem_text.draw(render, &m_ui_camera);
-    //m_line.draw(render, &m_ui_camera);
+    m_line.draw(render, &m_ui_camera);
 }
 
 void

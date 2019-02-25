@@ -5,117 +5,122 @@
 #include "camera.hpp"
 
 Line::Line()
-	: m_width(2.f)
-	, m_pos0()
-	, m_pos1()
-	, m_vao_handle(0)
-	, m_vbo_handle(0)
-	, m_vb()
-	, m_color{ 255, 255, 255, 255 }
-	, m_shader(nullptr)
+    : m_width(2.f)
+    , m_pos0()
+    , m_pos1(2.0, 2.0, 0.f)
+    , m_color{ 255, 255, 255, 255 }
+    , m_render_node(nullptr)
 {
-	
+
 }
 
 Line::~Line()
 {
-	if (m_shader)
-	{
-		m_shader->release();
-	}
+    remove_node( m_render_node );
 }
 
-void Line::set_coords(const glm::vec3 & p1, const glm::vec3 & p2)
+void Line::set_color(const basic::Color &color)
 {
-	m_pos0 = p1;
-	m_pos1 = p2;
+    m_color = color;
 
-	update();
+    m_render_node->color = color;
+}
+
+void Line::set_pos0(const glm::vec3 &p0)
+{
+    m_pos0 = p0;
+
+    set_coords( m_pos0, m_pos1 );
+}
+
+void Line::set_pos1(const glm::vec3 &p1)
+{
+    m_pos1 = p1;
+
+    set_coords( m_pos0, m_pos1 );
+}
+
+void Line::set_coords(const glm::vec3 & p0, const glm::vec3 & p1)
+{
+    m_pos0 = p0;
+    m_pos1 = p1;
+
+    VertexBufferT buff;
+    update( buff );
+
+    update_vertices( m_render_node, &buff );
+}
+
+void Line::set_width(float width)
+{
+    m_width = width;
+    VertexBufferT buff;
+    update( buff );
+
+    update_vertices( m_render_node, &buff );
 }
 
 void Line::init(ShaderProgram* shader)
 {
-	ASSERT(shader != nullptr);
-	m_shader = shader;
-	m_shader->retain();
+    ASSERT(shader != nullptr);
 
-	glGenVertexArrays(1, &m_vao_handle);
-	glBindVertexArray(m_vao_handle);
+    m_render_node = create_node( shader, nullptr );
 
-	glGenBuffers(1, &m_vbo_handle);
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle);
+    if( !m_render_node )
+    {
+        return;
+    }
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
+    VertexBufferT vertices;
+    IndexBuffer indices;
+    basic::uint16 raw_indices[] { 0, 1, 2, 3, 2, 1 };
+    indices.init( raw_indices, 6 );
 
-	size_t offset = sizeof(glm::vec3);
-	glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (GLvoid*)offset);
-	glEnableVertexAttribArray(1);
+    m_render_node->color = m_color;
 
-	offset = sizeof(glm::vec3) + sizeof(basic::Color);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offset);
-	glEnableVertexAttribArray(2);
+    update( vertices );
 
-
-	glBindVertexArray(0);
+    init_node( m_render_node, &vertices, &indices );
 }
 
 void Line::draw( IRender* render, ICamera* cam ) const
 {
-	m_shader->bind();
+    if( m_render_node->camera != cam )
+    {
+        m_render_node->camera = cam;
+    }
 
-	glBindVertexArray(m_vao_handle);
-
-	glm::mat4 pv(1.f);
-	cam->get_matrix(pv);
-
-	render->push_mvp(pv);
-
-	glDrawArrays(GL_TRIANGLES, 0, m_vb.get_size());
-
-	render->pop_mvp();
-
-	glBindVertexArray(0);
-
-	m_shader->unbind();
+    draw_node( m_render_node );
 }
 
 basic::uint32 Line::get_element_count() const
 {
-	return basic::uint32();
+    return basic::uint32();
 }
 
 void Line::get_matrix(glm::mat4 & out) const
 {
-	out = glm::mat4();
+    out = glm::mat4();
 }
 
-void Line::update()
+void Line::update( VertexBufferT& vb )
 {
-	glm::vec3 delta = m_pos1 - m_pos0;
-	float sq_dist = glm::dot(delta, delta);
-	ASSERT(sq_dist > 0.1f);
-	ASSERT(m_width > 0.1f);
+    glm::vec3 delta = m_pos1 - m_pos0;
+    float sq_dist = glm::dot(delta, delta);
+    ASSERT(sq_dist > 0.1f);
+    ASSERT(m_width > 0.1f);
 
-	glm::vec3 up{ 0.f, 0.f, 1.f };
-	glm::vec3 dir = glm::normalize(glm::cross(delta, up));
+    glm::vec3 up{ 0.f, 0.f, 1.f };
+    glm::vec3 dir = glm::normalize(glm::cross(delta, up));
 
-	const float half_width = m_width / 2;
-	glm::vec3 p1 = (dir * half_width) + m_pos0;
-	glm::vec3 p2 = (dir * half_width) + m_pos1;
-	glm::vec3 p3 = (dir * -half_width) + m_pos0;
-	glm::vec3 p4 = (dir * -half_width) + m_pos1;
+    const float half_width = m_width / 2;
+    glm::vec3 p1 = (dir * half_width) + m_pos0;
+    glm::vec3 p2 = (dir * half_width) + m_pos1;
+    glm::vec3 p3 = (dir * -half_width) + m_pos0;
+    glm::vec3 p4 = (dir * -half_width) + m_pos1;
 
-	m_vb.push({ p1, m_color, glm::vec2() });
-	m_vb.push({ p2, m_color, glm::vec2() });
-	m_vb.push({ p3, m_color, glm::vec2() });
-
-	m_vb.push({ p4, m_color, glm::vec2() });
-	m_vb.push({ p3, m_color, glm::vec2() });
-	m_vb.push({ p2, m_color, glm::vec2() });
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_vbo_handle);
-
-	glBufferData(
-		GL_ARRAY_BUFFER, sizeof(Vertex) * m_vb.get_size(), m_vb.get_raw(), GL_STATIC_DRAW);
+    vb.push({ p1, glm::vec2() });
+    vb.push({ p2, glm::vec2() });
+    vb.push({ p3, glm::vec2() });
+    vb.push({ p4, glm::vec2() });
 }

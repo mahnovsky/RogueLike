@@ -18,7 +18,7 @@ QuadGenerator::QuadGenerator( const glm::vec3& size,
 }
 
 void
-QuadGenerator::generate( VertexBuffer& out_vb, int offset )
+QuadGenerator::generate( VertexBufferT& out_vb, int offset )
 {
     float xoff = offset * m_size.x;
     float left = ( 0.f - m_anchor.x ) * m_size.x + xoff;
@@ -27,10 +27,10 @@ QuadGenerator::generate( VertexBuffer& out_vb, int offset )
     float top = ( 1.f - m_anchor.y ) * m_size.y;
     float z = m_size.z;
 
-    out_vb.push( {{right, top, z}, m_color, {1.f, 0.f}} );
-    out_vb.push( {{right, bottom, z}, m_color, {1.f, 1.f}} );
-    out_vb.push( {{left, bottom, z}, m_color, {0.f, 1.f}} );
-    out_vb.push( {{left, top, z}, m_color, {0.f, 0.f}} );
+    out_vb.push( {{right, top, z}, {1.f, 0.f}} );
+    out_vb.push( {{right, bottom, z}, {1.f, 1.f}} );
+    out_vb.push( {{left, bottom, z}, {0.f, 1.f}} );
+    out_vb.push( {{left, top, z}, {0.f, 0.f}} );
 }
 
 void

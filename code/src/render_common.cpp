@@ -184,6 +184,10 @@ RenderNode *create_node( ShaderProgram* program, Texture* texture )
 
 void remove_node( RenderNode *node )
 {
+    if( !node )
+    {
+        return;
+    }
     node->material->~Material();
     node->transform->~Transform();
 
@@ -220,6 +224,7 @@ void draw_node( RenderNode *node )
     }
 
     node->material->load_matrix( "MVP", mvp );
+    node->material->load_color( "Color", node->color );
 
     if( node->index_object > 0 )
     {
