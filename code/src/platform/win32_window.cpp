@@ -46,7 +46,7 @@ private:
 
 IWindow* IWindow::create()
 {
-    return new Win32_Window();
+    return NEW_OBJ( Win32_Window );
 }
 
 LRESULT CALLBACK Win32_Window::WindowProc(

@@ -67,7 +67,7 @@ bool Config::load(ResourceStorage *)
 
 Config *Config::create(ObjectManager* manager, const char *file)
 {
-    return new Config( manager, file );
+    return NEW_OBJ(Config, manager, file);
 }
 
 basic::Vector<basic::String> Config::get_values(const char *key) const

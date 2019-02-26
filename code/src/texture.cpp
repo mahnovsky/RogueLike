@@ -40,7 +40,7 @@ bool Texture::load(ResourceStorage* )
 
 Texture* Texture::create(ObjectManager* manager, const char* file)
 {
-    Texture* tex = new Texture(manager, file);
+    Texture* tex = NEW_OBJ(Texture, manager, file);
 
 	return tex;
 }

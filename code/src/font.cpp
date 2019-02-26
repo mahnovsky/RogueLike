@@ -69,8 +69,9 @@ bool Font::load(ResourceStorage *storage)
 			static_cast<stbtt_bakedchar*>(m_cdata));
 
 		basic::String name = "bitmap_";
+		name += get_name();
 
-        m_texture = new Texture( get_manager(), (name + get_name()).get_cstr() );
+        m_texture = NEW_OBJ(Texture, get_manager(), name.get_cstr());
 		m_texture->init_font(tw, th, std::move(bitmap));
 		m_texture->retain();
 
@@ -161,6 +162,6 @@ void Font::update(const char *text, RenderNode *node)
 
 Font * Font::create(ObjectManager* manager, const char * file)
 {
-    return new Font(manager, file);
+    return NEW_OBJ(Font, manager, file);
 }
 }

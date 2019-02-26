@@ -144,9 +144,9 @@ Engine::run( int width, int height, const char* wnd_title )
         m_callbacks[ Clean ]( this );
     }
 
-    delete m_render;
+    DELETE_OBJ(m_render);
     m_render = nullptr;
-    delete m_window;
+    DELETE_OBJ(m_window);
     m_render = nullptr;
 
     LOG( "Engine free done. Memory usage %lu",

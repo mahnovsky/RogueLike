@@ -56,7 +56,7 @@ void Object::release()
 	--m_refs;
     if( m_refs <= 0 )
     {
-        delete this;
+        DELETE_OBJ(this);
     }
 }
 

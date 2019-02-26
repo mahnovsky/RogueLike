@@ -9,10 +9,10 @@
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
-    , m_manager( new ObjectManager )
+    , m_manager( NEW_OBJ(ObjectManager) )
     , m_rs(m_manager)
-    , m_game_camera( new PerspectiveCamera( m_manager, 60.f, width / height, 1.f, 1000.f ) )
-    , m_ui_camera( new OrthoCamera( m_manager, width, height, 0.f, 100.f ) )
+    , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 60.f, width / height, 1.f, 1000.f ) )
+    , m_ui_camera( NEW_OBJ( OrthoCamera, m_manager, width, height, 0.f, 100.f ) )
     , m_back( )
     , m_btn( )
     , m_width( width )
@@ -34,9 +34,11 @@ GameInstance::~GameInstance( )
 {
     remove_node( m_cow );
 
+	SAFE_RELEASE(m_ui_root);
     SAFE_RELEASE(m_game_camera);
     SAFE_RELEASE(m_ui_camera);
-    SAFE_RELEASE(m_ui_root);
+
+	DELETE_OBJ(m_manager);
 }
 
 void

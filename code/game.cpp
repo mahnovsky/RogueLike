@@ -10,7 +10,7 @@ static void game_draw( Engine* engine );
 static void
 game_free( Engine* )
 {
-    delete g_game_instance;
+    DELETE_OBJ(g_game_instance);
     g_game_instance = nullptr;
 }
 
@@ -23,7 +23,7 @@ game_init( Engine* engine )
     float width = static_cast< float >( w );
     float height = static_cast< float >( h );
 
-    g_game_instance = new GameInstance( engine, width, height );
+    g_game_instance = NEW_OBJ(GameInstance, engine, width, height);
 
     engine->set_callback( Draw, &game_draw );
     engine->set_callback( Frame, &game_frame );

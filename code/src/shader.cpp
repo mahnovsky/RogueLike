@@ -111,7 +111,7 @@ ShaderProgram::get_uniform( const char* name ) const
 
 ShaderProgram *ShaderProgram::create(ObjectManager* manager, const char *file)
 {
-    ShaderProgram* res = new ShaderProgram( manager, file );
+    ShaderProgram* res = NEW_OBJ( ShaderProgram, manager, file );
 
     return res;
 }
@@ -239,11 +239,11 @@ BaseShader *BaseShader::create(ObjectManager* manager, const char *file)
     basic::String filename = file;
     if( filename.ends_of(".vs") )
     {
-        return new BaseShader( manager, GL_VERTEX_SHADER, file );
+        return NEW_OBJ( BaseShader, manager, GL_VERTEX_SHADER, file );
     }
     else if( filename.ends_of(".fs") )
     {
-        return new BaseShader( manager, GL_FRAGMENT_SHADER, file );
+        return NEW_OBJ( BaseShader, manager, GL_FRAGMENT_SHADER, file );
     }
 
     return nullptr;

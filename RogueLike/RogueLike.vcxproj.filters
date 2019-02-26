@@ -111,6 +111,12 @@
     <ClCompile Include="..\code\src\line.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\src\material.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\object_manager.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\actor.hpp">
@@ -198,6 +204,9 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\line.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\object_manager.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>

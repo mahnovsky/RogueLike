@@ -94,7 +94,7 @@ IRender::~IRender() {}
 IRender*
 IRender::create( )
 {
-    return new Render( );
+    return NEW_OBJ(Render);
 }
 
 Render::~Render() {}

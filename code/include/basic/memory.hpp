@@ -110,6 +110,16 @@ T* init_object( void* ptr, uint32& offset, Args ... args )
     return  new (cptr + off) T( args ... );
 }
 
+template <typename T>
+void delete_obj(T* ptr)
+{
+	if (ptr)
+	{
+		ptr->~T();
+		mem_free(ptr);
+	}
+}
+
 }
 
 void* operator new( std::size_t n );
@@ -120,3 +130,4 @@ void operator delete[]( void* p ) noexcept;
 
 #define ALLOC_OBJECTS( ... ) basic::alloc_objects<__VA_ARGS__>(__FILE__, __LINE__)
 #define NEW_OBJ( TYPE, ... ) new (basic::mem_alloc( sizeof(TYPE) )) TYPE( __VA_ARGS__ )
+#define DELETE_OBJ( ptr )  basic::delete_obj(ptr)

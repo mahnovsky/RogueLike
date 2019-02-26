@@ -17,10 +17,7 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
 
 Widget::~Widget()
 {
-    if(m_debug_rect)
-    {
-        remove_node( m_debug_rect );
-    }
+    remove_node( m_debug_rect );
 
     remove_from_parent();
 }
@@ -40,7 +37,7 @@ void Widget::init( ResourceStorage *storage )
         if(m_debug_rect)
         {
             m_debug_rect->camera = m_camera;
-            m_debug_rect->color = {255, 255, 0, 255};
+            m_debug_rect->color = {255, 0, 200, 255};
         }
     }
 }
