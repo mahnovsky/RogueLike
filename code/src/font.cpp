@@ -13,8 +13,8 @@ namespace
 
 namespace se
 {
-Font::Font( const char* file )
-    : FileResource( file )
+Font::Font( ObjectManager* manager, const char* file )
+    : FileResource( manager, file )
     , m_shader(nullptr)
 	, m_texture( nullptr )
     , m_height( 32.f )
@@ -70,7 +70,7 @@ bool Font::load(ResourceStorage *storage)
 
 		basic::String name = "bitmap_";
 
-		m_texture = new Texture((name + get_name()).get_cstr());
+        m_texture = new Texture( get_manager(), (name + get_name()).get_cstr() );
 		m_texture->init_font(tw, th, std::move(bitmap));
 		m_texture->retain();
 
@@ -237,8 +237,8 @@ void Font::update(const char *text, RenderNode *node)
     }
 }
 
-Font * Font::create(const char * file)
+Font * Font::create(ObjectManager* manager, const char * file)
 {
-	return new Font(file);
+    return new Font(manager, file);
 }
 }

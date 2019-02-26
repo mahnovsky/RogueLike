@@ -11,12 +11,12 @@ class Config : public FileResource
     };
 
 public:
-    Config( const char* file );
+    Config( ObjectManager* manager, const char* file );
     ~Config() override;
 
     bool load( ResourceStorage* ) override;
 
-    static Config* create( const char* file );
+    static Config* create(ObjectManager *manager, const char* file );
 
     basic::Vector<basic::String> get_values( const char* key ) const;
 

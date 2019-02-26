@@ -10,7 +10,7 @@ struct bakedchar;
 class Font : public FileResource
 {
 public:
-    Font( const char* file );
+    Font(ObjectManager *manager, const char* file );
     ~Font( ) override;
 
 	bool load(ResourceStorage*) override;
@@ -21,7 +21,7 @@ public:
 
     void update(const char* text, RenderNode* out_object );
 
-	static Font* create(const char* file);
+    static Font* create(ObjectManager *manager, const char* file);
 
 private:
     ShaderProgram* m_shader;

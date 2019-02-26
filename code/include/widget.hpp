@@ -1,9 +1,8 @@
 #pragma once
 
-#include "basic/vector.hpp"
+#include "defines.hpp"
 
 #include "object.hpp"
-#include "transform.hpp"
 
 struct Rect
 {
@@ -19,8 +18,14 @@ struct Rect
 class Widget : public Object
 {
 public:
-    Widget(const glm::vec2& size);
+    Widget( ObjectManager* manager,
+            const glm::vec2& size );
+
     virtual ~Widget();
+
+    virtual void init(ResourceStorage* storage);
+
+    virtual void draw();
 
     void remove_children();
 
@@ -41,4 +46,6 @@ private:
     Rect m_rect;
     Widget* m_parent;
     basic::Vector<Widget*> m_children;
+    ICamera* m_camera;
+    RenderNode* m_debug_rect;
 };

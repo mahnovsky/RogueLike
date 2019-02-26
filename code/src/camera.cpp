@@ -1,8 +1,9 @@
 #include "camera.hpp"
 #include "transform.hpp"
 
-PerspectiveCamera::PerspectiveCamera( float fov, float aspect, float near, float far )
-    : m_position()
+PerspectiveCamera::PerspectiveCamera(ObjectManager *manager, float fov, float aspect, float near, float far )
+    : Object( manager )
+    , m_position()
     , m_direction()
     , m_up()
     , m_projection()
@@ -61,8 +62,9 @@ void PerspectiveCamera::update()
         m_up );
 }
 
-OrthoCamera::OrthoCamera( float width, float height, float near, float far )
-    :m_projection()
+OrthoCamera::OrthoCamera(ObjectManager *manager, float width, float height, float near, float far )
+    :Object (manager)
+    ,m_projection()
     ,m_width( width )
     ,m_height( height )
     ,m_near( near )

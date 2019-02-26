@@ -33,7 +33,6 @@ private:
 
     basic::String m_text;
 
-    //RenderObject m_render_object;
     RenderNode* m_render_node;
 
     float m_font_size;

@@ -76,6 +76,8 @@ void init_node( RenderNode* node, VertexBuffer* vertices, IndexBuffer* indices )
 
 void init_node( RenderNode* node, VertexBufferT* vertices, IndexBuffer* indices );
 
+void init_node( RenderNode* node, VertexBufferP* vertices, IndexBuffer* indices );
+
 template< typename VertexType >
 void update_vertices( RenderNode *node, basic::Vector<VertexType> *vertices )
 {
@@ -109,5 +111,20 @@ void update_vertices( RenderNode *node, basic::Vector<VertexType> *vertices )
 void update_indices(RenderNode* node, IndexBuffer* indices );
 
 void draw_node( RenderNode* node );
+
+void fill_line( const glm::vec2& p0,
+                const glm::vec2& p1,
+                float width,
+                VertexBufferP& out_vb);
+
+void fill_rect( const glm::vec2& left_top,
+                const glm::vec2& right_bottom,
+                float width,
+                VertexBufferP& out_vb );
+
+RenderNode* make_rect( ShaderProgram* shader,
+                       const glm::vec2& left_top,
+                       const glm::vec2& right_bottom,
+                       float width = 1.f );
 
 

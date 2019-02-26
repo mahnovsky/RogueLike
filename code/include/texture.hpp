@@ -7,12 +7,12 @@ class Texture : public FileResource
 {
 public:
 	
-    Texture( const char* file );
+    Texture( ObjectManager* manager, const char* file );
     ~Texture( ) override;
 
 	bool load(ResourceStorage*) override;
 
-	static Texture* create(const char* file);
+    static Texture* create(ObjectManager *manager, const char* file);
 
     void init( basic::Image image );
 

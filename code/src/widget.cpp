@@ -1,16 +1,48 @@
 #include "widget.hpp"
 
-Widget::Widget(const glm::vec2& size)
-    :m_size(size)
+#include "render_common.hpp"
+#include "object_manager.hpp"
+#include "shader.hpp"
+#include "camera.hpp"
+
+Widget::Widget(ObjectManager* manager, const glm::vec2& size)
+    : Object ( manager )
+    , m_size(size)
     , m_rect({0, size.y}, {size.x, 0})
-    ,m_parent(nullptr)
-    ,m_children()
+    , m_parent(nullptr)
+    , m_children()
+    , m_debug_rect( nullptr )
 {
 }
 
 Widget::~Widget()
 {
+    if(m_debug_rect)
+    {
+        remove_node( m_debug_rect );
+    }
+
     remove_from_parent();
+}
+
+void Widget::init( ResourceStorage *storage )
+{
+    m_camera = dynamic_cast<ICamera*>( get_manager()->find( "ui_camera" ) );
+    if( !m_camera )
+    {
+        return;
+    }
+
+    ShaderProgram* shader = storage->get_resorce<ShaderProgram>("primitive");
+    if(shader)
+    {
+        m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
+        if(m_debug_rect)
+        {
+            m_debug_rect->camera = m_camera;
+            m_debug_rect->color = {255, 255, 0, 255};
+        }
+    }
 }
 
 void Widget::remove_children()
@@ -78,4 +110,17 @@ bool Widget::get_child_index(Widget *node, basic::uint32 &out_index)
 Widget *Widget::get_parent()
 {
     return m_parent;
+}
+
+void Widget::draw()
+{
+    if( m_debug_rect )
+    {
+        draw_node( m_debug_rect );
+    }
+
+    for(basic::uint32 i = 0; i < m_children.get_size(); ++i)
+    {
+        m_children[i]->draw();
+    }
 }

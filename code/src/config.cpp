@@ -1,8 +1,9 @@
 #include "config.hpp"
 
 
-Config::Config( const char* file )
-    :FileResource (file)
+Config::Config( ObjectManager* manager, const char* file )
+    :FileResource (manager, file)
+    ,m_values()
 {
 }
 
@@ -64,9 +65,9 @@ bool Config::load(ResourceStorage *)
     return false;
 }
 
-Config *Config::create(const char *file)
+Config *Config::create(ObjectManager* manager, const char *file)
 {
-    return new Config( file );
+    return new Config( manager, file );
 }
 
 basic::Vector<basic::String> Config::get_values(const char *key) const

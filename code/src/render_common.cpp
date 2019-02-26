@@ -303,6 +303,32 @@ void init_node(RenderNode *node, VertexBufferT *vertices, IndexBuffer *indices )
     glBindVertexArray( 0 );
 }
 
+void init_node( RenderNode *node, VertexBufferP *vertices, IndexBuffer *indices )
+{
+    ASSERT( node != nullptr );
+    ASSERT( vertices != nullptr );
+
+    node->color = basic::Color{255,255,255,255};
+
+    glGenVertexArrays( 1, &node->array_object );
+    glBindVertexArray( node->array_object );
+
+    glGenBuffers( 1, &node->vertex_object );
+    update_vertices( node, vertices );
+
+    if( indices )
+    {
+        glGenBuffers( 1, &node->index_object );
+
+        update_indices( node, indices );
+    }
+
+    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( glm::vec3 ), nullptr );
+    glEnableVertexAttribArray( 0 );
+
+    glBindVertexArray( 0 );
+}
+
 void update_indices( RenderNode *node, IndexBuffer *indices )
 {
     ASSERT( node != nullptr );
@@ -333,4 +359,59 @@ void update_indices( RenderNode *node, IndexBuffer *indices )
     glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw() );
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
+}
+
+void fill_line( const glm::vec2 &p0,
+                const glm::vec2 &p1,
+                float width,
+                VertexBufferP& out_vb )
+{
+    glm::vec3 pos0 = glm::vec3(p0, 0);
+    glm::vec3 pos1 = glm::vec3(p1, 0);
+
+    glm::vec3 delta = pos1 - pos0;
+    float sq_dist = glm::dot(delta, delta);
+    ASSERT(sq_dist > 0.1f);
+    ASSERT(width > 0.1f);
+
+    glm::vec3 up{ 0.f, 0.f, 1.f };
+    glm::vec3 dir = glm::normalize(glm::cross(delta, up));
+
+    //{ 0, 1, 2, 3, 2, 1 }
+    const float half_width = width / 2;
+    out_vb.push( (dir * half_width) + pos0);
+    out_vb.push( (dir * half_width) + pos1);
+    out_vb.push( (dir * -half_width) + pos0);
+    out_vb.push( (dir * -half_width) + pos1);
+    out_vb.push( (dir * -half_width) + pos0);
+    out_vb.push( (dir * half_width) + pos1);
+}
+
+void fill_rect( const glm::vec2 &left_top,
+                const glm::vec2 &right_bottom,
+                float width,
+                VertexBufferP &out_vb)
+{
+    glm::vec2 left_bottom( left_top.x, right_bottom.y );
+    glm::vec2 right_top( right_bottom.x, left_top.y );
+
+    fill_line( left_bottom, left_top, width, out_vb );
+    fill_line( left_top, right_top, width, out_vb );
+    fill_line( right_top, right_bottom, width, out_vb );
+    fill_line( right_bottom, left_bottom, width, out_vb );
+}
+
+RenderNode *make_rect( ShaderProgram *shader,
+                       const glm::vec2 &left_top,
+                       const glm::vec2 &right_bottom,
+                       float width )
+{
+    RenderNode* res = create_node(shader, nullptr);
+
+    VertexBufferP vb;
+    fill_rect( left_top, right_bottom, width, vb );
+
+    init_node( res, &vb, nullptr );
+
+    return  res;
 }

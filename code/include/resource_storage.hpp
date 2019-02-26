@@ -8,7 +8,7 @@ class ResourceStorage;
 class FileResource : public Object
 {
 public:
-    FileResource( const char* file );
+    FileResource( ObjectManager* manager, const char* file );
 
     virtual ~FileResource();
 
@@ -18,7 +18,7 @@ public:
 class ResourceStorage final
 {
 public:
-    ResourceStorage( );
+    ResourceStorage( ObjectManager* manager );
     ~ResourceStorage();
 
     bool add_resource( FileResource* file_resource );
@@ -30,7 +30,7 @@ public:
 
         if( !res )
         {
-            res = T::create( file );
+            res = T::create( m_manager, file );
 
             add_resource( res );
         }
@@ -44,5 +44,6 @@ private:
     static void update_cached_resources( void* storage );
 
 private:
+    ObjectManager* m_manager;
     basic::Vector<FileResource*> m_resources;
 };

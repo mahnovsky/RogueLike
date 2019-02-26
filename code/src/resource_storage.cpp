@@ -2,14 +2,15 @@
 
 #include "timer_manager.hpp"
 
-FileResource::FileResource( const char* file )
-    :Object ( file )
+FileResource::FileResource(ObjectManager *manager, const char* file )
+    :Object ( manager, file )
 {}
 
 FileResource::~FileResource()
 {}
 
-ResourceStorage::ResourceStorage()
+ResourceStorage::ResourceStorage(ObjectManager *manager)
+    :m_manager(manager)
 {
     TimerManager& timer_manager = TimerManager::get();
 

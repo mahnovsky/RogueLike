@@ -2,6 +2,8 @@
 
 #include "defines.hpp"
 
+#include "object.hpp"
+
 class ICamera
 {
 public:
@@ -20,10 +22,12 @@ public:
     virtual void set_up( const glm::vec3& up ) = 0;
 };
 
-class PerspectiveCamera : public ICamera
+class PerspectiveCamera
+        : public Object
+        , public ICamera
 {
 public:
-    PerspectiveCamera(float fov, float aspect, float near, float far);
+    PerspectiveCamera( ObjectManager* manager, float fov, float aspect, float near, float far);
     ~PerspectiveCamera() override;
 
     void init( const glm::vec3& pos, 
@@ -51,10 +55,12 @@ private:
 };
 
 
-class OrthoCamera : public ICamera
+class OrthoCamera
+    :public Object
+    ,public ICamera
 {
 public:
-    OrthoCamera( float width, float height, float near, float far );
+    OrthoCamera( ObjectManager* manager, float width, float height, float near, float far );
 
     void init( const glm::vec3& pos, 
                const glm::vec3& dir, 

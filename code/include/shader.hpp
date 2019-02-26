@@ -6,7 +6,7 @@
 class BaseShader : public FileResource
 {
 public:
-    BaseShader(basic::uint32 type, const char* file);
+    BaseShader(ObjectManager *manager, basic::uint32 type, const char* file);
     ~BaseShader() override;
 
     bool load(ResourceStorage* storage) override;
@@ -15,7 +15,7 @@ public:
 
     bool is_valid() const;
 
-    static BaseShader* create(const char* file);
+    static BaseShader* create(ObjectManager *manager, const char* file);
 
 private:
     basic::uint32 m_handle;
@@ -24,7 +24,7 @@ private:
 class ShaderProgram : public FileResource
 {
 public:
-    ShaderProgram( const char* file );
+    ShaderProgram(ObjectManager *manager, const char* file );
     ~ShaderProgram( ) override;
 
     bool load( ResourceStorage* storage ) override;
@@ -35,7 +35,7 @@ public:
 
     basic::int32 get_uniform( const char* name ) const;
 
-    static ShaderProgram* create( const char* file );
+    static ShaderProgram* create(ObjectManager *manager, const char* file );
 
 private:
 

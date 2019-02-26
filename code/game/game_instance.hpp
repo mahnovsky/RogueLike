@@ -1,5 +1,7 @@
 #pragma once
 
+#include "defines.hpp"
+
 #include "camera.hpp"
 #include "engine.hpp"
 #include "font.hpp"
@@ -29,10 +31,10 @@ private:
 
 private:
     Engine* m_engine;
-
+    ObjectManager* m_manager;
     ResourceStorage m_rs;
-    PerspectiveCamera m_game_camera;
-    OrthoCamera m_ui_camera;
+    PerspectiveCamera* m_game_camera;
+    OrthoCamera* m_ui_camera;
 
     Sprite m_back;
     Sprite m_btn;
@@ -45,6 +47,6 @@ private:
 
     Text m_fps_text;
 	Text m_mem_text;
-    Line m_line;
     RenderNode* m_cow;
+    Widget* m_ui_root;
 };

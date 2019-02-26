@@ -1,22 +1,29 @@
 #include "object.hpp"
 
 #include "basic/memory.hpp"
+#include "object_manager.hpp"
 
-Object::Object()
-    : m_name()
+Object::Object(ObjectManager *manager)
+    : m_manager(manager)
+    , m_refs(0)
     , m_tag(0)
+    , m_name()
 {
+    manager->add( this );
 }
 
-Object::Object(const char *name)
-    : m_refs(0)
-	, m_name(name)
+Object::Object(ObjectManager *manager, const char *name)
+    : m_manager(manager)
+    , m_refs(0)
     , m_tag(0)
+	, m_name(name)
 {
+    manager->add( this );
 }
 
 Object::~Object()
 {
+    m_manager->remove( this );
 }
 
 void Object::set_tag(basic::int32 tag)
@@ -56,4 +63,9 @@ void Object::release()
 basic::int32 Object::get_refs() const
 {
     return m_refs;
+}
+
+ObjectManager *Object::get_manager()
+{
+    return m_manager;
 }

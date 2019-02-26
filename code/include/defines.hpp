@@ -11,6 +11,7 @@ class Sprite;
 class Cpnfig;
 class World;
 class Object;
+class ObjectManager;
 class Actor;
 class Engine;
 class ResourceStorage;
@@ -19,6 +20,8 @@ class ICamera;
 class IWindow;
 class Transform;
 class Material;
+class Widget;
+
 struct RenderNode;
 
 namespace se {

@@ -4,8 +4,8 @@
 #include "basic/file.hpp"
 #include "config.hpp"
 
-ShaderProgram::ShaderProgram(const char *file)
-    : FileResource ( file )
+ShaderProgram::ShaderProgram(ObjectManager* manager, const char *file)
+    : FileResource ( manager, file )
     , m_shader_program( 0 )
 {
 }
@@ -109,9 +109,9 @@ ShaderProgram::get_uniform( const char* name ) const
     return glGetUniformLocation( m_shader_program, name );
 }
 
-ShaderProgram *ShaderProgram::create(const char *file)
+ShaderProgram *ShaderProgram::create(ObjectManager* manager, const char *file)
 {
-    ShaderProgram* res = new ShaderProgram( file );
+    ShaderProgram* res = new ShaderProgram( manager, file );
 
     return res;
 }
@@ -182,8 +182,8 @@ static GLuint compile( basic::Vector<basic::uint8> data, basic::uint32 type )
     return handle;
 }
 
-BaseShader::BaseShader( basic::uint32 type, const char* file )
-    :FileResource (file)
+BaseShader::BaseShader( ObjectManager* manager, basic::uint32 type, const char* file )
+    :FileResource (manager, file)
     ,m_handle(0)
 {
     bool is_valid = type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER;
@@ -234,16 +234,16 @@ bool BaseShader::is_valid() const
     return is_shader_compiled( m_handle );
 }
 
-BaseShader *BaseShader::create(const char *file)
+BaseShader *BaseShader::create(ObjectManager* manager, const char *file)
 {
     basic::String filename = file;
     if( filename.ends_of(".vs") )
     {
-        return new BaseShader( GL_VERTEX_SHADER, file );
+        return new BaseShader( manager, GL_VERTEX_SHADER, file );
     }
     else if( filename.ends_of(".fs") )
     {
-        return new BaseShader( GL_FRAGMENT_SHADER, file );
+        return new BaseShader( manager, GL_FRAGMENT_SHADER, file );
     }
 
     return nullptr;

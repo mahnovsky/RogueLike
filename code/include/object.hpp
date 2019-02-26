@@ -5,8 +5,8 @@
 class Object
 {
 public:
-    Object();
-    Object(const char* name);
+    Object(ObjectManager* manager);
+    Object(ObjectManager* manager, const char* name);
 
     virtual ~Object();
 
@@ -24,8 +24,13 @@ public:
 
     basic::int32 get_refs() const;
 
+    ObjectManager* get_manager();
+
 private:
+    ObjectManager* m_manager;
 	basic::int32 m_refs;
 	basic::int32 m_tag;
     basic::String m_name;
 };
+
+#define SAFE_RELEASE(obj_ptr) if(obj_ptr) { obj_ptr->release(); }

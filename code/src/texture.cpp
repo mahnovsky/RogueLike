@@ -3,8 +3,8 @@
 #include "basic/file.hpp"
 
 
-Texture::Texture( const char* file )
-    : FileResource( file )
+Texture::Texture(ObjectManager *manager, const char* file )
+    : FileResource( manager, file )
 	, m_texture( 0 )
 	, m_width(0)
 	, m_height(0)
@@ -38,9 +38,9 @@ bool Texture::load(ResourceStorage* )
 	return false;
 }
 
-Texture* Texture::create(const char* file)
+Texture* Texture::create(ObjectManager* manager, const char* file)
 {
-	Texture* tex = new Texture(file);
+    Texture* tex = new Texture(manager, file);
 
 	return tex;
 }
