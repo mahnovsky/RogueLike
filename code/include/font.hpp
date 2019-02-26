@@ -15,8 +15,6 @@ public:
 
 	bool load(ResourceStorage*) override;
 
-    void update( const char* text, float height, RenderObject& out_object );
-
     RenderNode* create_text_node( );
 
     void update(const char* text, RenderNode* out_object );

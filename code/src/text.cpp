@@ -78,7 +78,10 @@ void
 Text::set_position( const glm::vec3& pos )
 {
     //m_render_object.get_transform( )->set_position( pos );
-    m_render_node->transform->set_position( pos );
+    if( m_render_node )
+    {
+        m_render_node->transform->set_position( pos );
+    }
 }
 
 void
@@ -108,6 +111,7 @@ Text::update( )
         if( !m_render_node )
         {
             m_render_node = m_font->create_text_node();
+            m_render_node->transform->set_scale({1.f, -1.f, 1.f});
         }
         m_font->update( m_text.get_cstr(), m_render_node );
     }

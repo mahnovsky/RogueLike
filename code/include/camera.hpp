@@ -79,6 +79,7 @@ private:
 
 private:
     glm::mat4 m_projection;
+    glm::mat4 m_view;
 
     float m_width;
     float m_height;

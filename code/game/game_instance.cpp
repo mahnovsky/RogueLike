@@ -46,7 +46,7 @@ GameInstance::init( )
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
-    m_ui_camera->init( {m_width / 2, m_height / 2, 0.f}, {}, {} );
+    m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
     m_ui_root->init( &m_rs );
@@ -59,7 +59,7 @@ GameInstance::init( )
     m_back.set_color( 255, 255, 50, 180 );
 
     m_btn.init(shader, texture);
-	m_btn.set_size(100.f, 100.f);
+    m_btn.set_size(100.f, -100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
 
     m_fps_text.init(&m_rs);

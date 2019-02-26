@@ -91,7 +91,17 @@ void OrthoCamera::update()
     const float top = pos.y + m_height / 2;
     const float bottom = pos.y - m_height / 2;
 
-    m_projection = glm::ortho( left, right, bottom, top, m_near, m_far ); 
+    m_projection = glm::ortho( 0.f, m_width, m_height, 0.f, m_near, m_far );
+
+    m_view = glm::lookAt(
+
+            m_position, // Camera is at (0,0,5), in World Space
+
+            glm::vec3(0,0,0), // and looks at the origin
+
+            glm::vec3(0,-1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+
+        );
 }
 
 void OrthoCamera::set_position( const glm::vec3& pos )
@@ -111,7 +121,7 @@ void OrthoCamera::set_up( const glm::vec3& up )
 
 void OrthoCamera::get_matrix( glm::mat4& out ) const
 {
-    out = m_projection;
+    out = m_projection ;
 }
 
 
