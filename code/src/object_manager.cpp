@@ -3,6 +3,7 @@
 #include "object.hpp"
 
 ObjectManager::ObjectManager()
+    :m_objects()
 {
 }
 

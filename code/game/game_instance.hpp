@@ -9,8 +9,6 @@
 #include "sprite.hpp"
 #include "text.hpp"
 #include "resource_storage.hpp"
-#include "line.hpp"
-
 
 class GameInstance
 {
