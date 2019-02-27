@@ -1,5 +1,6 @@
 #include "window.hpp"
 #include "basic/debug.hpp"
+#include "input.hpp"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -112,7 +113,7 @@ public:
 
     bool init( int width, int height, const char* const title );
 
-    void process_events( );
+    void process_events( input::InputListener* );
 
     void swap_buffers( );
 
@@ -120,7 +121,7 @@ public:
 
     bool get_mouse_pos( int& out_x, int& out_y );
 
-    void get_size( int& out_width, int& out_height );
+    void get_size( int& out_width, int& out_height ) const;
 
 private:
     bool m_running;
@@ -365,8 +366,37 @@ X11Window::init( int width, int height, const char* const title )
     return true;
 }
 
+input::KeyCode convert(XEvent& event, basic::int16& symbol)
+{
+    KeySym sym = XLookupKeysym(&event.xkey, 0);
+    symbol = sym;
+    if(sym >= XK_a || sym <= XK_z)
+    {
+        return input::KeyCode::AaZz;
+    }
+    if(sym >= XK_A || sym <= XK_Z)
+    {
+        return input::KeyCode::AaZz;
+    }
+
+    switch (sym)
+    {
+    case XK_Shift_L: return input::KeyCode::LeftShift;
+    case XK_Shift_R: return input::KeyCode::RightShift;
+    case XK_Control_L: return input::KeyCode::LeftCtrl;
+    case XK_Control_R: return input::KeyCode::RightCtrl;
+    case XK_Caps_Lock: return input::KeyCode::CapsLock;
+    case XK_Alt_L: return input::KeyCode::LeftAlt;
+    case XK_Alt_R: return input::KeyCode::RightAlt;
+    case XK_Return: return input::KeyCode::Enter;
+    case XK_space: return input::KeyCode::Space;
+    }
+
+    return input::KeyCode::Invalid;
+}
+
 void
-X11Window::process_events( )
+X11Window::process_events( input::InputListener* listener )
 {
     XEvent event;
     while( XPending(m_display) )
@@ -390,16 +420,44 @@ X11Window::process_events( )
         break;
         case KeyPress:
         {
+            if( listener )
+            {
+                basic::int16 symbol;
+                input::KeyCode code = convert( event, symbol );
+                listener->key_pressed( code, symbol );
+            }
         }
         break;
         case MotionNotify:
         {
             m_mouse_x = event.xmotion.x;
             m_mouse_y = event.xmotion.y;
+            if( listener )
+            {
+                listener->mouse_moved( m_mouse_x, m_mouse_y );
+            }
         }
         break;
         case ButtonPress:
         {
+            if( listener )
+            {
+                input::MouseButton btn = input::MouseButton::Left;
+                switch (event.xbutton.button) {
+                case 0:
+                    btn = input::MouseButton::Left; break;
+                    break;
+                case 1:
+                    btn = input::MouseButton::Middle; break;
+                    break;
+                case 2:
+                    btn = input::MouseButton::Right; break;
+                    break;
+                default:
+                    break;
+                }
+                listener->mouse_pressed( btn, m_mouse_x, m_mouse_y );
+            }
         }
         break;
         case ButtonRelease:
@@ -433,7 +491,7 @@ X11Window::get_mouse_pos( int& out_x, int& out_y )
     return true;
 }
 
-void X11Window::get_size( int& out_width, int& out_height )
+void X11Window::get_size( int& out_width, int& out_height ) const
 {
     out_width = m_width;
     out_height = m_height;

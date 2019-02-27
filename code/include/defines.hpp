@@ -21,6 +21,12 @@ class IWindow;
 class Transform;
 class Material;
 class Widget;
+class RootWidget;
+
+namespace input
+{
+class Input;
+}
 
 struct RenderNode;
 

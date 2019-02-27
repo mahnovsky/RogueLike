@@ -46,5 +46,5 @@ private:
     Text m_fps_text;
 	Text m_mem_text;
     RenderNode* m_cow;
-    Widget* m_ui_root;
+    RootWidget* m_ui_root;
 };

@@ -24,9 +24,15 @@ public:
 
     int run( int width, int height, const char* wnd_title );
 
+    void quit();
+
     IRender* get_render();
 
+    input::Input* get_input();
+
     void get_window_size(int& out_width, int& out_height);
+
+    glm::vec2 get_window_size() const;
 
     double get_frame_time() const;
 
@@ -43,6 +49,8 @@ private:
     IWindow* m_window;
 
     IRender* m_render;
+
+    input::Input* m_input;
 
     bool m_quit;
 

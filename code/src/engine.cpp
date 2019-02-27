@@ -24,6 +24,7 @@ static void dummy( Engine* ){}
 Engine::Engine( int argc, char** argv )
     : m_window( nullptr ) 
     , m_render( nullptr )
+    , m_input(nullptr)
     , m_quit( false )
     , m_callbacks()
     , m_cmd_args()
@@ -49,6 +50,11 @@ Engine::Engine( int argc, char** argv )
 IRender* Engine::get_render()
 {
     return m_render;
+}
+
+input::Input *Engine::get_input()
+{
+    return  m_input;
 }
 
 double Engine::get_frame_time() const
@@ -77,6 +83,14 @@ void Engine::get_window_size(int& out_width, int& out_height)
     m_window->get_size( out_width, out_height );
 }
 
+glm::vec2 Engine::get_window_size() const
+{
+    int x, y;
+    m_window->get_size( x, y );
+
+    return glm::vec2(x, y);
+}
+
 int
 Engine::run( int width, int height, const char* wnd_title )
 {
@@ -95,6 +109,8 @@ Engine::run( int width, int height, const char* wnd_title )
 
         return -1;
     }
+
+    m_input = input::Input::create();
 
     if( m_callbacks[ Init ])
     {
@@ -144,10 +160,12 @@ Engine::run( int width, int height, const char* wnd_title )
         m_callbacks[ Clean ]( this );
     }
 
+    DELETE_OBJ(m_input);
+    m_input = nullptr;
     DELETE_OBJ(m_render);
     m_render = nullptr;
     DELETE_OBJ(m_window);
-    m_render = nullptr;
+    m_window = nullptr;
 
     LOG( "Engine free done. Memory usage %lu",
         basic::get_memory_usage() );
@@ -155,10 +173,13 @@ Engine::run( int width, int height, const char* wnd_title )
     return 0;
 }
 
+void Engine::quit()
+{
+    m_quit = true;
+}
+
 void
 Engine::process_event( )
 {
-    m_window->process_events( );
-
-    m_quit = m_window->is_quit( );
+    m_window->process_events( m_input );
 }

@@ -3,7 +3,7 @@
 #include "render_common.hpp"
 #include "texture.hpp"
 #include "object_manager.hpp"
-#include "widget.hpp"
+#include "root_widget.hpp"
 
 #include <stdio.h>
 
@@ -19,7 +19,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_height( height )
 	, m_fps_text("arial.ttf")
 	, m_mem_text("arial.ttf")
-    , m_ui_root( NEW_OBJ( Widget, m_manager, {width, height} ) )
+    , m_ui_root( NEW_OBJ( RootWidget, engine, m_manager ) )
 {
     m_game_camera->set_name("game_camera");
     m_game_camera->retain();
@@ -41,6 +41,22 @@ GameInstance::~GameInstance( )
 	DELETE_OBJ(m_manager);
 }
 
+void click_print(Widget* w, void* ud)
+{
+    static int count;
+
+    LOG("on widget clicked %d", ++count);
+    Engine* engine = static_cast<Engine*>(ud);
+    switch (w->get_tag()) {
+    case 1:
+        LOG("1 btn pressed");
+        engine->quit();
+        break;
+    default:
+        break;
+    }
+}
+
 void
 GameInstance::init( )
 {
@@ -52,6 +68,14 @@ GameInstance::init( )
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
     m_ui_root->init( &m_rs );
+    WidgetCallback btn_cb {&click_print, m_engine};
+    m_ui_root->add_press_callback(btn_cb);
+    Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
+    btn->set_tag(1);
+    btn->add_press_callback(btn_cb);
+    btn->init( &m_rs );
+    btn->set_position( {m_width / 2, m_height / 2} );
+    m_ui_root->add_child(btn);
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
 	Texture* texture = m_rs.get_resorce<Texture>( "SoM_Icon_2.png" );
