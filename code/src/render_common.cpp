@@ -197,7 +197,7 @@ void remove_node( RenderNode *node )
 }
 
 
-void draw_node( RenderNode *node )
+void draw_node(RenderNode *node, glm::mat4* mat )
 {
     if( !node || !node->material )
     {
@@ -213,6 +213,10 @@ void draw_node( RenderNode *node )
     if( node->transform )
     {
         mvp = node->transform->get_matrix();
+        if(mat)
+        {
+            mvp = mvp * (*mat);
+        }
     }
 
     if( node->camera )

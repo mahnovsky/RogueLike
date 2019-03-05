@@ -50,7 +50,7 @@ void click_print(Widget* w, void* ud)
     switch (w->get_tag()) {
     case 1:
         LOG("1 btn pressed");
-        engine->quit();
+        engine->shutdown();
         break;
     default:
         break;
@@ -70,12 +70,22 @@ GameInstance::init( )
     m_ui_root->init( &m_rs );
     WidgetCallback btn_cb {&click_print, m_engine};
     m_ui_root->add_press_callback(btn_cb);
-    Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
-    btn->set_tag(1);
-    btn->add_press_callback(btn_cb);
-    btn->init( &m_rs );
-    btn->set_position( {m_width / 2, m_height / 2} );
-    m_ui_root->add_child(btn);
+    {
+        Widget* wnd = NEW_OBJ(Widget, m_manager, {200, 300});
+        wnd->set_tag(1);
+        //wnd->add_press_callback(btn_cb);
+        wnd->init( &m_rs );
+        wnd->set_position( {m_width / 2, m_height / 2} );
+        wnd->set_anchor_point({0.5f, 0.5f});
+        m_ui_root->add_child(wnd);
+
+        Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
+        btn->set_tag(1);
+        btn->add_press_callback(btn_cb);
+        btn->init( &m_rs );
+        //btn->set_position( {m_width / 2, m_height / 2} );
+        wnd->add_child(btn);
+    }
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
 	Texture* texture = m_rs.get_resorce<Texture>( "SoM_Icon_2.png" );

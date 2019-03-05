@@ -55,13 +55,13 @@ public:
     }
 
     void
-    draw_begin( ) override
+    clear( ) override
     {
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     }
 
     void
-    draw_end( IWindow* wnd ) override
+    present( IWindow* wnd ) override
     {
         wnd->swap_buffers( );
     }

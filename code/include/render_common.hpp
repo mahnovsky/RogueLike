@@ -53,20 +53,9 @@ struct RenderNode
     Material* material = nullptr;
     Transform* transform = nullptr;
     basic::Color color;
-
-    basic::Vector<RenderNode*> children;
 };
 
 bool load_mesh( const char* file, Mesh& out_mesh );
-
-struct RenderNodeConfig
-{
-    basic::String camera_name;
-    basic::String shader_name;
-    basic::String texture_name;
-    basic::Color color;
-};
-
 
 RenderNode *create_node( ShaderProgram* program, Texture* texture );
 
@@ -110,7 +99,7 @@ void update_vertices( RenderNode *node, basic::Vector<VertexType> *vertices )
 
 void update_indices(RenderNode* node, IndexBuffer* indices );
 
-void draw_node( RenderNode* node );
+void draw_node(RenderNode* node , glm::mat4 *mat = nullptr);
 
 void fill_line( const glm::vec2& p0,
                 const glm::vec2& p1,

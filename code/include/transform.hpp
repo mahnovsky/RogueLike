@@ -11,6 +11,10 @@ public:
 
     glm::vec3 get_position() const;
 
+    void set_pivot_point( const glm::vec3& pivot );
+
+    glm::vec3 get_pivot_point() const;
+
     void set_euler_angles( const glm::vec3& angles );
 
     void set_forward( const glm::vec3& dir );
@@ -25,6 +29,7 @@ public:
 
 private:
     glm::vec3 m_pos;
+    glm::vec3 m_pivot_point;
     glm::quat m_quat;
     glm::vec3 m_forward;
 	glm::vec3 m_up;

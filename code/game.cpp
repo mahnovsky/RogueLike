@@ -17,13 +17,9 @@ game_free( Engine* )
 void
 game_init( Engine* engine )
 {
-    int w, h;
-    engine->get_window_size( w, h );
+    glm::vec2 size = engine->get_window_size( );
 
-    float width = static_cast< float >( w );
-    float height = static_cast< float >( h );
-
-    g_game_instance = NEW_OBJ(GameInstance, engine, width, height);
+    g_game_instance = NEW_OBJ(GameInstance, engine, size.x, size.y);
 
     engine->set_callback( Draw, &game_draw );
     engine->set_callback( Frame, &game_frame );

@@ -47,59 +47,18 @@ Engine::Engine( int argc, char** argv )
     }
 }
 
-IRender* Engine::get_render()
+Engine::~Engine()
 {
-    return m_render;
 }
 
-input::Input *Engine::get_input()
-{
-    return  m_input;
-}
-
-double Engine::get_frame_time() const
-{
-    return m_delta;
-}
-
-basic::uint32 Engine::get_fps() const
-{
-    return m_fps;
-}
-
-void Engine::set_callback( EngineCallbackType type, engine_callback callback )
-{
-    const size_t index = static_cast<size_t>( type );
-    if( m_callbacks[ index ] )
-    {
-        LOG( "callback type: %d override", index );
-    }
-
-    m_callbacks[ index ] = callback;
-}
-
-void Engine::get_window_size(int& out_width, int& out_height)
-{
-    m_window->get_size( out_width, out_height );
-}
-
-glm::vec2 Engine::get_window_size() const
-{
-    int x, y;
-    m_window->get_size( x, y );
-
-    return glm::vec2(x, y);
-}
-
-int
-Engine::run( int width, int height, const char* wnd_title )
+bool Engine::init(int width, int height, const char *wnd_title)
 {
     m_window = IWindow::create();
     if( !m_window->init( width, height, wnd_title ) )
     {
         LOG("Failed init window.");
 
-        return -1;
+        return false;
     }
 
     m_render = IRender::create();
@@ -107,7 +66,7 @@ Engine::run( int width, int height, const char* wnd_title )
     {
         LOG("Failed init render.");
 
-        return -1;
+        return false;
     }
 
     m_input = input::Input::create();
@@ -120,41 +79,43 @@ Engine::run( int width, int height, const char* wnd_title )
     LOG( "Engine initialization done. Memory usage %lu",
         basic::get_memory_usage() );
 
+    return true;
+}
 
+bool Engine::update()
+{
     static basic::uint32 fps_counter;
-    while ( !m_quit )
+
+    double begin = basic::get_milliseconds();
+
+    process_event( );
+
+    m_callbacks[ Frame ]( this );
+
+    TimerManager::get().update();
+
+    m_render->clear();
+
+    m_callbacks[ Draw ]( this );
+
+    m_render->present( m_window );
+
+    m_delta = basic::get_milliseconds() - begin;
+    m_time += m_delta;
+
+    ++fps_counter;
+    if( m_time >= 1000.0 )
     {
-        double begin = basic::get_milliseconds();
-
-        process_event( );
-
-        if( m_window->is_quit() )
-        {
-            break;
-        }        
-
-        m_callbacks[ Frame ]( this );
-
-        TimerManager::get().update();
-        
-        m_render->draw_begin( );
-
-        m_callbacks[ Draw ]( this );
-
-        m_render->draw_end( m_window );
-
-        m_delta = basic::get_milliseconds() - begin;
-        m_time += m_delta;
-
-        ++fps_counter;
-        if( m_time >= 1000.0 )
-        {
-            m_fps = fps_counter;
-            m_time = 0.0;
-            fps_counter = 0;
-        }
+        m_fps = fps_counter;
+        m_time = 0.0;
+        fps_counter = 0;
     }
 
+    return !m_quit;
+}
+
+void Engine::cleanup()
+{
     if( m_callbacks[ Clean ] )
     {
         m_callbacks[ Clean ]( this );
@@ -169,17 +130,61 @@ Engine::run( int width, int height, const char* wnd_title )
 
     LOG( "Engine free done. Memory usage %lu",
         basic::get_memory_usage() );
-
-    return 0;
 }
 
-void Engine::quit()
+void Engine::set_callback( EngineCallbackType type, engine_callback callback )
+{
+    const size_t index = static_cast<size_t>( type );
+    if( m_callbacks[ index ] )
+    {
+        LOG( "callback type: %d override", index );
+    }
+
+    m_callbacks[ index ] = callback;
+}
+
+void Engine::shutdown()
 {
     m_quit = true;
+}
+
+IRender* Engine::get_render()
+{
+    return m_render;
+}
+
+input::Input *Engine::get_input()
+{
+    return  m_input;
+}
+
+glm::vec2 Engine::get_window_size() const
+{
+    int x, y;
+    m_window->get_size( x, y );
+
+    return glm::vec2(x, y);
+}
+
+double Engine::get_frame_time() const
+{
+    return m_delta;
+}
+
+basic::uint32 Engine::get_fps() const
+{
+    return m_fps;
 }
 
 void
 Engine::process_event( )
 {
     m_window->process_events( m_input );
+
+    if( m_window->is_quit() )
+    {
+        m_quit = true;
+    }
 }
+
+IEngine::~IEngine(){}

@@ -38,9 +38,18 @@ main( int argc, char** argv )
 {
     set_data_path( argv[ 0 ] );
 
-    Engine engine( argc, argv );
+    IEngine* engine = NEW_OBJ( Engine, argc, argv );
 
-    engine.set_callback( Init, &game_init );
+    engine->set_callback( Init, &game_init );
 
-    return engine.run( 1024, 768, "Game" );
+    if( engine->init( 1024, 768, "RogueLike" ) )
+    {
+        while(engine->update());
+
+        engine->cleanup();
+    }
+
+    DELETE_OBJ(engine);
+
+    return EXIT_SUCCESS;
 }

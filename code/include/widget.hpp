@@ -54,7 +54,7 @@ public:
 
     void remove_children();
 
-    void add_child( Widget* node );
+    virtual void add_child( Widget* node );
 
     void remove_child( Widget* node );
 
@@ -72,6 +72,8 @@ public:
 
     void set_size(const glm::vec2& size);
 
+    void set_anchor_point(const glm::vec2& anchor_point);
+
 protected:
     virtual void on_mouse_pressed(input::MouseButton btn , basic::int32 x, basic::int32 y);
 
@@ -79,15 +81,18 @@ protected:
 
     virtual void on_key_pressed(input::KeyCode btn, basic::int16 sym);
 
-    void update_debug_rect();
+    void update_rect();
+
+    glm::mat4 get_matrix() const;
 
 private:
     glm::vec2 m_pos;
     glm::vec2 m_size;
+    glm::vec2 m_anchor_point;
     Rect m_rect;
     Widget* m_parent;
     basic::Vector<Widget*> m_children;
     ICamera* m_camera;
-    RenderNode* m_debug_rect;
+    RenderNode* m_view;
     basic::Vector<WidgetCallback> m_press_callbacks;
 };

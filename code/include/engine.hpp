@@ -15,26 +15,55 @@ enum EngineCallbackType
 
 using engine_callback = void (*)( class Engine* );
 
-class Engine
+class IEngine
+{
+public:
+    virtual ~IEngine();
+
+    virtual bool init(int width, int height, const char* wnd_title) = 0;
+
+    virtual bool update() = 0;
+
+    virtual void cleanup() = 0;
+
+    virtual void set_callback( EngineCallbackType type, engine_callback callback ) = 0;
+
+    virtual void shutdown() = 0;
+
+    virtual IRender* get_render() = 0;
+
+    virtual input::Input* get_input() = 0;
+
+    virtual glm::vec2 get_window_size() const = 0;
+
+    virtual double get_frame_time() const = 0;
+
+    virtual basic::uint32 get_fps() const = 0;
+};
+
+class Engine : public IEngine
 {
 public:
     Engine( int argv, char** argc );
+    ~Engine() override;
 
-    void set_callback( EngineCallbackType type, engine_callback callback ); 
+    bool init(int width, int height, const char* wnd_title) override;
 
-    int run( int width, int height, const char* wnd_title );
+    bool update() override;
 
-    void quit();
+    void cleanup() override;
 
-    IRender* get_render();
+    void set_callback( EngineCallbackType type, engine_callback callback ) override;
 
-    input::Input* get_input();
+    void shutdown() override;
 
-    void get_window_size(int& out_width, int& out_height);
+    IRender* get_render() override;
 
-    glm::vec2 get_window_size() const;
+    input::Input* get_input() override;
 
-    double get_frame_time() const;
+    glm::vec2 get_window_size() const override;
+
+    double get_frame_time() const override;
 
     basic::uint32 get_fps() const;
 
