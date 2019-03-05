@@ -28,6 +28,13 @@ struct Rect
 
     bool hit_test(const glm::vec2& pos)
     {
+        /*float x = pos.x;
+        float y = pos.y;
+        float left = left_top.x;
+        float right = right_bottom.x;
+        float top = left_top.y;
+        float bottom = right_bottom.y;*/
+
         return pos.x >= left_top.x && pos.y >= left_top.y &&
                 pos.x <= right_bottom.x && pos.y <= right_bottom.y;
     }
@@ -52,9 +59,9 @@ public:
 
     virtual void draw();
 
-    void remove_children();
-
     virtual void add_child( Widget* node );
+
+    void remove_children();
 
     void remove_child( Widget* node );
 
@@ -62,17 +69,35 @@ public:
 
     bool is_contains( Widget* child );
 
-    bool get_child_index( Widget* node, basic::uint32 &out_index );
+    bool get_child_index( Widget* node, basic::uint32 &out_index ) const;
 
     Widget* get_parent();
+
+    Widget* get_child( basic::uint32 index );
+
+    basic::uint32 get_child_count() const;
 
     void add_press_callback(WidgetCallback cb);
 
     void set_position(const glm::vec2& pos);
 
+    glm::vec2 get_size() const;
+
     void set_size(const glm::vec2& size);
 
     void set_anchor_point(const glm::vec2& anchor_point);
+
+    glm::vec2 convert_to_world_space( const glm::vec2& pos ) const;
+
+    glm::vec2 get_world_position() const;
+
+    glm::vec2 get_left_top_world_position() const;
+
+    bool hit_test(const glm::vec2& point);
+
+    void set_visible(bool visible);
+
+    bool get_visible() const;
 
 protected:
     virtual void on_mouse_pressed(input::MouseButton btn , basic::int32 x, basic::int32 y);
@@ -95,4 +120,5 @@ private:
     ICamera* m_camera;
     RenderNode* m_view;
     basic::Vector<WidgetCallback> m_press_callbacks;
+    bool m_visible;
 };

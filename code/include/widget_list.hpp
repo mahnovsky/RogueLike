@@ -16,6 +16,11 @@ public:
 
     void set_direction(ListDirection dir);
 
-public:
+    void add_child( Widget* child ) override;
+
+private:
+    void update_list();
+
+private:
     ListDirection m_direction;
 };

@@ -14,6 +14,7 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     , m_parent(nullptr)
     , m_children()
     , m_view( nullptr )
+    , m_visible(true)
 {
     m_rect.update({0.f, 0.f}, size);
 }
@@ -49,11 +50,6 @@ void Widget::init( ResourceStorage *storage )
     }
 }
 
-void Widget::remove_children()
-{
-    m_children.clear();
-}
-
 void Widget::add_child(Widget *node)
 {
     ASSERT( node != nullptr );
@@ -69,6 +65,11 @@ void Widget::add_child(Widget *node)
         m_children.push( node );
         node->update_rect();
     }
+}
+
+void Widget::remove_children()
+{
+    m_children.clear();
 }
 
 void Widget::remove_child(Widget *node)
@@ -100,19 +101,30 @@ bool Widget::is_contains(Widget *child)
     return m_children.is_contains( child );
 }
 
-bool Widget::get_child_index(Widget *node, basic::uint32 &out_index)
+bool Widget::get_child_index(Widget *node, basic::uint32 &out_index) const
 {
-    if( node->get_parent() == this )
+    if( node->get_parent() != this )
     {
-        return m_children.find_first( out_index, node, 0 );
+        return false;
     }
 
-    return false;
+    return m_children.find_first( out_index, node, 0 );
 }
 
 Widget *Widget::get_parent()
 {
     return m_parent;
+}
+
+Widget *Widget::get_child(basic::uint32 index)
+{
+    ASSERT( index < m_children.get_size() );
+    return m_children.get(index);
+}
+
+basic::uint32 Widget::get_child_count() const
+{
+    return m_children.get_size();
 }
 
 void Widget::add_press_callback(WidgetCallback cb)
@@ -127,6 +139,11 @@ void Widget::set_position(const glm::vec2 &pos)
     update_rect();
 }
 
+glm::vec2 Widget::get_size() const
+{
+    return m_size;
+}
+
 void Widget::set_size(const glm::vec2 &size)
 {
     m_size = size;
@@ -139,6 +156,45 @@ void Widget::set_anchor_point(const glm::vec2 &anchor_point)
     m_anchor_point = anchor_point;
 
     update_rect();
+}
+
+glm::vec2 Widget::convert_to_world_space(const glm::vec2 &pos) const
+{
+    if( m_parent )
+    {
+        glm::mat4 mat = m_parent->get_matrix();
+
+        return mat * glm::vec4{pos, 0.f, 1.f};
+    }
+
+    return pos;
+}
+
+glm::vec2 Widget::get_world_position() const
+{
+    return convert_to_world_space( m_pos );
+}
+
+glm::vec2 Widget::get_left_top_world_position() const
+{
+    glm::vec2 pos = get_world_position();
+    if( m_view )
+    {
+        glm::vec3 pivot = m_view->transform->get_pivot_point();
+        pos = glm::vec2{ pos.x - pivot.x, pos.y - pivot.y };
+    }
+
+    return pos;
+}
+
+bool Widget::hit_test(const glm::vec2 &point)
+{
+    return m_rect.hit_test(point);
+}
+
+void Widget::set_visible(bool visible)
+{
+    m_visible = visible;
 }
 
 void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
@@ -179,17 +235,12 @@ void Widget::on_key_pressed(input::KeyCode code, basic::int16 sym)
 
 void Widget::update_rect()
 {
-    glm::vec3 world_pos( m_pos, 0.f );
     if( m_parent )
     {
-        glm::mat4 mat = m_view->transform->get_matrix() * m_parent->get_matrix();
-
-        glm::vec4 pos(m_pos, 0.f, 1.f);
-        world_pos = mat * pos;
-        m_rect.update( glm::vec2(world_pos.x, world_pos.y), m_size );
+        m_rect.update( get_left_top_world_position(), m_size );
     }
 
-    if(m_view)
+    if( m_view )
     {
         m_view->transform->set_pivot_point( { m_anchor_point * m_size, 0.f } );
 
@@ -206,13 +257,18 @@ glm::mat4 Widget::get_matrix() const
     if(m_view)
     {
         mat = m_view->transform->get_matrix();
-        return  (m_parent ? mat * m_parent->get_matrix() : mat);
+        return (m_parent ? mat * m_parent->get_matrix() : mat);
     }
     return mat;
 }
 
 void Widget::draw()
 {
+    if( !m_visible )
+    {
+        return;
+    }
+
     if( m_view )
     {
         glm::mat4 mat(1.f);
@@ -224,7 +280,7 @@ void Widget::draw()
     }
 
     for(basic::uint32 i = 0; i < m_children.get_size(); ++i)
-    {
+    {    
         m_children[i]->draw();
     }
 }

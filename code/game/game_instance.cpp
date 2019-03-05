@@ -4,6 +4,7 @@
 #include "texture.hpp"
 #include "object_manager.hpp"
 #include "root_widget.hpp"
+#include "widget_list.hpp"
 
 #include <stdio.h>
 
@@ -71,7 +72,7 @@ GameInstance::init( )
     WidgetCallback btn_cb {&click_print, m_engine};
     m_ui_root->add_press_callback(btn_cb);
     {
-        Widget* wnd = NEW_OBJ(Widget, m_manager, {200, 300});
+        Widget* wnd = NEW_OBJ(WidgetList, m_manager, {200, 300});
         wnd->set_tag(1);
         //wnd->add_press_callback(btn_cb);
         wnd->init( &m_rs );
@@ -79,12 +80,15 @@ GameInstance::init( )
         wnd->set_anchor_point({0.5f, 0.5f});
         m_ui_root->add_child(wnd);
 
-        Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
-        btn->set_tag(1);
-        btn->add_press_callback(btn_cb);
-        btn->init( &m_rs );
-        //btn->set_position( {m_width / 2, m_height / 2} );
-        wnd->add_child(btn);
+        for(int i = 0; i < 3; ++i)
+        {
+            Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
+            btn->set_tag(1);
+            btn->add_press_callback(btn_cb);
+            btn->init( &m_rs );
+            //btn->set_position( {0.f, 10.f} );
+            wnd->add_child(btn);
+        }
     }
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
