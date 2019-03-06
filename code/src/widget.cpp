@@ -67,22 +67,23 @@ void Widget::add_child(Widget *node)
     }
 }
 
+void Widget::remove_child(Widget *node)
+{
+	ASSERT(node->get_parent() == this);
+
+	basic::uint32 index;
+	if (get_child_index(node, index))
+	{
+		m_children.remove_by_index(index);
+
+		node->release();
+	}
+}
+
+
 void Widget::remove_children()
 {
     m_children.clear();
-}
-
-void Widget::remove_child(Widget *node)
-{
-    ASSERT(node->get_parent() == this);
-
-    basic::uint32 index;
-    if( get_child_index( node, index ) )
-    {
-        m_children.remove_by_index( index );
-
-        node->release();
-    }
 }
 
 void Widget::remove_from_parent()
@@ -195,6 +196,11 @@ bool Widget::hit_test(const glm::vec2 &point)
 void Widget::set_visible(bool visible)
 {
     m_visible = visible;
+}
+
+bool Widget::get_visible() const
+{
+	return m_visible;
 }
 
 void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )

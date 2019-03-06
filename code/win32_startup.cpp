@@ -13,9 +13,18 @@ int __stdcall WinMain( HINSTANCE instance,
 {
     g_instance = instance;
 
-    Engine engine( 0, 0 );
+	IEngine* engine = NEW_OBJ(Engine, 0, nullptr);
 
-    engine.set_callback( Init, &game_init );
+	engine->set_callback(Init, &game_init);
 
-    return engine.run( 1024, 768, "Game" );
+	if (engine->init(1024, 768, "RogueLike"))
+	{
+		while (engine->update());
+
+		engine->cleanup();
+	}
+
+	DELETE_OBJ(engine);
+
+	return EXIT_SUCCESS;
 }

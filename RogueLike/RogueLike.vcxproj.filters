@@ -108,13 +108,19 @@
     <ClCompile Include="..\code\src\widget.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\line.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\material.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\object_manager.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\root_widget.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\input.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\widget_list.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -207,6 +213,9 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\object_manager.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\widget_list.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>

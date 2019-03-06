@@ -11,11 +11,23 @@ WidgetList::~WidgetList()
 {
 }
 
+void WidgetList::set_direction(ListDirection dir)
+{
+	m_direction = dir;
+}
+
 void WidgetList::add_child(Widget *child)
 {
     Widget::add_child( child );
 
     update_list();
+}
+
+void WidgetList::remove_child(Widget * child)
+{
+	Widget::remove_child(child);
+
+	update_list();
 }
 
 void WidgetList::update_list()

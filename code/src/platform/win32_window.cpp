@@ -2,6 +2,8 @@
 #include "render_common.hpp"
 #include "basic/string.hpp"
 
+#include <windowsx.h>
+
 
 extern HINSTANCE g_instance;
 
@@ -10,13 +12,13 @@ class Win32_Window : public IWindow
 public:
     Win32_Window();
 
-    virtual void get_size( int& out_width, int& out_height );
+    virtual void get_size( int& out_width, int& out_height ) const;
 
     ~Win32_Window();
 
     virtual bool init( int width, int height, const char* const title );
 
-    virtual void process_events( );
+    virtual void process_events(input::InputListener*);
 
     virtual void swap_buffers( );
 
@@ -80,7 +82,7 @@ Win32_Window::~Win32_Window()
 {
 }
 
-void Win32_Window::get_size( int& out_width, int& out_height )
+void Win32_Window::get_size( int& out_width, int& out_height ) const
 {
     out_width = m_width;
     out_height = m_height;
@@ -219,7 +221,7 @@ bool Win32_Window::init_opengl()
     return true;
 }
 
-void Win32_Window::process_events()
+void Win32_Window::process_events(input::InputListener* listener)
 {
     static MSG msg;
     if( PeekMessageA( &msg, 0, 0, 0, PM_REMOVE ) != 0 )
@@ -231,6 +233,24 @@ void Win32_Window::process_events()
         {
             m_is_running = false;
         }
+		POINT pos;
+		pos.x = GET_X_LPARAM(msg.lParam);
+		pos.y = GET_Y_LPARAM(msg.lParam);
+
+		switch (msg.message)
+		{
+		case WM_LBUTTONDOWN:
+			listener->mouse_pressed(input::MouseButton::Left, pos.x, pos.y);
+		case WM_RBUTTONDOWN:
+			listener->mouse_pressed(input::MouseButton::Right, pos.x, pos.y);
+		case WM_MBUTTONDOWN:
+			listener->mouse_pressed(input::MouseButton::Middle, pos.x, pos.y);
+		case WM_MOUSEMOVE:
+			
+			listener->mouse_moved(pos.x, pos.y);
+		default:
+			break; 
+		}
     }
 }
 

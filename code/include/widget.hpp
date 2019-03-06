@@ -61,9 +61,9 @@ public:
 
     virtual void add_child( Widget* node );
 
-    void remove_children();
+	virtual void remove_child(Widget* node);
 
-    void remove_child( Widget* node );
+    void remove_children();
 
     void remove_from_parent( );
 

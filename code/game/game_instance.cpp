@@ -46,12 +46,14 @@ void click_print(Widget* w, void* ud)
 {
     static int count;
 
-    LOG("on widget clicked %d", ++count);
+    LOG("on widget clicked %d, tag %d", ++count, w->get_tag());
     Engine* engine = static_cast<Engine*>(ud);
     switch (w->get_tag()) {
     case 1:
         LOG("1 btn pressed");
-        engine->shutdown();
+		//w->remove_from_parent();
+		w->get_parent()->remove_from_parent();
+        //engine->shutdown();
         break;
     default:
         break;
@@ -83,7 +85,7 @@ GameInstance::init( )
         for(int i = 0; i < 3; ++i)
         {
             Widget* btn = NEW_OBJ(Widget, m_manager, {200, 50});
-            btn->set_tag(1);
+            btn->set_tag(i);
             btn->add_press_callback(btn_cb);
             btn->init( &m_rs );
             //btn->set_position( {0.f, 10.f} );

@@ -142,7 +142,7 @@
     <ClCompile Include="..\code\src\engine.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
-    <ClCompile Include="..\code\src\line.cpp" />
+    <ClCompile Include="..\code\src\input.cpp" />
     <ClCompile Include="..\code\src\material.cpp" />
     <ClCompile Include="..\code\src\object.cpp" />
     <ClCompile Include="..\code\src\object_manager.cpp" />
@@ -153,6 +153,7 @@
     <ClCompile Include="..\code\src\render_common.cpp" />
     <ClCompile Include="..\code\src\render_object.cpp" />
     <ClCompile Include="..\code\src\resource_storage.cpp" />
+    <ClCompile Include="..\code\src\root_widget.cpp" />
     <ClCompile Include="..\code\src\shader.cpp" />
     <ClCompile Include="..\code\src\sprite.cpp" />
     <ClCompile Include="..\code\src\text.cpp" />
@@ -160,6 +161,7 @@
     <ClCompile Include="..\code\src\timer_manager.cpp" />
     <ClCompile Include="..\code\src\transform.cpp" />
     <ClCompile Include="..\code\src\widget.cpp" />
+    <ClCompile Include="..\code\src\widget_list.cpp" />
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -191,6 +193,7 @@
     <ClInclude Include="..\code\include\timer_manager.hpp" />
     <ClInclude Include="..\code\include\transform.hpp" />
     <ClInclude Include="..\code\include\widget.hpp" />
+    <ClInclude Include="..\code\include\widget_list.hpp" />
     <ClInclude Include="..\code\include\window.hpp" />
     <ClInclude Include="..\code\include\world.hpp" />
   </ItemGroup>

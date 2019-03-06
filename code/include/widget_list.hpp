@@ -18,6 +18,7 @@ public:
 
     void add_child( Widget* child ) override;
 
+	void remove_child(Widget* child) override;
 private:
     void update_list();
 
