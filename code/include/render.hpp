@@ -16,13 +16,5 @@ public:
 
     virtual void present( class IWindow* wnd ) = 0;
 
-    virtual void push_mvp( const glm::mat4& matrix ) = 0;
-
-    virtual void pop_mvp() = 0;
-
-    //virtual void add_object(RenderNode* node) = 0;
-
-    //virtual void remove_node(RenderNode* node) = 0;
-
     static IRender* create( );
 };

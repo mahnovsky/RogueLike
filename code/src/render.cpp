@@ -19,7 +19,6 @@ class Render : public IRender
 public:
 	Render()
         :m_mvp_uniform(0)
-		,m_stack()
 	{}
 
     ~Render() override;
@@ -48,9 +47,6 @@ public:
 		//glCullFace(GL_BACK);
         glDepthFunc( GL_LESS );
 
-
-        m_stack.push( glm::mat4( 1.f ) );
-
         return true;
     }
 
@@ -66,27 +62,8 @@ public:
         wnd->swap_buffers( );
     }
 
-    void
-    push_mvp( const glm::mat4& mat ) override
-    {
-        m_stack.push( mat );
-        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( mat ) );
-    }
-
-    void
-    pop_mvp( ) override
-    {
-        ASSERT( !m_stack.is_empty( ) );
-
-        m_stack.pop( );
-
-        glUniformMatrix4fv( m_mvp_uniform, 1, GL_FALSE, glm::value_ptr( m_stack.back( ) ) );
-    }
-
 private:
     GLint m_mvp_uniform;
-
-    basic::Vector< glm::mat4 > m_stack;
 };
 
 IRender::~IRender() {}

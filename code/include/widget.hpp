@@ -119,6 +119,7 @@ private:
     basic::Vector<Widget*> m_children;
     ICamera* m_camera;
     RenderNode* m_view;
+    RenderNode* m_debug_rect;
     basic::Vector<WidgetCallback> m_press_callbacks;
     bool m_visible;
 };

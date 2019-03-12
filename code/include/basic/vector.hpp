@@ -438,7 +438,8 @@ public:
     bool
     contains( T value ) const
     {
-        return find_first( value ) > 0;
+        basic::uint32 index;
+        return find_first( index, value ) > 0;
     }
 
     bool

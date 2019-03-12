@@ -7,14 +7,59 @@
 #include "camera.hpp"
 #include "texture.hpp"
 
+IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
+
+QuadGenerator::QuadGenerator( const glm::vec3& size,
+                              const glm::vec2& anchor,
+                              const basic::Color& c )
+    : m_size( size )
+    , m_anchor( anchor )
+    , m_color{c}
+{
+}
+
+void
+QuadGenerator::generate( VertexBufferT& out_vb, int offset )
+{
+    float xoff = offset * m_size.x;
+    float left = ( 0.f - m_anchor.x ) * m_size.x + xoff;
+    float right = ( 1.f - m_anchor.x ) * m_size.x + xoff;
+    float bottom = ( 0.f - m_anchor.y ) * m_size.y;
+    float top = ( 1.f - m_anchor.y ) * m_size.y;
+    float z = m_size.z;
+
+    out_vb.push( {{right, top, z}, {1.f, 0.f}} );
+    out_vb.push( {{right, bottom, z}, {1.f, 1.f}} );
+    out_vb.push( {{left, bottom, z}, {0.f, 1.f}} );
+    out_vb.push( {{left, top, z}, {0.f, 0.f}} );
+}
+
+void
+QuadGenerator::generate( IndexBuffer& out_vb, int offset )
+{
+    int xoff = offset * 6;
+    for ( int i = 0; i < 6; ++i )
+    {
+        auto index = indices[ i ] + xoff;
+        out_vb.push( index );
+    }
+}
+
 struct EnableArrayBuffer
 {
-    EnableArrayBuffer( basic::uint32 object )
+    EnableArrayBuffer( basic::uint32 object, basic::uint32& prev_vao )
         :m_object(object)
     {
+        if(prev_vao > 0 && prev_vao == m_object)
+        {
+            m_object = 0;
+            return;
+        }
+
         if( m_object > 0 )
         {
             glBindVertexArray( m_object );
+            prev_vao = m_object;
         }
     }
 
@@ -191,20 +236,38 @@ void remove_node( RenderNode *node )
     node->material->~Material();
     node->transform->~Transform();
 
+    if(node->vertex_object > 0)
+    {
+        glDeleteBuffers(1, &node->vertex_object);
+    }
+    if(node->index_object > 0)
+    {
+        glDeleteBuffers(1, &node->index_object);
+    }
+    if(node->array_object > 0)
+    {
+        glDeleteVertexArrays(1, &node->array_object);
+    }
+
     node->material = nullptr;
     node->transform = nullptr;
     basic::mem_free( node );
 }
 
 
-void draw_node(RenderNode *node, glm::mat4* mat )
+void draw_node(RenderNode *node, glm::mat4* mat, basic::uint32 prev_vao )
 {
     if( !node || !node->material )
     {
         return;
     }
 
-    EnableArrayBuffer ao( node->array_object );
+    if( prev_vao > 0 && (node->flags | USE_PARENT_VAO) == 0 )
+    {
+        prev_vao = 0;
+    }
+
+    EnableArrayBuffer ao( node->array_object, prev_vao );
 
     node->material->enable();
 
@@ -234,15 +297,38 @@ void draw_node(RenderNode *node, glm::mat4* mat )
     {
         glDrawElements( GL_TRIANGLES, node->index_elements, GL_UNSIGNED_SHORT, nullptr );
     }
-    else
+    else if( node->vertex_elements > 0 )
     {
         glDrawArrays( GL_TRIANGLES, 0, node->vertex_elements );
     }
 
     node->material->disable();
+
+    for(basic::uint32 i = 0; i < node->children.get_size(); ++i)
+    {
+        draw_node(node->children[i], &mvp, node->array_object);
+    }
 }
 
-void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices )
+basic::uint32 create_buffer( basic::uint32 buffer_type,
+                             basic::uint32 buffer_usage,
+                             void* data,
+                             basic::uint32 size )
+{
+    basic::uint32 buffer;
+
+    glGenBuffers( 1, &buffer );
+    glBindBuffer( buffer_type, buffer );
+
+    glBufferData( buffer_type,
+                  size,
+                  data,
+                  buffer_usage );
+
+    return buffer;
+}
+
+void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices, RenderNode* parent )
 {
     ASSERT( node != nullptr );
     ASSERT( vertices != nullptr );
@@ -252,14 +338,17 @@ void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices )
     glGenVertexArrays( 1, &node->array_object );
     glBindVertexArray( node->array_object );
 
-    glGenBuffers( 1, &node->vertex_object );
-    update_vertices( node, vertices );
+    node->vertex_object = create_buffer( GL_ARRAY_BUFFER,
+                                         get_buffer_usage( node ),
+                                         vertices->get_raw(),
+                                         vertices->get_size() );
 
     if( indices )
     {
-        glGenBuffers( 1, &node->index_object );
-
-        update_indices( node, indices );
+        node->index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
+                                            GL_STATIC_DRAW,
+                                            indices->get_raw(),
+                                            indices->get_size() );
     }
 
     glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), nullptr );
@@ -418,4 +507,76 @@ RenderNode *make_rect( ShaderProgram *shader,
     init_node( res, &vb, nullptr );
 
     return  res;
+}
+
+basic::uint32 get_buffer_usage(RenderNode *node)
+{
+    basic::uint32 buffer_usage = (node->flags & USE_DYNAMIC_VBO) == 0 ?
+                GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+
+    return buffer_usage;
+}
+
+basic::Vector<VertexFMT> get_fmt_list(glm::vec3 *)
+{
+    VertexFMT fmt;
+    fmt.size = 3;
+    fmt.type = GL_FLOAT;
+    fmt.offset = 0;
+    fmt.is_normalized = GL_FALSE;
+
+    basic::Vector<VertexFMT> res;
+    res.push(fmt);
+    return res;
+}
+
+basic::Vector<VertexFMT> get_fmt_list(Vertex *)
+{
+    basic::Vector<VertexFMT> res;
+
+    VertexFMT fmt;
+    fmt.size = 3;
+    fmt.type = GL_FLOAT;
+    fmt.offset = 0;
+    fmt.is_normalized = GL_FALSE;
+
+    res.push(fmt);
+
+    fmt.size = 4;
+    fmt.type = GL_UNSIGNED_BYTE;
+    fmt.offset = sizeof (float) * 3;
+    fmt.is_normalized = GL_TRUE;
+
+    res.push(fmt);
+
+    fmt.size = 2;
+    fmt.type = GL_FLOAT;
+    fmt.offset = sizeof (float) * 3 + 4;
+    fmt.is_normalized = GL_FALSE;
+
+    res.push(fmt);
+
+    return res;
+}
+
+basic::Vector<VertexFMT> get_fmt_list(Vertex_T *)
+{
+    basic::Vector<VertexFMT> res;
+
+    VertexFMT fmt;
+    fmt.size = 3;
+    fmt.type = GL_FLOAT;
+    fmt.offset = 0;
+    fmt.is_normalized = GL_FALSE;
+
+    res.push(fmt);
+
+    fmt.size = 2;
+    fmt.type = GL_FLOAT;
+    fmt.offset = sizeof (float) * 3;
+    fmt.is_normalized = GL_FALSE;
+
+    res.push(fmt);
+
+    return res;
 }

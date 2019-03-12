@@ -106,12 +106,12 @@ GameInstance::init( )
 
     m_fps_text.init(&m_rs);
     m_fps_text.set_text( "fps: " );
-    m_fps_text.set_position( {20.f, m_height - 40.f, 0.f} );
+    m_fps_text.set_position( {20.f, 20.f, 0.f} );
 	m_fps_text.set_scale(0.8f);
 
     m_mem_text.init(&m_rs);
 	m_mem_text.set_text("memory usage: ");
-	m_mem_text.set_position({ 20.f, m_height - 60.f, 0.f });
+    m_mem_text.set_position({ 20.f, 50.f, 0.f });
 	m_mem_text.set_scale(0.8f);
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );

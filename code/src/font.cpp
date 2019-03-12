@@ -150,7 +150,7 @@ void Font::update(const char *text, RenderNode *node)
 
     if( node->array_object == 0 )
     {
-        node->use_dynamic_buffer = true;
+        node->flags |= USE_DYNAMIC_VBO;
         init_node( node, &vb, &ib );
     }
     else

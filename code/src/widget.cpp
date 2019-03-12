@@ -14,6 +14,7 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     , m_parent(nullptr)
     , m_children()
     , m_view( nullptr )
+    , m_debug_rect( nullptr )
     , m_visible(true)
 {
     m_rect.update({0.f, 0.f}, size);
@@ -39,14 +40,15 @@ void Widget::init( ResourceStorage *storage )
     }
 
     ShaderProgram* shader = storage->get_resorce<ShaderProgram>("primitive");
-    if(shader)
+
+    if( shader )
     {
-        m_view = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
-        if(m_view)
-        {
-            m_view->camera = m_camera;
-            m_view->color = {255, 0, 200, 255};
-        }
+        m_view = create_node( shader, nullptr );
+        m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
+        m_view->children.push(m_debug_rect);
+
+        m_view->camera = m_camera;
+        m_debug_rect->color = {255, 0, 200, 255};
     }
 }
 
@@ -253,7 +255,7 @@ void Widget::update_rect()
         m_view->transform->set_position( glm::vec3( m_pos, 0.f ) );
         VertexBufferP vb;
         fill_rect(glm::vec2(), m_size, 2.f, vb);
-        update_vertices(m_view, &vb);
+        update_vertices(m_debug_rect, &vb);
     }
 }
 

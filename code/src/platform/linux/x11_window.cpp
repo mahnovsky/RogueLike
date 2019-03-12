@@ -166,9 +166,9 @@ X11Window::init( int width, int height, const char* const title )
     m_width = width;
     m_height = height;
 
-    m_display = XOpenDisplay( NULL );
+    m_display = XOpenDisplay( nullptr );
 
-    if ( m_display == NULL )
+    if ( m_display == nullptr )
     {
         LOG( "\tcannot connect to X server" );
         return false;
@@ -399,7 +399,7 @@ void
 X11Window::process_events( input::InputListener* listener )
 {
     XEvent event;
-    while( XPending(m_display) )
+    while( XPending(m_display) > 0 )
     {
         XNextEvent( m_display, &event );
 
