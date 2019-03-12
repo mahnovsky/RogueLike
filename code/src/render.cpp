@@ -3,7 +3,6 @@
 #include "basic/vector.hpp"
 #include "camera.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "render_object.hpp"
 #include "transform.hpp"
 #include "window.hpp"
 
@@ -46,6 +45,7 @@ public:
 		//glEnable(GL_CULL_FACE);
 		//glCullFace(GL_BACK);
         glDepthFunc( GL_LESS );
+
 
         return true;
     }

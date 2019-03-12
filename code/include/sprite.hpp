@@ -1,7 +1,6 @@
 #pragma once
 
 #include "defines.hpp"
-#include "render_object.hpp"
 
 class Sprite
 {
@@ -26,10 +25,6 @@ public:
     glm::vec3 get_position( ) const;
 
     void set_color( basic::uint8 r, basic::uint8 g, basic::uint8 b, basic::uint8 a );
-
-    static void update_color( Vertex* v, void* user_data );
-
-    static void update_size( Vertex* v, void* user_data );
 
 private:
     basic::Color m_color;

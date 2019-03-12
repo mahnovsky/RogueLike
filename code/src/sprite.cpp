@@ -1,5 +1,8 @@
 #include "sprite.hpp"
 
+#include "render_common.hpp"
+#include "transform.hpp"
+
 Sprite::Sprite( )
     : m_color{255, 255, 255, 255}
     , m_texture( nullptr )

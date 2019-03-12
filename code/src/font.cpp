@@ -3,7 +3,7 @@
 
 #include "texture.hpp"
 #include "shader.hpp"
-#include "render_object.hpp"
+#include "render_common.hpp"
 
 namespace
 {

@@ -4,6 +4,8 @@
 
 #include <GL/gl.h>
 #include <GL/glx.h>
+#define GLX_GLXEXT_PROTOTYPES
+#include <GL/glxext.h>
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/keysymdef.h>
@@ -152,7 +154,8 @@ GLXFBConfig *glXChooseFBConfig1(Display *dpy, int screen, const int *attribList,
     static const int attribs[] = {None};
     if (!func) {
          void *library = dlopen("libGL.so", RTLD_GLOBAL);
-         func = (func_t *) dlsym(library, "glXChooseFBConfig");
+         func = (func_t *) glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
+         //dlsym(library, "glXChooseFBConfig");
     }
     if (!attribList)
         attribList = attribs;
@@ -160,9 +163,24 @@ GLXFBConfig *glXChooseFBConfig1(Display *dpy, int screen, const int *attribList,
     return ((*func)(dpy, screen, attribList, nitems));
 }
 
+PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT=nullptr;
+void _glXSwapIntervalEXT(Display *dpy, GLXDrawable drawable, int interval)
+{
+    if (!glXSwapIntervalEXT)
+    {
+        glXSwapIntervalEXT=(PFNGLXSWAPINTERVALEXTPROC)
+                glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
+    }
+
+    if( glXSwapIntervalEXT )
+    {
+        glXSwapIntervalEXT( dpy, drawable, interval );
+    }
+}
+
 bool
 X11Window::init( int width, int height, const char* const title )
-{
+{   
     m_width = width;
     m_height = height;
 
@@ -362,6 +380,8 @@ X11Window::init( int width, int height, const char* const title )
     LOG( "Making context current" );
 
     glXMakeCurrent( m_display, m_win, m_ctx );
+
+    _glXSwapIntervalEXT(m_display, 0, 0);
 
     return true;
 }
