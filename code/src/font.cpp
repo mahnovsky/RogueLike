@@ -88,7 +88,7 @@ RenderNode *Font::create_text_node()
     return node;
 }
 
-void Font::update(const char *text, RenderNode *node)
+void Font::update(const char *text, RenderNode *node, glm::vec2 &size)
 {
     ASSERT( node != nullptr );
 
@@ -103,6 +103,7 @@ void Font::update(const char *text, RenderNode *node)
     float x = 0;
     float y = 0;
     basic::uint16 offset = 0;
+
     while ( *( text + offset ) )
     {
         char ch = *( text + offset );
@@ -123,6 +124,11 @@ void Font::update(const char *text, RenderNode *node)
             auto xmax = q.x1;
             auto ymin = q.y1;
             auto ymax = q.y0;
+            float height = ymin - ymax;
+            if(size.y < height)
+            {
+                size.y = height;
+            }
             glm::vec3 p0 = {xmin, ymin, 0};
             glm::vec3 p1 = {xmin, ymax, 0};
             glm::vec3 p2 = {xmax, ymax, 0};
@@ -147,6 +153,7 @@ void Font::update(const char *text, RenderNode *node)
         }
         ++offset;
     }
+    size.x = x;
 
     if( node->array_object == 0 )
     {

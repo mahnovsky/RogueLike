@@ -113,6 +113,7 @@ Text::update( )
             m_render_node = m_font->create_text_node();
             m_render_node->transform->set_scale({1.f, -1.f, 1.f});
         }
-        m_font->update( m_text.get_cstr(), m_render_node );
+        glm::vec2 size;
+        m_font->update( m_text.get_cstr(), m_render_node, size );
     }
 }

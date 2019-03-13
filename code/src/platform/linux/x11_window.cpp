@@ -381,7 +381,7 @@ X11Window::init( int width, int height, const char* const title )
 
     glXMakeCurrent( m_display, m_win, m_ctx );
 
-    _glXSwapIntervalEXT(m_display, 0, 0);
+    //_glXSwapIntervalEXT(m_display, 0, 0);
 
     return true;
 }

@@ -233,6 +233,12 @@ void remove_node( RenderNode *node )
     {
         return;
     }
+    for(basic::uint32 i = 0; i < node->children.get_size(); ++i)
+    {
+        remove_node(node->children[i]);
+        node->children[i] = nullptr;
+    }
+
     node->material->~Material();
     node->transform->~Transform();
 
@@ -251,6 +257,7 @@ void remove_node( RenderNode *node )
 
     node->material = nullptr;
     node->transform = nullptr;
+    node->~RenderNode();
     basic::mem_free( node );
 }
 
@@ -281,7 +288,7 @@ void draw_node(RenderNode *node, glm::mat4* mat, basic::uint32 prev_vao )
             mvp = mvp * (*mat);
         }
     }
-
+    glm::mat4 model = mvp;
     if( node->camera )
     {
         glm::mat4 pv( 1.f );
@@ -326,100 +333,6 @@ basic::uint32 create_buffer( basic::uint32 buffer_type,
                   buffer_usage );
 
     return buffer;
-}
-
-void init_node(RenderNode *node, VertexBuffer *vertices, IndexBuffer *indices, RenderNode* parent )
-{
-    ASSERT( node != nullptr );
-    ASSERT( vertices != nullptr );
-
-    node->color = basic::Color{255,255,255,255};
-
-    glGenVertexArrays( 1, &node->array_object );
-    glBindVertexArray( node->array_object );
-
-    node->vertex_object = create_buffer( GL_ARRAY_BUFFER,
-                                         get_buffer_usage( node ),
-                                         vertices->get_raw(),
-                                         vertices->get_size() );
-
-    if( indices )
-    {
-        node->index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
-                                            GL_STATIC_DRAW,
-                                            indices->get_raw(),
-                                            indices->get_size() );
-    }
-
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex ), nullptr );
-    glEnableVertexAttribArray( 0 );
-
-    size_t offset = sizeof( glm::vec3 );
-    glVertexAttribPointer( 1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( Vertex ), (GLvoid*)offset );
-    glEnableVertexAttribArray( 1 );
-
-    offset = sizeof( glm::vec3 ) + sizeof( basic::Color );
-    glVertexAttribPointer( 2, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex ), (GLvoid*)offset );
-    glEnableVertexAttribArray( 2 );
-
-    glBindVertexArray( 0 );
-}
-
-void init_node(RenderNode *node, VertexBufferT *vertices, IndexBuffer *indices )
-{
-    ASSERT( node != nullptr );
-    ASSERT( vertices != nullptr );
-
-    node->color = basic::Color{255,255,255,255};
-
-    glGenVertexArrays( 1, &node->array_object );
-    glBindVertexArray( node->array_object );
-
-    glGenBuffers( 1, &node->vertex_object );
-    update_vertices( node, vertices );
-
-    if( indices )
-    {
-        glGenBuffers( 1, &node->index_object );
-
-        update_indices( node, indices );
-    }
-
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( Vertex_T ), nullptr );
-    glEnableVertexAttribArray( 0 );
-
-    basic::uint32 offset = sizeof( glm::vec3 );
-
-    glVertexAttribPointer( 1, 2, GL_FLOAT, GL_FALSE, sizeof( Vertex_T ), (GLvoid*)offset );
-    glEnableVertexAttribArray( 1 );
-
-    glBindVertexArray( 0 );
-}
-
-void init_node( RenderNode *node, VertexBufferP *vertices, IndexBuffer *indices )
-{
-    ASSERT( node != nullptr );
-    ASSERT( vertices != nullptr );
-
-    node->color = basic::Color{255,255,255,255};
-
-    glGenVertexArrays( 1, &node->array_object );
-    glBindVertexArray( node->array_object );
-
-    glGenBuffers( 1, &node->vertex_object );
-    update_vertices( node, vertices );
-
-    if( indices )
-    {
-        glGenBuffers( 1, &node->index_object );
-
-        update_indices( node, indices );
-    }
-
-    glVertexAttribPointer( 0, 3, GL_FLOAT, GL_FALSE, sizeof( glm::vec3 ), nullptr );
-    glEnableVertexAttribArray( 0 );
-
-    glBindVertexArray( 0 );
 }
 
 void update_indices( RenderNode *node, IndexBuffer *indices )

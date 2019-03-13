@@ -16,6 +16,8 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     , m_view( nullptr )
     , m_debug_rect( nullptr )
     , m_visible(true)
+    , m_horizontal(AlignH::Center)
+    , m_vertical(AlignV::Center)
 {
     m_rect.update({0.f, 0.f}, size);
 }
@@ -47,7 +49,7 @@ void Widget::init( ResourceStorage *storage )
         m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
         m_view->children.push(m_debug_rect);
 
-        m_view->camera = m_camera;
+        m_debug_rect->camera = m_camera;
         m_debug_rect->color = {255, 0, 200, 255};
     }
 }
@@ -202,7 +204,17 @@ void Widget::set_visible(bool visible)
 
 bool Widget::get_visible() const
 {
-	return m_visible;
+    return m_visible;
+}
+
+AlignH Widget::get_horizontal_align() const
+{
+    return m_horizontal;
+}
+
+AlignV Widget::get_vertical_align() const
+{
+    return  m_vertical;
 }
 
 void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
@@ -268,6 +280,16 @@ glm::mat4 Widget::get_matrix() const
         return (m_parent ? mat * m_parent->get_matrix() : mat);
     }
     return mat;
+}
+
+RenderNode *Widget::get_view()
+{
+    return m_view;
+}
+
+ICamera *Widget::get_camera()
+{
+    return m_camera;
 }
 
 void Widget::draw()

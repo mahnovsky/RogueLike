@@ -5,6 +5,7 @@
 #include "object_manager.hpp"
 #include "root_widget.hpp"
 #include "widget_list.hpp"
+#include "widget_text.hpp"
 
 #include <stdio.h>
 
@@ -72,7 +73,7 @@ GameInstance::init( )
 
     m_ui_root->init( &m_rs );
     WidgetCallback btn_cb {&click_print, m_engine};
-    m_ui_root->add_press_callback(btn_cb);
+    //m_ui_root->add_press_callback(btn_cb);
     {
         Widget* wnd = NEW_OBJ(WidgetList, m_manager, {200, 300});
         wnd->set_tag(1);
@@ -91,6 +92,15 @@ GameInstance::init( )
             //btn->set_position( {0.f, 10.f} );
             wnd->add_child(btn);
         }
+
+        WidgetText* text = NEW_OBJ(WidgetText, m_manager, {200, 50});
+        text->init( &m_rs );
+        text->set_text("close");
+        text->add_press_callback(btn_cb);
+        text->set_tag(1);
+        text->set_align( AlignV::Center );
+        text->set_align( AlignH::Right );
+        wnd->add_child(text);
     }
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
@@ -128,7 +138,7 @@ GameInstance::init( )
 void
 GameInstance::draw( IRender* render )
 {
-    draw_node( m_cow );
+    //draw_node( m_cow );
     m_back.draw( m_game_camera, render );
     m_btn.draw( m_ui_camera, render );
     m_fps_text.draw( render, m_ui_camera );

@@ -17,7 +17,7 @@ public:
 
     RenderNode* create_text_node( );
 
-    void update(const char* text, RenderNode* out_object );
+    void update(const char* text, RenderNode* out_object, glm::vec2& size);
 
     static Font* create(ObjectManager *manager, const char* file);
 

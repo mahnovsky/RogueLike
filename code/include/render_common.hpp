@@ -149,10 +149,6 @@ void init_node( RenderNode *node,
     }
 }
 
-//void init_node( RenderNode* node, VertexBufferT* vertices, IndexBuffer* indices );
-
-//void init_node( RenderNode* node, VertexBufferP* vertices, IndexBuffer* indices );
-
 template< typename VertexType >
 void update_vertices( RenderNode *node, basic::Vector<VertexType> *vertices )
 {

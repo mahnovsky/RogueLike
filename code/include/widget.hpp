@@ -5,6 +5,20 @@
 #include "object.hpp"
 #include "input.hpp"
 
+enum class AlignH
+{
+    Center,
+    Left,
+    Right
+};
+
+enum class AlignV
+{
+    Center,
+    Top,
+    Bottom
+};
+
 struct Rect
 {
     glm::vec2 left_top;
@@ -99,6 +113,14 @@ public:
 
     bool get_visible() const;
 
+    AlignH get_horizontal_align() const;
+
+    void set_align(AlignH horizontal);
+
+    AlignV get_vertical_align() const;
+
+    void set_align(AlignV vertical);
+
 protected:
     virtual void on_mouse_pressed(input::MouseButton btn , basic::int32 x, basic::int32 y);
 
@@ -109,6 +131,10 @@ protected:
     void update_rect();
 
     glm::mat4 get_matrix() const;
+
+    RenderNode* get_view();
+
+    ICamera* get_camera();
 
 private:
     glm::vec2 m_pos;
@@ -122,4 +148,8 @@ private:
     RenderNode* m_debug_rect;
     basic::Vector<WidgetCallback> m_press_callbacks;
     bool m_visible;
+
+protected:
+    AlignH m_horizontal;
+    AlignV m_vertical;
 };

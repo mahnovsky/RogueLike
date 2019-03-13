@@ -4,7 +4,6 @@ class TimerManager;
 class Texture;
 class ShaderBase;
 class ShaderProgram;
-class RenderObject;
 class FileResource;
 class Text;
 class Sprite;
@@ -22,6 +21,8 @@ class Transform;
 class Material;
 class Widget;
 class RootWidget;
+class WidgetList;
+class WidgetText;
 
 namespace input
 {
