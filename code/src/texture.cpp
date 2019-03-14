@@ -2,6 +2,8 @@
 #include "GL/glew.h"
 #include "basic/file.hpp"
 
+#include "config.hpp"
+
 
 Texture::Texture(ObjectManager *manager, const char* file )
     : FileResource( manager, file )
@@ -20,10 +22,24 @@ Texture::~Texture( )
     }
 }
 
-bool Texture::load(ResourceStorage* )
+bool Texture::load(ResourceStorage* storage)
 {
+    basic::String name = get_name();
 	basic::String path = "textures/";
-	basic::String file = path + get_name();
+    basic::String file = path + name;
+
+    basic::uint32 index;
+    if( name.find_last(index, '.') )
+    {
+        basic::String info_name = "textures/" + name.get_substr(0, index);
+        info_name += "conf";
+        Config* conf = storage->get_resorce<Config>(info_name.get_cstr());
+        basic::Vector<basic::String> frames = conf->get_values("frames");
+        for(basic::uint32 i = 0; i < frames.get_size(); ++i)
+        {
+            LOG("%s", frames[i].get_cstr());
+        }
+    }
 
 	basic::Vector<basic::uint8> data = basic::get_file_content(file.get_cstr());
 

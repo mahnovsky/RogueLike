@@ -42,8 +42,8 @@ private:
     float m_width;
     float m_height;
 
-    Text m_fps_text;
-	Text m_mem_text;
+    WidgetText* m_fps_text;
+    WidgetText* m_mem_text;
     RenderNode* m_cow;
     RootWidget* m_ui_root;
 };

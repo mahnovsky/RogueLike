@@ -6,7 +6,6 @@
 class Texture : public FileResource
 {
 public:
-	
     Texture( ObjectManager* manager, const char* file );
     ~Texture( ) override;
 

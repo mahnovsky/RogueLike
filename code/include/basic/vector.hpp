@@ -315,7 +315,7 @@ public:
     {
         if ( pos > m_size )
         {
-            pos = m_size;
+            pos = m_size - 1;
         }
 
         for ( T* item = m_data + pos; item != m_data; --item )

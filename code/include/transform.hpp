@@ -17,10 +17,6 @@ public:
 
     void set_euler_angles( const glm::vec3& angles );
 
-    void set_forward( const glm::vec3& dir );
-
-    glm::vec3 get_forward() const;
-
     void set_scale( const glm::vec3& scale );
 
     glm::vec3 get_scale() const;
@@ -31,7 +27,5 @@ private:
     glm::vec3 m_pos;
     glm::vec3 m_pivot_point;
     glm::quat m_quat;
-    glm::vec3 m_forward;
-	glm::vec3 m_up;
     glm::vec3 m_scale;
 };

@@ -3,9 +3,10 @@
 #include "glm/ext.hpp"
 
 Transform::Transform( )
-    : m_pos( )
-    , m_forward( 0.f, 0.f, 1.f )
-    , m_scale( 1.0 )
+    : m_pos()
+    , m_pivot_point()
+    , m_quat()
+    , m_scale(1.f)
 {
 }
 
@@ -34,18 +35,6 @@ glm::vec3 Transform::get_pivot_point() const
 void Transform::set_euler_angles(const glm::vec3 &angles)
 {
     m_quat = glm::quat( angles );
-}
-
-void
-Transform::set_forward( const glm::vec3& direction )
-{
-    m_forward = glm::normalize( direction );
-}
-
-glm::vec3
-Transform::get_forward( ) const
-{
-    return m_forward;
 }
 
 void

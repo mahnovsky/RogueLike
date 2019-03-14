@@ -19,8 +19,8 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_btn( )
     , m_width( width )
     , m_height( height )
-	, m_fps_text("arial.ttf")
-	, m_mem_text("arial.ttf")
+    , m_fps_text(nullptr)
+    , m_mem_text(nullptr)
     , m_ui_root( NEW_OBJ( RootWidget, engine, m_manager ) )
 {
     m_game_camera->set_name("game_camera");
@@ -54,7 +54,7 @@ void click_print(Widget* w, void* ud)
         LOG("1 btn pressed");
 		//w->remove_from_parent();
 		w->get_parent()->remove_from_parent();
-        //engine->shutdown();
+        engine->shutdown();
         break;
     default:
         break;
@@ -89,7 +89,6 @@ GameInstance::init( )
             btn->set_tag(i);
             btn->add_press_callback(btn_cb);
             btn->init( &m_rs );
-            //btn->set_position( {0.f, 10.f} );
             wnd->add_child(btn);
         }
 
@@ -99,8 +98,23 @@ GameInstance::init( )
         text->add_press_callback(btn_cb);
         text->set_tag(1);
         text->set_align( AlignV::Center );
-        text->set_align( AlignH::Right );
+        text->set_align( AlignH::Center );
         wnd->add_child(text);
+
+        wnd = NEW_OBJ(WidgetList, m_manager, {400.f, 200.f});
+        m_fps_text = NEW_OBJ(WidgetText, m_manager, {200, 40});
+        m_fps_text->init( &m_rs );
+        m_fps_text->set_text("fps: ");
+        m_fps_text->set_align( AlignH::Left );
+        wnd->add_child(m_fps_text);
+
+        m_mem_text = NEW_OBJ(WidgetText, m_manager, {400, 40});
+        m_mem_text->init( &m_rs );
+        m_mem_text->set_text("memory usage: ");
+        m_mem_text->set_align( AlignH::Left );
+        wnd->add_child(m_mem_text);
+
+        m_ui_root->add_child(wnd);
     }
 
     ShaderProgram* shader = m_rs.get_resorce<ShaderProgram>( "texture" );
@@ -113,16 +127,6 @@ GameInstance::init( )
     m_btn.init(shader, texture);
     m_btn.set_size(100.f, -100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
-
-    m_fps_text.init(&m_rs);
-    m_fps_text.set_text( "fps: " );
-    m_fps_text.set_position( {20.f, 20.f, 0.f} );
-	m_fps_text.set_scale(0.8f);
-
-    m_mem_text.init(&m_rs);
-	m_mem_text.set_text("memory usage: ");
-    m_mem_text.set_position({ 20.f, 50.f, 0.f });
-	m_mem_text.set_scale(0.8f);
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
@@ -138,11 +142,9 @@ GameInstance::init( )
 void
 GameInstance::draw( IRender* render )
 {
-    //draw_node( m_cow );
+    draw_node( m_cow );
     m_back.draw( m_game_camera, render );
     m_btn.draw( m_ui_camera, render );
-    m_fps_text.draw( render, m_ui_camera );
-    m_mem_text.draw( render, m_ui_camera );
 
     m_ui_root->draw();
 }
@@ -186,10 +188,10 @@ void GameInstance::print_fps()
         fps = m_engine->get_fps();
         if( basic::String::format( buff, BUFF_SIZE, "fps: %u", fps ) )
         {
-            m_fps_text.set_text( buff );
+            m_fps_text->set_text( buff );
         }
     }
 
 	basic::String::format(buff, BUFF_SIZE, "memory usage: %u", basic::get_memory_usage());
-	m_mem_text.set_text(buff);
+    m_mem_text->set_text(buff);
 }
