@@ -54,4 +54,6 @@ void WidgetList::update_list()
             new_pos.x += size.x;
         }
     }
+
+	update_mat();
 }

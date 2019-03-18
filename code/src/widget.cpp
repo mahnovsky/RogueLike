@@ -8,6 +8,7 @@
 
 Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     : Object ( manager )
+	, m_mat(1.f)
     , m_pos()
     , m_size(size)
     , m_rect()
@@ -16,7 +17,7 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     , m_view( nullptr )
     , m_debug_rect( nullptr )
     , m_visible(true)
-    , m_horizontal(AlignH::Center)
+	, m_horizontal(AlignH::Center)
     , m_vertical(AlignV::Center)
 {
     m_rect.update({0.f, 0.f}, size);
@@ -24,7 +25,7 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
 
 Widget::~Widget()
 {
-    remove_node( m_view );
+    RenderNode::remove_node( m_view );
     m_view = nullptr;
 
     for(basic::uint32 i = 0; i < m_children.get_size(); ++i)
@@ -45,12 +46,13 @@ void Widget::init( ResourceStorage *storage )
 
     if( shader )
     {
-        m_view = create_node( shader, nullptr );
-        m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
-        m_view->children.push(m_debug_rect);
+        m_view = RenderNode::create_node( shader, nullptr );
+		m_view->set_camera(m_camera);
 
-        m_debug_rect->camera = m_camera;
-        m_debug_rect->color = {255, 0, 200, 255};
+        m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
+        m_view->add_child(m_debug_rect);
+
+        m_debug_rect->set_color({255, 0, 200, 255});
     }
 }
 
@@ -67,7 +69,10 @@ void Widget::add_child(Widget *node)
         node->m_parent = this;
 
         m_children.push( node );
+		
+		m_view->get_transform()->add_child(node->m_view->get_transform());
         node->update_rect();
+		node->update_mat();
     }
 }
 
@@ -83,7 +88,6 @@ void Widget::remove_child(Widget *node)
 		node->release();
 	}
 }
-
 
 void Widget::remove_children()
 {
@@ -141,7 +145,8 @@ void Widget::set_position(const glm::vec2 &pos)
 {
     m_pos = pos;
 
-    update_rect();
+	update_mat();
+	update_rect();
 }
 
 glm::vec2 Widget::get_size() const
@@ -160,7 +165,8 @@ void Widget::set_anchor_point(const glm::vec2 &anchor_point)
 {
     m_anchor_point = anchor_point;
 
-    update_rect();
+	update_mat();
+	update_rect();
 }
 
 glm::vec2 Widget::convert_to_world_space(const glm::vec2 &pos) const
@@ -185,7 +191,7 @@ glm::vec2 Widget::get_left_top_world_position() const
     glm::vec2 pos = get_world_position();
     if( m_view )
     {
-        glm::vec3 pivot = m_view->transform->get_pivot_point();
+        glm::vec3 pivot = m_view->get_transform()->get_pivot_point();
         pos = glm::vec2{ pos.x - pivot.x, pos.y - pivot.y };
     }
 
@@ -262,24 +268,27 @@ void Widget::update_rect()
 
     if( m_view )
     {
-        m_view->transform->set_pivot_point( { m_anchor_point * m_size, 0.f } );
+        m_view->get_transform()->set_pivot_point( { m_anchor_point * m_size, 0.f } );
+        m_view->get_transform()->set_position( glm::vec3( m_pos, 0.f ) );
 
-        m_view->transform->set_position( glm::vec3( m_pos, 0.f ) );
-        VertexBufferP vb;
-        fill_rect(glm::vec2(), m_size, 2.f, vb);
-        update_vertices(m_debug_rect, &vb);
+		if (m_debug_rect)
+		{
+			VertexBufferP vb;
+			fill_rect(glm::vec2(), m_size, 2.f, vb);
+			m_debug_rect->update_vertices(&vb);
+		}
     }
 }
 
 glm::mat4 Widget::get_matrix() const
 {
-    glm::mat4 mat(1.f);
+    /*glm::mat4 mat(1.f);
     if(m_view)
     {
         mat = m_view->transform->get_matrix();
         return (m_parent ? mat * m_parent->get_matrix() : mat);
-    }
-    return mat;
+    }*/
+    return m_view->get_transform()->get_matrix();
 }
 
 RenderNode *Widget::get_view()
@@ -292,6 +301,20 @@ ICamera *Widget::get_camera()
     return m_camera;
 }
 
+void Widget::update_mat()
+{
+	m_mat = m_view->get_transform()->get_matrix();
+	if (m_parent)
+	{
+		m_mat = m_mat * m_parent->get_matrix();
+	}
+
+	for (basic::uint32 i = 0; i < m_children.get_size(); ++i)
+	{
+		m_children[i]->update_mat();
+	}
+}
+
 void Widget::draw()
 {
     if( !m_visible )
@@ -299,15 +322,7 @@ void Widget::draw()
         return;
     }
 
-    if( m_view )
-    {
-        glm::mat4 mat(1.f);
-        if(m_parent)
-        {
-            mat = m_parent->get_matrix();
-        }
-        draw_node( m_view, &mat );
-    }
+	m_view->draw_node();
 
     for(basic::uint32 i = 0; i < m_children.get_size(); ++i)
     {    

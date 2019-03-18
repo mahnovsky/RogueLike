@@ -45,9 +45,6 @@
     <ClCompile Include="..\code\src\render.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\render_object.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\shader.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
@@ -123,6 +120,9 @@
     <ClCompile Include="..\code\src\widget_list.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\src\widget_text.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\actor.hpp">
@@ -141,9 +141,6 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\render_common.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\render_object.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\shader.hpp">
@@ -216,6 +213,9 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\widget_list.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\widget_text.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>

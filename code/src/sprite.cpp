@@ -18,7 +18,8 @@ Sprite::~Sprite()
 {
     if(m_render_node)
     {
-        remove_node( m_render_node );
+        RenderNode::remove_node( m_render_node );
+		m_render_node = nullptr;
     }
 }
 
@@ -33,10 +34,10 @@ Sprite::init( ShaderProgram* shader, Texture* texture )
     IndexBuffer ib;
     generator.generate( ib, 0 );
 
-    m_render_node = create_node( shader, texture );
+    m_render_node = RenderNode::create_node( shader, texture );
     if( m_render_node )
     {
-        init_node( m_render_node, &vb, &ib );
+        m_render_node->init_node( &vb, &ib );
     }
 }
 
@@ -45,9 +46,9 @@ Sprite::draw( ICamera* camera, IRender* render )
 {
     if( m_render_node )
     {
-        m_render_node->camera = camera;
+        m_render_node->set_camera(camera);
 
-        draw_node( m_render_node );
+		m_render_node->draw_node( );
     }
 }
 
@@ -56,7 +57,7 @@ Sprite::set_position( const glm::vec3& pos )
 {
     if(m_render_node)
     {
-        m_render_node->transform->set_position( pos );
+        m_render_node->get_transform()->set_position( pos );
     }
 }
 
@@ -65,7 +66,7 @@ Sprite::get_position( ) const
 {
     if(m_render_node)
     {
-        return m_render_node->transform->get_position();
+        return m_render_node->get_transform()->get_position();
     }
 
     return glm::vec3();
@@ -75,7 +76,7 @@ void
 Sprite::set_color( basic::uint8 r, basic::uint8 g, basic::uint8 b, basic::uint8 a )
 {
     m_color = {r, g, b, a};
-    m_render_node->color = m_color;
+    m_render_node->set_color(m_color);
 }
 
 void
@@ -88,9 +89,9 @@ Sprite::set_size( float width, float height )
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    if( m_render_node && m_render_node->vertex_object != 0 )
+    if( m_render_node )
     {
-        update_vertices( m_render_node, &vb );
+		m_render_node->update_vertices( &vb );
     }
 }
 
@@ -103,9 +104,9 @@ Sprite::set_anchor( float x, float y )
     QuadGenerator generator( m_size, m_anchor, m_color );
     generator.generate( vb, 0 );
 
-    if( m_render_node && m_render_node->vertex_object != 0 )
+    if( m_render_node )
     {
-        update_vertices( m_render_node, &vb );
+		m_render_node->update_vertices( &vb );
     }
 }
 
@@ -115,7 +116,7 @@ void Sprite::set_angle(float angle)
 
     if( m_render_node )
     {
-        m_render_node->transform->set_euler_angles( {0.f, 0.f, m_angle} );
+        m_render_node->get_transform()->set_euler_angles( {0.f, 0.f, m_angle} );
     }
 }
 

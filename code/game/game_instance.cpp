@@ -34,7 +34,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 
 GameInstance::~GameInstance( )
 {
-    remove_node( m_cow );
+    RenderNode::remove_node( m_cow );
 
 	SAFE_RELEASE(m_ui_root);
     SAFE_RELEASE(m_game_camera);
@@ -54,7 +54,7 @@ void click_print(Widget* w, void* ud)
         LOG("1 btn pressed");
 		//w->remove_from_parent();
 		w->get_parent()->remove_from_parent();
-        engine->shutdown();
+        //engine->shutdown();
         break;
     default:
         break;
@@ -102,6 +102,7 @@ GameInstance::init( )
         wnd->add_child(text);
 
         wnd = NEW_OBJ(WidgetList, m_manager, {400.f, 200.f});
+		wnd->init(&m_rs);
         m_fps_text = NEW_OBJ(WidgetText, m_manager, {200, 40});
         m_fps_text->init( &m_rs );
         m_fps_text->set_text("fps: ");
@@ -132,17 +133,18 @@ GameInstance::init( )
     Mesh m;
     if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
     {
-        m_cow = create_node( def_shader, nullptr );
-        m_cow->camera = m_game_camera;
-        m_cow->color = basic::Color{255, 255, 255, 255};
-        init_node( m_cow, &m.vb, &m.ib );
+        m_cow = RenderNode::create_node( def_shader, nullptr );
+		m_cow->set_camera( m_game_camera);
+		m_cow->set_color( basic::Color{ 255, 255, 255, 255 });
+        
+		m_cow->init_node( &m.vb, &m.ib );
     }
 }
 
 void
 GameInstance::draw( IRender* render )
 {
-    draw_node( m_cow );
+    //draw_node( m_cow );
     m_back.draw( m_game_camera, render );
     m_btn.draw( m_ui_camera, render );
 

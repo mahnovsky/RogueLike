@@ -34,7 +34,7 @@ Text::~Text()
 	}
     if(m_render_node)
     {
-        remove_node( m_render_node );
+        RenderNode::remove_node( m_render_node );
     }
 }
 
@@ -80,14 +80,14 @@ Text::set_position( const glm::vec3& pos )
     //m_render_object.get_transform( )->set_position( pos );
     if( m_render_node )
     {
-        m_render_node->transform->set_position( pos );
+        m_render_node->get_transform()->set_position( pos );
     }
 }
 
 void
 Text::set_scale( float scale )
 {
-   m_render_node->transform->set_scale( {scale, scale, scale} );
+   m_render_node->get_transform()->set_scale( {scale, scale, scale} );
 }
 
 void
@@ -96,10 +96,10 @@ Text::draw( IRender* render, ICamera* cam )
     //m_render_object.draw( render, cam );
     if(m_render_node)
     {
-        m_render_node->camera = cam;
+        m_render_node->set_camera(cam);
     }
 
-    draw_node( m_render_node );
+    m_render_node->draw_node(  );
 }
 
 void
@@ -111,7 +111,7 @@ Text::update( )
         if( !m_render_node )
         {
             m_render_node = m_font->create_text_node();
-            m_render_node->transform->set_scale({1.f, -1.f, 1.f});
+            m_render_node->get_transform()->set_scale({1.f, -1.f, 1.f});
         }
         glm::vec2 size;
         m_font->update( m_text.get_cstr(), m_render_node, size );

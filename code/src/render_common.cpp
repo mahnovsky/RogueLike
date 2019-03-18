@@ -210,7 +210,7 @@ load_mesh( const char* file, Mesh& out_mesh )
     return true;
 }
 
-RenderNode *create_node( ShaderProgram* program, Texture* texture )
+RenderNode *RenderNode::create_node( ShaderProgram* program, Texture* texture )
 {
     RenderNode* node = nullptr;
 
@@ -227,7 +227,7 @@ RenderNode *create_node( ShaderProgram* program, Texture* texture )
     return node;
 }
 
-void remove_node( RenderNode *node )
+void RenderNode::remove_node( RenderNode *node )
 {
     if( !node )
     {
@@ -261,60 +261,19 @@ void remove_node( RenderNode *node )
     basic::mem_free( node );
 }
 
-
-void draw_node(RenderNode *node, glm::mat4* mat, basic::uint32 prev_vao )
+Transform * RenderNode::get_transform()
 {
-    if( !node || !node->material )
-    {
-        return;
-    }
+	return transform;
+}
 
-    if( prev_vao > 0 && (node->flags | USE_PARENT_VAO) == 0 )
-    {
-        prev_vao = 0;
-    }
-
-    EnableArrayBuffer ao( node->array_object, prev_vao );
-
-    node->material->enable();
-
-    glm::mat4 mvp(1.f);
-
-    if( node->transform )
-    {
-        mvp = node->transform->get_matrix();
-        if(mat)
-        {
-            mvp = mvp * (*mat);
-        }
-    }
-    glm::mat4 model = mvp;
-    if( node->camera )
-    {
-        glm::mat4 pv( 1.f );
-        node->camera->get_matrix( pv );
-
-        mvp = pv * mvp;
-    }
-
-    node->material->load_matrix( "MVP", mvp );
-    node->material->load_color( "Color", node->color );
-
-    if( node->index_object > 0 )
-    {
-        glDrawElements( GL_TRIANGLES, node->index_elements, GL_UNSIGNED_SHORT, nullptr );
-    }
-    else if( node->vertex_elements > 0 )
-    {
-        glDrawArrays( GL_TRIANGLES, 0, node->vertex_elements );
-    }
-
-    node->material->disable();
-
-    for(basic::uint32 i = 0; i < node->children.get_size(); ++i)
-    {
-        draw_node(node->children[i], &mvp, node->array_object);
-    }
+void RenderNode::add_child(RenderNode * node)
+{
+	if (!children.is_contains(node))
+	{
+		children.push(node);
+		node->transform->set_parent(transform);
+		node->set_camera(camera);
+	}
 }
 
 basic::uint32 create_buffer( basic::uint32 buffer_type,
@@ -333,38 +292,6 @@ basic::uint32 create_buffer( basic::uint32 buffer_type,
                   buffer_usage );
 
     return buffer;
-}
-
-void update_indices( RenderNode *node, IndexBuffer *indices )
-{
-    ASSERT( node != nullptr );
-    ASSERT( indices != nullptr );
-    ASSERT( node->index_object > 0 );
-
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, node->index_object );
-    const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
-
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
-
-    basic::int32 need_elements = static_cast<basic::int32>( indices->get_size() );
-
-    if( node->index_elements == 0 || node->index_elements < need_elements )
-    {
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER,
-                      size,
-                      indices->get_raw( ),
-                      GL_STATIC_DRAW );
-
-        node->index_elements = need_elements;
-
-        return;
-    }
-
-    node->index_elements = need_elements;
-
-    glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw() );
-
-    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }
 
 void fill_line( const glm::vec2 &p0,
@@ -412,22 +339,14 @@ RenderNode *make_rect( ShaderProgram *shader,
                        const glm::vec2 &right_bottom,
                        float width )
 {
-    RenderNode* res = create_node(shader, nullptr);
+    RenderNode* res = RenderNode::create_node(shader, nullptr);
 
     VertexBufferP vb;
     fill_rect( left_top, right_bottom, width, vb );
 
-    init_node( res, &vb, nullptr );
+    res->init_node( &vb, nullptr );
 
     return  res;
-}
-
-basic::uint32 get_buffer_usage(RenderNode *node)
-{
-    basic::uint32 buffer_usage = (node->flags & USE_DYNAMIC_VBO) == 0 ?
-                GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
-
-    return buffer_usage;
 }
 
 basic::Vector<VertexFMT> get_fmt_list(glm::vec3 *)
@@ -492,4 +411,97 @@ basic::Vector<VertexFMT> get_fmt_list(Vertex_T *)
     res.push(fmt);
 
     return res;
+}
+
+void RenderNode::set_color(const basic::Color & color)
+{
+	this->color = color;
+}
+
+void RenderNode::set_camera(ICamera * camera)
+{
+	this->camera = camera;
+}
+
+void RenderNode::update_indices(IndexBuffer * indices)
+{
+	ASSERT(indices != nullptr);
+	ASSERT(index_object > 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_object);
+	const basic::uint32 size = sizeof(basic::uint16) * indices->get_size();
+
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw(), GL_STATIC_DRAW);
+
+	basic::int32 need_elements = static_cast<basic::int32>(indices->get_size());
+
+	if (index_elements == 0 || index_elements < need_elements)
+	{
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+			size,
+			indices->get_raw(),
+			GL_STATIC_DRAW);
+
+		index_elements = need_elements;
+
+		return;
+	}
+
+	index_elements = need_elements;
+
+	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw());
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void RenderNode::draw_node(basic::uint32 prev_vao)
+{
+	ASSERT(transform);
+	ASSERT(material);
+
+	if (prev_vao > 0 && (flags | USE_PARENT_VAO) == 0)
+	{
+		prev_vao = 0;
+	}
+
+	EnableArrayBuffer ao(array_object, prev_vao);
+
+	material->enable();
+
+	glm::mat4 mvp{ transform->get_matrix() };
+
+	if (camera)
+	{
+		glm::mat4 pv(1.f);
+		camera->get_matrix(pv);
+
+		mvp = pv * mvp;
+	}
+
+	material->load_matrix("MVP", mvp);
+	material->load_color("Color", color);
+
+	if (index_object > 0)
+	{
+		glDrawElements(GL_TRIANGLES, index_elements, GL_UNSIGNED_SHORT, nullptr);
+	}
+	else if (vertex_elements > 0)
+	{
+		glDrawArrays(GL_TRIANGLES, 0, vertex_elements);
+	}
+
+	material->disable();
+
+	for (basic::uint32 i = 0; i < children.get_size(); ++i)
+	{
+		children[i]->draw_node(array_object);
+	}
+}
+
+basic::uint32 RenderNode::get_buffer_usage() const
+{
+	basic::uint32 buffer_usage = (flags & USE_DYNAMIC_VBO) == 0 ?
+		GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+
+	return buffer_usage;
 }

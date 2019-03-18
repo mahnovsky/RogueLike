@@ -136,7 +136,10 @@ protected:
 
     ICamera* get_camera();
 
+	void update_mat();
+
 private:
+	glm::mat4 m_mat;
     glm::vec2 m_pos;
     glm::vec2 m_size;
     glm::vec2 m_anchor_point;

@@ -22,9 +22,9 @@ void WidgetText::init(ResourceStorage *storage)
 
     m_text_render = m_font->create_text_node();
 
-    m_text_render->camera = get_camera();
+    m_text_render->set_camera(get_camera());
 
-    get_view()->children.push( m_text_render );
+    get_view()->add_child( m_text_render );
 
     update();
 }
@@ -82,5 +82,6 @@ void WidgetText::apply_align()
 
     glm::vec3 pos{ x_align, y_align, 0.f};
 
-    m_text_render->transform->set_pivot_point(pos);
+    m_text_render->get_transform()->set_pivot_point(pos);
+	update_mat();
 }

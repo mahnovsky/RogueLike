@@ -83,7 +83,7 @@ bool Font::load(ResourceStorage *storage)
 
 RenderNode *Font::create_text_node()
 {
-    RenderNode* node = create_node( m_shader, m_texture );
+    RenderNode* node = RenderNode::create_node( m_shader, m_texture );
 
     return node;
 }
@@ -155,16 +155,7 @@ void Font::update(const char *text, RenderNode *node, glm::vec2 &size)
     }
     size.x = x;
 
-    if( node->array_object == 0 )
-    {
-        node->flags |= USE_DYNAMIC_VBO;
-        init_node( node, &vb, &ib );
-    }
-    else
-    {
-        update_indices( node, &ib );
-        update_vertices( node, &vb );
-    }
+	node->reset(&vb, &ib);
 }
 
 Font * Font::create(ObjectManager* manager, const char * file)
