@@ -53,8 +53,8 @@ void click_print(Widget* w, void* ud)
     case 1:
         LOG("1 btn pressed");
 		//w->remove_from_parent();
-		w->get_parent()->remove_from_parent();
-        //engine->shutdown();
+        //w->get_parent()->remove_from_parent();
+        engine->shutdown();
         break;
     default:
         break;
@@ -145,8 +145,8 @@ void
 GameInstance::draw( IRender* render )
 {
     //draw_node( m_cow );
-    m_back.draw( m_game_camera, render );
-    m_btn.draw( m_ui_camera, render );
+    //m_back.draw( m_game_camera, render );
+    //m_btn.draw( m_ui_camera, render );
 
     m_ui_root->draw();
 }

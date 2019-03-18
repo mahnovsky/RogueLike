@@ -4,6 +4,7 @@ project(RogueLike)
 
 set( BASE_PATH "./code" )
 set( SOURCE_PATH "./code/src" )
+set( THIRD_PARTY_PATH "${BASE_PATH}/third_party" )
 add_definitions(-D_DEBUG)
 if(UNIX AND NOT APPLE)
     set(TARGET_BUILD_PLATFORM "linux")
@@ -22,10 +23,12 @@ file(GLOB C_SRC ${SOURCE_PATH}/*.c)
 file(GLOB BASIC_SRC ${SOURCE_PATH}/basic/*.cpp ${})
 file(GLOB PLATFORM_SRC ${SOURCE_PATH}/platform/${TARGET_BUILD_PLATFORM}/*.cpp ${PLATFORM_SRC})
 file(GLOB GAME_SRC ${BASE_PATH}/game.cpp ${BASE_PATH}/game/*.cpp)
+file(GLOB JSON_SRC ${THIRD_PARTY_PATH}/cJSON/cJSON.c)
 
-set(SRC_FILES ${BASIC_SRC} ${ENGINE_SRC} ${PLATFORM_SRC} ${C_SRC} ${GAME_SRC})
+set(SRC_FILES ${BASIC_SRC} ${ENGINE_SRC} ${PLATFORM_SRC} ${C_SRC} ${GAME_SRC} ${JSON_SRC})
 
 include_directories("code/include")
+include_directories(${THIRD_PARTY_PATH})
 
 add_executable( ${PROJECT_NAME} ${SRC_FILES} )
 

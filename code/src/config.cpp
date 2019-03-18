@@ -1,5 +1,8 @@
 #include "config.hpp"
 
+#include "basic/memory.hpp"
+#include "basic/map.hpp"
+#include "cJSON/cJSON.h"
 
 Config::Config( ObjectManager* manager, const char* file )
     :FileResource (manager, file)
@@ -11,9 +14,37 @@ Config::~Config()
 {
 }
 
+static void* alloc(size_t sz)
+{
+    return basic::mem_alloc(static_cast<basic::uint32>(sz));
+}
+
+static void free_mem(void* ptr)
+{
+    basic::mem_free(ptr);
+}
+
 bool Config::load(ResourceStorage *)
 {
+    static cJSON_Hooks hoocks;
+    if( !hoocks.malloc_fn )
+    {
+        hoocks.malloc_fn = alloc;
+        hoocks.free_fn = free_mem;
+        cJSON_InitHooks(&hoocks);
+    }
+
     basic::Vector<basic::uint8> data = basic::get_file_content( get_name().get_cstr() );
+
+    cJSON* json = nullptr;
+    if(!data.is_empty())
+    {
+        json = cJSON_Parse(reinterpret_cast<char*>(data.get_raw()));
+        basic::Map<int, char> m;
+        m.emplace( 2, 'a' );
+
+        cJSON_Delete(json);
+    }
 
     if( !data.is_empty() )
     {

@@ -271,7 +271,8 @@ void RenderNode::add_child(RenderNode * node)
 	if (!children.is_contains(node))
 	{
 		children.push(node);
-		node->transform->set_parent(transform);
+        transform->add_child(node->transform);
+
 		node->set_camera(camera);
 	}
 }

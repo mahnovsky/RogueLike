@@ -28,7 +28,7 @@ void Transform::add_child(Transform * child)
 {
 	m_children.push(child);
 
-	child->set_parent(child);
+    child->set_parent(this);
 }
 
 void Transform::remove(Transform * child)

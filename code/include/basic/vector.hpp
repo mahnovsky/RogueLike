@@ -145,14 +145,28 @@ public:
         return *this;
     }
 
-    T front( ) const
+    const T& front( ) const
     {
         ASSERT( m_size > 0 );
 
         return *m_data;
     }
 
-    T back( ) const
+    const T& back( ) const
+    {
+        ASSERT( m_size > 0 );
+
+        return *( m_data + m_size - 1 );
+    }
+
+    T& front( )
+    {
+        ASSERT( m_size > 0 );
+
+        return *m_data;
+    }
+
+    T& back( )
     {
         ASSERT( m_size > 0 );
 
@@ -395,7 +409,7 @@ public:
         return m_data[ index ];
     }
 
-    const T operator[]( uint32 index ) const
+    const T& operator[]( uint32 index ) const
     {
         return get( index );
     }

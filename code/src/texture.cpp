@@ -4,6 +4,8 @@
 
 #include "config.hpp"
 
+#define TEXTURE_PATH "texture/"
+
 
 Texture::Texture(ObjectManager *manager, const char* file )
     : FileResource( manager, file )
@@ -25,13 +27,13 @@ Texture::~Texture( )
 bool Texture::load(ResourceStorage* storage)
 {
     basic::String name = get_name();
-	basic::String path = "textures/";
+    basic::String path = TEXTURE_PATH;
     basic::String file = path + name;
 
     basic::uint32 index;
     if( name.find_last(index, '.') )
     {
-        basic::String info_name = "textures/" + name.get_substr(0, index);
+        basic::String info_name = TEXTURE_PATH + name.get_substr(0, index);
         info_name += "conf";
         Config* conf = storage->get_resorce<Config>(info_name.get_cstr());
         basic::Vector<basic::String> frames = conf->get_values("frames");

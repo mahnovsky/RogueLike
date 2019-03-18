@@ -67,7 +67,7 @@ public:
     Widget( ObjectManager* manager,
             const glm::vec2& size );
 
-    virtual ~Widget();
+    ~Widget() override;
 
     virtual void init(ResourceStorage* storage);
 

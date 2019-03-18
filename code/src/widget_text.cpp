@@ -14,19 +14,29 @@ WidgetText::WidgetText(ObjectManager* manager, const glm::vec2 &size)
     , m_text_size()
 {}
 
+WidgetText::~WidgetText()
+{
+    SAFE_RELEASE(m_font);
+}
+
 void WidgetText::init(ResourceStorage *storage)
 {
     Widget::init( storage );
 
     m_font = storage->get_resorce<se::Font>(m_font_name.get_cstr());
 
-    m_text_render = m_font->create_text_node();
+    if(m_font)
+    {
+        m_font->retain();
 
-    m_text_render->set_camera(get_camera());
+        m_text_render = m_font->create_text_node();
 
-    get_view()->add_child( m_text_render );
+        m_text_render->set_camera(get_camera());
 
-    update();
+        get_view()->add_child( m_text_render );
+
+        update();
+    }
 }
 
 void WidgetText::set_text(const basic::String &text)

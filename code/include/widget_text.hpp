@@ -10,6 +10,8 @@ public:
     WidgetText(ObjectManager *manager,
                const glm::vec2 &size);
 
+    ~WidgetText() override;
+
     void init(ResourceStorage* storage) override;
 
     void set_text(const basic::String& text);
