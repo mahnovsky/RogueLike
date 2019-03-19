@@ -1,7 +1,7 @@
 #include "config.hpp"
 
 #include "basic/memory.hpp"
-#include "basic/map.hpp"
+#include "basic/hash_map.hpp"
 #include "cJSON/cJSON.h"
 
 Config::Config( ObjectManager* manager, const char* file )
@@ -40,8 +40,10 @@ bool Config::load(ResourceStorage *)
     if(!data.is_empty())
     {
         json = cJSON_Parse(reinterpret_cast<char*>(data.get_raw()));
-        basic::Map<int, char> m;
-        m.emplace( 2, 'a' );
+        basic::HashMap<int, char> m;
+        m.insert( 2, 'a' );
+
+        ASSERT(m.contains(3));
 
         cJSON_Delete(json);
     }

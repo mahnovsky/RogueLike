@@ -13,31 +13,31 @@ public:
     static const uint32 MAX_LEN = Vector<char_t>::MAX_LEN;
     static const char CSTR_END = 0;
 
-	String();
-	String(const char_t* cstr);
+    String();
+    String(const char_t* cstr);
     String(const char_t* cstr, uint32 count);
-	String(const String& other);
-	String(String&& other);
+    String(const String& other);
+    String(String&& other);
 
-	void init(const char_t* cstr);
+    void init(const char_t* cstr);
 
-	void append(const char_t* cstr);
+    void append(const char_t* cstr);
 
-	void append(const char_t* cstr, uint32 count);
+    void append(const char_t* cstr, uint32 count);
 
-	bool is_empty() const;
+    bool is_empty() const;
 
-	const char_t* get_cstr() const;
+    const char_t* get_cstr() const;
 
-	String& operator=(const String& str);
+    String& operator=(const String& str);
 
-	String& operator=(const char_t* cstr);
+    String& operator=(const char_t* cstr);
 
-	String operator+(const char_t* cstr) const;
+    String operator+(const char_t* cstr) const;
 
-	void operator+=(const char_t* cstr);
+    void operator+=(const char_t* cstr);
 
-	void operator+=(const String& str);
+    void operator+=(const String& str);
 
     char operator[](uint32 index) const;
 
