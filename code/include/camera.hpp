@@ -20,6 +20,10 @@ public:
     virtual void set_direction( const glm::vec3& dir ) = 0;
 
     virtual void set_up( const glm::vec3& up ) = 0;
+
+    static glm::vec3 convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos );
+
+    static glm::vec3 convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos );
 };
 
 class PerspectiveCamera

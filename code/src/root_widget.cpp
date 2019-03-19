@@ -1,6 +1,7 @@
 #include "root_widget.hpp"
 
 #include "engine.hpp"
+#include "camera.hpp"
 
 using namespace input;
 
@@ -22,7 +23,7 @@ void RootWidget::key_pressed(KeyCode code, basic::int16 key)
 }
 
 void RootWidget::mouse_pressed(MouseButton button, basic::int32 x, basic::int32 y)
-{
+{   
     on_mouse_pressed( button, x, y );
 }
 

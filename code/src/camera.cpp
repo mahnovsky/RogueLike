@@ -126,3 +126,20 @@ void OrthoCamera::get_matrix( glm::mat4& out ) const
 
 
 ICamera::~ICamera(){}
+
+glm::vec3 ICamera::convert_to_world_space(ICamera *cam, const glm::vec3 &screen_pos)
+{
+    glm::mat4 pv;
+    cam->get_matrix(pv);
+    glm::mat4 inv = glm::inverse(pv);
+
+    return glm::vec4(screen_pos, 1.f) * inv;
+}
+
+glm::vec3 ICamera::convert_to_screen_space(ICamera *cam, const glm::vec3 &world_pos)
+{
+    glm::mat4 pv;
+    cam->get_matrix(pv);
+
+    return glm::vec4(world_pos, 1.f) * pv;
+}
