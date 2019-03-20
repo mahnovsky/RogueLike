@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -120,7 +120,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -162,6 +162,7 @@
     <ClCompile Include="..\code\src\widget.cpp" />
     <ClCompile Include="..\code\src\widget_list.cpp" />
     <ClCompile Include="..\code\src\widget_text.cpp" />
+    <ClCompile Include="..\code\third_party\cJSON\cJSON.c" />
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>

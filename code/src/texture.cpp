@@ -4,7 +4,7 @@
 
 #include "config.hpp"
 
-#define TEXTURE_PATH "texture/"
+#define TEXTURE_PATH "textures/"
 
 
 Texture::Texture(ObjectManager *manager, const char* file )
