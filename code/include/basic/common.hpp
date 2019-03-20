@@ -6,3 +6,4 @@
 #include "vector.hpp"
 #include "string.hpp"
 #include "time.hpp"
+#include "hash_map.hpp"

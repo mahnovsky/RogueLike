@@ -41,9 +41,26 @@ bool Config::load(ResourceStorage *)
     {
         json = cJSON_Parse(reinterpret_cast<char*>(data.get_raw()));
         basic::HashMap<int, char> m;
-        m.insert( 2, 'a' );
 
-        ASSERT(m.contains(3));
+        int c = 0;
+        for(int i = 0; i < 100; ++i)
+        {
+            m.insert(i, i + 1);
+            c += i;
+        }
+
+        const basic::HashMap<int, char>::Iterator i = m.get_iterator();
+        while (i)
+        {
+            const basic::Pair<int, char>& p = i.next();
+            LOG("%d, %c", p.key, p.value);
+            c -= p.key;
+        }
+        char out;
+        if( m.find(5, out) )
+        {
+            LOG("%c", out);
+        }
 
         cJSON_Delete(json);
     }

@@ -18,9 +18,11 @@ struct HashFn<uint32>
 {
     static uint32 hash(const uint32& in)
     {
-        uint32 res = (in + 32) ^ in;
-
-        return (res >> 1);
+        uint32 x = in;
+        x = ((x >> 16) ^ x) * 0x45d9f3b;
+        x = ((x >> 16) ^ x) * 0x45d9f3b;
+        x = (x >> 16) ^ x;
+        return x;
     }
 };
 
@@ -29,9 +31,7 @@ struct HashFn<int32>
 {
     static uint32 hash(const int32& in)
     {
-        uint32 res = (in + 32) ^ in;
-
-        return (res >> 1);
+        return HashFn<uint32>::hash(static_cast<uint32>(in));
     }
 };
 
@@ -117,39 +117,41 @@ class HashMap
         }
     };
 
-    void rebuild()
+    static basic::Vector<Bucket> rebuild(basic::Vector<Bucket>& table)
     {
         basic::Vector<Bucket> new_table;
-        basic::uint32 len = m_table.get_size();
+        basic::uint32 len = table.get_size();
         new_table.resize(len * 2);
-
-        for(uint32 i = 0; i < m_table.get_size(); ++i)
+        uint32 size = 0;
+        for(uint32 i = 0; i < table.get_size(); ++i)
         {
-            Bucket& b = m_table[i];
+            Bucket& b = table[i];
             for(uint32 j = 0; j < b.count; ++j)
             {
-                internal_insert(new_table, std::move(m_table[i].elements[j]));
+                int32 k = b.elements[j].key;
+                internal_insert(new_table, size, std::move(b.elements[j]));
             }
         }
-        m_table = std::move(new_table);
+
+        return new_table;
     }
 
-    void internal_insert(basic::Vector<Bucket>& table, InternalPair&& p)
+    static void internal_insert(basic::Vector<Bucket>& table, uint32& out_size, InternalPair&& p)
     {
         uint32 pos = get_pos(p.key, table.get_size());
 
         if( table[pos].insert( p ) )
         {
-            ++m_size;
+            ++out_size;
         }
         else
         {
-            rebuild();
-            internal_insert(table, std::move(p));
+            table = std::move(rebuild(table));
+            internal_insert(table, out_size, std::move(p));
         }
     }
 
-    uint32 get_pos(const K& key, uint32 table_len)
+    static uint32 get_pos(const K& key, uint32 table_len)
     {
         uint32 hash_val = HASH_FN::hash(key);
         uint32 pos = hash_val % table_len;
@@ -162,7 +164,7 @@ public:
         :m_size(0)
         ,m_table()
     {
-        m_table.resize(8);
+        m_table.resize(10);
     }
 
     uint32 get_size() const
@@ -173,7 +175,12 @@ public:
     void insert(const K& key, const V& val)
     {
         InternalPair p {key, val};
-        internal_insert(m_table, std::move(p));
+        internal_insert(m_table, m_size, std::move(p));
+        if(m_table.get_size() >= 160)
+        {
+            auto& test = m_table[82];
+            LOG("");
+        }
     }
 
     bool find(const K& key, V& out)
@@ -216,10 +223,78 @@ public:
             --m_size;
         }
     }
+public:
+    class Iterator
+    {
+    public:
+        Iterator(HashMap<K, V>& map)
+            :m_map(map)
+            ,m_bucket(0)
+            ,m_index(0)
+            ,m_counter(0)
+        {}
 
+        ~Iterator() = default;
+
+        InternalPair& next()
+        {
+            Bucket* current = &m_map.m_table[m_bucket];
+
+            while(current->count <= m_index)
+            {
+                current = &m_map.m_table[++m_bucket];
+                m_index = 0;
+            }
+            ++m_counter;
+            return current->elements[m_index++];
+        }
+
+        const InternalPair& next() const
+        {
+            const Bucket* current = &m_map.m_table[m_bucket];
+
+            while(current->count <= m_index)
+            {
+                current = &m_map.m_table[++m_bucket];
+                m_index = 0;
+            }
+            ++m_counter;
+            return current->elements[m_index++];
+        }
+
+        void reset()
+        {
+            m_bucket = 0;
+            m_index = 0;
+            m_counter = 0;
+        }
+
+        operator bool () const
+        {
+            return m_counter < m_map.get_size();
+        }
+
+    private:
+        HashMap<K, V>& m_map;
+        mutable uint32 m_bucket;
+        mutable uint32 m_index;
+        mutable uint32 m_counter;
+    };
+
+    Iterator get_iterator()
+    {
+        return Iterator(*this);
+    }
+
+    const Iterator get_iterator() const
+    {
+        return Iterator(*this);
+    }
+
+    friend class Iterator;
 private:
-    basic::uint32 m_size;
-    basic::Vector<Bucket> m_table;
+    uint32 m_size;
+    Vector<Bucket> m_table;
 };
 
 }
