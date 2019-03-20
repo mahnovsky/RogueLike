@@ -49,10 +49,10 @@ bool Config::load(ResourceStorage *)
             c += i;
         }
 
-        const basic::HashMap<int, char>::Iterator i = m.get_iterator();
-        while (i)
+        basic::Iterator<basic::HashMap<int, char>> it(m);
+        while (it)
         {
-            const basic::Pair<int, char>& p = i.next();
+            const basic::Pair<int, char>& p = it.next();
             LOG("%d, %c", p.key, p.value);
             c -= p.key;
         }

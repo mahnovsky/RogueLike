@@ -50,6 +50,34 @@ struct HashFn<String>
     }
 };
 
+template<typename T>
+class Iterator
+{
+public:
+    Iterator(T& t)
+        :m_it(t.get_iterator())
+    {
+    }
+
+    typename T::Type& next()
+    {
+        return m_it.next();
+    }
+
+    const typename T::Type& next() const
+    {
+        return  m_it.next();
+    }
+
+    operator bool () const
+    {
+        return m_it;
+    }
+
+private:
+    typename T::Iterator m_it;
+};
+
 template <typename K, typename V, typename HASH_FN=HashFn<K>>
 class HashMap
 {
@@ -160,6 +188,8 @@ class HashMap
     }
 
 public:
+    using Type = InternalPair;
+
     HashMap()
         :m_size(0)
         ,m_table()
