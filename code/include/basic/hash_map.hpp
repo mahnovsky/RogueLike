@@ -89,7 +89,7 @@ class HashMap
         uint32 count = 0;
         InternalPair elements[MAX_ELEMENTS];
 
-        uint32 find_index(const K& key)
+        uint32 find_index(const K& key) const
         {
             for(uint32 i = 0; i < count; ++i)
             {
@@ -261,7 +261,12 @@ public:
             :m_map(map)
             ,m_bucket(0)
             ,m_index(0)
-            ,m_counter(0)
+        {}
+
+        Iterator(HashMap<K, V>& map, uint32 bucket, uint32 index)
+            :m_map(map)
+            ,m_bucket(bucket)
+            ,m_index(index)
         {}
 
         ~Iterator() = default;
@@ -269,26 +274,26 @@ public:
         InternalPair& next()
         {
             Bucket* current = &m_map.m_table[m_bucket];
+            const uint32 bs = m_map.m_table.get_size();
 
-            while(current->count <= m_index)
+            while(current->count <= m_index && m_bucket < bs)
             {
                 current = &m_map.m_table[++m_bucket];
                 m_index = 0;
             }
-            ++m_counter;
             return current->elements[m_index++];
         }
 
         const InternalPair& next() const
         {
             const Bucket* current = &m_map.m_table[m_bucket];
+            const uint32 bs = m_map.m_table.get_size();
 
-            while(current->count <= m_index)
+            while(current->count <= m_index && m_bucket < bs)
             {
                 current = &m_map.m_table[++m_bucket];
                 m_index = 0;
             }
-            ++m_counter;
             return current->elements[m_index++];
         }
 
@@ -296,12 +301,43 @@ public:
         {
             m_bucket = 0;
             m_index = 0;
-            m_counter = 0;
+        }
+
+        bool has_next() const
+        {
+            uint32 bp = m_bucket;
+            const uint32 bs = m_map.m_table.get_size();
+            const Bucket* current = &m_map.m_table[bp];
+
+            do
+            {
+                if(current->count > 0)
+                {
+                    return true;
+                }
+
+                current = &m_map.m_table[++bp];
+            }
+            while(bp < bs);
+
+            return false;
         }
 
         operator bool () const
         {
-            return m_counter < m_map.get_size();
+            return has_next();
+        }
+
+        const V& value() const
+        {
+            const Bucket* current = &m_map.m_table[m_bucket];
+
+            return current->elements[m_index].value;
+        }
+
+        bool is_valid() const
+        {
+            return m_bucket < m_map.m_table.get_size();
         }
 
     private:
@@ -310,6 +346,21 @@ public:
         mutable uint32 m_index;
         mutable uint32 m_counter;
     };
+
+    const Iterator find(const K& key) const
+    {
+        uint32 pos = get_pos(key, m_table.get_size());
+
+        const Bucket& b = m_table[pos];
+        uint32 index = b.find_index(key);
+
+        if(index != Bucket::MAX_ELEMENTS)
+        {
+            return Iterator(*this, pos, index);
+        }
+
+        return Iterator(*this, get_size());
+    }
 
     Iterator get_iterator()
     {
