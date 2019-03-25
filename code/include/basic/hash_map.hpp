@@ -59,15 +59,6 @@ public:
     {
     }
 
-    typename T::Type& next()
-    {
-        return m_it.next();
-    }
-
-    const typename T::Type& next() const
-    {
-        return  m_it.next();
-    }
 
     operator bool () const
     {
@@ -254,48 +245,23 @@ public:
         }
     }
 public:
+
     class Iterator
     {
     public:
-        Iterator(HashMap<K, V>& map)
+        Iterator(const HashMap<K, V>& map)
             :m_map(map)
             ,m_bucket(0)
             ,m_index(0)
         {}
 
-        Iterator(HashMap<K, V>& map, uint32 bucket, uint32 index)
+        Iterator(const HashMap<K, V>& map, uint32 bucket, uint32 index)
             :m_map(map)
             ,m_bucket(bucket)
             ,m_index(index)
         {}
 
         ~Iterator() = default;
-
-        InternalPair& next()
-        {
-            Bucket* current = &m_map.m_table[m_bucket];
-            const uint32 bs = m_map.m_table.get_size();
-
-            while(current->count <= m_index && m_bucket < bs)
-            {
-                current = &m_map.m_table[++m_bucket];
-                m_index = 0;
-            }
-            return current->elements[m_index++];
-        }
-
-        const InternalPair& next() const
-        {
-            const Bucket* current = &m_map.m_table[m_bucket];
-            const uint32 bs = m_map.m_table.get_size();
-
-            while(current->count <= m_index && m_bucket < bs)
-            {
-                current = &m_map.m_table[++m_bucket];
-                m_index = 0;
-            }
-            return current->elements[m_index++];
-        }
 
         void reset()
         {
@@ -340,14 +306,49 @@ public:
             return m_bucket < m_map.m_table.get_size();
         }
 
+        Iterator& operator ++ ()
+        {
+            const Bucket* current = &m_map.m_table[m_bucket];
+            const uint32 bs = m_map.m_table.get_size();
+
+            ++m_index;
+            while(current->count <= m_index)
+            {
+                m_index = 0;
+                ++m_bucket;
+                if(m_bucket >= bs)
+                {
+                    return *this;
+                }
+
+                current = &m_map.m_table[m_bucket];
+            }
+
+            return *this;
+        }
+
+        const InternalPair& operator * () const
+        {
+            return m_map.m_table[m_bucket].elements[m_index];
+        }
+
+        bool operator == (const Iterator& it) const
+        {
+            return m_bucket == it.m_bucket && m_index == it.m_index;
+        }
+
+        bool operator != (const Iterator& it) const
+        {
+            return !(it == *this);
+        }
+
     private:
-        HashMap<K, V>& m_map;
+        const HashMap<K, V>& m_map;
         mutable uint32 m_bucket;
         mutable uint32 m_index;
-        mutable uint32 m_counter;
     };
 
-    const Iterator find(const K& key) const
+    Iterator find(const K& key) const
     {
         uint32 pos = get_pos(key, m_table.get_size());
 
@@ -359,7 +360,7 @@ public:
             return Iterator(*this, pos, index);
         }
 
-        return Iterator(*this, get_size());
+        return end();
     }
 
     Iterator get_iterator()
@@ -367,9 +368,23 @@ public:
         return Iterator(*this);
     }
 
-    const Iterator get_iterator() const
+    Iterator begin() const
     {
-        return Iterator(*this);
+        uint32 b = 0;
+        for(uint32 i = 0; i < m_table.get_size(); ++i)
+        {
+            if(m_table[i].count > 0)
+            {
+                b = i;
+                break;
+            }
+        }
+        return Iterator(*this, b, 0);
+    }
+
+    Iterator end() const
+    {
+        return Iterator(*this, m_table.get_size(), 0);
     }
 
     friend class Iterator;

@@ -43,23 +43,25 @@ bool Config::load(ResourceStorage *)
         basic::HashMap<int, char> m;
 
         int c = 0;
-        for(int i = 0; i < 100; ++i)
+        for(int i = 0; i < 50; ++i)
         {
-            m.insert(i, i + 1);
+            int pos = i + 'A';
+            m.insert(pos, (char)pos);
             c += i;
         }
 
-        basic::Iterator<basic::HashMap<int, char>> it(m);
-        while (it)
+        int counter = 0;
+        //basic::HashMap<int, char>::Iterator it1 = m.begin();
+        for(auto& p : m)
         {
-            const basic::Pair<int, char>& p = it.next();
-            LOG("%d, %c", p.key, p.value);
-            c -= p.key;
+            LOG("(%d, %c)", p.key, p.value);
+            ++counter;
         }
-        char out;
-        if( m.find(5, out) )
+
+        basic::HashMap<int, char>::Iterator found = m.find(5);
+        if( found != m.end() )
         {
-            LOG("%c", out);
+            LOG("%c", (*found).value);
         }
 
         cJSON_Delete(json);
