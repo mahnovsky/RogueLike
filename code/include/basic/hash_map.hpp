@@ -342,6 +342,11 @@ public:
             return !(it == *this);
         }
 
+        const InternalPair* operator -> () const
+        {
+            return &m_map.m_table[m_bucket].elements[m_index];
+        }
+
     private:
         const HashMap<K, V>& m_map;
         mutable uint32 m_bucket;

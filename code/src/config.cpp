@@ -61,7 +61,7 @@ bool Config::load(ResourceStorage *)
         basic::HashMap<int, char>::Iterator found = m.find(5);
         if( found != m.end() )
         {
-            LOG("%c", (*found).value);
+            LOG("%c", found->value);
         }
 
         cJSON_Delete(json);
