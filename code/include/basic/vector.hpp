@@ -83,6 +83,84 @@ public:
     static constexpr const uint32 MAX_LEN = 0xffffffff;
     static constexpr const uint32 DEFAULT_CAPACITY = 4;
 
+    class Iterator
+    {
+    public:
+        Iterator(Vector<T>& t, uint32 index)
+            :m_vector(t)
+            ,m_index(index)
+        {}
+
+        T& operator *()
+        {
+            return m_vector[m_index];
+        }
+
+        T* operator ->()
+        {
+            return &m_vector[m_index];
+        }
+
+        Iterator& operator ++ ()
+        {
+            ++m_index;
+            return *this;
+        }
+
+        bool operator == (const Iterator& other) const
+        {
+            return m_index == other.m_index;
+        }
+
+        bool operator != (const Iterator& other) const
+        {
+            return m_index != other.m_index;
+        }
+
+    private:
+        Vector<T>& m_vector;
+        uint32 m_index;
+    };
+
+    class ConstIterator
+    {
+    public:
+        ConstIterator(const Vector<T>& t, uint32 index)
+            :m_vector(t)
+            ,m_index(index)
+        {}
+
+        const T& operator *() const
+        {
+            return m_vector[m_index];
+        }
+
+        const T* operator ->() const
+        {
+            return &m_vector[m_index];
+        }
+
+        ConstIterator& operator ++ ()
+        {
+            ++m_index;
+            return *this;
+        }
+
+        bool operator == (const ConstIterator& other) const
+        {
+            return m_index == other.m_index;
+        }
+
+        bool operator != (const ConstIterator& other) const
+        {
+            return m_index != other.m_index;
+        }
+
+    private:
+        const Vector<T>& m_vector;
+        uint32 m_index;
+    };
+
     Vector( )
         : m_data( nullptr )
         , m_size( 0 )
@@ -115,6 +193,26 @@ public:
     ~Vector( )
     {
         force_clear( );
+    }
+
+    Iterator begin()
+    {
+        return Iterator(*this, 0);
+    }
+
+    Iterator end()
+    {
+        return Iterator(*this, get_size());
+    }
+
+    ConstIterator begin() const
+    {
+        return ConstIterator(*this, 0);
+    }
+
+    ConstIterator end() const
+    {
+        return ConstIterator(*this, get_size());
     }
 
     Vector< T >& operator=( const Vector< T >& v )

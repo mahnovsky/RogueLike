@@ -13,11 +13,11 @@ ObjectManager::~ObjectManager()
 
 Object *ObjectManager::find(const char *name)
 {
-    for(basic::uint32 i = 0; i < m_objects.get_size(); ++i)
+    for(Object* object : m_objects)
     {
-        if( m_objects[i]->get_name() == name )
+        if(object->get_name() == name)
         {
-            return m_objects[i];
+            return object;
         }
     }
 
@@ -26,11 +26,11 @@ Object *ObjectManager::find(const char *name)
 
 Object *ObjectManager::find(basic::int32 tag)
 {
-    for(basic::uint32 i = 0; i < m_objects.get_size(); ++i)
+    for(Object* object : m_objects)
     {
-        if( m_objects[i]->get_tag() == tag )
+        if(object->get_tag() == tag)
         {
-            return m_objects[i];
+            return object;
         }
     }
 
@@ -39,12 +39,12 @@ Object *ObjectManager::find(basic::int32 tag)
 
 Object *ObjectManager::find(const char *name, basic::int32 tag)
 {
-    for(basic::uint32 i = 0; i < m_objects.get_size(); ++i)
+    for(Object* object : m_objects)
     {
-        if( m_objects[i]->get_tag() == tag &&
-            m_objects[i]->get_name() == name )
+        if( object->get_tag() == tag &&
+            object->get_name() == name )
         {
-            return m_objects[i];
+            return object;
         }
     }
 

@@ -51,7 +51,6 @@ bool Config::load(ResourceStorage *)
         }
 
         int counter = 0;
-        //basic::HashMap<int, char>::Iterator it1 = m.begin();
         for(auto& p : m)
         {
             LOG("(%d, %c)", p.key, p.value);
@@ -124,11 +123,11 @@ Config *Config::create(ObjectManager* manager, const char *file)
 
 basic::Vector<basic::String> Config::get_values(const char *key) const
 {
-    for(basic::uint32 i = 0; i < m_values.get_size(); ++i)
+    for(const auto& item : m_values)
     {
-        if( m_values[i].key == key )
+        if(item.key == key)
         {
-            return m_values[i].values;
+            return  item.values;
         }
     }
 

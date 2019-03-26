@@ -5,11 +5,11 @@ namespace input
 
 InputListener::~InputListener() {}
 
-void InputListener::key_pressed(input::KeyCode code, basic::int16 key) {}
+void InputListener::key_pressed(input::KeyCode , basic::int16 ) {}
 
-void InputListener::mouse_pressed(input::MouseButton button, basic::int32 x, basic::int32 y) {}
+void InputListener::mouse_pressed(input::MouseButton , basic::int32 , basic::int32 ) {}
 
-void InputListener::mouse_moved(basic::int32 x, basic::int32 y){}
+void InputListener::mouse_moved(basic::int32 , basic::int32 ){}
 
 Input::Input()
 {
@@ -19,33 +19,24 @@ Input::~Input() {}
 
 void Input::key_pressed(input::KeyCode code, basic::int16 key)
 {
-    for(basic::uint32 i = 0; i < m_listeners.get_size(); ++i)
+    for(InputListener* listener : m_listeners)
     {
-        InputListener* listener = m_listeners[i];
-        ASSERT( listener != nullptr );
-
         listener->key_pressed( code, key );
     }
 }
 
 void Input::mouse_pressed(input::MouseButton button, basic::int32 x, basic::int32 y)
 {
-    for(basic::uint32 i = 0; i < m_listeners.get_size(); ++i)
+    for(InputListener* listener : m_listeners)
     {
-        InputListener* listener = m_listeners[i];
-        ASSERT( listener != nullptr );
-
         listener->mouse_pressed( button, x, y );
     }
 }
 
 void Input::mouse_moved(basic::int32 x, basic::int32 y)
 {
-    for(basic::uint32 i = 0; i < m_listeners.get_size(); ++i)
+    for(InputListener* listener : m_listeners)
     {
-        InputListener* listener = m_listeners[i];
-        ASSERT( listener != nullptr );
-
         listener->mouse_moved( x, y );
     }
 }
