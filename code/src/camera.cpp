@@ -51,7 +51,7 @@ void PerspectiveCamera::set_up( const glm::vec3& up )
 
 void PerspectiveCamera::get_matrix( glm::mat4& out ) const
 {
-    out = m_projection * m_view;
+    out = m_final;
 }
 
 void PerspectiveCamera::update()
@@ -60,6 +60,8 @@ void PerspectiveCamera::update()
         m_position,
         m_direction,
         m_up );
+
+    m_final = m_projection * m_view;
 }
 
 OrthoCamera::OrthoCamera(ObjectManager *manager, float width, float height, float near, float far )
@@ -85,22 +87,12 @@ void OrthoCamera::init(
 
 void OrthoCamera::update()
 {
-    glm::vec3 pos = m_position;
-    const float left = pos.x - m_width / 2;
-    const float right = pos.x + m_width / 2;
-    const float top = pos.y + m_height / 2;
-    const float bottom = pos.y - m_height / 2;
-
     m_projection = glm::ortho( 0.f, m_width, m_height, 0.f, m_near, m_far );
 
     m_view = glm::lookAt(
-
-            m_position, // Camera is at (0,0,5), in World Space
-
-            glm::vec3(0,0,0), // and looks at the origin
-
-            glm::vec3(0,-1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-
+            m_position,
+            glm::vec3(0,0,0),
+            glm::vec3(0,-1,0)
         );
 }
 
@@ -121,7 +113,7 @@ void OrthoCamera::set_up( const glm::vec3& up )
 
 void OrthoCamera::get_matrix( glm::mat4& out ) const
 {
-    out = m_projection ;
+    out = m_projection;
 }
 
 

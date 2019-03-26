@@ -99,8 +99,8 @@ void Transform::update_final_matrix() const
 		m_final_mat = m_final_mat * m_parent->get_matrix();
 	}
 
-	for (basic::uint32 i = 0; i < m_children.get_size(); ++i)
+    for (Transform* child : m_children)
 	{
-		m_children[i]->update_final_matrix();
+        child->update_final_matrix();
 	}
 }

@@ -282,12 +282,6 @@ void Widget::update_rect()
 
 glm::mat4 Widget::get_matrix() const
 {
-    /*glm::mat4 mat(1.f);
-    if(m_view)
-    {
-        mat = m_view->transform->get_matrix();
-        return (m_parent ? mat * m_parent->get_matrix() : mat);
-    }*/
     return m_view->get_transform()->get_matrix();
 }
 
