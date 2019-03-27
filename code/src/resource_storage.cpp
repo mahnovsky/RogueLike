@@ -19,10 +19,11 @@ ResourceStorage::ResourceStorage(ObjectManager *manager)
 
 ResourceStorage::~ResourceStorage()
 {
-    for( basic::uint32 i = 0; i < m_resources.get_size(); ++i )
+    for( Object* obj : m_resources )
     {
-        m_resources[i]->release();
+        obj->release();
     }
+    m_resources.clear();
 }
 
 bool ResourceStorage::add_resource(FileResource *file_resource)

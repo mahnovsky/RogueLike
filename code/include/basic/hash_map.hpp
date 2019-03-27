@@ -43,8 +43,8 @@ struct HashFn<String>
         uint32 res = 0;
         for(uint32 i = 0; i < in.get_size(); ++i)
         {
-            uint32 ch = in[i];
-            res += ((ch + 32 * i) ^ ch);
+            uint32 ch = HashFn<uint32>::hash(in[i]);
+            res += ch;
         }
         return res;
     }
@@ -147,7 +147,6 @@ class HashMap
             Bucket& b = table[i];
             for(uint32 j = 0; j < b.count; ++j)
             {
-                int32 k = b.elements[j].key;
                 internal_insert(new_table, size, std::move(b.elements[j]));
             }
         }

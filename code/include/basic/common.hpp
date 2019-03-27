@@ -7,3 +7,6 @@
 #include "string.hpp"
 #include "time.hpp"
 #include "hash_map.hpp"
+#include "memory.hpp"
+#include "json_document.hpp"
+

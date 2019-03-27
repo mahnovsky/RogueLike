@@ -18,7 +18,7 @@ public:
 
     static Config* create(ObjectManager *manager, const char* file );
 
-    basic::Vector<basic::String> get_values( const char* key ) const;
+   const basic::JsonObject* get_values( const char* key ) const;
 
     basic::int32 get_int( const char* key ) const;
 
@@ -28,4 +28,5 @@ public:
 
 private:
     basic::Vector<Pair> m_values;
+    basic::JsonDocument m_doc;
 };

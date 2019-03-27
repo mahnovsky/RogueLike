@@ -71,7 +71,10 @@ namespace basic
 
 	String& String::operator=(const String& str)
 	{
-		init(str.get_cstr());
+        if(!str.is_empty())
+        {
+            init(str.get_cstr());
+        }
 
 		return *this;
 	}

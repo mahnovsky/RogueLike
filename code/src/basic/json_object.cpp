@@ -62,4 +62,26 @@ const JsonObject *JsonObject::get_object(const char *key) const
     return nullptr;
 }
 
+bool JsonObject::get_string(const char *key, String& out) const
+{
+    const JsonObject* obj = get_object(key);
+    if(obj)
+    {
+        out = obj->to_string();
+
+        return true;
+    }
+    return false;
+}
+
+void JsonObject::set_value(const Variant &t)
+{
+    m_value = t;
+}
+
+void JsonObject::add_object(const char *name, JsonObject *obj)
+{
+    m_objects.insert( name, obj );
+}
+
 }

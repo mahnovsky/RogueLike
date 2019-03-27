@@ -144,7 +144,7 @@ GameInstance::init( )
 void
 GameInstance::draw( IRender* render )
 {
-    //m_cow->draw_node(  );
+    m_cow->draw_node(  );
     m_back.draw( m_game_camera, render );
     m_btn.draw( m_ui_camera, render );
 

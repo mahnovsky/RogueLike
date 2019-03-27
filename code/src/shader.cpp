@@ -12,17 +12,8 @@ ShaderProgram::ShaderProgram(ObjectManager* manager, const char *file)
 
 ShaderProgram::~ShaderProgram( )
 {
-    if( m_vertex_shader )
-    {
-        m_vertex_shader->release();
-        m_vertex_shader = nullptr;
-    }
-
-    if( m_fragment_shader )
-    {
-        m_fragment_shader->release();
-        m_fragment_shader = nullptr;
-    }
+    SAFE_RELEASE( m_vertex_shader );
+    SAFE_RELEASE(m_fragment_shader);
 
     if ( m_shader_program )
     {
@@ -37,31 +28,28 @@ bool ShaderProgram::load( ResourceStorage *storage )
     if( config )
     {
         basic::String name = get_name();
-        basic::Vector<basic::String> values = config->get_values( name.get_cstr() );
+        const basic::JsonObject* shader_conf = config->get_values( name.get_cstr() );
 
         basic::String vertex_file;
+        shader_conf->get_string("vertex_shader", vertex_file);
+
+        if(vertex_file.is_empty())
+        {
+            return false;
+        }
+
         basic::String fragment_file;
+        shader_conf->get_string("fragment_shader", fragment_file);
 
-        for(basic::uint32 i = 0; i < values.get_size(); ++i)
+        if(fragment_file.is_empty())
         {
-            basic::String& line = values[i];
-            if( line.ends_of( ".vs" ) )
-            {
-                vertex_file = line;
-            }
-            else if( line.ends_of( ".fs" ) )
-            {
-                fragment_file = line;
-            }
+            return false;
         }
 
-        if( !vertex_file.is_empty() && !fragment_file.is_empty() )
-        {
-            BaseShader* vertex = storage->get_resorce<BaseShader>( vertex_file.get_cstr() );
-            BaseShader* fragment = storage->get_resorce<BaseShader>( fragment_file.get_cstr() );
+        BaseShader* vertex = storage->get_resorce<BaseShader>( vertex_file.get_cstr() );
+        BaseShader* fragment = storage->get_resorce<BaseShader>( fragment_file.get_cstr() );
 
-            return init( vertex, fragment );
-        }
+        return init( vertex, fragment );
     }
 
     return false;

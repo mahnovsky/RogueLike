@@ -36,11 +36,11 @@ bool Texture::load(ResourceStorage* storage)
         basic::String info_name = TEXTURE_PATH + name.get_substr(0, index);
         info_name += "conf";
         Config* conf = storage->get_resorce<Config>(info_name.get_cstr());
-        basic::Vector<basic::String> frames = conf->get_values("frames");
+        /*basic::Vector<basic::String> frames = conf->get_values("frames");
         for(basic::uint32 i = 0; i < frames.get_size(); ++i)
         {
             LOG("%s", frames[i].get_cstr());
-        }
+        }*/
     }
 
 	basic::Vector<basic::uint8> data = basic::get_file_content(file.get_cstr());
