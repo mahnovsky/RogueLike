@@ -3,6 +3,15 @@
 #include "defines.hpp"
 #include "resource_storage.hpp"
 
+struct TextureRect
+{
+    float x;
+    float y;
+    float w;
+    float h;
+    basic::String name;
+};
+
 class Texture : public FileResource
 {
 public:
@@ -37,9 +46,14 @@ public:
 
     basic::uint32 get_height( ) const;
 
+    bool get_rect(const char* key, TextureRect& out_rect) const;
+
+    bool get_rect(basic::uint32 index, TextureRect& out_rect) const;
+
 private:
     basic::uint32 m_texture;
     basic::uint32 m_width;
     basic::uint32 m_height;
     basic::uint32 m_components;
+    basic::Vector<TextureRect> m_rects;
 };

@@ -16,6 +16,8 @@ public:
 
     void load_matrix( const char* name, const glm::mat4& mat ) const;
 
+    const Texture* get_texture() const;
+
 private:
     ShaderProgram* m_shader;
     Texture* m_texture;

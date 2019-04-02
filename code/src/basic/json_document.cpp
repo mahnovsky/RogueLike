@@ -28,6 +28,15 @@ JsonDocument::JsonDocument()
     }
 }
 
+JsonDocument::~JsonDocument()
+{
+    for(JsonObject* obj : m_objects)
+    {
+        DELETE_OBJ(obj);
+    }
+    m_objects.clear();
+}
+
 const JsonObject *JsonDocument::get_root() const
 {
     return m_root;
@@ -43,17 +52,7 @@ static void apply_value(JsonDocument* doc, Variant& v, const cJSON* node)
     }
     else if(cJSON_IsNumber(node))
     {
-        double val = node->valuedouble;
-        uint64 ival = static_cast<uint64>(val);
-        double delta = (val - static_cast<double>(ival)) * 10000;
-        if(delta > 0.1)
-        {
-            v.set(static_cast<float>(val));
-        }
-        else
-        {
-            v.set(static_cast<int32>(val));
-        }
+        v.set(static_cast<float>(node->valuedouble));
     }
     else if(cJSON_IsString(node))
     {

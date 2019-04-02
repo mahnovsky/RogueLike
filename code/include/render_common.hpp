@@ -184,6 +184,8 @@ public:
 
 	void add_child(RenderNode* node);
 
+    const Texture* get_texture() const;
+
 private:
 	basic::uint32 get_buffer_usage() const;
 
@@ -224,7 +226,7 @@ struct QuadGenerator
 {
     QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color );
 
-    void generate(VertexBufferT &out_vb, int offset );
+    void generate(VertexBufferT &out_vb, int offset, const struct TextureRect *rect = nullptr);
 
     void generate( IndexBuffer& out_ib, int offset );
 

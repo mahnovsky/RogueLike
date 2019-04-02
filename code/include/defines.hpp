@@ -1,5 +1,6 @@
 #pragma once
 
+class Config;
 class TimerManager;
 class Texture;
 class ShaderBase;

@@ -67,3 +67,8 @@ void Material::load_matrix( const char *name, const glm::mat4 &mat ) const
 
     glUniformMatrix4fv( upos, 1, GL_FALSE, glm::value_ptr( mat ) );
 }
+
+const Texture *Material::get_texture() const
+{
+    return m_texture;
+}

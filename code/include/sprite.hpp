@@ -22,16 +22,20 @@ public:
 
     float get_angle() const;
 
+    void set_frame_name(const char* name);
+
     glm::vec3 get_position( ) const;
 
     void set_color( basic::uint8 r, basic::uint8 g, basic::uint8 b, basic::uint8 a );
 
 private:
+    void update_frame();
+
+private:
     basic::Color m_color;
-    Texture* m_texture;
-    ShaderProgram* m_shader;
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     float m_angle;
     RenderNode* m_render_node;
+    basic::String m_frame_name;
 };

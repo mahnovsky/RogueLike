@@ -50,6 +50,31 @@ String JsonObject::to_string() const
     return res;
 }
 
+Vector<const JsonObject *> JsonObject::to_array() const
+{
+    Vector<const JsonObject*> objs;
+
+    if(m_value.get_type() == VariantType::Array)
+    {
+        Vector<Variant> tmp;
+        m_value.get( tmp );
+        if(!tmp.is_empty())
+        {
+            for (auto& v : tmp )
+            {
+                if(v.get_type() == VariantType::Data)
+                {
+                    void* data = nullptr;
+                    v.get(data);
+                    objs.push( static_cast<const JsonObject*>(data) );
+                }
+            }
+        }
+    }
+
+    return objs;
+}
+
 const JsonObject *JsonObject::get_object(const char *key) const
 {
     const auto it = m_objects.find(key);
@@ -62,7 +87,19 @@ const JsonObject *JsonObject::get_object(const char *key) const
     return nullptr;
 }
 
-bool JsonObject::get_string(const char *key, String& out) const
+bool JsonObject::get(const char *key, float &out) const
+{
+    const JsonObject* obj = get_object(key);
+    if(obj)
+    {
+        out = obj->to_float();
+
+        return true;
+    }
+    return false;
+}
+
+bool JsonObject::get(const char *key, String& out) const
 {
     const JsonObject* obj = get_object(key);
     if(obj)

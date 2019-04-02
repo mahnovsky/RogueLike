@@ -30,8 +30,10 @@ bool ShaderProgram::load( ResourceStorage *storage )
         basic::String name = get_name();
         const basic::JsonObject* shader_conf = config->get_values( name.get_cstr() );
 
+        ASSERT(shader_conf);
+
         basic::String vertex_file;
-        shader_conf->get_string("vertex_shader", vertex_file);
+        shader_conf->get("vertex_shader", vertex_file);
 
         if(vertex_file.is_empty())
         {
@@ -39,7 +41,7 @@ bool ShaderProgram::load( ResourceStorage *storage )
         }
 
         basic::String fragment_file;
-        shader_conf->get_string("fragment_shader", fragment_file);
+        shader_conf->get("fragment_shader", fragment_file);
 
         if(fragment_file.is_empty())
         {

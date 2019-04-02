@@ -217,6 +217,11 @@ public:
 
     Vector< T >& operator=( const Vector< T >& v )
     {
+        if(v.m_size == 0)
+        {
+            return *this;
+        }
+
         m_size = v.m_size;
         m_capacity = v.m_capacity;
 

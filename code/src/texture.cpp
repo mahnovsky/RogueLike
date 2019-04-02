@@ -36,11 +36,25 @@ bool Texture::load(ResourceStorage* storage)
         basic::String info_name = TEXTURE_PATH + name.get_substr(0, index);
         info_name += "conf";
         Config* conf = storage->get_resorce<Config>(info_name.get_cstr());
-        /*basic::Vector<basic::String> frames = conf->get_values("frames");
-        for(basic::uint32 i = 0; i < frames.get_size(); ++i)
+
+        const basic::JsonObject* frames = conf->get_values("frames");
+
+        auto frames_array = frames->to_array();
+        for(const basic::JsonObject* frame : frames_array)
         {
-            LOG("%s", frames[i].get_cstr());
-        }*/
+            TextureRect rect;
+            do
+            {
+#define CHECK(exp) if( !(exp) ) break;
+            CHECK( frame->get("x", rect.x) )
+            CHECK( frame->get("y", rect.y) );
+            CHECK( frame->get("w", rect.w) );
+            CHECK( frame->get("h", rect.h) );
+            CHECK( frame->get("name", rect.name ) );
+            m_rects.push(rect);
+#undef CHECK
+            }while(0);
+        }
     }
 
 	basic::Vector<basic::uint8> data = basic::get_file_content(file.get_cstr());
@@ -157,4 +171,27 @@ basic::uint32
 Texture::get_height( ) const
 {
     return m_height;
+}
+
+bool Texture::get_rect(const char *key, TextureRect &out_rect) const
+{
+    for(auto& rect : m_rects)
+    {
+        if(rect.name == key)
+        {
+            out_rect = rect;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Texture::get_rect(basic::uint32 index, TextureRect &out_rect) const
+{
+    if(index < m_rects.get_size())
+    {
+        out_rect = m_rects[index];
+        return true;
+    }
+    return false;
 }

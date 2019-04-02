@@ -36,6 +36,7 @@ public:
     Variant()
         :m_type(VariantType::None)
         ,m_value()
+        ,m_array()
     {
     }
 
@@ -44,6 +45,7 @@ public:
         m_type = other.m_type;
         m_value.o = other.m_value.o;
         m_value.s = other.m_value.s;
+        m_array = other.m_array;
 
         return *this;
     }
@@ -53,7 +55,7 @@ public:
     CONV(int32, Int)
     CONV(float, Float)
     CONV(String, String)
-    CONV(void*, Data)
+    VariantType conv(const void*) const {return VariantType::Data; }
 #undef CONV
 
 #define GETTER(type, val) bool get(type& out) const {out = m_value.o.val;return conv(out)==m_type;}
@@ -77,6 +79,12 @@ public:
     void add_array_item(const Variant& val)
     {
         m_array.push(val);
+        m_type = VariantType::Array;
+    }
+
+    VariantType get_type() const
+    {
+        return m_type;
     }
 
 private:
@@ -99,9 +107,13 @@ public:
 
     String to_string( ) const;
 
+    Vector<const JsonObject *> to_array() const;
+
     const JsonObject *get_object( const char* key ) const;
 
-    bool get_string(const char *key, String& out) const;
+    bool get(const char *key, float& out) const;
+
+    bool get(const char *key, String& out) const;
 
     void set_value(const Variant& t);
 

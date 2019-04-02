@@ -19,7 +19,7 @@ QuadGenerator::QuadGenerator( const glm::vec3& size,
 }
 
 void
-QuadGenerator::generate( VertexBufferT& out_vb, int offset )
+QuadGenerator::generate( VertexBufferT& out_vb, int offset, const TextureRect* rect )
 {
     float xoff = offset * m_size.x;
     float left = ( 0.f - m_anchor.x ) * m_size.x + xoff;
@@ -28,10 +28,21 @@ QuadGenerator::generate( VertexBufferT& out_vb, int offset )
     float top = ( 1.f - m_anchor.y ) * m_size.y;
     float z = m_size.z;
 
-    out_vb.push( {{right, top, z}, {1.f, 0.f}} );
-    out_vb.push( {{right, bottom, z}, {1.f, 1.f}} );
-    out_vb.push( {{left, bottom, z}, {0.f, 1.f}} );
-    out_vb.push( {{left, top, z}, {0.f, 0.f}} );
+    glm::vec2 t_rt{1.f, 0.f};
+    glm::vec2 t_rb{1.f, 1.f};
+    glm::vec2 t_lb{0.f, 1.f};
+    glm::vec2 t_lt{0.f, 0.f};
+    if(rect)
+    {
+        t_rt = { rect->x + rect->w, rect->y };
+        t_rb = { rect->x + rect->w, rect->y + rect->h };
+        t_lb = { rect->x, rect->y + rect->h };
+        t_lt = { rect->x, rect->y };
+    }
+    out_vb.push( {{right, top, z}, t_rt} );
+    out_vb.push( {{right, bottom, z}, t_rb} );
+    out_vb.push( {{left, bottom, z}, t_lb} );
+    out_vb.push( {{left, top, z}, t_lt} );
 }
 
 void
@@ -275,6 +286,11 @@ void RenderNode::add_child(RenderNode * node)
 
 		node->set_camera(camera);
 	}
+}
+
+const Texture *RenderNode::get_texture() const
+{
+    return material->get_texture();
 }
 
 basic::uint32 create_buffer( basic::uint32 buffer_type,

@@ -128,6 +128,7 @@ GameInstance::init( )
     m_btn.init(shader, texture);
     m_btn.set_size(100.f, -100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
+    m_btn.set_frame_name("f_0");
 
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
