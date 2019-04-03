@@ -25,11 +25,7 @@ bool JsonObject::to_bool() const
 
 int32 JsonObject::to_int() const
 {
-    int32 res = 0;
-    bool success = m_value.get(res);
-    ASSERT(success);
-
-    return res;
+    return static_cast<int32>(to_float());
 }
 
 float JsonObject::to_float() const

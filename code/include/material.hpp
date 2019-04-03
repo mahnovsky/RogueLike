@@ -12,9 +12,11 @@ public:
 
     void disable() const;
 
-    void load_color( const char* name, const basic::Color& color ) const;
+    void set_uniform(const char* name, const glm::vec2& v);
 
-    void load_matrix( const char* name, const glm::mat4& mat ) const;
+    void set_uniform( const char* name, const basic::Color& color ) const;
+
+    void set_uniform( const char* name, const glm::mat4& mat ) const;
 
     const Texture* get_texture() const;
 

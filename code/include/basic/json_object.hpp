@@ -26,7 +26,6 @@ public:
         union
         {
             bool b;
-            int32 i;
             float f;
             void* d;
         } o;
@@ -52,7 +51,6 @@ public:
 
 #define CONV(type, en) VariantType conv(const type&) const {return VariantType::en; }
     CONV(bool, Bool)
-    CONV(int32, Int)
     CONV(float, Float)
     CONV(String, String)
     VariantType conv(const void*) const {return VariantType::Data; }
@@ -60,7 +58,6 @@ public:
 
 #define GETTER(type, val) bool get(type& out) const {out = m_value.o.val;return conv(out)==m_type;}
     GETTER(bool, b)
-    GETTER(int32, i)
     GETTER(float, f)
     GETTER(void*, d)
     bool get(String& out) const { out = m_value.s; return conv(out) == m_type; }
@@ -69,7 +66,6 @@ public:
 
 #define SETTER(type, val) void set(type in){ m_value.o.val = in; m_type = conv(in); }
     SETTER(bool, b)
-    SETTER(int32, i)
     SETTER(float, f)
     SETTER(void*, d)
     void set(const String& s) { m_value.s = s; m_type = conv(s); }

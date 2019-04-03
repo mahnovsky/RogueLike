@@ -48,7 +48,12 @@ void Material::disable() const
     m_shader->unbind();
 }
 
-void Material::load_color( const char *name, const basic::Color &color ) const
+void Material::set_uniform(const char *name, const glm::vec2 &v)
+{
+
+}
+
+void Material::set_uniform( const char *name, const basic::Color &color ) const
 {
     basic::int32 upos = m_shader->get_uniform( name );
 
@@ -61,7 +66,7 @@ void Material::load_color( const char *name, const basic::Color &color ) const
     glUniform4fv( upos, 1, glm::value_ptr( c ) );
 }
 
-void Material::load_matrix( const char *name, const glm::mat4 &mat ) const
+void Material::set_uniform( const char *name, const glm::mat4 &mat ) const
 {
     basic::int32 upos = m_shader->get_uniform( name );
 

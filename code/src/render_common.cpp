@@ -495,8 +495,8 @@ void RenderNode::draw_node(basic::uint32 prev_vao)
 		mvp = pv * mvp;
 	}
 
-	material->load_matrix("MVP", mvp);
-	material->load_color("Color", color);
+    material->set_uniform("MVP", mvp);
+    material->set_uniform("Color", color);
 
 	if (index_object > 0)
 	{

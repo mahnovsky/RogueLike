@@ -125,6 +125,7 @@ GameInstance::init( )
 	m_back.set_size(2.f, 2.f);
     m_back.set_color( 255, 255, 50, 180 );
 
+    shader = m_rs.get_resorce<ShaderProgram>( "texture_grid" );
     m_btn.init(shader, texture);
     m_btn.set_size(100.f, -100.f);
 	m_btn.set_position({ 100.f, 100.f, 0.f });
