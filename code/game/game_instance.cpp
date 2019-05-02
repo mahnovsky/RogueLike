@@ -155,12 +155,6 @@ GameInstance::init( )
 	m_back.set_size(2.f, 2.f);
     m_back.set_color( 255, 255, 50, 180 );
 
-    shader = m_rs.get_resorce<ShaderProgram>( "texture_grid" );
-    m_btn.init(shader, texture);
-    m_btn.set_size(100.f, -100.f);
-	m_btn.set_position({ 100.f, 100.f, 0.f });
-    m_btn.set_frame_name("f_0");
-
     ShaderProgram* def_shader = m_rs.get_resorce<ShaderProgram>( "default" );
     Mesh m;
     if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
@@ -176,9 +170,7 @@ GameInstance::init( )
 void
 GameInstance::draw( IRender* render )
 {
-    //m_cow->draw_node(  );
     m_back.draw( m_game_camera, render );
-    m_btn.draw( m_ui_camera, render );
 
     m_ui_root->draw();
 }
