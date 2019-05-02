@@ -343,6 +343,32 @@ public:
         return false;
     }
 
+    template<class F>
+    void sort(const F& f)
+    {
+        if(m_size <= 1)
+        {
+            return;
+        }
+
+        for( uint32 i = 0; i < m_size; ++i )
+        {
+            uint32 index = i;
+            for( uint32 j = i + 1; j < m_size; ++j )
+            {
+                T& first = m_data[index];
+                T& second = m_data[j];
+                if( f(first, second) )
+                {
+                    T tmp = second;
+                    m_data[j] = first;
+                    m_data[index] = tmp;
+                    index = j;
+                }
+            }
+        }
+    }
+
     void append( const T* ptr, uint32 count )
     {
         ASSERT( ptr != nullptr );
@@ -447,6 +473,26 @@ public:
         return false;
     }
 
+    template<class F>
+    bool find_if( uint32& out_index, const F& f, uint32 pos = 0 ) const
+    {
+        if ( pos >= m_size )
+        {
+            return false;
+        }
+
+        for ( T* item = m_data + pos; item != ( m_data + m_size ); ++item )
+        {
+            if ( f( *item ) )
+            {
+                out_index = item - m_data;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     bool swap_remove( uint32 index )
     {
 		ASSERT(index < m_size);
@@ -468,8 +514,8 @@ public:
             T* pos = m_data + index;
             uint32 move_count = m_size - ( index + 1 );
             Initializer< T >::destruct( pos, Token< std::is_pod< T >::value >( ) );
-
-            if ( m_size > 1 )
+            ASSERT(m_size > 0);
+            if ( m_size > 1 && index < (m_size - 1) )
             {
                 mem_move( pos, pos + 1, sizeof( T ) * move_count );
             }

@@ -1,19 +1,20 @@
 #pragma once
 
 #include "defines.hpp"
-#include "object.hpp"
 
 class IComponent;
 
-class Actor : public Object
+class Entity
 {
 public:
-    Actor( World* world );
-    virtual ~Actor();
+    Entity( World* world );
+    virtual ~Entity();
+
+    virtual void update( float delta );
 
     void attach_component( IComponent* component );
 
 private:
     World* m_world;
-    basic::Vector<IComponent*> m_components;
+    basic::Vector< IComponent* > m_components;
 };

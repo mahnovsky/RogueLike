@@ -16,6 +16,10 @@ public:
 
     void set_text(const basic::String& text);
 
+    void set_color(const basic::Color& color);
+
+    basic::Color get_color( ) const;
+
     void set_align(AlignH horizontal);
 
     void set_align(AlignV vertical);

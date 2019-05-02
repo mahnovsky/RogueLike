@@ -1,5 +1,6 @@
 #include "widget.hpp"
 
+#include "root_widget.hpp"
 #include "render_common.hpp"
 #include "object_manager.hpp"
 #include "shader.hpp"
@@ -16,9 +17,11 @@ Widget::Widget(ObjectManager* manager, const glm::vec2& size)
     , m_children()
     , m_view( nullptr )
     , m_debug_rect( nullptr )
+    , m_picture( nullptr )
     , m_visible(true)
 	, m_horizontal(AlignH::Center)
     , m_vertical(AlignV::Center)
+    , m_storage( nullptr )
 {
     m_rect.update({0.f, 0.f}, size);
 }
@@ -36,6 +39,7 @@ Widget::~Widget()
 
 void Widget::init( ResourceStorage *storage )
 {
+    m_storage = storage;
     m_camera = dynamic_cast<ICamera*>( get_manager()->find( "ui_camera" ) );
     if( !m_camera )
     {
@@ -136,9 +140,9 @@ basic::uint32 Widget::get_child_count() const
     return m_children.get_size();
 }
 
-void Widget::add_press_callback(WidgetCallback cb)
+void Widget::set_press_action(const basic::String &action_name)
 {
-    m_press_callbacks.push(cb);
+    m_press_action_name = action_name;
 }
 
 void Widget::set_position(const glm::vec2 &pos)
@@ -223,17 +227,33 @@ AlignV Widget::get_vertical_align() const
     return  m_vertical;
 }
 
+void Widget::set_picture( Texture *tex )
+{
+    ASSERT( tex );
+    if( !m_picture )
+    {
+        ASSERT( m_storage != nullptr );
+        ShaderProgram* shader = m_storage->get_resorce<ShaderProgram>( "texture" );
+        m_picture = RenderNode::create_node( shader, tex );
+
+        VertexBufferT vb;
+        IndexBuffer ib;
+        QuadGenerator qg( {m_size.x, -m_size.y, 0.f}, {0.f, 1.f}, basic::Color{} );
+        qg.generate(vb, 0);
+        qg.generate(ib, 0);
+
+        m_picture->init_node( &vb, &ib, m_view );
+    }
+}
+
 void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
 {
-    if(m_rect.hit_test({x, y}))
+    if(!m_press_action_name.is_empty() && m_rect.hit_test({x, y}))
     {
-        for(basic::uint32 i = 0; i < m_press_callbacks.get_size(); ++i)
+        RootWidget* root = get_root();
+        if(root)
         {
-            WidgetCallback& cb = m_press_callbacks[i];
-            if( cb.callback )
-            {
-                cb.callback(this, cb.user_data);
-            }
+            root->invoke_action( m_press_action_name, this );
         }
     }
 
@@ -309,6 +329,16 @@ void Widget::update_mat()
 	}
 }
 
+RootWidget *Widget::get_root()
+{
+    if(m_parent)
+    {
+        return m_parent->get_root();
+    }
+
+    return dynamic_cast<RootWidget*>(this);
+}
+
 void Widget::draw()
 {
     if( !m_visible )
@@ -316,10 +346,10 @@ void Widget::draw()
         return;
     }
 
-	m_view->draw_node();
+    m_view->draw_node();
 
     for(basic::uint32 i = 0; i < m_children.get_size(); ++i)
-    {    
+    {
         m_children[i]->draw();
     }
 }

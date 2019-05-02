@@ -1,4 +1,4 @@
-#include "frames.hpp"
+#include "image_rect_set.hpp"
 
 #include "config.hpp"
 

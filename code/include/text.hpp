@@ -21,7 +21,7 @@ public:
 
     void set_scale( float scale );
 
-    void draw( IRender* render, ICamera* cam );
+    void draw( ICamera* cam );
 
 private:
     void update( );

@@ -68,6 +68,7 @@ basic::Vector<VertexFMT> get_fmt_list(Vertex_T*);
 struct RenderNode
 {
 public:
+
 	template <typename T>
 	void reset(basic::Vector<T>* vb, IndexBuffer* ib)
 	{
@@ -83,6 +84,8 @@ public:
 	}
 
 	void set_color(const basic::Color& color);
+
+    basic::Color get_color() const;
 
 	void set_camera(ICamera* camera);
 
@@ -136,11 +139,10 @@ public:
 
 		glBindVertexArray(0);
 
-		basic::uint32 index;
-		if (parent && !parent->children.contains(this))
-		{
-			parent->children.push(this);
-		}
+        if( parent )
+        {
+            parent->add_child(this);
+        }
 	}
 
 	template< typename VertexType >
@@ -186,6 +188,10 @@ public:
 
     const Texture* get_texture() const;
 
+    void set_order(basic::int32 order);
+
+    friend struct RenderNodeOrderCmp;
+
 private:
 	basic::uint32 get_buffer_usage() const;
 
@@ -195,13 +201,13 @@ private:
 	basic::int32 vertex_elements = 0;
 	basic::uint32 index_object = 0;
 	basic::int32 index_elements = 0;
-	basic::uint32 flags;
-
+    basic::uint32 flags = 0;
+    basic::int32 order = 0;
 	ICamera* camera = nullptr;
 	Material* material = nullptr;
 	Transform* transform = nullptr;
 	basic::Color color;
-
+    RenderNode* parent;
 	basic::Vector<RenderNode*> children;
 };
 

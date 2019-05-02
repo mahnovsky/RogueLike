@@ -8,18 +8,15 @@ Text::Text( )
     : m_font( nullptr )
 	, m_font_file("arial.ttf")
     , m_text()
-    //, m_render_object( )
     , m_render_node( nullptr )
     , m_font_size( 32.f )
 {
-    //m_render_object.get_transform( )->set_forward( {0.f, 0.f, 1.f} );
 }
 
 Text::Text(const char * font_file)
 	: m_font(nullptr)
 	, m_font_file(font_file)
-	, m_text()
-    //, m_render_object()
+    , m_text()
     , m_render_node( nullptr )
 	, m_font_size(32.f)
 {
@@ -77,7 +74,6 @@ Text::set_font_size( float size )
 void
 Text::set_position( const glm::vec3& pos )
 {
-    //m_render_object.get_transform( )->set_position( pos );
     if( m_render_node )
     {
         m_render_node->get_transform()->set_position( pos );
@@ -91,9 +87,8 @@ Text::set_scale( float scale )
 }
 
 void
-Text::draw( IRender* render, ICamera* cam )
+Text::draw( ICamera* cam )
 {
-    //m_render_object.draw( render, cam );
     if(m_render_node)
     {
         m_render_node->set_camera(cam);
@@ -107,7 +102,6 @@ Text::update( )
 {
     if ( m_font && !m_text.is_empty( ) )
     {
-        //m_font->update( m_text.get_cstr( ), m_font_size, m_render_object );
         if( !m_render_node )
         {
             m_render_node = m_font->create_text_node();

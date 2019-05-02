@@ -17,6 +17,24 @@ RootWidget::~RootWidget()
     m_engine->get_input()->remove_listener(this);
 }
 
+void RootWidget::add_action(const WidgetAction &action)
+{
+    m_actions.push(action);
+}
+
+void RootWidget::invoke_action(const basic::String &action_name, Widget *w)
+{
+    GENERATE_COMP(ActionComp, WidgetAction, basic::String, name);
+
+    basic::uint32 index = 0;
+    if( m_actions.find_if(index, ActionComp(action_name)) )
+    {
+        WidgetAction& wa = m_actions[index];
+        LOG("ivoked widget action %s", wa.name.get_cstr());
+        wa.callback( w, wa.user_data );
+    }
+}
+
 void RootWidget::key_pressed(KeyCode code, basic::int16 key)
 {
     on_key_pressed(code, key);

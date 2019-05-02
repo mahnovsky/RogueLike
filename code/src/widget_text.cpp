@@ -33,6 +33,8 @@ void WidgetText::init(ResourceStorage *storage)
 
         m_text_render->set_camera(get_camera());
 
+        m_text_render->set_order(1);
+
         get_view()->add_child( m_text_render );
 
         update();
@@ -44,6 +46,16 @@ void WidgetText::set_text(const basic::String &text)
     m_text = text;
 
     update();
+}
+
+void WidgetText::set_color(const basic::Color &color)
+{
+    m_text_render->set_color(color);
+}
+
+basic::Color WidgetText::get_color() const
+{
+    return m_text_render->get_color();
 }
 
 void WidgetText::set_align(AlignH horizontal)

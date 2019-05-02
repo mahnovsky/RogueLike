@@ -277,6 +277,8 @@ Transform * RenderNode::get_transform()
 	return transform;
 }
 
+GENERATE_GREATER_COMP_PTR(RenderNodeOrderCmp, RenderNode, order);
+
 void RenderNode::add_child(RenderNode * node)
 {
 	if (!children.is_contains(node))
@@ -285,12 +287,24 @@ void RenderNode::add_child(RenderNode * node)
         transform->add_child(node->transform);
 
 		node->set_camera(camera);
+        node->parent = this;
+
+        children.sort(RenderNodeOrderCmp{});
 	}
 }
 
 const Texture *RenderNode::get_texture() const
 {
     return material->get_texture();
+}
+
+void RenderNode::set_order(basic::int32 order)
+{
+    this->order = order;
+    if(parent)
+    {
+        parent->children.sort(RenderNodeOrderCmp{});
+    }
 }
 
 basic::uint32 create_buffer( basic::uint32 buffer_type,
@@ -432,7 +446,12 @@ basic::Vector<VertexFMT> get_fmt_list(Vertex_T *)
 
 void RenderNode::set_color(const basic::Color & color)
 {
-	this->color = color;
+    this->color = color;
+}
+
+basic::Color RenderNode::get_color() const
+{
+    return color;
 }
 
 void RenderNode::set_camera(ICamera * camera)

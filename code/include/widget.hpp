@@ -42,21 +42,16 @@ struct Rect
 
     bool hit_test(const glm::vec2& pos)
     {
-        /*float x = pos.x;
-        float y = pos.y;
-        float left = left_top.x;
-        float right = right_bottom.x;
-        float top = left_top.y;
-        float bottom = right_bottom.y;*/
-
         return pos.x >= left_top.x && pos.y >= left_top.y &&
                 pos.x <= right_bottom.x && pos.y <= right_bottom.y;
     }
 };
 
-struct WidgetCallback
+struct WidgetAction
 {
     using Callback = void(*)(Widget*, void*);
+
+    basic::String name;
     Callback callback;
     void* user_data;
 };
@@ -91,7 +86,7 @@ public:
 
     basic::uint32 get_child_count() const;
 
-    void add_press_callback(WidgetCallback cb);
+    void set_press_action(const basic::String& action_name);
 
     void set_position(const glm::vec2& pos);
 
@@ -121,6 +116,8 @@ public:
 
     void set_align(AlignV vertical);
 
+    void set_picture(Texture* tex );
+
 protected:
     virtual void on_mouse_pressed(input::MouseButton btn , basic::int32 x, basic::int32 y);
 
@@ -138,6 +135,8 @@ protected:
 
 	void update_mat();
 
+    RootWidget* get_root();
+
 private:
 	glm::mat4 m_mat;
     glm::vec2 m_pos;
@@ -149,10 +148,13 @@ private:
     ICamera* m_camera;
     RenderNode* m_view;
     RenderNode* m_debug_rect;
-    basic::Vector<WidgetCallback> m_press_callbacks;
+    RenderNode* m_picture;
+    basic::String m_press_action_name;
     bool m_visible;
 
 protected:
     AlignH m_horizontal;
     AlignV m_vertical;
+    ResourceStorage* m_storage;
+    RootWidget* m_root;
 };

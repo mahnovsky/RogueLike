@@ -24,6 +24,8 @@ public:
 
     void cleanup( );
 
+    friend void open_menu_action(Widget* w, void* user_data);
+
 private:
     void print_fps();
 

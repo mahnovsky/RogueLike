@@ -35,7 +35,7 @@ public:
 
     basic::int32 get_uniform( const char* name ) const;
 
-    static ShaderProgram* create(ObjectManager *manager, const char* file );
+    static ShaderProgram* create(ObjectManager *manager, const char* file);
 
 private:
 

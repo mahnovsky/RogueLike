@@ -8,11 +8,8 @@ class ShaderProgram;
 class FileResource;
 class Text;
 class Sprite;
-class Cpnfig;
-class World;
 class Object;
 class ObjectManager;
-class Actor;
 class Engine;
 class ResourceStorage;
 class IRender;
@@ -24,6 +21,9 @@ class Widget;
 class RootWidget;
 class WidgetList;
 class WidgetText;
+
+class World;
+class Entity;
 
 namespace input
 {
