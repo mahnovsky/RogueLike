@@ -19,7 +19,7 @@ struct Initializer
 {
     template < class... Args >
     static void
-    construct( T*, Token< true >, Args...  )
+    construct( T*, Token< true >, Args... )
     {
     }
 
@@ -34,7 +34,7 @@ struct Initializer
     }
 
     static void
-    copy( T* , const T* , Token< true > )
+    copy( T*, const T*, Token< true > )
     {
     }
 
@@ -68,11 +68,23 @@ struct Initializer
 
 struct DefaultAllocator
 {
-    static uint32 grow( uint32 capacity ) { return capacity * 2; }
+    static uint32
+    grow( uint32 capacity )
+    {
+        return capacity * 2;
+    }
 
-    static void* alloc_mem( void* ptr, memory_size bytes ) { return mem_realloc( ptr, bytes ); }
+    static void*
+    alloc_mem( void* ptr, memory_size bytes )
+    {
+        return mem_realloc( ptr, bytes );
+    }
 
-    static void free_mem( void* ptr ) { mem_free( ptr ); }
+    static void
+    free_mem( void* ptr )
+    {
+        mem_free( ptr );
+    }
 };
 
 template < class T, class Allocator = DefaultAllocator >
@@ -86,78 +98,84 @@ public:
     class Iterator
     {
     public:
-        Iterator(Vector<T>& t, uint32 index)
-            :m_vector(t)
-            ,m_index(index)
-        {}
-
-        T& operator *()
+        Iterator( Vector< T >& t, uint32 index )
+            : m_vector( t )
+            , m_index( index )
         {
-            return m_vector[m_index];
         }
 
-        T* operator ->()
+        T& operator*( )
         {
-            return &m_vector[m_index];
+            return m_vector[ m_index ];
         }
 
-        Iterator& operator ++ ()
+        T* operator->( )
+        {
+            return &m_vector[ m_index ];
+        }
+
+        Iterator& operator++( )
         {
             ++m_index;
             return *this;
         }
 
-        bool operator == (const Iterator& other) const
+        bool
+        operator==( const Iterator& other ) const
         {
             return m_index == other.m_index;
         }
 
-        bool operator != (const Iterator& other) const
+        bool
+        operator!=( const Iterator& other ) const
         {
             return m_index != other.m_index;
         }
 
     private:
-        Vector<T>& m_vector;
+        Vector< T >& m_vector;
         uint32 m_index;
     };
 
     class ConstIterator
     {
     public:
-        ConstIterator(const Vector<T>& t, uint32 index)
-            :m_vector(t)
-            ,m_index(index)
-        {}
-
-        const T& operator *() const
+        ConstIterator( const Vector< T >& t, uint32 index )
+            : m_vector( t )
+            , m_index( index )
         {
-            return m_vector[m_index];
         }
 
-        const T* operator ->() const
+        const T& operator*( ) const
         {
-            return &m_vector[m_index];
+            return m_vector[ m_index ];
         }
 
-        ConstIterator& operator ++ ()
+        const T* operator->( ) const
+        {
+            return &m_vector[ m_index ];
+        }
+
+        ConstIterator& operator++( )
         {
             ++m_index;
             return *this;
         }
 
-        bool operator == (const ConstIterator& other) const
+        bool
+        operator==( const ConstIterator& other ) const
         {
             return m_index == other.m_index;
         }
 
-        bool operator != (const ConstIterator& other) const
+        bool
+        operator!=( const ConstIterator& other ) const
         {
             return m_index != other.m_index;
         }
 
     private:
-        const Vector<T>& m_vector;
+        const Vector< T >& m_vector;
         uint32 m_index;
     };
 
@@ -180,10 +198,9 @@ public:
         }
     }
 
-    Vector( Vector< T >&& other ) noexcept
-        : m_data( other.m_data )
-        , m_size( other.m_size )
-        , m_capacity( other.m_capacity )
+    Vector( Vector< T >&& other ) noexcept : m_data( other.m_data ),
+                                             m_size( other.m_size ),
+                                             m_capacity( other.m_capacity )
     {
         other.m_data = nullptr;
         other.m_size = 0;
@@ -195,29 +212,34 @@ public:
         force_clear( );
     }
 
-    Iterator begin()
+    Iterator
+    begin( )
     {
-        return Iterator(*this, 0);
+        return Iterator( *this, 0 );
     }
 
-    Iterator end()
+    Iterator
+    end( )
     {
-        return Iterator(*this, get_size());
+        return Iterator( *this, get_size( ) );
     }
 
-    ConstIterator begin() const
+    ConstIterator
+    begin( ) const
     {
-        return ConstIterator(*this, 0);
+        return ConstIterator( *this, 0 );
     }
 
-    ConstIterator end() const
+    ConstIterator
+    end( ) const
     {
-        return ConstIterator(*this, get_size());
+        return ConstIterator( *this, get_size( ) );
     }
 
-    Vector< T >& operator=( const Vector< T >& v )
+    Vector< T >&
+    operator=( const Vector< T >& v )
     {
-        if(v.m_size == 0)
+        if ( v.m_size == 0 )
         {
             return *this;
         }
@@ -234,9 +256,10 @@ public:
         return *this;
     }
 
-    Vector< T >& operator=( Vector< T >&& v ) noexcept
+    Vector< T >&
+    operator=( Vector< T >&& v ) noexcept
     {
-        force_clear();
+        force_clear( );
 
         m_size = v.m_size;
         m_capacity = v.m_capacity;
@@ -248,73 +271,84 @@ public:
         return *this;
     }
 
-    const T& front( ) const
+    const T&
+    front( ) const
     {
         ASSERT( m_size > 0 );
 
         return *m_data;
     }
 
-    const T& back( ) const
+    const T&
+    back( ) const
     {
         ASSERT( m_size > 0 );
 
         return *( m_data + m_size - 1 );
     }
 
-    T& front( )
+    T&
+    front( )
     {
         ASSERT( m_size > 0 );
 
         return *m_data;
     }
 
-    T& back( )
+    T&
+    back( )
     {
         ASSERT( m_size > 0 );
 
         return *( m_data + m_size - 1 );
     }
 
-    T* get_raw( )
+    T*
+    get_raw( )
     {
         ASSERT( m_data != nullptr );
 
         return m_data;
     }
 
-    const T* get_raw( ) const
+    const T*
+    get_raw( ) const
     {
         return m_data;
     }
 
-    uint32 get_size( ) const
+    uint32
+    get_size( ) const
     {
         return m_size;
     }
 
-    uint32 get_capacity() const
+    uint32
+    get_capacity( ) const
     {
-        return  m_capacity;
+        return m_capacity;
     }
 
-    bool is_contains(T item)
+    bool
+    is_contains( T item )
     {
         uint32 index;
 
         return find_first( index, item );
     }
 
-    void reserve( uint32 count )
+    void
+    reserve( uint32 count )
     {
         update_capacity( count );
 
-        m_size = (m_size > count) ? count : m_size;
+        m_size = ( m_size > count ) ? count : m_size;
 
         realloc( );
     }
 
-    void resize( uint32 count )
+    void
+    resize( uint32 count )
     {
         reserve( count );
         m_size = count;
@@ -322,7 +356,8 @@ public:
         construct_elements( 0 );
     }
 
-    bool init( const T* ptr, uint32 count )
+    bool
+    init( const T* ptr, uint32 count )
     {
         ASSERT( ptr != nullptr );
         ASSERT( count > 0 );
@@ -343,33 +378,35 @@ public:
         return false;
     }
 
-    template<class F>
-    void sort(const F& f)
+    template < class F >
+    void
+    sort( const F& f )
     {
-        if(m_size <= 1)
+        if ( m_size <= 1 )
         {
             return;
         }
 
-        for( uint32 i = 0; i < m_size; ++i )
+        for ( uint32 i = 0; i < m_size; ++i )
         {
             uint32 index = i;
-            for( uint32 j = i + 1; j < m_size; ++j )
+            for ( uint32 j = i + 1; j < m_size; ++j )
             {
-                T& first = m_data[index];
-                T& second = m_data[j];
-                if( f(first, second) )
+                T& first = m_data[ index ];
+                T& second = m_data[ j ];
+                if ( f( first, second ) )
                 {
                     T tmp = second;
-                    m_data[j] = first;
-                    m_data[index] = tmp;
+                    m_data[ j ] = first;
+                    m_data[ index ] = tmp;
                     index = j;
                 }
             }
         }
     }
 
-    void append( const T* ptr, uint32 count )
+    void
+    append( const T* ptr, uint32 count )
     {
         ASSERT( ptr != nullptr );
         ASSERT( count > 0 );
@@ -387,7 +424,8 @@ public:
         mem_copy( last, ptr, mem_size );
     }
 
-    void push( T item )
+    void
+    push( T item )
     {
         if ( !m_data )
         {
@@ -427,7 +465,8 @@ public:
         ++m_size;
     }
 
-    void pop( )
+    void
+    pop( )
     {
         if ( m_size > 0 )
         {
@@ -435,7 +474,8 @@ public:
         }
     }
 
-    bool find_first( uint32& out_index, T value, uint32 pos = 0 ) const
+    bool
+    find_first( uint32& out_index, T value, uint32 pos = 0 ) const
     {
         if ( pos >= m_size )
         {
@@ -454,7 +494,8 @@ public:
         return false;
     }
 
-    bool find_last( uint32& out_index, T value, uint32 pos = MAX_LEN ) const
+    bool
+    find_last( uint32& out_index, T value, uint32 pos = MAX_LEN ) const
     {
         if ( pos > m_size )
         {
@@ -473,8 +514,9 @@ public:
         return false;
     }
 
-    template<class F>
-    bool find_if( uint32& out_index, const F& f, uint32 pos = 0 ) const
+    template < class F >
+    bool
+    find_if( uint32& out_index, const F f, uint32 pos = 0 ) const
     {
         if ( pos >= m_size )
         {
@@ -493,29 +535,31 @@ public:
         return false;
     }
 
-    bool swap_remove( uint32 index )
+    bool
+    swap_remove( uint32 index )
     {
-		ASSERT(index < m_size);
-		if (index == m_size - 1)
-		{
-			pop();
-			return false;
-		}
-        m_data[index] = back();
-        pop();
+        ASSERT( index < m_size );
+        if ( index == m_size - 1 )
+        {
+            pop( );
+            return false;
+        }
+        m_data[ index ] = back( );
+        pop( );
 
-		return true;
+        return true;
     }
 
-    void remove_by_index( uint32 index )
+    void
+    remove_by_index( uint32 index )
     {
         if ( m_size > index )
         {
             T* pos = m_data + index;
             uint32 move_count = m_size - ( index + 1 );
             Initializer< T >::destruct( pos, Token< std::is_pod< T >::value >( ) );
-            ASSERT(m_size > 0);
-            if ( m_size > 1 && index < (m_size - 1) )
+            ASSERT( m_size > 0 );
+            if ( m_size > 1 && index < ( m_size - 1 ) )
             {
                 mem_move( pos, pos + 1, sizeof( T ) * move_count );
             }
@@ -523,7 +567,8 @@ public:
         }
     }
 
-    void remove_by_value( T value, bool all = false )
+    void
+    remove_by_value( T value, bool all = false )
     {
         if ( m_size < 0 )
         {
@@ -547,11 +592,11 @@ public:
             {
                 break;
             }
-        }
-        while ( all );
+        } while ( all );
     }
 
-    const T& get( uint32 index ) const
+    const T&
+    get( uint32 index ) const
     {
         ASSERT( index < m_size );
 
@@ -563,7 +608,8 @@ public:
         return get( index );
     }
 
-    T& get( uint32 index )
+    T&
+    get( uint32 index )
     {
         ASSERT( index < m_size );
 
@@ -575,13 +621,15 @@ public:
         return get( index );
     }
 
-    void clear( )
+    void
+    clear( )
     {
         destruct_elements( 0 );
         m_size = 0;
     }
 
-    void force_clear( )
+    void
+    force_clear( )
     {
         if ( m_data )
         {
@@ -612,14 +660,16 @@ public:
     }
 
 private:
-    void update_capacity( uint32 new_size )
+    void
+    update_capacity( uint32 new_size )
     {
-        m_capacity = uint32((new_size + 1) / 2) * 2;
+        m_capacity = uint32( ( new_size + 1 ) / 2 ) * 2;
 
         ASSERT( m_capacity >= new_size );
     }
 
-    bool realloc( )
+    bool
+    realloc( )
     {
         uint32 max_mem_size = m_capacity * sizeof( T );
         T* new_data = static_cast< T* >( Allocator::alloc_mem( m_data, max_mem_size ) );
@@ -633,7 +683,8 @@ private:
         return true;
     }
 
-    void init( )
+    void
+    init( )
     {
         m_size = 0;
         m_capacity = DEFAULT_CAPACITY;
@@ -641,14 +692,16 @@ private:
         realloc( );
     }
 
-    bool grow( )
+    bool
+    grow( )
     {
         m_capacity = Allocator::grow( m_capacity );
 
         return realloc( );
     }
 
-    void construct_elements( uint32 pos )
+    void
+    construct_elements( uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
@@ -656,7 +709,8 @@ private:
         }
     }
 
-    void destruct_elements( uint32 pos )
+    void
+    destruct_elements( uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
@@ -664,7 +718,8 @@ private:
         }
     }
 
-    void copy_elements( const T* src, uint32 pos )
+    void
+    copy_elements( const T* src, uint32 pos )
     {
         for ( uint32 i = pos; i < m_size; ++i )
         {
