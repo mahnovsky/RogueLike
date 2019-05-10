@@ -5,6 +5,11 @@
 class TransformComponent : public Component< TransformComponent >
 {
 public:
+    TransformComponent( const char* name )
+        : Component< TransformComponent >( name )
+    {
+    }
+
     glm::vec3 pos;
 };
 

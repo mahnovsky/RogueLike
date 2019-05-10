@@ -5,10 +5,18 @@ ComponentManager::ComponentManager( )
     : m_storages( )
 {
     m_storages.resize( components_count );
+    for ( basic::uint32 i = 0; i < components_count; ++i )
+    {
+        m_storages[ i ] = nullptr;
+    }
 }
 
 ComponentManager::~ComponentManager( )
 {
+    for ( auto& s : m_storages )
+    {
+        DELETE_OBJ( s );
+    }
 }
 
 IComponent*

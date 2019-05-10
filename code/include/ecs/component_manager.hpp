@@ -33,6 +33,12 @@ public:
         return &m_components.back( );
     }
 
+    basic::String
+    get_name( ) const override
+    {
+        return m_name;
+    }
+
 private:
     basic::String m_name;
     basic::Vector< T > m_components;
