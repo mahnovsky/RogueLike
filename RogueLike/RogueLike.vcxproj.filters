@@ -129,11 +129,17 @@
     <ClCompile Include="..\code\third_party\cJSON\cJSON.c">
       <Filter>code\src\third_party</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\src\basic\json_document.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\json_object.cpp">
+      <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\entity.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\code\include\actor.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\camera.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
@@ -222,6 +228,9 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\widget_text.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\entity.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>

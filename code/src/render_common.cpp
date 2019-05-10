@@ -526,7 +526,7 @@ void RenderNode::draw_node(basic::uint32 prev_vao)
 		glDrawArrays(GL_TRIANGLES, 0, vertex_elements);
 	}
 
-	material->disable();
+	//material->disable();
 
 	for (basic::uint32 i = 0; i < children.get_size(); ++i)
 	{

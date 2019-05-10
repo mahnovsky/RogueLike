@@ -22,32 +22,32 @@
     <VCProjectVersion>15.0</VCProjectVersion>
     <ProjectGuid>{4E83972C-B98D-4BCD-90F1-E82BD802051E}</ProjectGuid>
     <RootNamespace>RogueLike</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.17134.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -135,11 +135,14 @@
     <ClCompile Include="..\code\src\basic\debug.cpp" />
     <ClCompile Include="..\code\src\basic\file.cpp" />
     <ClCompile Include="..\code\src\basic\image.cpp" />
+    <ClCompile Include="..\code\src\basic\json_document.cpp" />
+    <ClCompile Include="..\code\src\basic\json_object.cpp" />
     <ClCompile Include="..\code\src\basic\memory.cpp" />
     <ClCompile Include="..\code\src\basic\string.cpp" />
     <ClCompile Include="..\code\src\camera.cpp" />
     <ClCompile Include="..\code\src\config.cpp" />
     <ClCompile Include="..\code\src\engine.cpp" />
+    <ClCompile Include="..\code\src\entity.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
     <ClCompile Include="..\code\src\input.cpp" />
@@ -167,7 +170,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\game\game_instance.hpp" />
-    <ClInclude Include="..\code\include\actor.hpp" />
     <ClInclude Include="..\code\include\basic\debug.hpp" />
     <ClInclude Include="..\code\include\basic\file.hpp" />
     <ClInclude Include="..\code\include\basic\image.hpp" />
@@ -179,6 +181,7 @@
     <ClInclude Include="..\code\include\basic\vector.hpp" />
     <ClInclude Include="..\code\include\camera.hpp" />
     <ClInclude Include="..\code\include\engine.hpp" />
+    <ClInclude Include="..\code\include\entity.hpp" />
     <ClInclude Include="..\code\include\font.hpp" />
     <ClInclude Include="..\code\include\line.hpp" />
     <ClInclude Include="..\code\include\object_manager.hpp" />

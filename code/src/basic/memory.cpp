@@ -194,7 +194,7 @@ public:
 
 	void* alloc(memory_size size)
 	{
-        if(size == 0)
+        if(!is_manager_alive || size == 0)
         {
             return nullptr;
         }
@@ -225,6 +225,11 @@ public:
 
 	void free_chunck(MemoryChunk* chunk)
 	{
+		if (!is_manager_alive)
+		{
+			return;
+		}
+
 		uint32 user_size = chunk->chunk_size - sizeof(MemoryChunk);
 
 		remove(chunk);

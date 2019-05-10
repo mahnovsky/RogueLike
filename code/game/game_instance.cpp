@@ -120,7 +120,6 @@ GameInstance::init( )
     m_ui_root->add_action( wa_close );
     m_ui_root->add_action( wa_open_menu );
 
-    //m_ui_root->add_press_callback(btn_cb);
     {
         WidgetList* wnd = NEW_OBJ(WidgetList, m_manager, {400.f, 200.f});
 

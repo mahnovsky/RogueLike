@@ -4,9 +4,13 @@
 #include "basic/file.hpp"
 #include "config.hpp"
 
+basic::uint32 ShaderProgram::m_current_shader_program;
+
 ShaderProgram::ShaderProgram(ObjectManager* manager, const char *file)
     : FileResource ( manager, file )
     , m_shader_program( 0 )
+	, m_vertex_shader( nullptr )
+	, m_fragment_shader(nullptr)
 {
 }
 
@@ -109,13 +113,18 @@ ShaderProgram *ShaderProgram::create(ObjectManager* manager, const char *file)
 void
 ShaderProgram::bind( ) const
 {
-    glUseProgram( m_shader_program );
+	if (m_current_shader_program != m_shader_program)
+	{
+		glUseProgram(m_shader_program);
+		m_current_shader_program = m_shader_program;
+	}
 }
 
 void
 ShaderProgram::unbind( ) const
 {
     glUseProgram( 0 );
+	m_current_shader_program = 0;
 }
 
 bool

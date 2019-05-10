@@ -238,7 +238,7 @@ void Widget::set_picture( Texture *tex )
 
         VertexBufferT vb;
         IndexBuffer ib;
-        QuadGenerator qg( {m_size.x, -m_size.y, 0.f}, {0.f, 1.f}, basic::Color{} );
+        QuadGenerator qg( {m_size.x, -m_size.y, -1.f}, {0.f, 1.f}, basic::Color{} );
         qg.generate(vb, 0);
         qg.generate(ib, 0);
 

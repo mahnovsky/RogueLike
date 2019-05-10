@@ -44,6 +44,7 @@ private:
     bool link_program( basic::uint32 vshader, basic::uint32 fshader );
 
 private:
+	static basic::uint32 m_current_shader_program;
     basic::uint32 m_shader_program;
     BaseShader* m_vertex_shader;
     BaseShader* m_fragment_shader;
