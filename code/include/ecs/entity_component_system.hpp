@@ -15,6 +15,8 @@ public:
     virtual IComponent* create( ) = 0;
 
     virtual basic::String get_name( ) const = 0;
+
+    virtual basic::Vector< IComponent* > get_components( ) const = 0;
 };
 
 template < class T >
@@ -31,7 +33,9 @@ public:
     create( ) override
     {
         m_components.emplace( T{m_name.get_cstr( )} );
-        return &m_components.back( );
+        IComponent* component = &m_components.back( );
+        m_pcomponents.push( component );
+        return component;
     }
 
     basic::String
@@ -40,9 +44,26 @@ public:
         return m_name;
     }
 
+    basic::Vector< IComponent* >
+    get_components( ) const override
+    {
+        return m_pcomponents;
+    }
+
 private:
     basic::String m_name;
     basic::Vector< T > m_components;
+    basic::Vector< IComponent* > m_pcomponents;
+};
+
+class ISystem
+{
+public:
+    virtual ~ISystem( )
+    {
+    }
+
+    virtual void update( EntityComponentSystem* ecs ) = 0;
 };
 
 class EntityComponentSystem
@@ -81,14 +102,16 @@ public:
         return true;
     }
 
-	Entity* create();
+    Entity* create( );
 
-	void destroy(Entity* ent);
+    void destroy( Entity* ent );
 
-	void update(float dt);
+    void update( float dt );
 
 private:
-	EntityID m_id_counter;
-	basic::Vector<Entity*> m_entities;
+    EntityID m_id_counter;
+    basic::Vector< Entity* > m_entities;
+    basic::Vector< Entity* > m_destroyed;
     basic::Vector< IComponentStorage* > m_storages;
+    basic::Vector< ISystem* > m_systems;
 };

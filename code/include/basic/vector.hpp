@@ -23,9 +23,22 @@ struct Initializer
     {
     }
 
+    template < class... Args >
+    static void
+    construct( T** data, Token< true >, Args... )
+    {
+        ( *data ) = nullptr;
+    }
+
     static void
     construct( T*, Token< true > )
     {
+    }
+
+    static void
+    construct( T** data, Token< true > )
+    {
+        ( *data ) = nullptr;
     }
 
     static void

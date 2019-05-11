@@ -2,9 +2,9 @@
 #include "entity.hpp"
 
 EntityComponentSystem::EntityComponentSystem( )
-    :m_id_counter(0)
-	,m_entities( )
-	,m_storages( )
+    : m_id_counter( 0 )
+    , m_entities( )
+    , m_storages( )
 {
     m_storages.resize( components_count );
     for ( basic::uint32 i = 0; i < components_count; ++i )
@@ -36,22 +36,43 @@ EntityComponentSystem::create_component( const char* name )
     return nullptr;
 }
 
-Entity* EntityComponentSystem::create()
+Entity*
+EntityComponentSystem::create( )
 {
-	Entity* ent = NEW_OBJ(Entity, m_id_counter);
+    if ( !m_destroyed.is_empty( ) )
+    {
+        auto back = m_destroyed.back( );
+        back->reset( );
+        m_entities.push( back );
+        return back;
+    }
 
-	++m_id_counter;
+    Entity* ent = NEW_OBJ( Entity, m_id_counter );
 
-	m_entities.push(ent);
+    ++m_id_counter;
 
-	return ent;
+    m_entities.push( ent );
+
+    return ent;
 }
 
-void EntityComponentSystem::destroy(Entity* ent)
+void
+EntityComponentSystem::destroy( Entity* ent )
 {
+    basic::uint32 index = 0;
+
+    if ( m_entities.find_first( index, ent ) )
+    {
+        m_entities.swap_remove( index );
+        m_destroyed.push( ent );
+    }
 }
 
-void EntityComponentSystem::update(float dt)
+void
+EntityComponentSystem::update( float )
 {
+    for ( auto s : m_systems )
+    {
+        s->update( this );
+    }
 }
-

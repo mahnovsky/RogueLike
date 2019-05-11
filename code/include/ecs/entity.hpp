@@ -40,9 +40,11 @@ public:
 
     IComponent* find_component( ComponentTypeID id );
 
-	EntityID get_id() const { return m_entity_id; }
+    EntityID get_id( ) const;
+
+    void reset( );
 
 private:
-	const EntityID m_entity_id;
+    const EntityID m_entity_id;
     basic::Vector< IComponent* > m_components;
 };
