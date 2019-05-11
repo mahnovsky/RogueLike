@@ -120,7 +120,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -141,8 +141,10 @@
     <ClCompile Include="..\code\src\basic\string.cpp" />
     <ClCompile Include="..\code\src\camera.cpp" />
     <ClCompile Include="..\code\src\config.cpp" />
+    <ClCompile Include="..\code\src\ecs\component.cpp" />
+    <ClCompile Include="..\code\src\ecs\entity.cpp" />
+    <ClCompile Include="..\code\src\ecs\entity_component_system.cpp" />
     <ClCompile Include="..\code\src\engine.cpp" />
-    <ClCompile Include="..\code\src\entity.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
     <ClCompile Include="..\code\src\input.cpp" />
@@ -180,8 +182,10 @@
     <ClInclude Include="..\code\include\basic\types.hpp" />
     <ClInclude Include="..\code\include\basic\vector.hpp" />
     <ClInclude Include="..\code\include\camera.hpp" />
+    <ClInclude Include="..\code\include\ecs\component.hpp" />
+    <ClInclude Include="..\code\include\ecs\entity.hpp" />
+    <ClInclude Include="..\code\include\ecs\entity_component_system.hpp" />
     <ClInclude Include="..\code\include\engine.hpp" />
-    <ClInclude Include="..\code\include\entity.hpp" />
     <ClInclude Include="..\code\include\font.hpp" />
     <ClInclude Include="..\code\include\line.hpp" />
     <ClInclude Include="..\code\include\object_manager.hpp" />

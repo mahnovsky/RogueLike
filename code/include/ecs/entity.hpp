@@ -13,10 +13,12 @@ public:
     glm::vec3 pos;
 };
 
+using EntityID = basic::uint32;
+
 class Entity
 {
 public:
-    Entity( );
+    Entity( EntityID id );
     virtual ~Entity( );
 
     virtual void initialize( );
@@ -38,6 +40,9 @@ public:
 
     IComponent* find_component( ComponentTypeID id );
 
+	EntityID get_id() const { return m_entity_id; }
+
 private:
+	const EntityID m_entity_id;
     basic::Vector< IComponent* > m_components;
 };

@@ -1,7 +1,8 @@
 #include "entity.hpp"
 
-Entity::Entity( )
-    : m_components( )
+Entity::Entity( EntityID id )
+    : m_entity_id( id )
+	, m_components( )
 {
 }
 

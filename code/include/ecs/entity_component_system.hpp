@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "entity.hpp"
 
 class IComponent;
 
@@ -44,11 +45,11 @@ private:
     basic::Vector< T > m_components;
 };
 
-class ComponentManager
+class EntityComponentSystem
 {
 public:
-    ComponentManager( );
-    ~ComponentManager( );
+    EntityComponentSystem( );
+    ~EntityComponentSystem( );
 
     IComponent* create_component( const char* name );
 
@@ -80,6 +81,14 @@ public:
         return true;
     }
 
+	Entity* create();
+
+	void destroy(Entity* ent);
+
+	void update(float dt);
+
 private:
+	EntityID m_id_counter;
+	basic::Vector<Entity*> m_entities;
     basic::Vector< IComponentStorage* > m_storages;
 };

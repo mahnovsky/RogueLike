@@ -21,7 +21,7 @@ class Widget;
 class RootWidget;
 class WidgetList;
 class WidgetText;
-
+class EntityComponentSystem;
 class World;
 class Entity;
 

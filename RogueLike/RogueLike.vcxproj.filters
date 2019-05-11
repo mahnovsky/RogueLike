@@ -25,6 +25,12 @@
     <Filter Include="code\src\third_party">
       <UniqueIdentifier>{a86d5621-ac2c-47d6-a5e0-b64b1281bfaf}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\src\ecs">
+      <UniqueIdentifier>{bdd4ba3e-d032-453d-9867-39a5aaa79f9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\include\ecs">
+      <UniqueIdentifier>{b904c2ad-8971-4936-8e5e-3b249fd63c70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp">
@@ -135,8 +141,14 @@
     <ClCompile Include="..\code\src\basic\json_object.cpp">
       <Filter>code\src\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\entity.cpp">
-      <Filter>code\src</Filter>
+    <ClCompile Include="..\code\src\ecs\component.cpp">
+      <Filter>code\src\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\ecs\entity.cpp">
+      <Filter>code\src\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\ecs\entity_component_system.cpp">
+      <Filter>code\src\ecs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -230,8 +242,14 @@
     <ClInclude Include="..\code\include\widget_text.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\entity.hpp">
-      <Filter>code\include</Filter>
+    <ClInclude Include="..\code\include\ecs\entity.hpp">
+      <Filter>code\include\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\ecs\component.hpp">
+      <Filter>code\include\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\ecs\entity_component_system.hpp">
+      <Filter>code\include\ecs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
