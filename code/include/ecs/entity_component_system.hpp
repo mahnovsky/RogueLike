@@ -32,9 +32,9 @@ public:
     IComponent*
     create( ) override
     {
-        m_components.emplace( T{m_name.get_cstr( )} );
-        IComponent* component = &m_components.back( );
-        m_pcomponents.push( component );
+        T* component = NEW_OBJ( T, m_name.get_cstr( ) );
+        m_components.push( component );
+
         return component;
     }
 
@@ -47,13 +47,15 @@ public:
     basic::Vector< IComponent* >
     get_components( ) const override
     {
-        return m_pcomponents;
+        basic::Vector< IComponent* > v;
+        v.init( m_components.get_raw( ), m_components.get_size( ) );
+
+        return v;
     }
 
 private:
     basic::String m_name;
-    basic::Vector< T > m_components;
-    basic::Vector< IComponent* > m_pcomponents;
+    basic::Vector< T* > m_components;
 };
 
 class ISystem

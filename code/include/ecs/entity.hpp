@@ -42,7 +42,7 @@ public:
 
     EntityID get_id( ) const;
 
-    void reset( );
+    virtual void on_destroy( );
 
 private:
     const EntityID m_entity_id;

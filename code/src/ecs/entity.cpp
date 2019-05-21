@@ -58,7 +58,7 @@ Entity::get_id( ) const
 }
 
 void
-Entity::reset( )
+Entity::on_destroy( )
 {
     m_components.clear( );
 }

@@ -42,8 +42,8 @@ EntityComponentSystem::create( )
     if ( !m_destroyed.is_empty( ) )
     {
         auto back = m_destroyed.back( );
-        back->reset( );
         m_entities.push( back );
+        m_destroyed.pop( );
         return back;
     }
 
