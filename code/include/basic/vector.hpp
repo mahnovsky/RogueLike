@@ -369,6 +369,15 @@ public:
         construct_elements( 0 );
     }
 
+    void
+    fill( T val )
+    {
+        for ( uint32 index = 0; index < m_size; ++index )
+        {
+            m_data[ index ] = val;
+        }
+    }
+
     bool
     init( const T* ptr, uint32 count )
     {

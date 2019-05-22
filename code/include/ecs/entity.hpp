@@ -2,17 +2,6 @@
 
 #include "component.hpp"
 
-class TransformComponent : public Component< TransformComponent >
-{
-public:
-    TransformComponent( const char* name )
-        : Component< TransformComponent >( name )
-    {
-    }
-
-    glm::vec3 pos;
-};
-
 using EntityID = basic::uint32;
 
 class Entity
@@ -43,6 +32,9 @@ public:
     EntityID get_id( ) const;
 
     virtual void on_destroy( );
+
+protected:
+    void component_event_broadcast( IComponent* comp, bool attached );
 
 private:
     const EntityID m_entity_id;

@@ -42,14 +42,15 @@ main( int argc, char** argv )
 
     engine->set_callback( Init, &game_init );
 
-    if( engine->init( 1024, 768, "RogueLike" ) )
+    if ( engine->init( 1024, 768, "RogueLike" ) )
     {
-        while(engine->update());
+        while ( engine->update( ) )
+            ;
 
-        engine->cleanup();
+        engine->cleanup( );
     }
 
-    DELETE_OBJ(engine);
+    DELETE_OBJ( engine );
 
     return EXIT_SUCCESS;
 }

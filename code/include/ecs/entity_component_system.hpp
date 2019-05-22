@@ -48,7 +48,11 @@ public:
     get_components( ) const override
     {
         basic::Vector< IComponent* > v;
-        v.init( m_components.get_raw( ), m_components.get_size( ) );
+        v.reserve( m_components.get_size( ) );
+        for ( auto c : m_components )
+        {
+            v.push( c );
+        }
 
         return v;
     }

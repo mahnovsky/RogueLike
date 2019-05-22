@@ -5,10 +5,10 @@
 #include "camera.hpp"
 #include "engine.hpp"
 #include "font.hpp"
+#include "resource_storage.hpp"
 #include "shader.hpp"
 #include "sprite.hpp"
 #include "text.hpp"
-#include "resource_storage.hpp"
 
 class GameInstance
 {
@@ -24,10 +24,10 @@ public:
 
     void cleanup( );
 
-    friend void open_menu_action(Widget* w, void* user_data);
+    friend void open_menu_action( Widget* w, void* user_data );
 
 private:
-    void print_fps();
+    void print_fps( );
 
 private:
     Engine* m_engine;
@@ -48,4 +48,5 @@ private:
     WidgetText* m_mem_text;
     RenderNode* m_cow;
     RootWidget* m_ui_root;
+    EntityComponentSystem* m_ecs;
 };

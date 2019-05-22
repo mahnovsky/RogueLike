@@ -38,6 +38,10 @@ public:
     virtual void on_attached( Entity* entity ) = 0;
 
     virtual void on_detached( Entity* entity ) = 0;
+
+    virtual void on_attached_component( IComponent* comp ) = 0;
+
+    virtual void on_dettached_component( IComponent* comp ) = 0;
 };
 
 template < class T >
@@ -76,6 +80,16 @@ public:
         m_entity = nullptr;
     }
 
+    void
+    on_attached_component( IComponent* ) override
+    {
+    }
+
+    void
+    on_dettached_component( IComponent* ) override
+    {
+    }
+
 private:
     Entity* m_entity;
     basic::String m_name;
@@ -83,3 +97,29 @@ private:
 
 template < class T >
 const ComponentTypeID Component< T >::_type_id = IComponent::type_id< T >( );
+
+class TransformComponent : public Component< TransformComponent >
+{
+public:
+    TransformComponent( const char* name );
+
+    glm::vec3 pos;
+};
+
+class RenderComponent : public Component< RenderComponent >
+{
+public:
+    RenderComponent( const char* name );
+
+    void on_attached( Entity* ent ) override;
+
+    void on_detached( Entity* ) override;
+
+    void on_attached_component( IComponent* comp ) override;
+
+    void on_dettached_component( IComponent* comp ) override;
+
+private:
+    Material* material;
+    TransformComponent* transform;
+};

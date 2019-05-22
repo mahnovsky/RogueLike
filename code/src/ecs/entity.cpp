@@ -4,6 +4,8 @@ Entity::Entity( EntityID id )
     : m_entity_id( id )
     , m_components( )
 {
+    m_components.resize( components_count );
+    m_components.fill( nullptr );
 }
 
 Entity::~Entity( )
@@ -30,14 +32,19 @@ Entity::add_component( IComponent* component )
         }
     }
 
+    ASSERT( m_components.get_size( ) > id );
+
     if ( m_components[ id ] )
     {
         m_components[ id ]->on_detached( this );
+
+        component_event_broadcast( m_components[ id ], false );
     }
 
     m_components[ id ] = component;
 
     component->on_attached( this );
+    component_event_broadcast( component, true );
 }
 
 IComponent*
@@ -61,4 +68,24 @@ void
 Entity::on_destroy( )
 {
     m_components.clear( );
+}
+
+void
+Entity::component_event_broadcast( IComponent* comp, bool attached )
+{
+    for ( IComponent* c : m_components )
+    {
+        if ( !c )
+        {
+            continue;
+        }
+        if ( attached )
+        {
+            c->on_attached_component( comp );
+        }
+        else
+        {
+            c->on_dettached_component( comp );
+        }
+    }
 }
