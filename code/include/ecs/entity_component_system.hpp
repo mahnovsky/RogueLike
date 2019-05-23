@@ -29,6 +29,14 @@ public:
     {
     }
 
+    ~ComponentStorage( )
+    {
+        for ( auto c : m_components )
+        {
+            DELETE_OBJ( c );
+        }
+    }
+
     IComponent*
     create( ) override
     {

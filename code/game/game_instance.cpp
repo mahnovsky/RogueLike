@@ -43,6 +43,7 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_ui_camera );
 
     DELETE_OBJ( m_manager );
+    DELETE_OBJ( m_ecs );
 }
 
 static void
@@ -109,6 +110,7 @@ GameInstance::init( )
     m_ecs = NEW_OBJ( EntityComponentSystem );
 
     m_ecs->registry_component< TransformComponent >( "TransformComponent" );
+    m_ecs->registry_component< GroupTransformComponent >( "GroupTransformComponent" );
     m_ecs->registry_component< RenderComponent >( "RenderComponent" );
 
     Entity* ent = m_ecs->create( );

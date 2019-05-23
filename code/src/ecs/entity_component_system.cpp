@@ -15,6 +15,10 @@ EntityComponentSystem::EntityComponentSystem( )
 
 EntityComponentSystem::~EntityComponentSystem( )
 {
+    for ( auto e : m_entities )
+    {
+        DELETE_OBJ( e );
+    }
     for ( auto& s : m_storages )
     {
         DELETE_OBJ( s );
