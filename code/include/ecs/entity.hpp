@@ -27,7 +27,20 @@ public:
         return nullptr;
     }
 
+    template < class T >
+    const T*
+    get_component( ) const
+    {
+        const IComponent* comp = find_component( T::_type_id );
+        if ( comp )
+        {
+            return fast_cast< T >( comp );
+        }
+        return nullptr;
+    }
+
     IComponent* find_component( ComponentTypeID id );
+    const IComponent* find_component( ComponentTypeID id ) const;
 
     EntityID get_id( ) const;
 

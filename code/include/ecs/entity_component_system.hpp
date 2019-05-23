@@ -57,6 +57,12 @@ public:
         return v;
     }
 
+    basic::Vector< T* >
+    get_components_t( ) const
+    {
+        return m_components;
+    }
+
 private:
     basic::String m_name;
     basic::Vector< T* > m_components;
@@ -113,6 +119,16 @@ public:
     void destroy( Entity* ent );
 
     void update( float dt );
+
+    template < class T >
+    basic::Vector< T* >
+    get_components( ) const
+    {
+        ComponentStorage< T >* storage = static_cast< ComponentStorage< T >* >(
+                static_cast< void* >( m_storages[ T::_type_id ] ) );
+
+        return storage->get_components_t( );
+    }
 
 private:
     EntityID m_id_counter;

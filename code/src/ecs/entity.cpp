@@ -58,6 +58,17 @@ Entity::find_component( ComponentTypeID id )
     return nullptr;
 }
 
+const IComponent*
+Entity::find_component( ComponentTypeID id ) const
+{
+    if ( id < m_components.get_size( ) )
+    {
+        return m_components[ id ];
+    }
+
+    return nullptr;
+}
+
 EntityID
 Entity::get_id( ) const
 {
@@ -85,7 +96,7 @@ Entity::component_event_broadcast( IComponent* comp, bool attached )
         }
         else
         {
-            c->on_dettached_component( comp );
+            c->on_detached_component( comp );
         }
     }
 }
