@@ -1,55 +1,47 @@
 #pragma once
 
 #include "component.hpp"
+#include "entity_component_system.hpp"
 
 using EntityID = basic::uint32;
 
 class Entity
 {
 public:
-    Entity( EntityID id );
+    Entity( EntityID id, EntityComponentSystem* ecs );
     virtual ~Entity( );
 
-    virtual void initialize( );
+    template < class T >
+    T*
+    add_component( )
+    {
+        T* comp = m_ecs->create_component< T >( );
 
-    void add_component( IComponent* component );
+        m_ecs->bind( m_uid, comp );
+
+        return comp;
+    }
 
     template < class T >
     T*
     get_component( )
     {
-        IComponent* comp = find_component( T::_type_id );
-        if ( comp )
-        {
-            void* vptr = static_cast< void* >( comp );
-            return static_cast< T* >( comp );
-        }
-        return nullptr;
+        return m_ecs->get_component< T >( m_uid );
     }
 
     template < class T >
     const T*
     get_component( ) const
     {
-        const IComponent* comp = find_component( T::_type_id );
-        if ( comp )
-        {
-            return fast_cast< T >( comp );
-        }
-        return nullptr;
+        // const auto ecs = m_ecs;
+        return m_ecs->get_component< T >( m_uid );
     }
-
-    IComponent* find_component( ComponentTypeID id );
-    const IComponent* find_component( ComponentTypeID id ) const;
 
     EntityID get_id( ) const;
 
     virtual void on_destroy( );
 
-protected:
-    void component_event_broadcast( IComponent* comp, bool attached );
-
 private:
-    const EntityID m_entity_id;
-    basic::Vector< IComponent* > m_components;
+    const EntityID m_uid;
+    EntityComponentSystem* m_ecs;
 };

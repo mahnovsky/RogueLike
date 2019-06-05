@@ -6,26 +6,15 @@ EntityComponentSystem::EntityComponentSystem( )
     , m_entities( )
     , m_storages( )
 {
-    m_storages.resize( components_count );
-    for ( basic::uint32 i = 0; i < components_count; ++i )
-    {
-        m_storages[ i ] = nullptr;
-    }
 }
 
 EntityComponentSystem::~EntityComponentSystem( )
 {
-    for ( auto e : m_entities )
-    {
-        DELETE_OBJ( e );
-    }
-    for ( auto& s : m_storages )
-    {
-        DELETE_OBJ( s );
-    }
+    DELETE_ARR_OBJ( m_entities );
+    DELETE_ARR_OBJ( m_storages );
 }
 
-IComponent*
+void*
 EntityComponentSystem::create_component( const char* name )
 {
     for ( const auto& s : m_storages )
@@ -51,7 +40,7 @@ EntityComponentSystem::create( )
         return back;
     }
 
-    Entity* ent = NEW_OBJ( Entity, m_id_counter );
+    Entity* ent = NEW_OBJ( Entity, m_id_counter, this );
 
     ++m_id_counter;
 
@@ -67,6 +56,7 @@ EntityComponentSystem::destroy( Entity* ent )
 
     if ( m_entities.find_first( index, ent ) )
     {
+        ent->on_destroy( );
         m_entities.swap_remove( index );
         m_destroyed.push( ent );
     }

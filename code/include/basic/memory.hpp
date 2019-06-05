@@ -112,3 +112,8 @@ void operator delete[]( void* p ) noexcept;
 #define ALLOC_OBJECTS( ... ) basic::alloc_objects< __VA_ARGS__ >( __FILE__, __LINE__ )
 #define NEW_OBJ( TYPE, ... ) new ( basic::mem_alloc( sizeof( TYPE ) ) ) TYPE( __VA_ARGS__ )
 #define DELETE_OBJ( ptr ) basic::delete_obj( ptr )
+#define DELETE_ARR_OBJ( arr )     \
+    for ( auto obj : arr )        \
+    {                             \
+        basic::delete_obj( obj ); \
+    }

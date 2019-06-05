@@ -49,4 +49,5 @@ private:
     RenderNode* m_cow;
     RootWidget* m_ui_root;
     EntityComponentSystem* m_ecs;
+    class RenderSystem* m_render_system;
 };

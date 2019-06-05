@@ -133,12 +133,31 @@ class MemoryManager final
         MIN_BLOCK_SIZE = 128,
         MAX_BLOCK_SIZE = 2048
     };
+    static constexpr uint32 BUFFER_SIZE = 102400;
+    struct Buffer
+    {
+        void* buff;
+        uint32 size;
+        uint32 offset;
+    };
 
 public:
     MemoryManager( )
         : m_chunks( )
         , m_memory_usage( 0 )
+        , m_buffers( )
     {
+        //  add_buffer( );
+    }
+
+    void
+    add_buffer( )
+    {
+        Buffer b;
+        b.buff = _mem_alloc( BUFFER_SIZE );
+        b.size = BUFFER_SIZE;
+        b.offset = 0;
+        m_buffers.push( b );
     }
 
     ~MemoryManager( )
@@ -285,6 +304,9 @@ private:
     Vector< MemoryChunk*, InternalAllocator > m_free_stacks[ 16 ];
 
     memory_size m_memory_usage;
+
+    basic::Vector< Buffer, InternalAllocator > m_buffers;
+
 } static memory_manager;
 
 void*

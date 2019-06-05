@@ -7,7 +7,10 @@
 #include "widget_list.hpp"
 #include "widget_text.hpp"
 
+#include "entity.hpp"
 #include "entity_component_system.hpp"
+
+#include "render_system.hpp"
 
 #include <stdio.h>
 
@@ -43,6 +46,7 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_ui_camera );
 
     DELETE_OBJ( m_manager );
+    DELETE_OBJ( m_render_system );
     DELETE_OBJ( m_ecs );
 }
 
@@ -109,15 +113,22 @@ GameInstance::init( )
 {
     m_ecs = NEW_OBJ( EntityComponentSystem );
 
-    m_ecs->registry_component< TransformComponent >( "TransformComponent" );
-    m_ecs->registry_component< GroupTransformComponent >( "GroupTransformComponent" );
-    m_ecs->registry_component< RenderComponent >( "RenderComponent" );
+    struct Test
+    {
+        int a;
+        glm::vec3 pos;
+    };
+
+    m_render_system = NEW_OBJ( RenderSystem );
+    m_render_system->initialize( m_ecs, m_game_camera );
+
+    m_ecs->registry_component< Test >( "Test" );
 
     Entity* ent = m_ecs->create( );
 
-    TransformComponent* tc = m_ecs->create_component< TransformComponent >( );
-    tc->pos = {10.f, 10.f, 0.f};
-    ent->add_component( tc );
+    Test* t = ent->add_component< Test >( );
+    t->a = 10;
+    t->pos = {0.f, 10.f, 0.f};
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
@@ -189,6 +200,8 @@ GameInstance::draw( IRender* render )
     m_back.draw( m_game_camera, render );
 
     m_ui_root->draw( );
+
+    m_render_system->draw( m_ecs );
 }
 
 void

@@ -1,9 +1,8 @@
 #pragma once
 
 #include "defines.hpp"
-#include "entity.hpp"
 
-class IComponent;
+class Entity;
 
 class IComponentStorage
 {
@@ -12,11 +11,21 @@ public:
     {
     }
 
-    virtual IComponent* create( ) = 0;
+    virtual void* create( ) = 0;
+
+    virtual void release( void* comp ) = 0;
 
     virtual basic::String get_name( ) const = 0;
 
-    virtual basic::Vector< IComponent* > get_components( ) const = 0;
+    virtual basic::Vector< void* > get_components( ) const = 0;
+
+    static basic::uint32
+    generate_type_id( )
+    {
+        static basic::uint32 counter;
+
+        return counter++;
+    }
 };
 
 template < class T >
@@ -25,25 +34,39 @@ class ComponentStorage : public IComponentStorage
 public:
     ComponentStorage( const char* name )
         : m_name( name )
+        , m_pool( 100 )
         , m_components( )
     {
     }
 
     ~ComponentStorage( )
     {
-        for ( auto c : m_components )
-        {
-            DELETE_OBJ( c );
-        }
     }
 
-    IComponent*
+    static basic::uint32
+    get_component_id( )
+    {
+        static basic::uint32 id = IComponentStorage::generate_type_id( );
+
+        return id;
+    }
+
+    void*
     create( ) override
     {
-        T* component = NEW_OBJ( T, m_name.get_cstr( ) );
+        T* component = m_pool.make( );
+
         m_components.push( component );
 
-        return component;
+        return static_cast< void* >( component );
+    }
+
+    void
+    release( void* comp ) override
+    {
+        T* c = static_cast< T* >( comp );
+
+        m_pool.free( c );
     }
 
     basic::String
@@ -52,10 +75,10 @@ public:
         return m_name;
     }
 
-    basic::Vector< IComponent* >
+    basic::Vector< void* >
     get_components( ) const override
     {
-        basic::Vector< IComponent* > v;
+        basic::Vector< void* > v;
         v.reserve( m_components.get_size( ) );
         for ( auto c : m_components )
         {
@@ -71,9 +94,28 @@ public:
         return m_components;
     }
 
+    void
+    bind( basic::uint32 key, T* component )
+    {
+        m_links.insert( key, component );
+    }
+
+    T*
+    get( basic::uint32 key )
+    {
+        T* obj;
+        if ( m_links.find( key, obj ) )
+        {
+            return obj;
+        }
+        return nullptr;
+    }
+
 private:
     basic::String m_name;
+    basic::Pool< T > m_pool;
     basic::Vector< T* > m_components;
+    basic::HashMap< basic::uint32, T* > m_links;
 };
 
 class ISystem
@@ -92,15 +134,16 @@ public:
     EntityComponentSystem( );
     ~EntityComponentSystem( );
 
-    IComponent* create_component( const char* name );
+    void* create_component( const char* name );
 
     template < class T >
     T*
     create_component( )
     {
-        ASSERT( T::_type_id < m_storages.get_size( ) );
+        auto id = ComponentStorage< T >::get_component_id( );
+        ASSERT( id < m_storages.get_size( ) );
 
-        void* vptr = m_storages[ T::_type_id ]->create( );
+        void* vptr = m_storages[ id ]->create( );
         T* component = static_cast< T* >( vptr );
 
         return component;
@@ -110,15 +153,12 @@ public:
     bool
     registry_component( const char* name )
     {
-        auto id = T::_type_id;
+        auto id = get_component_id< T >( ) + 1;
 
-        if ( m_storages[ id ] != nullptr )
-        {
-            LOG( "failed register, component already exist" );
-            return false;
-        }
+        m_storages.push( NEW_OBJ( ComponentStorage< T >, name ) );
 
-        m_storages[ id ] = NEW_OBJ( ComponentStorage< T >, name );
+        ASSERT( id == m_storages.get_size( ) );
+
         return true;
     }
 
@@ -132,14 +172,44 @@ public:
     basic::Vector< T* >
     get_components( ) const
     {
-        ComponentStorage< T >* storage = static_cast< ComponentStorage< T >* >(
-                static_cast< void* >( m_storages[ T::_type_id ] ) );
+        auto id = get_component_id< T >( );
+
+        ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
 
         return storage->get_components_t( );
     }
 
+    template < class T >
+    basic::uint32
+    get_component_id( ) const
+    {
+        return ComponentStorage< T >::get_component_id( );
+    }
+
+    template < class T >
+    void
+    bind( basic::uint32 k, T* obj )
+    {
+        auto id = get_component_id< T >( );
+
+        ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
+
+        storage->bind( k, obj );
+    }
+
+    template < class T >
+    T*
+    get_component( basic::uint32 k )
+    {
+        auto id = get_component_id< T >( );
+
+        ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
+
+        return storage->get( k );
+    }
+
 private:
-    EntityID m_id_counter;
+    basic::uint32 m_id_counter;
     basic::Vector< Entity* > m_entities;
     basic::Vector< Entity* > m_destroyed;
     basic::Vector< IComponentStorage* > m_storages;

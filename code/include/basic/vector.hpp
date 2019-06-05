@@ -19,8 +19,9 @@ struct Initializer
 {
     template < class... Args >
     static void
-    construct( T*, Token< true >, Args... )
+    construct( T* ptr, Token< true >, Args... args )
     {
+        new ( ptr ) T( args... );
     }
 
     template < class... Args >
