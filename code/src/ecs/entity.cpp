@@ -8,10 +8,11 @@ Entity::Entity( EntityID id, EntityComponentSystem* ecs )
 
 Entity::~Entity( )
 {
+    m_ecs->destroy( this );
 }
 
 EntityID
-Entity::get_id( ) const
+Entity::get_uid( ) const
 {
     return m_uid;
 }
@@ -19,4 +20,8 @@ Entity::get_id( ) const
 void
 Entity::on_destroy( )
 {
+    for ( auto id : m_components )
+    {
+        m_ecs->emit( this, id, ComponentAction::Detached );
+    }
 }

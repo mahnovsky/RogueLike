@@ -17,7 +17,8 @@ public:
     {
         T* comp = m_ecs->create_component< T >( );
 
-        m_ecs->bind( m_uid, comp );
+        m_ecs->bind( this, comp );
+        m_components.push( m_ecs->get_component_id< T >( ) );
 
         return comp;
     }
@@ -26,22 +27,22 @@ public:
     T*
     get_component( )
     {
-        return m_ecs->get_component< T >( m_uid );
+        return m_ecs->get_component< T >( this );
     }
 
     template < class T >
     const T*
     get_component( ) const
     {
-        // const auto ecs = m_ecs;
-        return m_ecs->get_component< T >( m_uid );
+        return m_ecs->get_component< T >( this );
     }
 
-    EntityID get_id( ) const;
+    EntityID get_uid( ) const;
 
     virtual void on_destroy( );
 
 private:
     const EntityID m_uid;
     EntityComponentSystem* m_ecs;
+    basic::Vector< basic::uint32 > m_components;
 };

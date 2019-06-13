@@ -10,10 +10,21 @@ RenderSystem::RenderSystem( )
 {
 }
 
+RenderSystem::~RenderSystem( )
+{
+}
+
 void
 RenderSystem::initialize( EntityComponentSystem* ecs, ICamera* cam )
 {
     ecs->registry_component< RenderComponent >( "RenderComponent" );
+    ecs->registry_component< TransformComponent >( "TransformComponent" );
+
+    m_transform_id = ecs->get_component_id< TransformComponent >( );
+    m_render_id = ecs->get_component_id< RenderComponent >( );
+
+    ecs->subscribe( m_transform_id, this );
+    ecs->subscribe( m_render_id, this );
 
     m_camera = cam;
 }
@@ -23,7 +34,7 @@ RenderSystem::draw( EntityComponentSystem* ecs )
 {
     ASSERT( m_camera );
 
-    basic::Vector< RenderComponent* > components = ecs->get_components< RenderComponent >( );
+    const basic::Vector< RenderComponent* >& components = ecs->get_components< RenderComponent >( );
 
     for ( auto comp : components )
     {
@@ -61,4 +72,82 @@ RenderSystem::draw( RenderComponent* component )
     {
         glDrawArrays( GL_TRIANGLES, 0, component->vertex_elements );
     }
+}
+
+void
+RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act )
+{
+    switch ( act )
+    {
+    case ComponentAction::Attached:
+    case ComponentAction::Updated:
+    {
+        if ( component_id == m_transform_id )
+        {
+            const TransformComponent* tc = ent->get_component< TransformComponent >( );
+
+            RenderComponent* rc = ent->get_component< RenderComponent >( );
+            rc->model = tc->tr.get_matrix( );
+        }
+    }
+    break;
+    case ComponentAction::Detached:
+    {
+        if ( component_id == m_render_id )
+        {
+            RenderComponent* rc = ent->get_component< RenderComponent >( );
+            DELETE_OBJ( rc->material );
+            rc->material = nullptr;
+        }
+    }
+    break;
+    default:
+        break;
+    }
+}
+
+void
+RenderSystem::load_component( RenderComponent* comp, const Mesh& m )
+{
+    comp->color = basic::Color{255, 255, 255, 255};
+
+    glGenVertexArrays( 1, &comp->array_object );
+
+    glBindVertexArray( comp->array_object );
+
+    comp->vertex_object = create_buffer( GL_ARRAY_BUFFER,
+                                         GL_STATIC_DRAW,
+                                         (void*)m.vb.get_raw( ),
+                                         m.vb.get_size( ) * sizeof( Vertex ) );
+
+    comp->vertex_elements = m.vb.get_size( );
+
+    if ( !m.ib.is_empty( ) )
+    {
+        comp->index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
+                                            GL_STATIC_DRAW,
+                                            m.ib.get_raw( ),
+                                            m.ib.get_size( ) * sizeof( basic::uint16 ) );
+
+        comp->index_elements = m.ib.get_size( );
+    }
+
+    basic::Vector< VertexFMT > fmt_list = get_fmt_list( m.vb.get_raw( ) );
+
+    for ( basic::uint32 i = 0; i < fmt_list.get_size( ); ++i )
+    {
+        const VertexFMT& fmt = fmt_list[ i ];
+        glVertexAttribPointer( i,
+                               fmt.size,
+                               fmt.type,
+                               fmt.is_normalized,
+                               sizeof( Vertex ),
+                               (const void*)fmt.offset );
+
+        glEnableVertexAttribArray( i );
+    }
+
+    glBindVertexArray( 0 );
+
+    comp->model = glm::mat4{1.f};
 }

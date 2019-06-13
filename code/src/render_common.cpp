@@ -1,11 +1,11 @@
 #include "render_common.hpp"
 
+#include "camera.hpp"
+#include "material.hpp"
 #include "resource_storage.hpp"
 #include "shader.hpp"
-#include "material.hpp"
-#include "transform.hpp"
-#include "camera.hpp"
 #include "texture.hpp"
+#include "transform.hpp"
 
 IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
 
@@ -32,12 +32,12 @@ QuadGenerator::generate( VertexBufferT& out_vb, int offset, const TextureRect* r
     glm::vec2 t_rb{1.f, 1.f};
     glm::vec2 t_lb{0.f, 1.f};
     glm::vec2 t_lt{0.f, 0.f};
-    if(rect)
+    if ( rect )
     {
-        t_rt = { rect->x + rect->w, rect->y };
-        t_rb = { rect->x + rect->w, rect->y + rect->h };
-        t_lb = { rect->x, rect->y + rect->h };
-        t_lt = { rect->x, rect->y };
+        t_rt = {rect->x + rect->w, rect->y};
+        t_rb = {rect->x + rect->w, rect->y + rect->h};
+        t_lb = {rect->x, rect->y + rect->h};
+        t_lt = {rect->x, rect->y};
     }
     out_vb.push( {{right, top, z}, t_rt} );
     out_vb.push( {{right, bottom, z}, t_rb} );
@@ -59,28 +59,29 @@ QuadGenerator::generate( IndexBuffer& out_vb, int offset )
 struct EnableArrayBuffer
 {
     EnableArrayBuffer( basic::uint32 object, basic::uint32& prev_vao )
-        :m_object(object)
+        : m_object( object )
     {
-        if(prev_vao > 0 && prev_vao == m_object)
+        if ( prev_vao > 0 && prev_vao == m_object )
         {
             m_object = 0;
             return;
         }
 
-        if( m_object > 0 )
+        if ( m_object > 0 )
         {
             glBindVertexArray( m_object );
             prev_vao = m_object;
         }
     }
 
-    ~EnableArrayBuffer()
+    ~EnableArrayBuffer( )
     {
-        if( m_object > 0 )
+        if ( m_object > 0 )
         {
             glBindVertexArray( 0 );
         }
     }
+
 private:
     basic::uint32 m_object;
 };
@@ -103,7 +104,7 @@ struct MeshVertex
 bool
 load_mesh( const char* file, Mesh& out_mesh )
 {
-	basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
+    basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
 
     if ( data.is_empty( ) )
     {
@@ -111,24 +112,26 @@ load_mesh( const char* file, Mesh& out_mesh )
     }
 
     basic::Vector< glm::vec3 > vert_coords;
-	vert_coords.reserve(1000);
+    vert_coords.reserve( 1000 );
     basic::Vector< glm::vec2 > tex_coords;
     basic::Vector< MeshVertex > vertexes;
-	vertexes.reserve(1000);
+    vertexes.reserve( 1000 );
 
     basic::uint32 offset = 0;
-	int line_counter = 0;
+    int line_counter = 0;
 
-	double s = basic::get_milliseconds() ;
-	
-	basic::String line;
+    double s = basic::get_milliseconds( );
+
+    basic::String line;
 
     while ( offset < data.get_size( ) )
     {
-		++line_counter;
-		
-		offset += basic::String::read_line( reinterpret_cast<basic::char_t*>(data.get_raw( ) + offset),
-                                            static_cast<basic::uint32>(data.get_size( ) - offset), line );
+        ++line_counter;
+
+        offset += basic::String::read_line(
+                reinterpret_cast< basic::char_t* >( data.get_raw( ) + offset ),
+                static_cast< basic::uint32 >( data.get_size( ) - offset ),
+                line );
 
         if ( offset >= data.get_size( ) )
         {
@@ -143,23 +146,23 @@ load_mesh( const char* file, Mesh& out_mesh )
         basic::Vector< basic::String > items;
         line.split( items, ' ' );
 
-        if( items.is_empty() )
+        if ( items.is_empty( ) )
         {
             continue;
         }
 
         if ( items.front( ) == "v" && items.get_size( ) > 3 )
         {
-            float x = static_cast<float>( atof( items[ 1 ].get_cstr( ) ) );
-            float y = static_cast<float>( atof( items[ 2 ].get_cstr( ) ) );
-            float z = static_cast<float>( atof( items[ 3 ].get_cstr( ) ) );
+            float x = static_cast< float >( atof( items[ 1 ].get_cstr( ) ) );
+            float y = static_cast< float >( atof( items[ 2 ].get_cstr( ) ) );
+            float z = static_cast< float >( atof( items[ 3 ].get_cstr( ) ) );
 
             vert_coords.push( {x, y, z} );
         }
         else if ( items.front( ) == "vt" && items.get_size( ) > 2 )
         {
-            float tx = static_cast<float>( atof( items[ 1 ].get_cstr( ) ) );
-            float ty = static_cast<float>( atof( items[ 2 ].get_cstr( ) ) );
+            float tx = static_cast< float >( atof( items[ 1 ].get_cstr( ) ) );
+            float ty = static_cast< float >( atof( items[ 2 ].get_cstr( ) ) );
 
             tex_coords.push( {tx, ty} );
         }
@@ -177,7 +180,7 @@ load_mesh( const char* file, Mesh& out_mesh )
                 v.vi = faces[ i ];
                 v.pos = vert_coords.get( v.vi - 1 );
 
-                if ( step > 1 && !tex_coords.is_empty() )
+                if ( step > 1 && !tex_coords.is_empty( ) )
                 {
                     v.ti = faces[ i + 1 ];
                     v.uv = tex_coords.get( faces[ v.ti - 1 ] );
@@ -207,8 +210,8 @@ load_mesh( const char* file, Mesh& out_mesh )
         }
     }
 
-	double delta = basic::get_milliseconds() - s;
-	delta = 0.0;
+    double delta = basic::get_milliseconds( ) - s;
+    delta = 0.0;
 
     out_mesh.vb.reserve( vertexes.get_size( ) );
     for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
@@ -221,140 +224,143 @@ load_mesh( const char* file, Mesh& out_mesh )
     return true;
 }
 
-RenderNode *RenderNode::create_node( ShaderProgram* program, Texture* texture )
+RenderNode*
+RenderNode::create_node( ShaderProgram* program, Texture* texture )
 {
     RenderNode* node = nullptr;
 
-    if( program )
+    if ( program )
     {
-        void* objects_ptr = ALLOC_OBJECTS(RenderNode, Material, Transform);
+        void* objects_ptr = ALLOC_OBJECTS( RenderNode, Material, Transform );
 
         basic::uint32 offset = 0;
-        node = basic::init_object<RenderNode>(objects_ptr, offset);
-        node->material = basic::init_object<Material>(objects_ptr, offset, program, texture);
-        node->transform = basic::init_object<Transform>(objects_ptr, offset);
+        node = basic::init_object< RenderNode >( objects_ptr, offset );
+        node->material = basic::init_object< Material >( objects_ptr, offset, program, texture );
+        node->transform = basic::init_object< Transform >( objects_ptr, offset );
     }
 
     return node;
 }
 
-void RenderNode::remove_node( RenderNode *node )
+void
+RenderNode::remove_node( RenderNode* node )
 {
-    if( !node )
+    if ( !node )
     {
         return;
     }
-    for(basic::uint32 i = 0; i < node->children.get_size(); ++i)
+    for ( basic::uint32 i = 0; i < node->children.get_size( ); ++i )
     {
-        remove_node(node->children[i]);
-        node->children[i] = nullptr;
+        remove_node( node->children[ i ] );
+        node->children[ i ] = nullptr;
     }
 
-    node->material->~Material();
-    node->transform->~Transform();
+    node->material->~Material( );
+    node->transform->~Transform( );
 
-    if(node->vertex_object > 0)
+    if ( node->vertex_object > 0 )
     {
-        glDeleteBuffers(1, &node->vertex_object);
+        glDeleteBuffers( 1, &node->vertex_object );
     }
-    if(node->index_object > 0)
+    if ( node->index_object > 0 )
     {
-        glDeleteBuffers(1, &node->index_object);
+        glDeleteBuffers( 1, &node->index_object );
     }
-    if(node->array_object > 0)
+    if ( node->array_object > 0 )
     {
-        glDeleteVertexArrays(1, &node->array_object);
+        glDeleteVertexArrays( 1, &node->array_object );
     }
 
     node->material = nullptr;
     node->transform = nullptr;
-    node->~RenderNode();
+    node->~RenderNode( );
     basic::mem_free( node );
 }
 
-Transform * RenderNode::get_transform()
+Transform*
+RenderNode::get_transform( )
 {
-	return transform;
+    return transform;
 }
 
-GENERATE_GREATER_COMP_PTR(RenderNodeOrderCmp, RenderNode, order);
+GENERATE_GREATER_COMP_PTR( RenderNodeOrderCmp, RenderNode, order );
 
-void RenderNode::add_child(RenderNode * node)
+void
+RenderNode::add_child( RenderNode* node )
 {
-	if (!children.is_contains(node))
-	{
-		children.push(node);
-        transform->add_child(node->transform);
+    if ( !children.is_contains( node ) )
+    {
+        children.push( node );
+        transform->add_child( node->transform );
 
-		node->set_camera(camera);
+        node->set_camera( camera );
         node->parent = this;
 
-        children.sort(RenderNodeOrderCmp{});
-	}
-}
-
-const Texture *RenderNode::get_texture() const
-{
-    return material->get_texture();
-}
-
-void RenderNode::set_order(basic::int32 order)
-{
-    this->order = order;
-    if(parent)
-    {
-        parent->children.sort(RenderNodeOrderCmp{});
+        children.sort( RenderNodeOrderCmp{} );
     }
 }
 
-basic::uint32 create_buffer( basic::uint32 buffer_type,
-                             basic::uint32 buffer_usage,
-                             void* data,
-                             basic::uint32 size )
+const Texture*
+RenderNode::get_texture( ) const
+{
+    return material->get_texture( );
+}
+
+void
+RenderNode::set_order( basic::int32 order )
+{
+    this->order = order;
+    if ( parent )
+    {
+        parent->children.sort( RenderNodeOrderCmp{} );
+    }
+}
+
+basic::uint32
+create_buffer( basic::uint32 buffer_type,
+               basic::uint32 buffer_usage,
+               const void* data,
+               basic::uint32 size )
 {
     basic::uint32 buffer;
 
     glGenBuffers( 1, &buffer );
     glBindBuffer( buffer_type, buffer );
 
-    glBufferData( buffer_type,
-                  size,
-                  data,
-                  buffer_usage );
+    glBufferData( buffer_type, size, data, buffer_usage );
 
     return buffer;
 }
 
-void fill_line( const glm::vec2 &p0,
-                const glm::vec2 &p1,
-                float width,
-                VertexBufferP& out_vb )
+void
+fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb )
 {
-    glm::vec3 pos0 = glm::vec3(p0, 0);
-    glm::vec3 pos1 = glm::vec3(p1, 0);
+    glm::vec3 pos0 = glm::vec3( p0, 0 );
+    glm::vec3 pos1 = glm::vec3( p1, 0 );
 
     glm::vec3 delta = pos1 - pos0;
-    float sq_dist = glm::dot(delta, delta);
-    ASSERT(sq_dist > 0.1f);
-    ASSERT(width > 0.1f);
+    float sq_dist = glm::dot( delta, delta );
+    ASSERT( sq_dist > 0.1f );
+    ASSERT( width > 0.1f );
 
-    glm::vec3 up{ 0.f, 0.f, 1.f };
-    glm::vec3 dir = glm::normalize(glm::cross(delta, up));
+    glm::vec3 up{0.f, 0.f, 1.f};
+    glm::vec3 dir = glm::normalize( glm::cross( delta, up ) );
 
     //{ 0, 1, 2, 3, 2, 1 }
     const float half_width = width / 2;
-    out_vb.push( (dir * half_width) + pos0);
-    out_vb.push( (dir * half_width) + pos1);
-    out_vb.push( (dir * -half_width) + pos0);
-    out_vb.push( (dir * -half_width) + pos1);
-    out_vb.push( (dir * -half_width) + pos0);
-    out_vb.push( (dir * half_width) + pos1);
+    out_vb.push( ( dir * half_width ) + pos0 );
+    out_vb.push( ( dir * half_width ) + pos1 );
+    out_vb.push( ( dir * -half_width ) + pos0 );
+    out_vb.push( ( dir * -half_width ) + pos1 );
+    out_vb.push( ( dir * -half_width ) + pos0 );
+    out_vb.push( ( dir * half_width ) + pos1 );
 }
 
-void fill_rect( const glm::vec2 &left_top,
-                const glm::vec2 &right_bottom,
-                float width,
-                VertexBufferP &out_vb)
+void
+fill_rect( const glm::vec2& left_top,
+           const glm::vec2& right_bottom,
+           float width,
+           VertexBufferP& out_vb )
 {
     glm::vec2 left_bottom( left_top.x, right_bottom.y );
     glm::vec2 right_top( right_bottom.x, left_top.y );
@@ -365,37 +371,40 @@ void fill_rect( const glm::vec2 &left_top,
     fill_line( right_bottom, left_bottom, width, out_vb );
 }
 
-RenderNode *make_rect( ShaderProgram *shader,
-                       const glm::vec2 &left_top,
-                       const glm::vec2 &right_bottom,
-                       float width )
+RenderNode*
+make_rect( ShaderProgram* shader,
+           const glm::vec2& left_top,
+           const glm::vec2& right_bottom,
+           float width )
 {
-    RenderNode* res = RenderNode::create_node(shader, nullptr);
+    RenderNode* res = RenderNode::create_node( shader, nullptr );
 
     VertexBufferP vb;
     fill_rect( left_top, right_bottom, width, vb );
 
     res->init_node( &vb, nullptr );
 
-    return  res;
-}
-
-basic::Vector<VertexFMT> get_fmt_list(glm::vec3 *)
-{
-    VertexFMT fmt;
-    fmt.size = 3;
-    fmt.type = GL_FLOAT;
-    fmt.offset = 0;
-    fmt.is_normalized = GL_FALSE;
-
-    basic::Vector<VertexFMT> res;
-    res.push(fmt);
     return res;
 }
 
-basic::Vector<VertexFMT> get_fmt_list(Vertex *)
+basic::Vector< VertexFMT >
+get_fmt_list( const glm::vec3* )
 {
-    basic::Vector<VertexFMT> res;
+    VertexFMT fmt;
+    fmt.size = 3;
+    fmt.type = GL_FLOAT;
+    fmt.offset = 0;
+    fmt.is_normalized = GL_FALSE;
+
+    basic::Vector< VertexFMT > res;
+    res.push( fmt );
+    return res;
+}
+
+basic::Vector< VertexFMT >
+get_fmt_list( const Vertex* )
+{
+    basic::Vector< VertexFMT > res;
 
     VertexFMT fmt;
     fmt.size = 3;
@@ -403,28 +412,29 @@ basic::Vector<VertexFMT> get_fmt_list(Vertex *)
     fmt.offset = 0;
     fmt.is_normalized = GL_FALSE;
 
-    res.push(fmt);
+    res.push( fmt );
 
     fmt.size = 4;
     fmt.type = GL_UNSIGNED_BYTE;
-    fmt.offset = sizeof (float) * 3;
+    fmt.offset = sizeof( float ) * 3;
     fmt.is_normalized = GL_TRUE;
 
-    res.push(fmt);
+    res.push( fmt );
 
     fmt.size = 2;
     fmt.type = GL_FLOAT;
-    fmt.offset = sizeof (float) * 3 + 4;
+    fmt.offset = sizeof( float ) * 3 + 4;
     fmt.is_normalized = GL_FALSE;
 
-    res.push(fmt);
+    res.push( fmt );
 
     return res;
 }
 
-basic::Vector<VertexFMT> get_fmt_list(Vertex_T *)
+basic::Vector< VertexFMT >
+get_fmt_list( const Vertex_T* )
 {
-    basic::Vector<VertexFMT> res;
+    basic::Vector< VertexFMT > res;
 
     VertexFMT fmt;
     fmt.size = 3;
@@ -432,112 +442,115 @@ basic::Vector<VertexFMT> get_fmt_list(Vertex_T *)
     fmt.offset = 0;
     fmt.is_normalized = GL_FALSE;
 
-    res.push(fmt);
+    res.push( fmt );
 
     fmt.size = 2;
     fmt.type = GL_FLOAT;
-    fmt.offset = sizeof (float) * 3;
+    fmt.offset = sizeof( float ) * 3;
     fmt.is_normalized = GL_FALSE;
 
-    res.push(fmt);
+    res.push( fmt );
 
     return res;
 }
 
-void RenderNode::set_color(const basic::Color & color)
+void
+RenderNode::set_color( const basic::Color& color )
 {
     this->color = color;
 }
 
-basic::Color RenderNode::get_color() const
+basic::Color
+RenderNode::get_color( ) const
 {
     return color;
 }
 
-void RenderNode::set_camera(ICamera * camera)
+void
+RenderNode::set_camera( ICamera* camera )
 {
-	this->camera = camera;
+    this->camera = camera;
 }
 
-void RenderNode::update_indices(IndexBuffer * indices)
+void
+RenderNode::update_indices( IndexBuffer* indices )
 {
-	ASSERT(indices != nullptr);
-	ASSERT(index_object > 0);
+    ASSERT( indices != nullptr );
+    ASSERT( index_object > 0 );
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_object);
-	const basic::uint32 size = sizeof(basic::uint16) * indices->get_size();
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, index_object );
+    const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
 
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw(), GL_STATIC_DRAW);
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
 
-	basic::int32 need_elements = static_cast<basic::int32>(indices->get_size());
+    basic::int32 need_elements = static_cast< basic::int32 >( indices->get_size( ) );
 
-	if (index_elements == 0 || index_elements < need_elements)
-	{
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-			size,
-			indices->get_raw(),
-			GL_STATIC_DRAW);
+    if ( index_elements == 0 || index_elements < need_elements )
+    {
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
 
-		index_elements = need_elements;
+        index_elements = need_elements;
 
-		return;
-	}
+        return;
+    }
 
-	index_elements = need_elements;
+    index_elements = need_elements;
 
-	glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw());
+    glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw( ) );
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }
 
-void RenderNode::draw_node(basic::uint32 prev_vao)
+void
+RenderNode::draw_node( basic::uint32 prev_vao )
 {
-	ASSERT(transform);
-	ASSERT(material);
+    ASSERT( transform );
+    ASSERT( material );
 
-	if (prev_vao > 0 && (flags | USE_PARENT_VAO) == 0)
-	{
-		prev_vao = 0;
-	}
+    if ( prev_vao > 0 && ( flags | USE_PARENT_VAO ) == 0 )
+    {
+        prev_vao = 0;
+    }
 
-	EnableArrayBuffer ao(array_object, prev_vao);
+    EnableArrayBuffer ao( array_object, prev_vao );
 
-	material->enable();
+    material->enable( );
 
-	glm::mat4 mvp{ transform->get_matrix() };
+    glm::mat4 mvp{transform->get_matrix( )};
 
-	if (camera)
-	{
-		glm::mat4 pv(1.f);
-		camera->get_matrix(pv);
+    if ( camera )
+    {
+        glm::mat4 pv( 1.f );
+        camera->get_matrix( pv );
 
-		mvp = pv * mvp;
-	}
+        mvp = pv * mvp;
+    }
 
-    material->set_uniform("MVP", mvp);
-    material->set_uniform("Color", color);
+    material->set_uniform( "MVP", mvp );
+    material->set_uniform( "Color", color );
 
-	if (index_object > 0)
-	{
-		glDrawElements(GL_TRIANGLES, index_elements, GL_UNSIGNED_SHORT, nullptr);
-	}
-	else if (vertex_elements > 0)
-	{
-		glDrawArrays(GL_TRIANGLES, 0, vertex_elements);
-	}
+    if ( index_object > 0 )
+    {
+        glDrawElements( GL_TRIANGLES, index_elements, GL_UNSIGNED_SHORT, nullptr );
+    }
+    else if ( vertex_elements > 0 )
+    {
+        glDrawArrays( GL_TRIANGLES, 0, vertex_elements );
+    }
 
-	//material->disable();
+    // material->disable();
 
-	for (basic::uint32 i = 0; i < children.get_size(); ++i)
-	{
-		children[i]->draw_node(array_object);
-	}
+    for ( basic::uint32 i = 0; i < children.get_size( ); ++i )
+    {
+        children[ i ]->draw_node( array_object );
+    }
 }
 
-basic::uint32 RenderNode::get_buffer_usage() const
+basic::uint32
+RenderNode::get_buffer_usage( ) const
 {
-	basic::uint32 buffer_usage = (flags & USE_DYNAMIC_VBO) == 0 ?
-		GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
+    basic::uint32 buffer_usage
+            = ( flags & USE_DYNAMIC_VBO ) == 0 ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 
-	return buffer_usage;
+    return buffer_usage;
 }

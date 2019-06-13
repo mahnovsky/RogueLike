@@ -12,18 +12,20 @@ EntityComponentSystem::~EntityComponentSystem( )
 {
     DELETE_ARR_OBJ( m_entities );
     DELETE_ARR_OBJ( m_storages );
+    DELETE_ARR_OBJ( m_systems );
 }
 
 void*
 EntityComponentSystem::create_component( const char* name )
 {
-    for ( const auto& s : m_storages )
+    basic::uint32 index;
+    if ( m_storages.find_if( index, [name]( const IComponentStorage* storage ) {
+             return storage->get_name( ) == name;
+         } ) )
     {
-        if ( s->get_name( ) == name )
-        {
-            return s->create( );
-        }
+        return m_storages[ index ]->create( );
     }
+
     LOG( "Failed create component by name, factory not found" );
 
     return nullptr;
@@ -63,10 +65,58 @@ EntityComponentSystem::destroy( Entity* ent )
 }
 
 void
-EntityComponentSystem::update( float )
+EntityComponentSystem::subscribe( basic::uint32 component_id, ISystem* system )
 {
-    for ( auto s : m_systems )
+    basic::Vector< ISystem* > subs;
+
+    if ( m_subscribers.find( component_id, subs ) )
     {
-        s->update( this );
+        basic::uint32 index;
+        if ( !subs.find_first( index, system ) )
+        {
+            m_subscribers.insert( component_id, subs );
+        }
+    }
+    else
+    {
+        subs.push( system );
+        m_subscribers.insert( component_id, std::move( subs ) );
+    }
+}
+
+void
+EntityComponentSystem::unsubscribe( basic::uint32 component_id, ISystem* system )
+{
+    basic::Vector< ISystem* > subs;
+
+    if ( m_subscribers.find( component_id, subs ) )
+    {
+        basic::uint32 index;
+        if ( subs.find_first( index, system ) )
+        {
+            if ( subs.get_size( ) == 1 )
+            {
+                m_subscribers.remove( component_id );
+            }
+            else
+            {
+                subs.swap_remove( index );
+                m_subscribers.insert( component_id, subs );
+            }
+        }
+    }
+}
+
+void
+EntityComponentSystem::emit( Entity* ent, basic::uint32 component_id, ComponentAction act )
+{
+    auto it = m_subscribers.find( component_id );
+
+    if ( it != m_subscribers.end( ) )
+    {
+        for ( auto system : it->value )
+        {
+            system->on_component_event( ent, component_id, act );
+        }
     }
 }

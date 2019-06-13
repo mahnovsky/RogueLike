@@ -1,121 +1,13 @@
 #pragma once
 
+#include "component.hpp"
 #include "defines.hpp"
 
-class Entity;
-
-class IComponentStorage
+enum ComponentAction
 {
-public:
-    virtual ~IComponentStorage( )
-    {
-    }
-
-    virtual void* create( ) = 0;
-
-    virtual void release( void* comp ) = 0;
-
-    virtual basic::String get_name( ) const = 0;
-
-    virtual basic::Vector< void* > get_components( ) const = 0;
-
-    static basic::uint32
-    generate_type_id( )
-    {
-        static basic::uint32 counter;
-
-        return counter++;
-    }
-};
-
-template < class T >
-class ComponentStorage : public IComponentStorage
-{
-public:
-    ComponentStorage( const char* name )
-        : m_name( name )
-        , m_pool( 100 )
-        , m_components( )
-    {
-    }
-
-    ~ComponentStorage( )
-    {
-    }
-
-    static basic::uint32
-    get_component_id( )
-    {
-        static basic::uint32 id = IComponentStorage::generate_type_id( );
-
-        return id;
-    }
-
-    void*
-    create( ) override
-    {
-        T* component = m_pool.make( );
-
-        m_components.push( component );
-
-        return static_cast< void* >( component );
-    }
-
-    void
-    release( void* comp ) override
-    {
-        T* c = static_cast< T* >( comp );
-
-        m_pool.free( c );
-    }
-
-    basic::String
-    get_name( ) const override
-    {
-        return m_name;
-    }
-
-    basic::Vector< void* >
-    get_components( ) const override
-    {
-        basic::Vector< void* > v;
-        v.reserve( m_components.get_size( ) );
-        for ( auto c : m_components )
-        {
-            v.push( c );
-        }
-
-        return v;
-    }
-
-    basic::Vector< T* >
-    get_components_t( ) const
-    {
-        return m_components;
-    }
-
-    void
-    bind( basic::uint32 key, T* component )
-    {
-        m_links.insert( key, component );
-    }
-
-    T*
-    get( basic::uint32 key )
-    {
-        T* obj;
-        if ( m_links.find( key, obj ) )
-        {
-            return obj;
-        }
-        return nullptr;
-    }
-
-private:
-    basic::String m_name;
-    basic::Pool< T > m_pool;
-    basic::Vector< T* > m_components;
-    basic::HashMap< basic::uint32, T* > m_links;
+    Attached,
+    Updated,
+    Detached
 };
 
 class ISystem
@@ -125,7 +17,8 @@ public:
     {
     }
 
-    virtual void update( EntityComponentSystem* ecs ) = 0;
+    virtual void on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act )
+            = 0;
 };
 
 class EntityComponentSystem
@@ -169,7 +62,7 @@ public:
     void update( float dt );
 
     template < class T >
-    basic::Vector< T* >
+    const basic::Vector< T* >&
     get_components( ) const
     {
         auto id = get_component_id< T >( );
@@ -188,25 +81,43 @@ public:
 
     template < class T >
     void
-    bind( basic::uint32 k, T* obj )
+    bind( Entity* ent, T* obj )
     {
         auto id = get_component_id< T >( );
 
         ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
 
-        storage->bind( k, obj );
+        storage->bind( ent, obj );
+        emit( ent, id, ComponentAction::Attached );
     }
 
     template < class T >
     T*
-    get_component( basic::uint32 k )
+    get_component( const Entity* ent )
     {
         auto id = get_component_id< T >( );
 
         ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
 
-        return storage->get( k );
+        return storage->get( ent );
     }
+
+    template < class T >
+    T*
+    create_system( )
+    {
+        T* sys = NEW_OBJ( T );
+
+        m_systems.push( sys );
+
+        return sys;
+    }
+
+    void subscribe( basic::uint32 component_id, ISystem* system );
+
+    void unsubscribe( basic::uint32 component_id, ISystem* system );
+
+    void emit( Entity* ent, basic::uint32 component_id, ComponentAction act );
 
 private:
     basic::uint32 m_id_counter;
@@ -214,4 +125,5 @@ private:
     basic::Vector< Entity* > m_destroyed;
     basic::Vector< IComponentStorage* > m_storages;
     basic::Vector< ISystem* > m_systems;
+    basic::HashMap< basic::uint32, basic::Vector< ISystem* > > m_subscribers;
 };

@@ -1,5 +1,6 @@
 #include "game_instance.hpp"
 
+#include "material.hpp"
 #include "object_manager.hpp"
 #include "render_common.hpp"
 #include "root_widget.hpp"
@@ -46,7 +47,6 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_ui_camera );
 
     DELETE_OBJ( m_manager );
-    DELETE_OBJ( m_render_system );
     DELETE_OBJ( m_ecs );
 }
 
@@ -111,24 +111,24 @@ open_menu_action( Widget* w, void* user_data )
 void
 GameInstance::init( )
 {
+    Texture* texture = m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
+    ShaderProgram* shader = m_rs.get_resorce< ShaderProgram >( "texture" );
+    Material* mat = NEW_OBJ( Material, shader, texture );
+
     m_ecs = NEW_OBJ( EntityComponentSystem );
 
-    struct Test
-    {
-        int a;
-        glm::vec3 pos;
-    };
-
-    m_render_system = NEW_OBJ( RenderSystem );
+    m_render_system = m_ecs->create_system< RenderSystem >( );
     m_render_system->initialize( m_ecs, m_game_camera );
-
-    m_ecs->registry_component< Test >( "Test" );
 
     Entity* ent = m_ecs->create( );
 
-    Test* t = ent->add_component< Test >( );
-    t->a = 10;
-    t->pos = {0.f, 10.f, 0.f};
+    auto tr = ent->add_component< TransformComponent >( );
+    tr->tr.set_position( {10.f, 10.f, 0.f} );
+
+    auto rc = ent->add_component< RenderComponent >( );
+    // rc->material = mat;
+
+    m_ecs->emit( ent, m_ecs->get_component_id< TransformComponent >( ), ComponentAction::Updated );
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
@@ -136,8 +136,6 @@ GameInstance::init( )
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
-
-    Texture* texture = m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
 
     m_ui_root->init( &m_rs );
 
@@ -176,8 +174,6 @@ GameInstance::init( )
         m_ui_root->add_child( wnd );
     }
 
-    ShaderProgram* shader = m_rs.get_resorce< ShaderProgram >( "texture" );
-
     m_back.init( shader, texture );
     m_back.set_size( 2.f, 2.f );
     m_back.set_color( 255, 255, 50, 180 );
@@ -186,11 +182,13 @@ GameInstance::init( )
     Mesh m;
     if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
     {
-        m_cow = RenderNode::create_node( def_shader, nullptr );
+        /*m_cow = RenderNode::create_node( def_shader, nullptr );
         m_cow->set_camera( m_game_camera );
         m_cow->set_color( basic::Color{255, 255, 255, 255} );
 
-        m_cow->init_node( &m.vb, &m.ib );
+        m_cow->init_node( &m.vb, &m.ib );*/
+        rc->material = NEW_OBJ( Material, def_shader, nullptr );
+        RenderSystem::load_component( rc, m );
     }
 }
 
@@ -221,11 +219,6 @@ GameInstance::frame( float delta )
     m_back.set_position( pos );
 
     print_fps( );
-
-    // float angle = m_btn.get_angle();
-
-    // m_btn.set_angle( angle + 0.03f );
-    m_ecs->update( delta );
 }
 
 void

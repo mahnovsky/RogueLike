@@ -54,169 +54,167 @@ enum NodeOptionFlag
     USE_DYNAMIC_VBO = 1 << 2
 };
 
-basic::uint32 create_buffer(basic::uint32 buffer_type,
-	basic::uint32 buffer_usage,
-	void* data,
-	basic::uint32 size);
+basic::uint32 create_buffer( basic::uint32 buffer_type,
+                             basic::uint32 buffer_usage,
+                             const void* data,
+                             basic::uint32 size );
 
-basic::Vector<VertexFMT> get_fmt_list(glm::vec3*);
+basic::Vector< VertexFMT > get_fmt_list( const glm::vec3* );
 
-basic::Vector<VertexFMT> get_fmt_list(Vertex*);
+basic::Vector< VertexFMT > get_fmt_list( const Vertex* );
 
-basic::Vector<VertexFMT> get_fmt_list(Vertex_T*);
+basic::Vector< VertexFMT > get_fmt_list( const Vertex_T* );
 
 struct RenderNode
 {
 public:
-
-	template <typename T>
-	void reset(basic::Vector<T>* vb, IndexBuffer* ib)
-	{
-		if (array_object == 0)
-		{
-			init_node(vb, ib);
-
-			return;
-		}
-		
-		update_vertices(vb);
-		update_indices(ib);
-	}
-
-	void set_color(const basic::Color& color);
-
-    basic::Color get_color() const;
-
-	void set_camera(ICamera* camera);
-
-	template<typename T>
-	void init_node(basic::Vector<T> *vertices,
-		IndexBuffer *indices,
-		RenderNode* parent = nullptr)
-	{
-		ASSERT(vertices != nullptr);
-
-		color = basic::Color{ 255,255,255,255 };
-
-		if (parent && (flags & USE_PARENT_VAO) != 0)
-		{
-			array_object = parent->array_object;
-		}
-		else
-		{
-			glGenVertexArrays(1, &array_object);
-		}
-
-		glBindVertexArray(array_object);
-
-		vertex_object = create_buffer(GL_ARRAY_BUFFER,
-			get_buffer_usage(),
-			vertices->get_raw(),
-			vertices->get_size() * sizeof(T));
-
-		vertex_elements = vertices->get_size();
-
-		if (indices)
-		{
-			index_object = create_buffer(GL_ELEMENT_ARRAY_BUFFER,
-				GL_STATIC_DRAW,
-				indices->get_raw(),
-				indices->get_size() * sizeof(basic::uint16));
-
-			index_elements = indices->get_size();
-		}
-
-		basic::Vector<VertexFMT> fmt_list = get_fmt_list(vertices->get_raw());
-
-		for (basic::uint32 i = 0; i < fmt_list.get_size(); ++i)
-		{
-			const VertexFMT& fmt = fmt_list[i];
-			glVertexAttribPointer(i, fmt.size, fmt.type, fmt.is_normalized,
-				sizeof(T), (const void*)fmt.offset);
-
-			glEnableVertexAttribArray(i);
-		}
-
-		glBindVertexArray(0);
-
-        if( parent )
+    template < typename T >
+    void
+    reset( basic::Vector< T >* vb, IndexBuffer* ib )
+    {
+        if ( array_object == 0 )
         {
-            parent->add_child(this);
+            init_node( vb, ib );
+
+            return;
         }
-	}
 
-	template< typename VertexType >
-	void update_vertices( basic::Vector<VertexType> *vertices)
-	{
-		ASSERT(vertices != nullptr);
-		ASSERT(vertex_object > 0);
+        update_vertices( vb );
+        update_indices( ib );
+    }
 
-		glBindBuffer(GL_ARRAY_BUFFER, vertex_object);
-		basic::uint32 size = sizeof(VertexType) * vertices->get_size();
-		basic::int32 need_elements = static_cast<basic::int32>(vertices->get_size());
+    void set_color( const basic::Color& color );
 
-		if (vertex_elements == 0 || vertex_elements < need_elements)
-		{
-			glBufferData(GL_ARRAY_BUFFER,
-				size,
-				vertices->get_raw(),
-				get_buffer_usage());
+    basic::Color get_color( ) const;
 
-			vertex_elements = need_elements;
+    void set_camera( ICamera* camera );
 
-			return;
-		}
+    template < typename T >
+    void
+    init_node( basic::Vector< T >* vertices, IndexBuffer* indices, RenderNode* parent = nullptr )
+    {
+        ASSERT( vertices != nullptr );
 
-		vertex_elements = need_elements;
+        color = basic::Color{255, 255, 255, 255};
 
-		glBufferSubData(GL_ARRAY_BUFFER, 0, size, vertices->get_raw());
+        if ( parent && ( flags & USE_PARENT_VAO ) != 0 )
+        {
+            array_object = parent->array_object;
+        }
+        else
+        {
+            glGenVertexArrays( 1, &array_object );
+        }
 
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-	}
+        glBindVertexArray( array_object );
 
-	void update_indices(IndexBuffer* indices);
+        vertex_object = create_buffer( GL_ARRAY_BUFFER,
+                                       get_buffer_usage( ),
+                                       vertices->get_raw( ),
+                                       vertices->get_size( ) * sizeof( T ) );
 
-	void draw_node(basic::uint32 prev_vao = 0);
+        vertex_elements = vertices->get_size( );
 
-	static RenderNode *create_node(ShaderProgram* program, Texture* texture);
+        if ( indices )
+        {
+            index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
+                                          GL_STATIC_DRAW,
+                                          indices->get_raw( ),
+                                          indices->get_size( ) * sizeof( basic::uint16 ) );
 
-	static void remove_node(RenderNode *node);
+            index_elements = indices->get_size( );
+        }
 
-	Transform* get_transform();
+        basic::Vector< VertexFMT > fmt_list = get_fmt_list( vertices->get_raw( ) );
 
-	void add_child(RenderNode* node);
+        for ( basic::uint32 i = 0; i < fmt_list.get_size( ); ++i )
+        {
+            const VertexFMT& fmt = fmt_list[ i ];
+            glVertexAttribPointer( i,
+                                   fmt.size,
+                                   fmt.type,
+                                   fmt.is_normalized,
+                                   sizeof( T ),
+                                   (const void*)fmt.offset );
 
-    const Texture* get_texture() const;
+            glEnableVertexAttribArray( i );
+        }
 
-    void set_order(basic::int32 order);
+        glBindVertexArray( 0 );
+
+        if ( parent )
+        {
+            parent->add_child( this );
+        }
+    }
+
+    template < typename VertexType >
+    void
+    update_vertices( basic::Vector< VertexType >* vertices )
+    {
+        ASSERT( vertices != nullptr );
+        ASSERT( vertex_object > 0 );
+
+        glBindBuffer( GL_ARRAY_BUFFER, vertex_object );
+        basic::uint32 size = sizeof( VertexType ) * vertices->get_size( );
+        basic::int32 need_elements = static_cast< basic::int32 >( vertices->get_size( ) );
+
+        if ( vertex_elements == 0 || vertex_elements < need_elements )
+        {
+            glBufferData( GL_ARRAY_BUFFER, size, vertices->get_raw( ), get_buffer_usage( ) );
+
+            vertex_elements = need_elements;
+
+            return;
+        }
+
+        vertex_elements = need_elements;
+
+        glBufferSubData( GL_ARRAY_BUFFER, 0, size, vertices->get_raw( ) );
+
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+    }
+
+    void update_indices( IndexBuffer* indices );
+
+    void draw_node( basic::uint32 prev_vao = 0 );
+
+    static RenderNode* create_node( ShaderProgram* program, Texture* texture );
+
+    static void remove_node( RenderNode* node );
+
+    Transform* get_transform( );
+
+    void add_child( RenderNode* node );
+
+    const Texture* get_texture( ) const;
+
+    void set_order( basic::int32 order );
 
     friend struct RenderNodeOrderCmp;
 
 private:
-	basic::uint32 get_buffer_usage() const;
+    basic::uint32 get_buffer_usage( ) const;
 
 private:
-	basic::uint32 array_object = 0;
-	basic::uint32 vertex_object = 0;
-	basic::int32 vertex_elements = 0;
-	basic::uint32 index_object = 0;
-	basic::int32 index_elements = 0;
+    basic::uint32 array_object = 0;
+    basic::uint32 vertex_object = 0;
+    basic::int32 vertex_elements = 0;
+    basic::uint32 index_object = 0;
+    basic::int32 index_elements = 0;
     basic::uint32 flags = 0;
     basic::int32 order = 0;
-	ICamera* camera = nullptr;
-	Material* material = nullptr;
-	Transform* transform = nullptr;
-	basic::Color color;
+    ICamera* camera = nullptr;
+    Material* material = nullptr;
+    Transform* transform = nullptr;
+    basic::Color color;
     RenderNode* parent;
-	basic::Vector<RenderNode*> children;
+    basic::Vector< RenderNode* > children;
 };
 
 bool load_mesh( const char* file, Mesh& out_mesh );
 
-void fill_line( const glm::vec2& p0,
-                const glm::vec2& p1,
-                float width,
-                VertexBufferP& out_vb);
+void fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb );
 
 void fill_rect( const glm::vec2& left_top,
                 const glm::vec2& right_bottom,
@@ -232,7 +230,7 @@ struct QuadGenerator
 {
     QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color );
 
-    void generate(VertexBufferT &out_vb, int offset, const struct TextureRect *rect = nullptr);
+    void generate( VertexBufferT& out_vb, int offset, const struct TextureRect* rect = nullptr );
 
     void generate( IndexBuffer& out_ib, int offset );
 
@@ -243,5 +241,3 @@ private:
     glm::vec2 m_anchor;
     basic::Color m_color;
 };
-
-

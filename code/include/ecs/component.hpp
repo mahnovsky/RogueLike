@@ -2,145 +2,116 @@
 
 #include "defines.hpp"
 
-using ComponentTypeID = basic::uint32;
-
-extern ComponentTypeID components_count;
-
-template < class T, class U >
-T*
-fast_cast( U* ptr )
-{
-    return static_cast< T* >( static_cast< void* >( ptr ) );
-}
-
-template < class T, class U >
-const T*
-fast_cast( const U* ptr )
-{
-    return static_cast< const T* >( static_cast< const void* >( ptr ) );
-}
-
-class IComponent
+class IComponentStorage
 {
 public:
-    static ComponentTypeID
-    generate_type_id( )
+    virtual ~IComponentStorage( )
     {
-        static ComponentTypeID counter;
-        components_count = ++counter;
-
-        return counter - 1;
     }
 
-    template < class T >
-    static ComponentTypeID
-    type_id( )
+    virtual void* create( ) = 0;
+
+    virtual void release( void* comp ) = 0;
+
+    virtual const basic::String& get_name( ) const = 0;
+
+    virtual basic::Vector< void* > get_components( ) const = 0;
+
+    static basic::uint32
+    generate_type_id( )
     {
-        static const ComponentTypeID id = IComponent::generate_type_id( );
+        static basic::uint32 counter;
+
+        return counter++;
+    }
+};
+
+template < class T >
+class ComponentStorage : public IComponentStorage
+{
+public:
+    ComponentStorage( const char* name )
+        : m_name( name )
+        , m_pool( 100 )
+        , m_components( )
+    {
+    }
+
+    ~ComponentStorage( )
+    {
+    }
+
+    static basic::uint32
+    get_component_id( )
+    {
+        static basic::uint32 id = IComponentStorage::generate_type_id( );
 
         return id;
     }
 
-    virtual ~IComponent( )
+    void*
+    create( ) override
     {
-    }
+        T* component = m_pool.make( );
 
-    virtual ComponentTypeID get_type_id( ) const = 0;
+        m_components.push( component );
 
-    virtual Entity* get_entity( ) = 0;
-
-    virtual const Entity* get_entity( ) const = 0;
-
-    virtual void on_attached( Entity* entity ) = 0;
-
-    virtual void on_detached( Entity* entity ) = 0;
-
-    virtual void on_attached_component( IComponent* comp ) = 0;
-
-    virtual void on_detached_component( IComponent* comp ) = 0;
-
-    virtual void add_listener( IComponent* comp ) = 0;
-
-    virtual void remove_listener( IComponent* comp ) = 0;
-};
-
-template < class T >
-class Component : public IComponent
-{
-public:
-    static const ComponentTypeID _type_id;
-
-    Component( const char* name )
-        : m_entity( nullptr )
-        , m_name( name )
-    {
-    }
-
-    ComponentTypeID
-    get_type_id( ) const override
-    {
-        return _type_id;
-    }
-
-    Entity*
-    get_entity( ) override
-    {
-        return m_entity;
-    }
-
-    const Entity*
-    get_entity( ) const override
-    {
-        return m_entity;
+        return static_cast< void* >( component );
     }
 
     void
-    on_attached( Entity* entity ) override
+    release( void* comp ) override
     {
-        m_entity = entity;
+        T* c = static_cast< T* >( comp );
+
+        m_pool.free( c );
     }
 
-    void
-    on_detached( Entity* ) override
+    const basic::String&
+    get_name( ) const override
     {
-        m_entity = nullptr;
+        return m_name;
     }
 
-    void
-    on_attached_component( IComponent* ) override
+    basic::Vector< void* >
+    get_components( ) const override
     {
-    }
-
-    void
-    on_detached_component( IComponent* ) override
-    {
-    }
-
-    virtual void
-    add_listener( IComponent* comp ) override
-    {
-        basic::uint32 index;
-        if ( !m_listeners.find_first( index, comp ) )
+        basic::Vector< void* > v;
+        v.reserve( m_components.get_size( ) );
+        for ( auto c : m_components )
         {
-            m_listeners.push( comp );
+            v.push( c );
         }
+
+        return v;
     }
 
-    virtual void
-    remove_listener( IComponent* comp ) override
+    const basic::Vector< T* >&
+    get_components_t( ) const
     {
-        basic::uint32 index;
-        if ( m_listeners.find_first( index, comp ) )
+        return m_components;
+    }
+
+    void
+    bind( const Entity* ent, T* component )
+    {
+        m_links.insert( ent, component );
+    }
+
+    T*
+    get( const Entity* ent )
+    {
+        T* obj;
+        if ( m_links.find( ent, obj ) )
         {
-            m_listeners.swap_remove( index );
+            return obj;
         }
+        return nullptr;
     }
 
 private:
-    Entity* m_entity;
     basic::String m_name;
-    basic::Vector< IComponent* > m_listeners;
+    basic::Pool< T > m_pool;
+    basic::Vector< T* > m_components;
+    basic::HashMap< const Entity*, T* > m_links;
 };
-
-template < class T >
-const ComponentTypeID Component< T >::_type_id = IComponent::type_id< T >( );
