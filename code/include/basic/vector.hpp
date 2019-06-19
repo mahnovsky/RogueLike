@@ -468,6 +468,33 @@ public:
         ++m_size;
     }
 
+    void
+    insert( uint32 index, T item )
+    {
+        if ( m_size > index )
+        {
+            m_data[ index ] = item;
+        }
+        else
+        {
+            uint32 size = m_size;
+            T* data = m_data;
+            m_data = nullptr;
+            m_size = 0;
+            resize( index + 1 );
+
+            if ( data )
+            {
+                for ( uint32 i = 0; i < size; ++i )
+                {
+                    m_data[ i ] = data[ i ];
+                }
+                Allocator::free_mem( data );
+            }
+            m_data[ index ] = item;
+        }
+    }
+
     template < class... Args >
     void emplace( Args... args )
     {

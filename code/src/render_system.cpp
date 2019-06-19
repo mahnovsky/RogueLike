@@ -5,7 +5,7 @@
 #include "camera.hpp"
 #include "material.hpp"
 
-RenderSystem::RenderSystem( )
+RenderSystem::RenderSystem( EntityComponentSystem* ecs )
     : m_camera( nullptr )
 {
 }
@@ -48,6 +48,8 @@ RenderSystem::draw( RenderComponent* component )
     ASSERT( component );
     ASSERT( component->material );
 
+    glBindVertexArray( component->array_object );
+
     component->material->enable( );
 
     glm::mat4 mvp = component->model;
@@ -61,8 +63,6 @@ RenderSystem::draw( RenderComponent* component )
 
     component->material->set_uniform( "MVP", mvp );
     component->material->set_uniform( "Color", component->color );
-
-    glBindVertexArray( component->array_object );
 
     if ( component->index_object > 0 )
     {
@@ -87,7 +87,10 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
             const TransformComponent* tc = ent->get_component< TransformComponent >( );
 
             RenderComponent* rc = ent->get_component< RenderComponent >( );
-            rc->model = tc->tr.get_matrix( );
+            if ( rc )
+            {
+                rc->model = tc->tr.get_matrix( );
+            }
         }
     }
     break;
@@ -115,12 +118,10 @@ RenderSystem::load_component( RenderComponent* comp, const Mesh& m )
 
     glBindVertexArray( comp->array_object );
 
-    comp->vertex_object = create_buffer( GL_ARRAY_BUFFER,
-                                         GL_STATIC_DRAW,
-                                         (void*)m.vb.get_raw( ),
-                                         m.vb.get_size( ) * sizeof( Vertex ) );
+    comp->vertex_object = create_buffer(
+            GL_ARRAY_BUFFER, GL_STATIC_DRAW, m.vb.get_raw( ), size( m.vb ) * sizeof( Vertex ) );
 
-    comp->vertex_elements = m.vb.get_size( );
+    comp->vertex_elements = size_as< basic::int32 >( m.vb );
 
     if ( !m.ib.is_empty( ) )
     {
@@ -129,7 +130,7 @@ RenderSystem::load_component( RenderComponent* comp, const Mesh& m )
                                             m.ib.get_raw( ),
                                             m.ib.get_size( ) * sizeof( basic::uint16 ) );
 
-        comp->index_elements = m.ib.get_size( );
+        comp->index_elements = size_as< basic::int32 >( m.ib );
     }
 
     basic::Vector< VertexFMT > fmt_list = get_fmt_list( m.vb.get_raw( ) );
@@ -138,16 +139,14 @@ RenderSystem::load_component( RenderComponent* comp, const Mesh& m )
     {
         const VertexFMT& fmt = fmt_list[ i ];
         glVertexAttribPointer( i,
-                               fmt.size,
+                               static_cast< GLint >( fmt.size ),
                                fmt.type,
                                fmt.is_normalized,
                                sizeof( Vertex ),
-                               (const void*)fmt.offset );
+                               reinterpret_cast< const void* >( fmt.offset ) );
 
         glEnableVertexAttribArray( i );
     }
 
     glBindVertexArray( 0 );
-
-    comp->model = glm::mat4{1.f};
 }

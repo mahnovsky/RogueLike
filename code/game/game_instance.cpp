@@ -15,6 +15,11 @@
 
 #include <stdio.h>
 
+struct Test
+{
+    // DECLARE_TYPE_UID;
+};
+
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
     , m_manager( NEW_OBJ( ObjectManager ) )
@@ -108,14 +113,83 @@ open_menu_action( Widget* w, void* user_data )
     gi->m_ui_root->add_child( wnd );
 }
 
+class MoveSystem : public ISystem
+{
+public:
+    MoveSystem( EntityComponentSystem* ecs )
+        : m_ecs( ecs )
+    {
+    }
+
+    void
+    on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act ) override
+    {
+        if ( component_id == m_ecs->get_component_id< TransformComponent >( ) )
+        {
+            if ( act == ComponentAction::Registred )
+            {
+                subscribe( );
+            }
+
+            if ( act == ComponentAction::Attached )
+            {
+                TransformComponent* tc = ent->get_component< TransformComponent >( );
+
+                if ( tc )
+                {
+                    ASSERT( ent );
+                    m_transforms.push( {ent, tc} );
+                }
+            }
+        }
+    }
+
+    void
+    subscribe( )
+    {
+        m_ecs->subscribe( m_ecs->get_component_id< TransformComponent >( ), this );
+    }
+
+    void
+    start( ) override
+    {
+        subscribe( );
+    }
+
+    void
+    update( float dt ) override
+    {
+        for ( auto p : m_transforms )
+        {
+            auto tc = p.value;
+
+            auto pos = tc->tr.get_position( );
+
+            pos.x += dt * 0.5f;
+            pos.y += dt * 0.5f;
+
+            tc->tr.set_position( pos );
+
+            m_ecs->emit( p.key,
+                         m_ecs->get_component_id< TransformComponent >( ),
+                         ComponentAction::Updated );
+        }
+    }
+
+public:
+    EntityComponentSystem* m_ecs;
+    basic::Vector< basic::Pair< Entity*, TransformComponent* > > m_transforms;
+};
+
 void
 GameInstance::init( )
 {
     Texture* texture = m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
     ShaderProgram* shader = m_rs.get_resorce< ShaderProgram >( "texture" );
-    Material* mat = NEW_OBJ( Material, shader, texture );
 
     m_ecs = NEW_OBJ( EntityComponentSystem );
+
+    m_ecs->create_system< MoveSystem >( );
 
     m_render_system = m_ecs->create_system< RenderSystem >( );
     m_render_system->initialize( m_ecs, m_game_camera );
@@ -123,7 +197,7 @@ GameInstance::init( )
     Entity* ent = m_ecs->create( );
 
     auto tr = ent->add_component< TransformComponent >( );
-    tr->tr.set_position( {10.f, 10.f, 0.f} );
+    // tr->tr.set_position( {10.f, 10.f, 0.f} );
 
     auto rc = ent->add_component< RenderComponent >( );
     // rc->material = mat;
@@ -190,16 +264,20 @@ GameInstance::init( )
         rc->material = NEW_OBJ( Material, def_shader, nullptr );
         RenderSystem::load_component( rc, m );
     }
+
+    // int id = Test::TYPE_UID;
+
+    m_ecs->start( );
 }
 
 void
 GameInstance::draw( IRender* render )
 {
-    m_back.draw( m_game_camera, render );
-
-    m_ui_root->draw( );
+    // m_back.draw( m_game_camera, render );
 
     m_render_system->draw( m_ecs );
+
+    m_ui_root->draw( );
 }
 
 void
@@ -217,6 +295,8 @@ GameInstance::frame( float delta )
     pos.y += ( 0.8f * delta );
 
     m_back.set_position( pos );
+
+    m_ecs->update( delta );
 
     print_fps( );
 }

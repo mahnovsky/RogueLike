@@ -21,7 +21,7 @@ struct VertexFMT
     basic::uint32 offset;
     basic::uint32 size;
     basic::uint32 type;
-    basic::uint32 is_normalized;
+    basic::uint8 is_normalized;
 };
 
 struct Vertex_T

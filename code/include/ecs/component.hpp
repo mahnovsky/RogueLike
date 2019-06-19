@@ -13,24 +13,16 @@ public:
 
     virtual void release( void* comp ) = 0;
 
-    virtual const basic::String& get_name( ) const = 0;
+    virtual const char* const get_name( ) const = 0;
 
     virtual basic::Vector< void* > get_components( ) const = 0;
-
-    static basic::uint32
-    generate_type_id( )
-    {
-        static basic::uint32 counter;
-
-        return counter++;
-    }
 };
 
 template < class T >
 class ComponentStorage : public IComponentStorage
 {
 public:
-    ComponentStorage( const char* name )
+    ComponentStorage( const char* const name )
         : m_name( name )
         , m_pool( 100 )
         , m_components( )
@@ -44,9 +36,9 @@ public:
     static basic::uint32
     get_component_id( )
     {
-        static basic::uint32 id = IComponentStorage::generate_type_id( );
+        // static basic::uint32 id = IComponentStorage::generate_type_id( );
 
-        return id;
+        return T::TYPE_UID;
     }
 
     void*
@@ -67,7 +59,7 @@ public:
         m_pool.free( c );
     }
 
-    const basic::String&
+    const char* const
     get_name( ) const override
     {
         return m_name;
@@ -101,16 +93,15 @@ public:
     T*
     get( const Entity* ent )
     {
-        T* obj;
-        if ( m_links.find( ent, obj ) )
-        {
-            return obj;
-        }
-        return nullptr;
+        T* obj = nullptr;
+
+        m_links.find( ent, obj );
+
+        return obj;
     }
 
 private:
-    basic::String m_name;
+    const char* const m_name;
     basic::Pool< T > m_pool;
     basic::Vector< T* > m_components;
     basic::HashMap< const Entity*, T* > m_links;

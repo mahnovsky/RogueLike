@@ -50,7 +50,8 @@ public:
         {
             T* obj = m_free_objects.back( );
             m_free_objects.pop( );
-            return obj;
+
+            return new ( obj ) T( );
         }
 
         Buffer& b = m_buffers.back( );
@@ -62,12 +63,13 @@ public:
         obj = static_cast< T* >( b.ptr + b.offset );
         b.offset += sizeof( T );
 
-        return obj;
+        return new ( obj ) T( );
     }
 
     void
     free( T* t )
     {
+        t->~T( );
         m_free_objects.push( t );
     }
 

@@ -6,6 +6,7 @@ EntityComponentSystem::EntityComponentSystem( )
     , m_entities( )
     , m_storages( )
 {
+    m_storages.push( nullptr );
 }
 
 EntityComponentSystem::~EntityComponentSystem( )
@@ -65,6 +66,24 @@ EntityComponentSystem::destroy( Entity* ent )
 }
 
 void
+EntityComponentSystem::start( )
+{
+    for ( auto s : m_systems )
+    {
+        s->start( );
+    }
+}
+
+void
+EntityComponentSystem::update( float dt )
+{
+    for ( auto s : m_systems )
+    {
+        s->update( dt );
+    }
+}
+
+void
 EntityComponentSystem::subscribe( basic::uint32 component_id, ISystem* system )
 {
     basic::Vector< ISystem* > subs;
@@ -74,6 +93,7 @@ EntityComponentSystem::subscribe( basic::uint32 component_id, ISystem* system )
         basic::uint32 index;
         if ( !subs.find_first( index, system ) )
         {
+            subs.push( system );
             m_subscribers.insert( component_id, subs );
         }
     }
@@ -114,9 +134,19 @@ EntityComponentSystem::emit( Entity* ent, basic::uint32 component_id, ComponentA
 
     if ( it != m_subscribers.end( ) )
     {
-        for ( auto system : it->value )
+        auto systems = it->value;
+        for ( auto system : systems )
         {
             system->on_component_event( ent, component_id, act );
         }
+    }
+}
+
+void
+EntityComponentSystem::broadcast( Entity* ent, basic::uint32 component_id, ComponentAction act )
+{
+    for ( auto s : m_systems )
+    {
+        s->on_component_event( ent, component_id, act );
     }
 }

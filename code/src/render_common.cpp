@@ -205,7 +205,7 @@ load_mesh( const char* file, Mesh& out_mesh )
                     vertexes.push( v );
                 }
 
-                out_mesh.ib.push( index );
+                // out_mesh.ib.push( index );
             }
         }
     }

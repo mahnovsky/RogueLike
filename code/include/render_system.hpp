@@ -7,13 +7,14 @@
 
 struct RenderComponent
 {
+    DECLARE_TYPE_UID;
+
     basic::uint32 array_object = 0;
     basic::uint32 vertex_object = 0;
     basic::int32 vertex_elements = 0;
     basic::uint32 index_object = 0;
     basic::int32 index_elements = 0;
     basic::uint32 flags = 0;
-    basic::int32 order = 0;
     Material* material = nullptr;
     basic::Color color;
     glm::mat4 model;
@@ -21,6 +22,8 @@ struct RenderComponent
 
 struct TransformComponent
 {
+    DECLARE_TYPE_UID;
+
     Transform tr;
 };
 
@@ -39,7 +42,7 @@ private:
 class RenderSystem : public ISystem
 {
 public:
-    RenderSystem( );
+    RenderSystem( EntityComponentSystem* ecs );
     ~RenderSystem( ) override;
 
     void initialize( EntityComponentSystem* ecs, ICamera* cam );

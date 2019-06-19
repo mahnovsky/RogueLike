@@ -5,6 +5,7 @@
 
 enum ComponentAction
 {
+    Registred,
     Attached,
     Updated,
     Detached
@@ -19,6 +20,16 @@ public:
 
     virtual void on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act )
             = 0;
+
+    virtual void
+    start( )
+    {
+    }
+
+    virtual void
+    update( float dt )
+    {
+    }
 };
 
 class EntityComponentSystem
@@ -46,11 +57,14 @@ public:
     bool
     registry_component( const char* name )
     {
-        auto id = get_component_id< T >( ) + 1;
+        const auto id = T::TYPE_UID;
 
-        m_storages.push( NEW_OBJ( ComponentStorage< T >, name ) );
+        IComponentStorage* cs = NEW_OBJ( ComponentStorage< T >, name );
+        m_storages.insert( id, cs );
 
-        ASSERT( id == m_storages.get_size( ) );
+        ASSERT( cs == m_storages[ id ] );
+
+        broadcast( nullptr, id, ComponentAction::Registred );
 
         return true;
     }
@@ -58,6 +72,8 @@ public:
     Entity* create( );
 
     void destroy( Entity* ent );
+
+    void start( );
 
     void update( float dt );
 
@@ -106,7 +122,7 @@ public:
     T*
     create_system( )
     {
-        T* sys = NEW_OBJ( T );
+        T* sys = NEW_OBJ( T, this );
 
         m_systems.push( sys );
 
@@ -118,6 +134,8 @@ public:
     void unsubscribe( basic::uint32 component_id, ISystem* system );
 
     void emit( Entity* ent, basic::uint32 component_id, ComponentAction act );
+
+    void broadcast( Entity* ent, basic::uint32 component_id, ComponentAction act );
 
 private:
     basic::uint32 m_id_counter;
