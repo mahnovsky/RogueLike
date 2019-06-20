@@ -14,6 +14,7 @@
 #include "render_system.hpp"
 
 #include <stdio.h>
+#include <ctime>
 
 struct Test
 {
@@ -45,7 +46,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 
 GameInstance::~GameInstance( )
 {
-    //RenderNode::remove_node( m_cow );
+    // RenderNode::remove_node( m_cow );
 
     SAFE_RELEASE( m_ui_root );
     SAFE_RELEASE( m_game_camera );
@@ -147,7 +148,7 @@ public:
     void
     subscribe( )
     {
-        m_ecs->subscribe( m_ecs->get_component_id< TransformComponent >( ), this );
+        // m_ecs->subscribe( m_ecs->get_component_id< TransformComponent >( ), this );
     }
 
     void
@@ -159,19 +160,17 @@ public:
     void
     update( float dt ) override
     {
-        for ( auto p : m_transforms )
+        // return;
+        basic::Vector< TransformComponent* > trs = m_ecs->get_components< TransformComponent >( );
+        for ( auto t : trs )
         {
-            auto tc = p.value;
+            static float angle;
 
-			static float angle;
+            angle += 0.5f * dt;
 
-			angle += dt;
+            t->tr.set_euler_angles( {angle, angle, 0.f} );
 
-			tc->tr.set_euler_angles({ angle, angle, 0.f });
-
-            m_ecs->emit( p.key,
-				TransformComponent::TYPE_UID,
-                         ComponentAction::Updated );
+            // m_ecs->emit( t->entity, TransformComponent::TYPE_UID, ComponentAction::Updated );
         }
     }
 
@@ -179,10 +178,38 @@ public:
     EntityComponentSystem* m_ecs;
     basic::Vector< basic::Pair< Entity*, TransformComponent* > > m_transforms;
 };
+float
+rnd( )
+{
+    return static_cast< float >( rand( ) ) / RAND_MAX;
+}
+void
+make_ent( EntityComponentSystem* ecs, Mesh& m, Material* mat )
+{
+    Entity* ent = ecs->create( );
+
+    auto tr = ent->add_component< TransformComponent >( );
+
+    float v = 10.f;
+    glm::vec3 pos{v * rnd( ), v * rnd( ), v * rnd( )};
+
+    tr->tr.set_position( pos );
+    const float scale = rnd( ) * 0.5f;
+    tr->tr.set_scale( {scale, scale, scale} );
+
+    auto rc = ent->add_component< RenderComponent >( );
+    // rc->material = mat;
+
+    ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
+
+    rc->material = mat;
+    RenderSystem::load_component( rc, m );
+}
 
 void
 GameInstance::init( )
 {
+    srand( time( nullptr ) );
     Texture* texture = m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
     ShaderProgram* shader = m_rs.get_resorce< ShaderProgram >( "texture" );
 
@@ -192,16 +219,6 @@ GameInstance::init( )
 
     m_render_system = m_ecs->create_system< RenderSystem >( );
     m_render_system->initialize( m_ecs, m_game_camera );
-
-    Entity* ent = m_ecs->create( );
-
-    auto tr = ent->add_component< TransformComponent >( );
-    // tr->tr.set_position( {10.f, 10.f, 0.f} );
-
-    auto rc = ent->add_component< RenderComponent >( );
-    // rc->material = mat;
-
-    m_ecs->emit( ent, m_ecs->get_component_id< TransformComponent >( ), ComponentAction::Updated );
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
@@ -260,8 +277,11 @@ GameInstance::init( )
         m_cow->set_color( basic::Color{255, 255, 255, 255} );
 
         m_cow->init_node( &m.vb, &m.ib );*/
-        rc->material = NEW_OBJ( Material, def_shader, nullptr );
-        RenderSystem::load_component( rc, m );
+        Material* material = NEW_OBJ( Material, def_shader, nullptr );
+        for ( int i = 0; i < 5; ++i )
+        {
+            make_ent( m_ecs, m, material );
+        }
     }
 
     // int id = Test::TYPE_UID;

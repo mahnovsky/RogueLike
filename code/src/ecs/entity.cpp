@@ -20,8 +20,8 @@ Entity::get_uid( ) const
 void
 Entity::on_destroy( )
 {
-    for ( auto id : m_components )
+    for ( auto comp : m_components )
     {
-        m_ecs->emit( this, id, ComponentAction::Detached );
+        m_ecs->emit( this, comp->get_type_uid( ), ComponentAction::Detached );
     }
 }

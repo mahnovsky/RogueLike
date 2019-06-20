@@ -17,8 +17,11 @@ public:
     {
         T* comp = m_ecs->create_component< T >( );
 
-        m_ecs->bind( this, comp );
-        m_components.push( m_ecs->get_component_id< T >( ) );
+        comp->entity = this;
+
+        m_components.insert( T::TYPE_UID, comp );
+
+        m_ecs->emit( this, T::TYPE_UID, ComponentAction::Attached );
 
         return comp;
     }
@@ -27,14 +30,24 @@ public:
     T*
     get_component( )
     {
-        return m_ecs->get_component< T >( this );
+        T* comp = nullptr;
+        if ( size( m_components ) > T::TYPE_UID && m_components[ T::TYPE_UID ] != nullptr )
+        {
+            comp = dynamic_cast< T* >( m_components[ T::TYPE_UID ] );
+        }
+        return comp;
     }
 
     template < class T >
     const T*
     get_component( ) const
     {
-        return m_ecs->get_component< T >( this );
+        T* comp = nullptr;
+        if ( size( m_components ) > T::TYPE_UID )
+        {
+            comp = m_components[ T::TYPE_UID ];
+        }
+        return comp;
     }
 
     EntityID get_uid( ) const;
@@ -44,5 +57,5 @@ public:
 private:
     const EntityID m_uid;
     EntityComponentSystem* m_ecs;
-    basic::Vector< basic::uint32 > m_components;
+    basic::Vector< IComponent* > m_components;
 };

@@ -2,6 +2,28 @@
 
 #include "defines.hpp"
 
+#define DECLARE_COMPONENT                                  \
+    static constexpr basic::uint32 TYPE_UID = __COUNTER__; \
+    Entity* entity = nullptr;                              \
+    basic::uint32 get_type_uid( ) const override           \
+    {                                                      \
+        return TYPE_UID;                                   \
+    }                                                      \
+    Entity* get_entity( ) override                         \
+    {                                                      \
+        return entity;                                     \
+    }
+
+class IComponent
+{
+public:
+    virtual ~IComponent( ) = default;
+
+    virtual basic::uint32 get_type_uid( ) const = 0;
+
+    virtual Entity* get_entity( ) = 0;
+};
+
 class IComponentStorage
 {
 public:
@@ -9,13 +31,13 @@ public:
     {
     }
 
-    virtual void* create( ) = 0;
+    virtual IComponent* create( ) = 0;
 
-    virtual void release( void* comp ) = 0;
+    virtual void release( IComponent* comp ) = 0;
 
     virtual const char* const get_name( ) const = 0;
 
-    virtual basic::Vector< void* > get_components( ) const = 0;
+    virtual basic::Vector< IComponent* > get_components( ) const = 0;
 };
 
 template < class T >
@@ -36,25 +58,24 @@ public:
     static basic::uint32
     get_component_id( )
     {
-        // static basic::uint32 id = IComponentStorage::generate_type_id( );
-
         return T::TYPE_UID;
     }
 
-    void*
+    IComponent*
     create( ) override
     {
         T* component = m_pool.make( );
 
         m_components.push( component );
 
-        return static_cast< void* >( component );
+        return component;
     }
 
     void
-    release( void* comp ) override
+    release( IComponent* comp ) override
     {
-        T* c = static_cast< T* >( comp );
+        ASSERT( comp->get_type_uid( ) == T::TYPE_UID );
+        T* c = dynamic_cast< T* >( comp );
 
         m_pool.free( c );
     }
@@ -65,10 +86,10 @@ public:
         return m_name;
     }
 
-    basic::Vector< void* >
+    basic::Vector< IComponent* >
     get_components( ) const override
     {
-        basic::Vector< void* > v;
+        basic::Vector< IComponent* > v;
         v.reserve( m_components.get_size( ) );
         for ( auto c : m_components )
         {
@@ -84,25 +105,9 @@ public:
         return m_components;
     }
 
-    void
-    bind( const Entity* ent, T* component )
-    {
-        m_links.insert( ent, component );
-    }
-
-    T*
-    get( const Entity* ent )
-    {
-        T* obj = nullptr;
-
-        m_links.find( ent, obj );
-
-        return obj;
-    }
-
 private:
     const char* const m_name;
     basic::Pool< T > m_pool;
     basic::Vector< T* > m_components;
-    basic::HashMap< const Entity*, T* > m_links;
+    // basic::HashMap< const Entity*, T* > m_links;
 };

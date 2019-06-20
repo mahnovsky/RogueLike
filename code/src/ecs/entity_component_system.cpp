@@ -11,7 +11,9 @@ EntityComponentSystem::EntityComponentSystem( )
 
 EntityComponentSystem::~EntityComponentSystem( )
 {
-    DELETE_ARR_OBJ( m_entities );
+    auto ents = m_entities;
+    m_entities.clear( );
+    DELETE_ARR_OBJ( ents );
     DELETE_ARR_OBJ( m_storages );
     DELETE_ARR_OBJ( m_systems );
 }

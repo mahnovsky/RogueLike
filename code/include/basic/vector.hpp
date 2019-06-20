@@ -351,6 +351,28 @@ public:
         return find_first( index, item );
     }
 
+    template < class P >
+    struct Fill
+    {
+        void
+        fill( P* ptr, uint32 size )
+        {
+        }
+    };
+
+    template < class P >
+    struct Fill< P* >
+    {
+        void
+        fill( P** ptr, uint32 size )
+        {
+            for ( uint32 i = 0; i < size; ++i )
+            {
+                ptr[ i ] = nullptr;
+            }
+        }
+    };
+
     void
     reserve( uint32 count )
     {
@@ -359,6 +381,8 @@ public:
         m_size = ( m_size > count ) ? count : m_size;
 
         realloc( );
+
+        Fill< T >( ).fill( m_data, m_capacity );
     }
 
     void

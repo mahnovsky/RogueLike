@@ -5,9 +5,9 @@
 #include "render_common.hpp"
 #include "transform.hpp"
 
-struct RenderComponent
+struct RenderComponent : public IComponent
 {
-    DECLARE_TYPE_UID;
+    DECLARE_COMPONENT
 
     basic::uint32 array_object = 0;
     basic::uint32 vertex_object = 0;
@@ -20,9 +20,9 @@ struct RenderComponent
     glm::mat4 model;
 };
 
-struct TransformComponent
+struct TransformComponent : public IComponent
 {
-    DECLARE_TYPE_UID;
+    DECLARE_COMPONENT
 
     Transform tr;
 };
@@ -49,7 +49,7 @@ public:
 
     void draw( EntityComponentSystem* ecs );
 
-    void draw( RenderComponent* component );
+    void draw( RenderComponent* component, const glm::mat4& model );
 
     void on_component_event( Entity* ent,
                              basic::uint32 component_id,

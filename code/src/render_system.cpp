@@ -7,8 +7,8 @@
 
 RenderSystem::RenderSystem( EntityComponentSystem* ecs )
     : m_camera( nullptr )
-	, m_transform_id(0)
-	, m_render_id(0)
+    , m_transform_id( 0 )
+    , m_render_id( 0 )
 {
 }
 
@@ -40,12 +40,17 @@ RenderSystem::draw( EntityComponentSystem* ecs )
 
     for ( auto comp : components )
     {
-        draw( comp );
+        if ( comp->entity )
+        {
+            auto tr = comp->entity->get_component< TransformComponent >( );
+            glm::mat4 model = tr ? tr->tr.get_matrix( ) : glm::mat4{1.f};
+            draw( comp, model );
+        }
     }
 }
 
 void
-RenderSystem::draw( RenderComponent* component )
+RenderSystem::draw( RenderComponent* component, const glm::mat4& model )
 {
     ASSERT( component );
     ASSERT( component->material );
@@ -54,7 +59,7 @@ RenderSystem::draw( RenderComponent* component )
 
     component->material->enable( );
 
-    glm::mat4 mvp = component->model;
+    glm::mat4 mvp = model;
     if ( m_camera )
     {
         glm::mat4 pv( 1.f );
@@ -101,7 +106,7 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
         if ( component_id == m_render_id )
         {
             RenderComponent* rc = ent->get_component< RenderComponent >( );
-            DELETE_OBJ( rc->material );
+
             rc->material = nullptr;
         }
     }
