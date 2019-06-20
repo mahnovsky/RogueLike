@@ -114,8 +114,12 @@ public:
         auto id = get_component_id< T >( );
 
         ComponentStorage< T >* storage = dynamic_cast< ComponentStorage< T >* >( m_storages[ id ] );
+		if (storage)
+		{
+			return storage->get(ent);
+		}
 
-        return storage->get( ent );
+		return nullptr;
     }
 
     template < class T >

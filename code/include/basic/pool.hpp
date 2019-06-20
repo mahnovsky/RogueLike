@@ -60,7 +60,8 @@ public:
             b = add_buffer( );
         }
 
-        obj = static_cast< T* >( b.ptr + b.offset );
+		void* ptr = static_cast<char*>(b.ptr) + b.offset;
+        obj = static_cast< T* >( ptr );
         b.offset += sizeof( T );
 
         return new ( obj ) T( );

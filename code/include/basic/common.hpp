@@ -26,7 +26,7 @@ size( const basic::Vector< U >& v )
 }
 
 #define MAX_COUNTER_VALUE 32
-
+#ifdef __GNUC__ 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic warning "-w"
 
@@ -76,6 +76,14 @@ int constexpr next( int R = writer< reader( 0, flag< MAX_COUNTER_VALUE >{} ) + N
 #pragma GCC diagnostic pop
 
 #define DECLARE_TYPE_UID static constexpr basic::int32 TYPE_UID = basic::next( )
+
+#else
+
+#define DECLARE_TYPE_UID static constexpr basic::int32 TYPE_UID = __COUNTER__
+
+#endif
+
+
 
 #define GENERATE_COMP( name, type, field_type, field ) \
     struct name                                        \

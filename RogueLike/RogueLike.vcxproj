@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
@@ -141,7 +141,6 @@
     <ClCompile Include="..\code\src\basic\string.cpp" />
     <ClCompile Include="..\code\src\camera.cpp" />
     <ClCompile Include="..\code\src\config.cpp" />
-    <ClCompile Include="..\code\src\ecs\component.cpp" />
     <ClCompile Include="..\code\src\ecs\entity.cpp" />
     <ClCompile Include="..\code\src\ecs\entity_component_system.cpp" />
     <ClCompile Include="..\code\src\engine.cpp" />
@@ -156,6 +155,7 @@
     <ClCompile Include="..\code\src\platform\win32_window.cpp" />
     <ClCompile Include="..\code\src\render.cpp" />
     <ClCompile Include="..\code\src\render_common.cpp" />
+    <ClCompile Include="..\code\src\render_system.cpp" />
     <ClCompile Include="..\code\src\resource_storage.cpp" />
     <ClCompile Include="..\code\src\root_widget.cpp" />
     <ClCompile Include="..\code\src\shader.cpp" />
@@ -191,6 +191,7 @@
     <ClInclude Include="..\code\include\object_manager.hpp" />
     <ClInclude Include="..\code\include\render.hpp" />
     <ClInclude Include="..\code\include\render_common.hpp" />
+    <ClInclude Include="..\code\include\render_system.hpp" />
     <ClInclude Include="..\code\include\resource_storage.hpp" />
     <ClInclude Include="..\code\include\shader.hpp" />
     <ClInclude Include="..\code\include\sprite.hpp" />

@@ -45,7 +45,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 
 GameInstance::~GameInstance( )
 {
-    RenderNode::remove_node( m_cow );
+    //RenderNode::remove_node( m_cow );
 
     SAFE_RELEASE( m_ui_root );
     SAFE_RELEASE( m_game_camera );
@@ -163,15 +163,14 @@ public:
         {
             auto tc = p.value;
 
-            auto pos = tc->tr.get_position( );
+			static float angle;
 
-            pos.x += dt * 0.5f;
-            pos.y += dt * 0.5f;
+			angle += dt;
 
-            tc->tr.set_position( pos );
+			tc->tr.set_euler_angles({ angle, angle, 0.f });
 
             m_ecs->emit( p.key,
-                         m_ecs->get_component_id< TransformComponent >( ),
+				TransformComponent::TYPE_UID,
                          ComponentAction::Updated );
         }
     }

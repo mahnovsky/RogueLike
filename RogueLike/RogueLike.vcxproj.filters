@@ -141,14 +141,14 @@
     <ClCompile Include="..\code\src\basic\json_object.cpp">
       <Filter>code\src\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\ecs\component.cpp">
-      <Filter>code\src\ecs</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\ecs\entity.cpp">
       <Filter>code\src\ecs</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\ecs\entity_component_system.cpp">
       <Filter>code\src\ecs</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\render_system.cpp">
+      <Filter>code\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -250,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="..\code\include\ecs\entity_component_system.hpp">
       <Filter>code\include\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\render_system.hpp">
+      <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

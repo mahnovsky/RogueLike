@@ -7,6 +7,8 @@
 
 RenderSystem::RenderSystem( EntityComponentSystem* ecs )
     : m_camera( nullptr )
+	, m_transform_id(0)
+	, m_render_id(0)
 {
 }
 
