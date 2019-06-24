@@ -2,7 +2,7 @@
 
 #include "defines.hpp"
 
-#define DECLARE_COMPONENT                                  \
+#define DECLARE_COMPONENT( CLASS_NAME )                    \
     static constexpr basic::uint32 TYPE_UID = __COUNTER__; \
     Entity* entity = nullptr;                              \
     basic::uint32 get_type_uid( ) const override           \
@@ -12,6 +12,9 @@
     Entity* get_entity( ) override                         \
     {                                                      \
         return entity;                                     \
+    }                                                      \
+    ~CLASS_NAME( ) override                                \
+    {                                                      \
     }
 
 class IComponent
@@ -51,8 +54,13 @@ public:
     {
     }
 
-    ~ComponentStorage( )
+    ~ComponentStorage( ) override
     {
+        for ( auto cmp : m_components )
+        {
+            m_pool.free( cmp );
+        }
+        m_components.clear( );
     }
 
     static basic::uint32

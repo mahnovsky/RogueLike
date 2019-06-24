@@ -40,12 +40,13 @@ RenderSystem::draw( EntityComponentSystem* ecs )
 
     for ( auto comp : components )
     {
-        if ( comp->entity )
+        glm::mat4 model{1.f};
+        if ( comp->transform )
         {
-            auto tr = comp->entity->get_component< TransformComponent >( );
-            glm::mat4 model = tr ? tr->tr.get_matrix( ) : glm::mat4{1.f};
-            draw( comp, model );
+            model = comp->transform->tr.get_matrix( );
         }
+
+        draw( comp, model );
     }
 }
 
@@ -53,11 +54,10 @@ void
 RenderSystem::draw( RenderComponent* component, const glm::mat4& model )
 {
     ASSERT( component );
-    ASSERT( component->material );
 
     glBindVertexArray( component->array_object );
 
-    component->material->enable( );
+    component->material.enable( );
 
     glm::mat4 mvp = model;
     if ( m_camera )
@@ -68,8 +68,8 @@ RenderSystem::draw( RenderComponent* component, const glm::mat4& model )
         mvp = pv * mvp;
     }
 
-    component->material->set_uniform( "MVP", mvp );
-    component->material->set_uniform( "Color", component->color );
+    component->material.set_uniform( "MVP", mvp );
+    component->material.set_uniform( "Color", component->color );
 
     if ( component->index_object > 0 )
     {
@@ -87,27 +87,27 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
     switch ( act )
     {
     case ComponentAction::Attached:
-    case ComponentAction::Updated:
     {
-        if ( component_id == m_transform_id )
+        if ( component_id == m_transform_id || component_id == m_render_id )
         {
-            const TransformComponent* tc = ent->get_component< TransformComponent >( );
-
+            TransformComponent* tc = ent->get_component< TransformComponent >( );
             RenderComponent* rc = ent->get_component< RenderComponent >( );
-            if ( rc )
+
+            if ( rc && tc )
             {
-                rc->model = tc->tr.get_matrix( );
+                rc->transform = tc;
             }
         }
     }
     break;
+    case ComponentAction::Updated:
+        break;
     case ComponentAction::Detached:
     {
-        if ( component_id == m_render_id )
+        if ( component_id == m_transform_id )
         {
             RenderComponent* rc = ent->get_component< RenderComponent >( );
-
-            rc->material = nullptr;
+            rc->transform = nullptr;
         }
     }
     break;

@@ -70,6 +70,7 @@ Transform::get_pivot_point( ) const
 void
 Transform::set_euler_angles( const glm::vec3& angles )
 {
+    m_euler_angles = angles;
     m_quat = glm::quat( angles );
 
     update_final_matrix( );
@@ -93,6 +94,12 @@ glm::mat4
 Transform::get_matrix( ) const
 {
     return m_final_mat;
+}
+
+glm::vec3
+Transform::get_euler_angles( ) const
+{
+    return m_euler_angles;
 }
 
 void

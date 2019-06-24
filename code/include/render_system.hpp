@@ -2,12 +2,13 @@
 
 #include "entity.hpp"
 #include "entity_component_system.hpp"
+#include "material.hpp"
 #include "render_common.hpp"
 #include "transform.hpp"
 
 struct RenderComponent : public IComponent
 {
-    DECLARE_COMPONENT
+    DECLARE_COMPONENT( RenderComponent )
 
     basic::uint32 array_object = 0;
     basic::uint32 vertex_object = 0;
@@ -15,14 +16,15 @@ struct RenderComponent : public IComponent
     basic::uint32 index_object = 0;
     basic::int32 index_elements = 0;
     basic::uint32 flags = 0;
-    Material* material = nullptr;
+    Material material;
     basic::Color color;
     glm::mat4 model;
+    class TransformComponent* transform;
 };
 
 struct TransformComponent : public IComponent
 {
-    DECLARE_COMPONENT
+    DECLARE_COMPONENT( TransformComponent )
 
     Transform tr;
 };

@@ -52,8 +52,8 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_game_camera );
     SAFE_RELEASE( m_ui_camera );
 
-    DELETE_OBJ( m_manager );
     DELETE_OBJ( m_ecs );
+    DELETE_OBJ( m_manager );
 }
 
 static void
@@ -114,6 +114,15 @@ open_menu_action( Widget* w, void* user_data )
     gi->m_ui_root->add_child( wnd );
 }
 
+struct MoveComponent : public IComponent
+{
+    DECLARE_COMPONENT( MoveComponent )
+
+    float angle_speed;
+    float move_speed;
+    glm::vec3 move_direction;
+};
+
 class MoveSystem : public ISystem
 {
 public:
@@ -127,11 +136,6 @@ public:
     {
         if ( component_id == m_ecs->get_component_id< TransformComponent >( ) )
         {
-            if ( act == ComponentAction::Registred )
-            {
-                subscribe( );
-            }
-
             if ( act == ComponentAction::Attached )
             {
                 TransformComponent* tc = ent->get_component< TransformComponent >( );
@@ -146,29 +150,36 @@ public:
     }
 
     void
-    subscribe( )
+    initialize( )
     {
-        // m_ecs->subscribe( m_ecs->get_component_id< TransformComponent >( ), this );
+        m_ecs->registry_component< MoveComponent >( "MoveComponent" );
     }
 
     void
     start( ) override
     {
-        subscribe( );
     }
 
     void
     update( float dt ) override
     {
         // return;
-        basic::Vector< TransformComponent* > trs = m_ecs->get_components< TransformComponent >( );
-        for ( auto t : trs )
+        const basic::Vector< MoveComponent* >& mcs = m_ecs->get_components< MoveComponent >( );
+
+        for ( auto mc : mcs )
         {
-            static float angle;
+            TransformComponent* tc;
+            if ( mc->entity && ( tc = mc->entity->get_component< TransformComponent >( ) ) )
+            {
+                auto pos = tc->tr.get_position( );
+                pos += ( mc->move_direction * mc->move_speed * dt );
+                tc->tr.set_position( pos );
 
-            angle += 0.5f * dt;
-
-            t->tr.set_euler_angles( {angle, angle, 0.f} );
+                glm::vec3 angles = tc->tr.get_euler_angles( );
+                angles.x += ( mc->angle_speed * dt );
+                angles.y += ( mc->angle_speed * dt );
+                tc->tr.set_euler_angles( angles );
+            }
 
             // m_ecs->emit( t->entity, TransformComponent::TYPE_UID, ComponentAction::Updated );
         }
@@ -184,7 +195,7 @@ rnd( )
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
 void
-make_ent( EntityComponentSystem* ecs, Mesh& m, Material* mat )
+make_ent( EntityComponentSystem* ecs, Mesh& m, ShaderProgram* shader )
 {
     Entity* ent = ecs->create( );
 
@@ -199,10 +210,14 @@ make_ent( EntityComponentSystem* ecs, Mesh& m, Material* mat )
 
     auto rc = ent->add_component< RenderComponent >( );
     // rc->material = mat;
+    rc->material.set_shader( shader );
 
-    ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
+    auto mc = ent->add_component< MoveComponent >( );
+    mc->angle_speed = rnd( );
+    mc->move_speed = rnd( ) * 2.f;
+    mc->move_direction = {rnd( ), rnd( ), rnd( )};
+    // ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
 
-    rc->material = mat;
     RenderSystem::load_component( rc, m );
 }
 
@@ -215,7 +230,8 @@ GameInstance::init( )
 
     m_ecs = NEW_OBJ( EntityComponentSystem );
 
-    m_ecs->create_system< MoveSystem >( );
+    MoveSystem* ms = m_ecs->create_system< MoveSystem >( );
+    ms->initialize( );
 
     m_render_system = m_ecs->create_system< RenderSystem >( );
     m_render_system->initialize( m_ecs, m_game_camera );
@@ -277,10 +293,10 @@ GameInstance::init( )
         m_cow->set_color( basic::Color{255, 255, 255, 255} );
 
         m_cow->init_node( &m.vb, &m.ib );*/
-        Material* material = NEW_OBJ( Material, def_shader, nullptr );
+        // Material* material = NEW_OBJ( Material, def_shader, nullptr );
         for ( int i = 0; i < 5; ++i )
         {
-            make_ent( m_ecs, m, material );
+            make_ent( m_ecs, m, def_shader );
         }
     }
 

@@ -4,6 +4,12 @@
 #include "shader.hpp"
 #include "texture.hpp"
 
+Material::Material( )
+    : m_shader( nullptr )
+    , m_texture( nullptr )
+{
+}
+
 Material::Material( ShaderProgram* program, Texture* texture )
     : m_shader( program )
     , m_texture( texture )
@@ -77,4 +83,17 @@ const Texture*
 Material::get_texture( ) const
 {
     return m_texture;
+}
+
+void
+Material::set_shader( ShaderProgram* sp )
+{
+    ASSERT( sp );
+    if ( m_shader )
+    {
+        m_shader->release( );
+    }
+
+    m_shader = sp;
+    m_shader->retain( );
 }

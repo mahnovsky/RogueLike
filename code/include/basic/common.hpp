@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include "debug.hpp"
 #include "file.hpp"
 #include "hash_map.hpp"
