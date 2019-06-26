@@ -2,7 +2,7 @@
 #include "transform.hpp"
 
 PerspectiveCamera::PerspectiveCamera(ObjectManager *manager, float fov, float aspect, float near, float far )
-    : Object( manager )
+    : SharedObject( manager )
     , m_position()
     , m_direction()
     , m_up()
@@ -65,7 +65,7 @@ void PerspectiveCamera::update()
 }
 
 OrthoCamera::OrthoCamera(ObjectManager *manager, float width, float height, float near, float far )
-    :Object (manager)
+    :SharedObject (manager)
     ,m_projection()
     ,m_width( width )
     ,m_height( height )

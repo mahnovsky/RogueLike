@@ -3,69 +3,77 @@
 #include "basic/memory.hpp"
 #include "object_manager.hpp"
 
-Object::Object(ObjectManager *manager)
-    : m_manager(manager)
-    , m_refs(0)
-    , m_tag(0)
-    , m_name()
+SharedObject::SharedObject( ObjectManager* manager )
+    : m_manager( manager )
+    , m_refs( 0 )
+    , m_tag( 0 )
+    , m_name( )
 {
     manager->add( this );
 }
 
-Object::Object(ObjectManager *manager, const char *name)
-    : m_manager(manager)
-    , m_refs(0)
-    , m_tag(0)
-	, m_name(name)
+SharedObject::SharedObject( ObjectManager* manager, const char* name )
+    : m_manager( manager )
+    , m_refs( 0 )
+    , m_tag( 0 )
+    , m_name( name )
 {
     manager->add( this );
 }
 
-Object::~Object()
+SharedObject::~SharedObject( )
 {
     m_manager->remove( this );
 }
 
-void Object::set_tag(basic::int32 tag)
+void
+SharedObject::set_tag( basic::int32 tag )
 {
     m_tag = tag;
 }
 
-basic::int32 Object::get_tag() const
+basic::int32
+SharedObject::get_tag( ) const
 {
     return m_tag;
 }
 
-void Object::set_name(const basic::String &name)
+void
+SharedObject::set_name( const basic::String& name )
 {
     m_name = name;
 }
 
-const basic::String &Object::get_name() const
+const basic::String&
+SharedObject::get_name( ) const
 {
     return m_name;
 }
 
-void Object::retain()
+void
+SharedObject::retain( )
 {
-	++m_refs;
+    ++m_refs;
 }
 
-void Object::release()
+void
+SharedObject::release( )
 {
-	--m_refs;
-    if( m_refs <= 0 )
+    --m_refs;
+    if ( m_refs <= 0 )
     {
-        DELETE_OBJ(this);
+        DELETE_OBJ( this );
     }
 }
 
-basic::int32 Object::get_refs() const
+basic::int32
+SharedObject::get_refs( ) const
 {
     return m_refs;
 }
 
-ObjectManager *Object::get_manager()
+ObjectManager*
+SharedObject::get_manager( )
 {
     return m_manager;
 }

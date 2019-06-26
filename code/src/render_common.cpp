@@ -102,15 +102,8 @@ struct MeshVertex
 };
 
 bool
-load_mesh( const char* file, Mesh& out_mesh )
+load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
 {
-    basic::Vector< basic::uint8 > data{basic::get_file_content( file )};
-
-    if ( data.is_empty( ) )
-    {
-        return false;
-    }
-
     basic::Vector< glm::vec3 > vert_coords;
     vert_coords.reserve( 1000 );
     basic::Vector< glm::vec2 > tex_coords;

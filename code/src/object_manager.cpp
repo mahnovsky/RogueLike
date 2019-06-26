@@ -2,20 +2,21 @@
 
 #include "object.hpp"
 
-ObjectManager::ObjectManager()
-    :m_objects()
+ObjectManager::ObjectManager( )
+    : m_objects( )
 {
 }
 
-ObjectManager::~ObjectManager()
+ObjectManager::~ObjectManager( )
 {
 }
 
-Object *ObjectManager::find(const char *name)
+SharedObject*
+ObjectManager::find( const char* name )
 {
-    for(Object* object : m_objects)
+    for ( SharedObject* object : m_objects )
     {
-        if(object->get_name() == name)
+        if ( object->get_name( ) == name )
         {
             return object;
         }
@@ -24,11 +25,12 @@ Object *ObjectManager::find(const char *name)
     return nullptr;
 }
 
-Object *ObjectManager::find(basic::int32 tag)
+SharedObject*
+ObjectManager::find( basic::int32 tag )
 {
-    for(Object* object : m_objects)
+    for ( SharedObject* object : m_objects )
     {
-        if(object->get_tag() == tag)
+        if ( object->get_tag( ) == tag )
         {
             return object;
         }
@@ -37,12 +39,12 @@ Object *ObjectManager::find(basic::int32 tag)
     return nullptr;
 }
 
-Object *ObjectManager::find(const char *name, basic::int32 tag)
+SharedObject*
+ObjectManager::find( const char* name, basic::int32 tag )
 {
-    for(Object* object : m_objects)
+    for ( SharedObject* object : m_objects )
     {
-        if( object->get_tag() == tag &&
-            object->get_name() == name )
+        if ( object->get_tag( ) == tag && object->get_name( ) == name )
         {
             return object;
         }
@@ -51,15 +53,17 @@ Object *ObjectManager::find(const char *name, basic::int32 tag)
     return nullptr;
 }
 
-void ObjectManager::add( Object *obj )
+void
+ObjectManager::add( SharedObject* obj )
 {
     m_objects.push( obj );
 }
 
-void ObjectManager::remove( Object *obj )
+void
+ObjectManager::remove( SharedObject* obj )
 {
     basic::uint32 index = 0;
-    if( m_objects.find_first(index, obj))
+    if ( m_objects.find_first( index, obj ) )
     {
         m_objects.swap_remove( index );
     }

@@ -56,7 +56,7 @@ struct WidgetAction
     void* user_data;
 };
 
-class Widget : public Object
+class Widget : public SharedObject
 {
 public:
     Widget( ObjectManager* manager,

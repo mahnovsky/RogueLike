@@ -11,14 +11,13 @@ struct RenderComponent : public IComponent
     DECLARE_COMPONENT( RenderComponent )
 
     basic::uint32 array_object = 0;
-    basic::uint32 vertex_object = 0;
     basic::int32 vertex_elements = 0;
-    basic::uint32 index_object = 0;
     basic::int32 index_elements = 0;
     basic::uint32 flags = 0;
     Material material;
     basic::Color color;
     glm::mat4 model;
+    StaticMesh* mesh;
     class TransformComponent* transform;
 };
 
@@ -57,7 +56,7 @@ public:
                              basic::uint32 component_id,
                              ComponentAction act ) override;
 
-    static void load_component( RenderComponent* comp, const Mesh& m );
+    static void load_component( RenderComponent* comp, StaticMesh* m );
 
 private:
     ICamera* m_camera;

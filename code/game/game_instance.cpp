@@ -11,7 +11,9 @@
 #include "entity.hpp"
 #include "entity_component_system.hpp"
 
+#include "render.hpp"
 #include "render_system.hpp"
+#include "static_mesh.hpp"
 
 #include <stdio.h>
 #include <ctime>
@@ -195,7 +197,7 @@ rnd( )
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
 void
-make_ent( EntityComponentSystem* ecs, Mesh& m, ShaderProgram* shader )
+make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
 {
     Entity* ent = ecs->create( );
 
@@ -285,8 +287,12 @@ GameInstance::init( )
     m_back.set_color( 255, 255, 50, 180 );
 
     ShaderProgram* def_shader = m_rs.get_resorce< ShaderProgram >( "default" );
-    Mesh m;
-    if ( load_mesh( "meshes/cow.obj", m ) && def_shader )
+
+    auto cow_data = basic::get_file_content( "meshes/cow.obj" );
+    auto gpu_fact = m_engine->get_render( )->get_factory( );
+    StaticMesh* mesh = StaticMesh::create( m_manager, "cow.mesh", gpu_fact, std::move( cow_data ) );
+
+    if ( mesh && def_shader )
     {
         /*m_cow = RenderNode::create_node( def_shader, nullptr );
         m_cow->set_camera( m_game_camera );
@@ -296,7 +302,7 @@ GameInstance::init( )
         // Material* material = NEW_OBJ( Material, def_shader, nullptr );
         for ( int i = 0; i < 5; ++i )
         {
-            make_ent( m_ecs, m, def_shader );
+            make_ent( m_ecs, mesh, def_shader );
         }
     }
 

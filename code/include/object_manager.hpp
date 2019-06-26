@@ -5,22 +5,22 @@
 class ObjectManager
 {
 public:
-    ObjectManager();
-    virtual ~ObjectManager();
+    ObjectManager( );
+    virtual ~ObjectManager( );
 
-    Object* find( const char* name );
+    SharedObject* find( const char* name );
 
-    Object* find( basic::int32 tag );
+    SharedObject* find( basic::int32 tag );
 
-    Object* find( const char* name, basic::int32 tag );
+    SharedObject* find( const char* name, basic::int32 tag );
 
-    friend class Object;
-
-private:
-    void add( Object* obj );
-
-    void remove( Object* obj );
+    friend class SharedObject;
 
 private:
-    basic::Vector<Object*> m_objects;
+    void add( SharedObject* obj );
+
+    void remove( SharedObject* obj );
+
+private:
+    basic::Vector< SharedObject* > m_objects;
 };

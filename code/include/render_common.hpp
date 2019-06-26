@@ -42,7 +42,57 @@ using VertexBufferT = basic::Vector< Vertex_T >;
 using VertexBuffer = basic::Vector< Vertex >;
 using IndexBuffer = basic::Vector< basic::uint16 >;
 
-struct Mesh
+class IGpuResource
+{
+public:
+    virtual ~IGpuResource( )
+    {
+    }
+
+    virtual void bind( bool on ) = 0;
+};
+
+class IVertexBuffer : public IGpuResource
+{
+public:
+    virtual ~IVertexBuffer( )
+    {
+    }
+
+    virtual basic::uint32 count( ) const = 0;
+
+    virtual void load( VertexBuffer buffer ) = 0;
+
+    virtual void load( VertexBufferP buffer ) = 0;
+
+    virtual void apply_fmt( ) const = 0;
+};
+
+class IIndexBuffer : public IGpuResource
+{
+public:
+    virtual ~IIndexBuffer( )
+    {
+    }
+
+    virtual basic::uint32 count( ) const = 0;
+
+    virtual void load( IndexBuffer buffer ) = 0;
+};
+
+class IGpuFactory
+{
+public:
+    virtual ~IGpuFactory( )
+    {
+    }
+
+    virtual IVertexBuffer* create_vertex_buffer( ) const = 0;
+
+    virtual IIndexBuffer* create_index_object( ) const = 0;
+};
+
+struct MeshData
 {
     VertexBuffer vb;
     IndexBuffer ib;
@@ -212,7 +262,7 @@ private:
     basic::Vector< RenderNode* > children;
 };
 
-bool load_mesh( const char* file, Mesh& out_mesh );
+bool load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh );
 
 void fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb );
 

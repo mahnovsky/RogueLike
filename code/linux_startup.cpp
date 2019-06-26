@@ -10,8 +10,6 @@ namespace basic
 extern String g_data_path;
 }
 
-#define FILENAME_MAX 1024
-
 void game_init( Engine* );
 
 void
@@ -32,7 +30,7 @@ set_data_path( const char* binary_path )
         LOG( "path %s", path.get_cstr( ) );
     }
 }
-
+// https://github.com/microsoft/mimalloc
 int
 main( int argc, char** argv )
 {

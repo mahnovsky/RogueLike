@@ -2,35 +2,39 @@
 
 #include "defines.hpp"
 
-class Object
+class SharedObject
 {
 public:
-    Object(ObjectManager* manager);
-    Object(ObjectManager* manager, const char* name);
+    SharedObject( ObjectManager* manager );
+    SharedObject( ObjectManager* manager, const char* name );
 
-    virtual ~Object();
+    virtual ~SharedObject( );
 
     void set_tag( basic::int32 tag );
 
-    basic::int32 get_tag() const;
+    basic::int32 get_tag( ) const;
 
     void set_name( const basic::String& name );
 
-    const basic::String& get_name() const;
+    const basic::String& get_name( ) const;
 
-    void retain();
+    void retain( );
 
-    void release();
+    void release( );
 
-    basic::int32 get_refs() const;
+    basic::int32 get_refs( ) const;
 
-    ObjectManager* get_manager();
+    ObjectManager* get_manager( );
 
 private:
     ObjectManager* m_manager;
-	basic::int32 m_refs;
-	basic::int32 m_tag;
+    basic::int32 m_refs;
+    basic::int32 m_tag;
     basic::String m_name;
 };
 
-#define SAFE_RELEASE(obj_ptr) if(obj_ptr) { obj_ptr->release(); }
+#define SAFE_RELEASE( obj_ptr ) \
+    if ( obj_ptr )              \
+    {                           \
+        obj_ptr->release( );    \
+    }

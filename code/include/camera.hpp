@@ -27,7 +27,7 @@ public:
 };
 
 class PerspectiveCamera
-        : public Object
+        : public SharedObject
         , public ICamera
 {
 public:
@@ -61,7 +61,7 @@ private:
 
 
 class OrthoCamera
-    :public Object
+    :public SharedObject
     ,public ICamera
 {
 public:

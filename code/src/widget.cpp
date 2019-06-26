@@ -8,7 +8,7 @@
 #include "transform.hpp"
 
 Widget::Widget(ObjectManager* manager, const glm::vec2& size)
-    : Object ( manager )
+    : SharedObject ( manager )
 	, m_mat(1.f)
     , m_pos()
     , m_size(size)

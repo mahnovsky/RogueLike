@@ -1,6 +1,7 @@
 #include "render_system.hpp"
 
 #include "render_common.hpp"
+#include "static_mesh.hpp"
 
 #include "camera.hpp"
 #include "material.hpp"
@@ -71,7 +72,7 @@ RenderSystem::draw( RenderComponent* component, const glm::mat4& model )
     component->material.set_uniform( "MVP", mvp );
     component->material.set_uniform( "Color", component->color );
 
-    if ( component->index_object > 0 )
+    if ( component->index_elements > 0 )
     {
         glDrawElements( GL_TRIANGLES, component->index_elements, GL_UNSIGNED_SHORT, nullptr );
     }
@@ -108,6 +109,10 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
         {
             RenderComponent* rc = ent->get_component< RenderComponent >( );
             rc->transform = nullptr;
+            if ( rc->mesh )
+            {
+                rc->mesh->release( );
+            }
         }
     }
     break;
@@ -117,43 +122,24 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
 }
 
 void
-RenderSystem::load_component( RenderComponent* comp, const Mesh& m )
+RenderSystem::load_component( RenderComponent* comp, StaticMesh* m )
 {
+    ASSERT( m );
+
     comp->color = basic::Color{255, 255, 255, 255};
 
     glGenVertexArrays( 1, &comp->array_object );
-
     glBindVertexArray( comp->array_object );
 
-    comp->vertex_object = create_buffer(
-            GL_ARRAY_BUFFER, GL_STATIC_DRAW, m.vb.get_raw( ), size( m.vb ) * sizeof( Vertex ) );
+    comp->mesh = m;
+    m->retain( );
 
-    comp->vertex_elements = size_as< basic::int32 >( m.vb );
+    m->bind( );
 
-    if ( !m.ib.is_empty( ) )
-    {
-        comp->index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
-                                            GL_STATIC_DRAW,
-                                            m.ib.get_raw( ),
-                                            m.ib.get_size( ) * sizeof( basic::uint16 ) );
+    m->apply_fmt( );
 
-        comp->index_elements = size_as< basic::int32 >( m.ib );
-    }
-
-    basic::Vector< VertexFMT > fmt_list = get_fmt_list( m.vb.get_raw( ) );
-
-    for ( basic::uint32 i = 0; i < fmt_list.get_size( ); ++i )
-    {
-        const VertexFMT& fmt = fmt_list[ i ];
-        glVertexAttribPointer( i,
-                               static_cast< GLint >( fmt.size ),
-                               fmt.type,
-                               fmt.is_normalized,
-                               sizeof( Vertex ),
-                               reinterpret_cast< const void* >( fmt.offset ) );
-
-        glEnableVertexAttribArray( i );
-    }
+    comp->index_elements = static_cast< basic::int32 >( m->get_index_count( ) );
+    comp->vertex_elements = static_cast< basic::int32 >( m->get_vertex_count( ) );
 
     glBindVertexArray( 0 );
 }

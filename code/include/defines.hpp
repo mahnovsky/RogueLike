@@ -8,7 +8,7 @@ class ShaderProgram;
 class FileResource;
 class Text;
 class Sprite;
-class Object;
+class SharedObject;
 class ObjectManager;
 class Engine;
 class ResourceStorage;
@@ -24,6 +24,7 @@ class WidgetText;
 class EntityComponentSystem;
 class World;
 class Entity;
+class StaticMesh;
 
 namespace input
 {
@@ -32,7 +33,8 @@ class Input;
 
 struct RenderNode;
 
-namespace se {
+namespace se
+{
 class Font;
 }
 
@@ -42,5 +44,5 @@ class Font;
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include "glm/gtx/quaternion.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/quaternion.hpp"

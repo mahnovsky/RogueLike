@@ -2,37 +2,40 @@
 
 #include "timer_manager.hpp"
 
-FileResource::FileResource(ObjectManager *manager, const char* file )
-    :Object ( manager, file )
-{}
-
-FileResource::~FileResource()
-{}
-
-ResourceStorage::ResourceStorage(ObjectManager *manager)
-    :m_manager(manager)
+FileResource::FileResource( ObjectManager* manager, const char* file )
+    : SharedObject( manager, file )
 {
-    TimerManager& timer_manager = TimerManager::get();
+}
+
+FileResource::~FileResource( )
+{
+}
+
+ResourceStorage::ResourceStorage( ObjectManager* manager )
+    : m_manager( manager )
+{
+    TimerManager& timer_manager = TimerManager::get( );
 
     timer_manager.add( 2.f, &update_cached_resources, this, -1 );
 }
 
-ResourceStorage::~ResourceStorage()
+ResourceStorage::~ResourceStorage( )
 {
-    for( Object* obj : m_resources )
+    for ( SharedObject* obj : m_resources )
     {
-        obj->release();
+        obj->release( );
     }
-    m_resources.clear();
+    m_resources.clear( );
 }
 
-bool ResourceStorage::add_resource(FileResource *file_resource)
+bool
+ResourceStorage::add_resource( FileResource* file_resource )
 {
-    if( !find_resource( file_resource->get_name().get_cstr() ) )
+    if ( !find_resource( file_resource->get_name( ).get_cstr( ) ) )
     {
         m_resources.push( file_resource );
 
-        file_resource->retain();
+        file_resource->retain( );
 
         file_resource->load( this );
 
@@ -42,15 +45,16 @@ bool ResourceStorage::add_resource(FileResource *file_resource)
     return false;
 }
 
-FileResource *ResourceStorage::find_resource(const char *file)
+FileResource*
+ResourceStorage::find_resource( const char* file )
 {
     FileResource* result = nullptr;
 
-    for( basic::uint32 i = 0; i < m_resources.get_size(); ++i )
+    for ( basic::uint32 i = 0; i < m_resources.get_size( ); ++i )
     {
-        if( m_resources[i]->get_name() == file )
+        if ( m_resources[ i ]->get_name( ) == file )
         {
-            result = m_resources[i];
+            result = m_resources[ i ];
             break;
         }
     }
@@ -58,15 +62,16 @@ FileResource *ResourceStorage::find_resource(const char *file)
     return result;
 }
 
-void ResourceStorage::update_cached_resources(void *storage)
+void
+ResourceStorage::update_cached_resources( void* storage )
 {
-    ResourceStorage* rs = static_cast<ResourceStorage*>( storage );
+    ResourceStorage* rs = static_cast< ResourceStorage* >( storage );
 
-    for( basic::uint32 i = 0; i < rs->m_resources.get_size(); ++i )
+    for ( basic::uint32 i = 0; i < rs->m_resources.get_size( ); ++i )
     {
-        if( rs->m_resources[i]->get_refs() == 1 )
+        if ( rs->m_resources[ i ]->get_refs( ) == 1 )
         {
-            rs->m_resources[i]->release();
+            rs->m_resources[ i ]->release( );
 
             rs->m_resources.swap_remove( i );
         }
