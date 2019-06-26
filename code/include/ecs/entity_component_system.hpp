@@ -8,7 +8,8 @@ enum ComponentAction
     Registred,
     Attached,
     Updated,
-    Detached
+    Detached,
+    Destroyed
 };
 
 class ISystem
