@@ -22,6 +22,11 @@ public:
     {
     }
 
+    ~OpenGLVertexBuffer( ) override
+    {
+        glDeleteBuffers( 1, &m_handle );
+    }
+
     basic::uint32
     count( ) const override
     {
@@ -96,6 +101,11 @@ public:
     {
     }
 
+    ~OpenGLIndexBuffer( ) override
+    {
+        glDeleteBuffers( 1, &m_handle );
+    }
+
     basic::uint32
     count( ) const override
     {
@@ -121,6 +131,40 @@ private:
     GLuint m_handle;
 };
 
+class OpenGLGpuLayer : public IGpuObjectLayer
+{
+public:
+    OpenGLGpuLayer( )
+        : m_handle( 0 )
+    {
+        glGenVertexArrays( 1, &m_handle );
+    }
+
+    ~OpenGLGpuLayer( ) override
+    {
+        glDeleteVertexArrays( 1, &m_handle );
+    }
+
+    void
+    bind( bool on ) override
+    {
+        glBindVertexArray( on ? m_handle : 0 );
+    }
+
+    void
+    attach_object( IGpuObject* obj ) override
+    {
+        bind( true );
+
+        obj->bind( true );
+
+        bind( false );
+    }
+
+private:
+    GLuint m_handle;
+};
+
 class OpenGLGpuFactory : public IGpuFactory
 {
 public:
@@ -131,9 +175,15 @@ public:
     }
 
     IIndexBuffer*
-    create_index_object( ) const
+    create_index_buffer( ) const
     {
         return NEW_OBJ( OpenGLIndexBuffer );
+    }
+
+    IGpuObjectLayer*
+    create_layer( ) const
+    {
+        return NEW_OBJ( OpenGLGpuLayer );
     }
 };
 

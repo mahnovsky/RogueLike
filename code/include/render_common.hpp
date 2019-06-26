@@ -42,17 +42,17 @@ using VertexBufferT = basic::Vector< Vertex_T >;
 using VertexBuffer = basic::Vector< Vertex >;
 using IndexBuffer = basic::Vector< basic::uint16 >;
 
-class IGpuResource
+class IGpuObject
 {
 public:
-    virtual ~IGpuResource( )
+    virtual ~IGpuObject( )
     {
     }
 
     virtual void bind( bool on ) = 0;
 };
 
-class IVertexBuffer : public IGpuResource
+class IVertexBuffer : public IGpuObject
 {
 public:
     virtual ~IVertexBuffer( )
@@ -68,7 +68,7 @@ public:
     virtual void apply_fmt( ) const = 0;
 };
 
-class IIndexBuffer : public IGpuResource
+class IIndexBuffer : public IGpuObject
 {
 public:
     virtual ~IIndexBuffer( )
@@ -80,6 +80,18 @@ public:
     virtual void load( IndexBuffer buffer ) = 0;
 };
 
+class IGpuObjectLayer
+{
+public:
+    virtual ~IGpuObjectLayer( )
+    {
+    }
+
+    virtual void bind( bool on ) = 0;
+
+    virtual void attach_object( IGpuObject* obj ) = 0;
+};
+
 class IGpuFactory
 {
 public:
@@ -87,9 +99,11 @@ public:
     {
     }
 
+    virtual IGpuObjectLayer* create_layer( ) const = 0;
+
     virtual IVertexBuffer* create_vertex_buffer( ) const = 0;
 
-    virtual IIndexBuffer* create_index_object( ) const = 0;
+    virtual IIndexBuffer* create_index_buffer( ) const = 0;
 };
 
 struct MeshData

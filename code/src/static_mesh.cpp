@@ -86,7 +86,7 @@ StaticMesh::create( ObjectManager* obj_mng,
         IIndexBuffer* ibo = nullptr;
         if ( !mesh_data.ib.is_empty( ) )
         {
-            ibo = factory->create_index_object( );
+            ibo = factory->create_index_buffer( );
             ibo->load( std::move( mesh_data.ib ) );
         }
 
