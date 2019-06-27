@@ -328,7 +328,7 @@ GameInstance::init( )
         if ( tr )
         {
             tr->tr.set_euler_angles( {0.f, 0.f, 0.f} );
-            tr->tr.set_position( {0.f, 0.f, 0.f} );
+            tr->tr.set_position( {10.f, 0.f, 10.f} );
         }
     }
     // int id = Test::TYPE_UID;
@@ -370,13 +370,10 @@ GameInstance::frame( float delta )
         mc->move_direction = fw;
 
         glm::vec3 up = {0.f, 1.f, 0.f};
-        glm::vec3 right = glm::cross( fw, up );
-        glm::vec3 dist = -fw * 10.f;
+        glm::vec3 dist = -fw * 10.f + up * 7.f;
         auto cam_pos = pos + dist;
-        glm::vec3 delta = glm::normalize( dist );
-        up = glm::cross( delta, right );
 
-        m_game_camera->init( cam_pos, delta, up );
+        m_game_camera->init( cam_pos, pos, up );
     }
 }
 
@@ -401,17 +398,28 @@ GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
         {
             mc->move_speed = 10.f;
         }
-        else if ( key_sym == L'S' || key_sym == L's' )
+        if ( key_sym == L'S' || key_sym == L's' )
         {
             mc->move_speed = -10.f;
         }
-        else if ( key_sym == L'A' || key_sym == L'a' )
+        if ( key_sym == L'A' || key_sym == L'a' )
         {
             mc->angle_speed = 10.f;
         }
-        else if ( key_sym == L'D' || key_sym == L'd' )
+        if ( key_sym == L'D' || key_sym == L'd' )
         {
             mc->angle_speed = -10.f;
+        }
+        if ( key_sym == L' ' )
+        {
+            auto tr = m_player->get_component< TransformComponent >( );
+
+            if ( tr )
+            {
+                auto pos = tr->tr.get_position( );
+                pos.y += 0.1f;
+                tr->tr.set_position( pos );
+            }
         }
     }
 }
