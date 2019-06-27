@@ -1,7 +1,7 @@
 #include "static_mesh.hpp"
 
 StaticMesh::StaticMesh( ObjectManager* obj_mng, const char* name )
-    : SharedObject( obj_mng, name )
+    : SharedObject( obj_mng, SharedObjectType::StaticMesh, name )
     , m_vbo( nullptr )
     , m_ibo( nullptr )
 {

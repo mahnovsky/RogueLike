@@ -2,6 +2,8 @@
 
 #include "defines.hpp"
 
+enum class SharedObjectType;
+
 class ObjectManager
 {
 public:
@@ -14,6 +16,10 @@ public:
 
     SharedObject* find( const char* name, basic::int32 tag );
 
+    SharedObject* find( SharedObjectType type, const char* name );
+
+    basic::Vector< SharedObject* > get_all( SharedObjectType type ) const;
+
     friend class SharedObject;
 
 private:
@@ -23,4 +29,5 @@ private:
 
 private:
     basic::Vector< SharedObject* > m_objects;
+    basic::Vector< basic::Vector< SharedObject* > > m_typed_objects;
 };

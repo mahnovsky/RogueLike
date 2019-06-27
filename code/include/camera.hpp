@@ -7,15 +7,15 @@
 class ICamera
 {
 public:
-    virtual ~ICamera();
+    virtual ~ICamera( );
 
-    virtual void init( const glm::vec3& pos, 
-                  const glm::vec3& dir, 
-                  const glm::vec3& up ) = 0;
+    virtual void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up ) = 0;
 
     virtual void get_matrix( glm::mat4& mat ) const = 0;
 
     virtual void set_position( const glm::vec3& pos ) = 0;
+
+    virtual glm::vec3 get_position( ) const = 0;
 
     virtual void set_direction( const glm::vec3& dir ) = 0;
 
@@ -26,17 +26,13 @@ public:
     static glm::vec3 convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos );
 };
 
-class PerspectiveCamera
-        : public SharedObject
-        , public ICamera
+class PerspectiveCamera : public SharedObject, public ICamera
 {
 public:
-    PerspectiveCamera( ObjectManager* manager, float fov, float aspect, float near, float far);
-    ~PerspectiveCamera() override;
+    PerspectiveCamera( ObjectManager* manager, float fov, float aspect, float near, float far );
+    ~PerspectiveCamera( ) override;
 
-    void init( const glm::vec3& pos, 
-               const glm::vec3& dir, 
-               const glm::vec3& up ) override; 
+    void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up ) override;
 
     void set_position( const glm::vec3& pos ) override;
 
@@ -46,8 +42,10 @@ public:
 
     void get_matrix( glm::mat4& out ) const override;
 
+    glm::vec3 get_position( ) const override;
+
 private:
-    void update();
+    void update( );
 
 private:
     glm::vec3 m_position;
@@ -59,17 +57,12 @@ private:
     glm::mat4 m_final;
 };
 
-
-class OrthoCamera
-    :public SharedObject
-    ,public ICamera
+class OrthoCamera : public SharedObject, public ICamera
 {
 public:
     OrthoCamera( ObjectManager* manager, float width, float height, float near, float far );
 
-    void init( const glm::vec3& pos, 
-               const glm::vec3& dir, 
-               const glm::vec3& up );
+    void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up );
 
     void get_matrix( glm::mat4& mat ) const;
 
@@ -79,8 +72,10 @@ public:
 
     void set_up( const glm::vec3& up );
 
+    glm::vec3 get_position( ) const override;
+
 private:
-    void update();
+    void update( );
 
 private:
     glm::mat4 m_projection;
@@ -92,4 +87,3 @@ private:
     float m_far;
     glm::vec3 m_position;
 };
-

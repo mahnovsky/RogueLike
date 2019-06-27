@@ -26,6 +26,8 @@ class World;
 class Entity;
 class StaticMesh;
 
+class TransformComponent;
+
 namespace input
 {
 class Input;

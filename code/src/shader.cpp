@@ -6,18 +6,18 @@
 
 basic::uint32 ShaderProgram::m_current_shader_program;
 
-ShaderProgram::ShaderProgram(ObjectManager* manager, const char *file)
-    : FileResource ( manager, file )
+ShaderProgram::ShaderProgram( ObjectManager* manager, const char* file )
+    : FileResource( manager, SharedObjectType::ShaderProgram, file )
     , m_shader_program( 0 )
-	, m_vertex_shader( nullptr )
-	, m_fragment_shader(nullptr)
+    , m_vertex_shader( nullptr )
+    , m_fragment_shader( nullptr )
 {
 }
 
 ShaderProgram::~ShaderProgram( )
 {
     SAFE_RELEASE( m_vertex_shader );
-    SAFE_RELEASE(m_fragment_shader);
+    SAFE_RELEASE( m_fragment_shader );
 
     if ( m_shader_program )
     {
@@ -25,35 +25,36 @@ ShaderProgram::~ShaderProgram( )
     }
 }
 
-bool ShaderProgram::load( ResourceStorage *storage )
+bool
+ShaderProgram::load( ResourceStorage* storage )
 {
-    Config* config = storage->get_resorce<Config>( "shaders/programs.conf" );
+    Config* config = storage->get_resorce< Config >( "shaders/programs.conf" );
 
-    if( config )
+    if ( config )
     {
-        basic::String name = get_name();
-        const basic::JsonObject* shader_conf = config->get_values( name.get_cstr() );
+        basic::String name = get_name( );
+        const basic::JsonObject* shader_conf = config->get_values( name.get_cstr( ) );
 
-        ASSERT(shader_conf);
+        ASSERT( shader_conf );
 
         basic::String vertex_file;
-        shader_conf->get("vertex_shader", vertex_file);
+        shader_conf->get( "vertex_shader", vertex_file );
 
-        if(vertex_file.is_empty())
+        if ( vertex_file.is_empty( ) )
         {
             return false;
         }
 
         basic::String fragment_file;
-        shader_conf->get("fragment_shader", fragment_file);
+        shader_conf->get( "fragment_shader", fragment_file );
 
-        if(fragment_file.is_empty())
+        if ( fragment_file.is_empty( ) )
         {
             return false;
         }
 
-        BaseShader* vertex = storage->get_resorce<BaseShader>( vertex_file.get_cstr() );
-        BaseShader* fragment = storage->get_resorce<BaseShader>( fragment_file.get_cstr() );
+        BaseShader* vertex = storage->get_resorce< BaseShader >( vertex_file.get_cstr( ) );
+        BaseShader* fragment = storage->get_resorce< BaseShader >( fragment_file.get_cstr( ) );
 
         return init( vertex, fragment );
     }
@@ -61,7 +62,8 @@ bool ShaderProgram::load( ResourceStorage *storage )
     return false;
 }
 
-void print_shader_info( GLuint shader )
+void
+print_shader_info( GLuint shader )
 {
     GLchar infoLog[ 512 ];
     glGetShaderInfoLog( shader, 512, nullptr, infoLog );
@@ -103,7 +105,8 @@ ShaderProgram::get_uniform( const char* name ) const
     return glGetUniformLocation( m_shader_program, name );
 }
 
-ShaderProgram *ShaderProgram::create(ObjectManager* manager, const char *file)
+ShaderProgram*
+ShaderProgram::create( ObjectManager* manager, const char* file )
 {
     ShaderProgram* res = NEW_OBJ( ShaderProgram, manager, file );
 
@@ -113,35 +116,34 @@ ShaderProgram *ShaderProgram::create(ObjectManager* manager, const char *file)
 void
 ShaderProgram::bind( ) const
 {
-	if (m_current_shader_program != m_shader_program)
-	{
-		glUseProgram(m_shader_program);
-		m_current_shader_program = m_shader_program;
-	}
+    if ( m_current_shader_program != m_shader_program )
+    {
+        glUseProgram( m_shader_program );
+        m_current_shader_program = m_shader_program;
+    }
 }
 
 void
 ShaderProgram::unbind( ) const
 {
     glUseProgram( 0 );
-	m_current_shader_program = 0;
+    m_current_shader_program = 0;
 }
 
 bool
-ShaderProgram::init(BaseShader *vertex, BaseShader *fragment )
+ShaderProgram::init( BaseShader* vertex, BaseShader* fragment )
 {
-    if( vertex && vertex->is_valid() &&
-        fragment && fragment->is_valid() &&
-        vertex->get_tag() == GL_VERTEX_SHADER &&
-        fragment->get_tag() == GL_FRAGMENT_SHADER )
+    if ( vertex && vertex->is_valid( ) && fragment && fragment->is_valid( )
+         && vertex->get_tag( ) == GL_VERTEX_SHADER
+         && fragment->get_tag( ) == GL_FRAGMENT_SHADER )
     {
-        if ( link_program( vertex->get_handle(), fragment->get_handle() ) )
+        if ( link_program( vertex->get_handle( ), fragment->get_handle( ) ) )
         {
             m_vertex_shader = vertex;
             m_fragment_shader = fragment;
 
-            vertex->retain();
-            fragment->retain();
+            vertex->retain( );
+            fragment->retain( );
 
             return true;
         }
@@ -168,12 +170,13 @@ ShaderProgram::link_program( basic::uint32 vshader, basic::uint32 fshader )
     return false;
 }
 
-static GLuint compile( basic::Vector<basic::uint8> data, basic::uint32 type )
+static GLuint
+compile( basic::Vector< basic::uint8 > data, basic::uint32 type )
 {
     GLuint handle = glCreateShader( type );
-    data.push(0);
-    char* data_ptr = reinterpret_cast<GLchar*>( data.get_raw( ) );
-    GLint gsize = static_cast<GLint>( data.get_size( ) );
+    data.push( 0 );
+    char* data_ptr = reinterpret_cast< GLchar* >( data.get_raw( ) );
+    GLint gsize = static_cast< GLint >( data.get_size( ) );
 
     glShaderSource( handle, 1, &data_ptr, &gsize );
     glCompileShader( handle );
@@ -182,8 +185,8 @@ static GLuint compile( basic::Vector<basic::uint8> data, basic::uint32 type )
 }
 
 BaseShader::BaseShader( ObjectManager* manager, basic::uint32 type, const char* file )
-    :FileResource (manager, file)
-    ,m_handle(0)
+    : FileResource( manager, SharedObjectType::BaseShader, file )
+    , m_handle( 0 )
 {
     bool is_valid = type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER;
     ASSERT( is_valid );
@@ -191,29 +194,30 @@ BaseShader::BaseShader( ObjectManager* manager, basic::uint32 type, const char* 
     set_tag( type );
 }
 
-BaseShader::~BaseShader()
+BaseShader::~BaseShader( )
 {
     glDeleteShader( m_handle );
 }
 
-bool BaseShader::load(ResourceStorage *)
+bool
+BaseShader::load( ResourceStorage* )
 {
-    if( is_valid() )
+    if ( is_valid( ) )
     {
         return true;
     }
 
-    basic::String file = get_name();
-    ASSERT( !file.is_empty() );
+    basic::String file = get_name( );
+    ASSERT( !file.is_empty( ) );
 
-    basic::Vector<basic::uint8> data = basic::get_file_content( file.get_cstr() );
+    basic::Vector< basic::uint8 > data = basic::get_file_content( file.get_cstr( ) );
 
-    if( !data.is_empty() )
+    if ( !data.is_empty( ) )
     {
-        m_handle = compile( data, static_cast<basic::uint32>( get_tag() ) );
+        m_handle = compile( data, static_cast< basic::uint32 >( get_tag( ) ) );
 
-        bool valid = is_valid();
-        if( !valid )
+        bool valid = is_valid( );
+        if ( !valid )
         {
             print_shader_info( m_handle );
         }
@@ -223,28 +227,30 @@ bool BaseShader::load(ResourceStorage *)
     return false;
 }
 
-basic::uint32 BaseShader::get_handle() const
+basic::uint32
+BaseShader::get_handle( ) const
 {
     return m_handle;
 }
 
-bool BaseShader::is_valid() const
+bool
+BaseShader::is_valid( ) const
 {
     return is_shader_compiled( m_handle );
 }
 
-BaseShader *BaseShader::create(ObjectManager* manager, const char *file)
+BaseShader*
+BaseShader::create( ObjectManager* manager, const char* file )
 {
     basic::String filename = file;
-    if( filename.ends_of(".vs") )
+    if ( filename.ends_of( ".vs" ) )
     {
         return NEW_OBJ( BaseShader, manager, GL_VERTEX_SHADER, file );
     }
-    else if( filename.ends_of(".fs") )
+    else if ( filename.ends_of( ".fs" ) )
     {
         return NEW_OBJ( BaseShader, manager, GL_FRAGMENT_SHADER, file );
     }
 
     return nullptr;
 }
-

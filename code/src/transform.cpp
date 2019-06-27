@@ -102,6 +102,17 @@ Transform::get_euler_angles( ) const
     return m_euler_angles;
 }
 
+glm::vec3
+Transform::get_forward( ) const
+{
+    glm::vec3 forward;
+    forward.x = glm::sin( m_euler_angles.y );
+    forward.y = -glm::tan( m_euler_angles.x );
+    forward.z = glm::cos( m_euler_angles.y );
+
+    return forward;
+}
+
 void
 Transform::update_final_matrix( ) const
 {

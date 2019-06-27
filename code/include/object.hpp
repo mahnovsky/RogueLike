@@ -2,13 +2,29 @@
 
 #include "defines.hpp"
 
+enum class SharedObjectType
+{
+    Camera,
+    Config,
+    Texture,
+    Font,
+    ImageRectSet,
+    StaticMesh,
+    BaseShader,
+    ShaderProgram,
+    Widget,
+    End
+};
+
 class SharedObject
 {
 public:
-    SharedObject( ObjectManager* manager );
-    SharedObject( ObjectManager* manager, const char* name );
+    SharedObject( ObjectManager* manager, SharedObjectType type );
+    SharedObject( ObjectManager* manager, SharedObjectType type, const char* name );
 
     virtual ~SharedObject( );
+
+    SharedObjectType get_type( ) const;
 
     void set_tag( basic::int32 tag );
 
@@ -28,6 +44,7 @@ public:
 
 private:
     ObjectManager* m_manager;
+    const SharedObjectType m_type;
     basic::int32 m_refs;
     basic::int32 m_tag;
     basic::String m_name;

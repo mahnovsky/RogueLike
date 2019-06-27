@@ -3,17 +3,15 @@
 #include "basic/memory.hpp"
 #include "object_manager.hpp"
 
-SharedObject::SharedObject( ObjectManager* manager )
-    : m_manager( manager )
-    , m_refs( 0 )
-    , m_tag( 0 )
-    , m_name( )
+SharedObject::SharedObject( ObjectManager* manager, SharedObjectType type )
+    : SharedObject( manager, type, "NoName" )
 {
     manager->add( this );
 }
 
-SharedObject::SharedObject( ObjectManager* manager, const char* name )
+SharedObject::SharedObject( ObjectManager* manager, SharedObjectType type, const char* name )
     : m_manager( manager )
+    , m_type( type )
     , m_refs( 0 )
     , m_tag( 0 )
     , m_name( name )
@@ -24,6 +22,12 @@ SharedObject::SharedObject( ObjectManager* manager, const char* name )
 SharedObject::~SharedObject( )
 {
     m_manager->remove( this );
+}
+
+SharedObjectType
+SharedObject::get_type( ) const
+{
+    return m_type;
 }
 
 void

@@ -31,6 +31,8 @@ public:
 
     glm::vec3 get_euler_angles( ) const;
 
+    glm::vec3 get_forward( ) const;
+
 private:
     void update_final_matrix( ) const;
 

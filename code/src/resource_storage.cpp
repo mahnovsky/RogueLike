@@ -2,8 +2,8 @@
 
 #include "timer_manager.hpp"
 
-FileResource::FileResource( ObjectManager* manager, const char* file )
-    : SharedObject( manager, file )
+FileResource::FileResource( ObjectManager* manager, SharedObjectType type, const char* file )
+    : SharedObject( manager, type, file )
 {
 }
 

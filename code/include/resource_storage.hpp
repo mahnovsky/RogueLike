@@ -8,7 +8,7 @@ class ResourceStorage;
 class FileResource : public SharedObject
 {
 public:
-    FileResource( ObjectManager* manager, const char* file );
+    FileResource( ObjectManager* manager, SharedObjectType type, const char* file );
 
     virtual ~FileResource( );
 

@@ -1,9 +1,9 @@
 #include "font.hpp"
 #include "GL/glew.h"
 
-#include "texture.hpp"
-#include "shader.hpp"
 #include "render_common.hpp"
+#include "shader.hpp"
+#include "texture.hpp"
 
 namespace
 {
@@ -14,9 +14,9 @@ namespace
 namespace se
 {
 Font::Font( ObjectManager* manager, const char* file )
-    : FileResource( manager, file )
-    , m_shader(nullptr)
-	, m_texture( nullptr )
+    : FileResource( manager, SharedObjectType::Font, file )
+    , m_shader( nullptr )
+    , m_texture( nullptr )
     , m_height( 32.f )
     , m_cdata( basic::mem_alloc( 96 * sizeof( stbtt_bakedchar ) ) )
 {
@@ -25,70 +25,73 @@ Font::Font( ObjectManager* manager, const char* file )
 Font::~Font( )
 {
     basic::mem_free( m_cdata );
-	if (m_texture)
-	{
-		m_texture->release();
-	}
-	if (m_shader)
-	{
-		m_shader->release();
-	}
+    if ( m_texture )
+    {
+        m_texture->release( );
+    }
+    if ( m_shader )
+    {
+        m_shader->release( );
+    }
 }
 
-bool Font::load(ResourceStorage *storage)
+bool
+Font::load( ResourceStorage* storage )
 {
-	m_shader = storage->get_resorce<ShaderProgram>("text");
-	if (!m_shader)
-	{
-		LOG("Failed load text shader");
+    m_shader = storage->get_resorce< ShaderProgram >( "text" );
+    if ( !m_shader )
+    {
+        LOG( "Failed load text shader" );
 
-		return false;
-	}
-	m_shader->retain();
+        return false;
+    }
+    m_shader->retain( );
 
-	basic::String path = "fonts/";
-	path += get_name();
-	basic::Vector< basic::uint8 > data = basic::get_file_content(path.get_cstr());
+    basic::String path = "fonts/";
+    path += get_name( );
+    basic::Vector< basic::uint8 > data = basic::get_file_content( path.get_cstr( ) );
 
-	if (!data.is_empty())
-	{
-		const int tw = 512;
-		const int th = 512;
+    if ( !data.is_empty( ) )
+    {
+        const int tw = 512;
+        const int th = 512;
 
-		basic::Vector<basic::uint8> bitmap;
-		bitmap.resize(tw * th);
+        basic::Vector< basic::uint8 > bitmap;
+        bitmap.resize( tw * th );
 
-        stbtt_BakeFontBitmap(data.get_raw(),
-			0,
-			m_height,
-			bitmap.get_raw(),
-			tw,
-			th,
-			32,
-			96,
-			static_cast<stbtt_bakedchar*>(m_cdata));
+        stbtt_BakeFontBitmap( data.get_raw( ),
+                              0,
+                              m_height,
+                              bitmap.get_raw( ),
+                              tw,
+                              th,
+                              32,
+                              96,
+                              static_cast< stbtt_bakedchar* >( m_cdata ) );
 
-		basic::String name = "bitmap_";
-		name += get_name();
+        basic::String name = "bitmap_";
+        name += get_name( );
 
-        m_texture = NEW_OBJ(Texture, get_manager(), name.get_cstr());
-		m_texture->init_font(tw, th, std::move(bitmap));
-		m_texture->retain();
+        m_texture = NEW_OBJ( Texture, get_manager( ), name.get_cstr( ) );
+        m_texture->init_font( tw, th, std::move( bitmap ) );
+        m_texture->retain( );
 
-		return true;
-	}
+        return true;
+    }
 
-	return false;
+    return false;
 }
 
-RenderNode *Font::create_text_node()
+RenderNode*
+Font::create_text_node( )
 {
     RenderNode* node = RenderNode::create_node( m_shader, m_texture );
 
     return node;
 }
 
-void Font::update(const char *text, RenderNode *node, glm::vec2 &size)
+void
+Font::update( const char* text, RenderNode* node, glm::vec2& size )
 {
     ASSERT( node != nullptr );
 
@@ -115,17 +118,18 @@ void Font::update(const char *text, RenderNode *node, glm::vec2 &size)
         if ( ch >= 32 )
         {
             stbtt_aligned_quad q;
-            int w = static_cast<int>( m_texture->get_width( ) );
-            int h = static_cast<int>( m_texture->get_height( ) );
+            int w = static_cast< int >( m_texture->get_width( ) );
+            int h = static_cast< int >( m_texture->get_height( ) );
 
-            stbtt_GetBakedQuad( static_cast<stbtt_bakedchar*>(m_cdata), w, h, ch - 32, &x, &y, &q, 1 );
+            stbtt_GetBakedQuad(
+                    static_cast< stbtt_bakedchar* >( m_cdata ), w, h, ch - 32, &x, &y, &q, 1 );
 
             auto xmin = q.x0;
             auto xmax = q.x1;
             auto ymin = q.y1;
             auto ymax = q.y0;
             float height = ymin - ymax;
-            if(size.y < height)
+            if ( size.y < height )
             {
                 size.y = height;
             }
@@ -155,11 +159,12 @@ void Font::update(const char *text, RenderNode *node, glm::vec2 &size)
     }
     size.x = x;
 
-	node->reset(&vb, &ib);
+    node->reset( &vb, &ib );
 }
 
-Font * Font::create(ObjectManager* manager, const char * file)
+Font*
+Font::create( ObjectManager* manager, const char* file )
 {
-    return NEW_OBJ(Font, manager, file);
+    return NEW_OBJ( Font, manager, file );
 }
 }

@@ -26,11 +26,9 @@ struct Test
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
     , m_manager( NEW_OBJ( ObjectManager ) )
-    , m_rs( m_manager )
+    , m_rs( NEW_OBJ( ResourceStorage, m_manager ) )
     , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 60.f, width / height, 1.f, 1000.f ) )
     , m_ui_camera( NEW_OBJ( OrthoCamera, m_manager, width, height, 0.f, 100.f ) )
-    , m_back( )
-    , m_btn( )
     , m_width( width )
     , m_height( height )
     , m_fps_text( nullptr )
@@ -55,6 +53,7 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_ui_camera );
 
     DELETE_OBJ( m_ecs );
+    DELETE_OBJ( m_rs );
     DELETE_OBJ( m_manager );
 }
 
@@ -83,11 +82,11 @@ open_menu_action( Widget* w, void* user_data )
     LOG( "on widget clicked tag %d", w->get_tag( ) );
 
     GameInstance* gi = static_cast< GameInstance* >( user_data );
-    Texture* texture = gi->m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
+    Texture* texture = gi->m_rs->get_resorce< Texture >( "SoM_Icon_2.png" );
 
     Widget* wnd = NEW_OBJ( WidgetList, gi->m_manager, {200, 300} );
     wnd->set_tag( 1 );
-    wnd->init( &gi->m_rs );
+    wnd->init( gi->m_rs );
     wnd->set_position( {gi->m_width / 2, gi->m_height / 2} );
     wnd->set_anchor_point( {0.5f, 0.5f} );
     gi->m_ui_root->add_child( wnd );
@@ -97,13 +96,13 @@ open_menu_action( Widget* w, void* user_data )
         Widget* btn = NEW_OBJ( Widget, gi->m_manager, {200, 50} );
         btn->set_tag( i );
         btn->set_press_action( "wa_close" );
-        btn->init( &gi->m_rs );
+        btn->init( gi->m_rs );
         btn->set_picture( texture );
         wnd->add_child( btn );
     }
 
     WidgetText* text = NEW_OBJ( WidgetText, gi->m_manager, {200, 50} );
-    text->init( &gi->m_rs );
+    text->init( gi->m_rs );
     text->set_text( "exit" );
     text->set_color( {255, 0, 100, 255} );
     text->set_press_action( "wa_exit" );
@@ -125,12 +124,24 @@ struct MoveComponent : public IComponent
     glm::vec3 move_direction;
 };
 
-class MoveSystem : public ISystem
+class MoveSystem : public ISystem, public input::InputListener
 {
 public:
     MoveSystem( EntityComponentSystem* ecs )
         : m_ecs( ecs )
     {
+    }
+
+    void
+    key_pressed( input::KeyCode code, basic::int16 key ) override
+    {
+        if ( code == input::KeyCode::AaZz )
+        {
+            wchar_t key_sym = static_cast< wchar_t >( key );
+            if ( key_sym == L'W' || key_sym == L'w' )
+            {
+            }
+        }
     }
 
     void
@@ -178,7 +189,7 @@ public:
                 tc->tr.set_position( pos );
 
                 glm::vec3 angles = tc->tr.get_euler_angles( );
-                angles.x += ( mc->angle_speed * dt );
+                // angles.x += ( mc->angle_speed * dt );
                 angles.y += ( mc->angle_speed * dt );
                 tc->tr.set_euler_angles( angles );
             }
@@ -196,7 +207,8 @@ rnd( )
 {
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
-void
+
+Entity*
 make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
 {
     Entity* ent = ecs->create( );
@@ -221,14 +233,16 @@ make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
     // ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
 
     RenderSystem::load_component( rc, m );
+
+    return ent;
 }
 
 void
 GameInstance::init( )
 {
     srand( time( nullptr ) );
-    Texture* texture = m_rs.get_resorce< Texture >( "SoM_Icon_2.png" );
-    ShaderProgram* shader = m_rs.get_resorce< ShaderProgram >( "texture" );
+    Texture* texture = m_rs->get_resorce< Texture >( "SoM_Icon_2.png" );
+    ShaderProgram* shader = m_rs->get_resorce< ShaderProgram >( "texture" );
 
     m_ecs = NEW_OBJ( EntityComponentSystem );
 
@@ -245,7 +259,7 @@ GameInstance::init( )
     m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
     // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
 
-    m_ui_root->init( &m_rs );
+    m_ui_root->init( m_rs );
 
     WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
     WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
@@ -257,22 +271,22 @@ GameInstance::init( )
     {
         WidgetList* wnd = NEW_OBJ( WidgetList, m_manager, {400.f, 200.f} );
 
-        wnd->init( &m_rs );
+        wnd->init( m_rs );
         m_fps_text = NEW_OBJ( WidgetText, m_manager, {200, 40} );
-        m_fps_text->init( &m_rs );
+        m_fps_text->init( m_rs );
         m_fps_text->set_text( "fps: " );
         m_fps_text->set_align( AlignH::Left );
         wnd->add_child( m_fps_text );
 
         m_mem_text = NEW_OBJ( WidgetText, m_manager, {400, 40} );
-        m_mem_text->init( &m_rs );
+        m_mem_text->init( m_rs );
         m_mem_text->set_text( "memory usage: " );
         m_mem_text->set_align( AlignH::Left );
         wnd->add_child( m_mem_text );
 
         WidgetText* menu_btn = NEW_OBJ( WidgetText, m_manager, {200, 40} );
 
-        menu_btn->init( &m_rs );
+        menu_btn->init( m_rs );
         menu_btn->set_text( "MENU" );
         menu_btn->set_align( AlignH::Center );
         menu_btn->set_picture( texture );
@@ -282,11 +296,7 @@ GameInstance::init( )
         m_ui_root->add_child( wnd );
     }
 
-    m_back.init( shader, texture );
-    m_back.set_size( 2.f, 2.f );
-    m_back.set_color( 255, 255, 50, 180 );
-
-    ShaderProgram* def_shader = m_rs.get_resorce< ShaderProgram >( "default" );
+    ShaderProgram* def_shader = m_rs->get_resorce< ShaderProgram >( "default" );
 
     auto cow_data = basic::get_file_content( "meshes/cow.obj" );
     auto gpu_fact = m_engine->get_render( )->get_factory( );
@@ -302,12 +312,28 @@ GameInstance::init( )
         // Material* material = NEW_OBJ( Material, def_shader, nullptr );
         for ( int i = 0; i < 5; ++i )
         {
-            make_ent( m_ecs, mesh, def_shader );
+            m_player = make_ent( m_ecs, mesh, def_shader );
         }
     }
 
+    if ( m_player )
+    {
+        auto mc = m_player->get_component< MoveComponent >( );
+        if ( mc )
+        {
+            mc->move_speed = 0.f;
+            mc->angle_speed = 0.f;
+        }
+        auto tr = m_player->get_component< TransformComponent >( );
+        if ( tr )
+        {
+            tr->tr.set_euler_angles( {0.f, 0.f, 0.f} );
+            tr->tr.set_position( {0.f, 0.f, 0.f} );
+        }
+    }
     // int id = Test::TYPE_UID;
 
+    m_engine->get_input( )->add_listener( this );
     m_ecs->start( );
 }
 
@@ -324,27 +350,70 @@ GameInstance::draw( IRender* render )
 void
 GameInstance::frame( float delta )
 {
-    static float time;
-    time += delta;
-
-    glm::vec3 dpos = m_cam_move_direction * ( 4.f * delta * glm::sin( time ) );
-    m_cam_pos += dpos;
-
-    // m_game_camera.set_position( m_cam_pos );
-    auto pos = m_back.get_position( );
-    pos.x += ( 0.8f * delta );
-    pos.y += ( 0.8f * delta );
-
-    m_back.set_position( pos );
-
     m_ecs->update( delta );
 
     print_fps( );
+
+    if ( m_player )
+    {
+        auto mc = m_player->get_component< MoveComponent >( );
+        auto tr = m_player->get_component< TransformComponent >( );
+
+        ASSERT( mc );
+        ASSERT( tr );
+
+        mc->move_speed = 0.f;
+        mc->angle_speed = 0.f;
+
+        auto pos = tr->tr.get_position( );
+        auto fw = tr->tr.get_forward( );
+        mc->move_direction = fw;
+
+        glm::vec3 up = {0.f, 1.f, 0.f};
+        glm::vec3 right = glm::cross( fw, up );
+        glm::vec3 dist = -fw * 10.f;
+        auto cam_pos = pos + dist;
+        glm::vec3 delta = glm::normalize( dist );
+        up = glm::cross( delta, right );
+
+        m_game_camera->init( cam_pos, delta, up );
+    }
 }
 
 void
 GameInstance::cleanup( )
 {
+}
+
+void
+GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
+{
+    if ( code == input::KeyCode::AaZz && m_player )
+    {
+        auto mc = m_player->get_component< MoveComponent >( );
+        if ( !mc )
+        {
+            return;
+        }
+
+        wchar_t key_sym = static_cast< wchar_t >( key );
+        if ( key_sym == L'W' || key_sym == L'w' )
+        {
+            mc->move_speed = 10.f;
+        }
+        else if ( key_sym == L'S' || key_sym == L's' )
+        {
+            mc->move_speed = -10.f;
+        }
+        else if ( key_sym == L'A' || key_sym == L'a' )
+        {
+            mc->angle_speed = 10.f;
+        }
+        else if ( key_sym == L'D' || key_sym == L'd' )
+        {
+            mc->angle_speed = -10.f;
+        }
+    }
 }
 
 void
