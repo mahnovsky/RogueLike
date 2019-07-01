@@ -46,8 +46,6 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 
 GameInstance::~GameInstance( )
 {
-    // RenderNode::remove_node( m_cow );
-
     SAFE_RELEASE( m_ui_root );
     SAFE_RELEASE( m_game_camera );
     SAFE_RELEASE( m_ui_camera );
@@ -189,12 +187,9 @@ public:
                 tc->tr.set_position( pos );
 
                 glm::vec3 angles = tc->tr.get_euler_angles( );
-                // angles.x += ( mc->angle_speed * dt );
                 angles.y += ( mc->angle_speed * dt );
                 tc->tr.set_euler_angles( angles );
             }
-
-            // m_ecs->emit( t->entity, TransformComponent::TYPE_UID, ComponentAction::Updated );
         }
     }
 
@@ -202,7 +197,8 @@ public:
     EntityComponentSystem* m_ecs;
     basic::Vector< basic::Pair< Entity*, TransformComponent* > > m_transforms;
 };
-float
+
+static float
 rnd( )
 {
     return static_cast< float >( rand( ) ) / RAND_MAX;
@@ -216,20 +212,20 @@ make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
     auto tr = ent->add_component< TransformComponent >( );
 
     float v = 10.f;
-    glm::vec3 pos{v * rnd( ), v * rnd( ), v * rnd( )};
+    glm::vec3 pos{v * rnd( ), 0.f, v * rnd( )};
 
     tr->tr.set_position( pos );
     const float scale = rnd( ) * 0.5f;
     tr->tr.set_scale( {scale, scale, scale} );
 
     auto rc = ent->add_component< RenderComponent >( );
-    // rc->material = mat;
+
     rc->material.set_shader( shader );
 
     auto mc = ent->add_component< MoveComponent >( );
     mc->angle_speed = rnd( );
     mc->move_speed = rnd( ) * 2.f;
-    mc->move_direction = {rnd( ), rnd( ), rnd( )};
+    mc->move_direction = {rnd( ), 0.f, rnd( )};
     // ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
 
     RenderSystem::load_component( rc, m );
@@ -304,12 +300,6 @@ GameInstance::init( )
 
     if ( mesh && def_shader )
     {
-        /*m_cow = RenderNode::create_node( def_shader, nullptr );
-        m_cow->set_camera( m_game_camera );
-        m_cow->set_color( basic::Color{255, 255, 255, 255} );
-
-        m_cow->init_node( &m.vb, &m.ib );*/
-        // Material* material = NEW_OBJ( Material, def_shader, nullptr );
         for ( int i = 0; i < 5; ++i )
         {
             m_player = make_ent( m_ecs, mesh, def_shader );
@@ -330,18 +320,34 @@ GameInstance::init( )
             tr->tr.set_euler_angles( {0.f, 0.f, 0.f} );
             tr->tr.set_position( {10.f, 0.f, 10.f} );
         }
+
+        auto plane_data = basic::get_file_content( "meshes/plane.obj" );
+        StaticMesh* plane
+                = StaticMesh::create( m_manager, "plane.mesh", gpu_fact, std::move( plane_data ) );
+
+        Entity* plane_ent = make_ent( m_ecs, plane, def_shader );
+        if ( plane_ent )
+        {
+            auto trc = plane_ent->get_component< TransformComponent >( );
+            trc->tr.set_scale( {50.f, 1.f, 50.f} );
+
+            auto render_comp = plane_ent->get_component< RenderComponent >( );
+            render_comp->color = {105, 105, 105, 255};
+
+            auto move_comp = plane_ent->get_component< MoveComponent >( );
+            move_comp->move_speed = 0.f;
+            move_comp->angle_speed = 0.f;
+        }
     }
-    // int id = Test::TYPE_UID;
 
     m_engine->get_input( )->add_listener( this );
+
     m_ecs->start( );
 }
 
 void
-GameInstance::draw( IRender* render )
+GameInstance::draw( IRender* )
 {
-    // m_back.draw( m_game_camera, render );
-
     m_render_system->draw( m_ecs );
 
     m_ui_root->draw( );

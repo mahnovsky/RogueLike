@@ -1,6 +1,6 @@
-#include "window.hpp"
 #include "basic/debug.hpp"
 #include "input.hpp"
+#include "window.hpp"
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -9,10 +9,10 @@
 #include <X11/X.h>
 #include <X11/Xlib.h>
 #include <X11/keysymdef.h>
+#include <dlfcn.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dlfcn.h>
 
 // Get a matching FB config
 static int visual_attribs[] = {GLX_X_RENDERABLE,
@@ -31,10 +31,10 @@ static int visual_attribs[] = {GLX_X_RENDERABLE,
                                8,
                                GLX_ALPHA_SIZE,
                                8,
-                               //GLX_DEPTH_SIZE,
-                               //24,
-                               //GLX_STENCIL_SIZE,
-                               //8,
+                               GLX_DEPTH_SIZE,
+                               24,
+                               // GLX_STENCIL_SIZE,
+                               // 8,
                                GLX_DOUBLEBUFFER,
                                True,
                                // GLX_SAMPLE_BUFFERS  , 1,
@@ -147,32 +147,35 @@ IWindow::create( )
     return new X11Window( );
 }
 
-typedef GLXFBConfig* func_t(Display *, int, const int *, int *);
-GLXFBConfig *glXChooseFBConfig1(Display *dpy, int screen, const int *attribList, int *nitems)
+typedef GLXFBConfig* func_t( Display*, int, const int*, int* );
+GLXFBConfig*
+glXChooseFBConfig1( Display* dpy, int screen, const int* attribList, int* nitems )
 {
-    static func_t *func;
+    static func_t* func;
     static const int attribs[] = {None};
-    if (!func) {
-         void *library = dlopen("libGL.so", RTLD_GLOBAL);
-         func = (func_t *) glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
-         //dlsym(library, "glXChooseFBConfig");
+    if ( !func )
+    {
+        void* library = dlopen( "libGL.so", RTLD_GLOBAL );
+        func = (func_t*)glXGetProcAddressARB( (const GLubyte*)"glXSwapIntervalMESA" );
+        // dlsym(library, "glXChooseFBConfig");
     }
-    if (!attribList)
+    if ( !attribList )
         attribList = attribs;
 
-    return ((*func)(dpy, screen, attribList, nitems));
+    return ( ( *func )( dpy, screen, attribList, nitems ) );
 }
 
-PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT=nullptr;
-void _glXSwapIntervalEXT(Display *dpy, GLXDrawable drawable, int interval)
+PFNGLXSWAPINTERVALEXTPROC glXSwapIntervalEXT = nullptr;
+void
+_glXSwapIntervalEXT( Display* dpy, GLXDrawable drawable, int interval )
 {
-    if (!glXSwapIntervalEXT)
+    if ( !glXSwapIntervalEXT )
     {
-        glXSwapIntervalEXT=(PFNGLXSWAPINTERVALEXTPROC)
-                glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
+        glXSwapIntervalEXT = (PFNGLXSWAPINTERVALEXTPROC)glXGetProcAddressARB(
+                (const GLubyte*)"glXSwapIntervalMESA" );
     }
 
-    if( glXSwapIntervalEXT )
+    if ( glXSwapIntervalEXT )
     {
         glXSwapIntervalEXT( dpy, drawable, interval );
     }
@@ -180,7 +183,7 @@ void _glXSwapIntervalEXT(Display *dpy, GLXDrawable drawable, int interval)
 
 bool
 X11Window::init( int width, int height, const char* const title )
-{   
+{
     m_width = width;
     m_height = height;
 
@@ -204,7 +207,7 @@ X11Window::init( int width, int height, const char* const title )
         LOG( "Invalid GLX version" );
         return false;
     }
-    //int visual_attribs[] = {0};
+    // int visual_attribs[] = {0};
     int fbcount = 1;
     GLXFBConfig* fbc
             = glXChooseFBConfig( m_display, DefaultScreen( m_display ), visual_attribs, &fbcount );
@@ -363,7 +366,7 @@ X11Window::init( int width, int height, const char* const title )
     if ( ctxErrorOccurred || !m_ctx )
     {
         LOG( "Failed to create an OpenGL context" );
-        
+
         return false;
     }
 
@@ -386,30 +389,40 @@ X11Window::init( int width, int height, const char* const title )
     return true;
 }
 
-input::KeyCode convert(XEvent& event, basic::int16& symbol)
+input::KeyCode
+convert( XEvent& event, basic::int16& symbol )
 {
-    KeySym sym = XLookupKeysym(&event.xkey, 0);
+    KeySym sym = XLookupKeysym( &event.xkey, 0 );
     symbol = sym;
-    if(sym >= XK_a || sym <= XK_z)
+    if ( sym >= XK_a || sym <= XK_z )
     {
         return input::KeyCode::AaZz;
     }
-    if(sym >= XK_A || sym <= XK_Z)
+    if ( sym >= XK_A || sym <= XK_Z )
     {
         return input::KeyCode::AaZz;
     }
 
-    switch (sym)
+    switch ( sym )
     {
-    case XK_Shift_L: return input::KeyCode::LeftShift;
-    case XK_Shift_R: return input::KeyCode::RightShift;
-    case XK_Control_L: return input::KeyCode::LeftCtrl;
-    case XK_Control_R: return input::KeyCode::RightCtrl;
-    case XK_Caps_Lock: return input::KeyCode::CapsLock;
-    case XK_Alt_L: return input::KeyCode::LeftAlt;
-    case XK_Alt_R: return input::KeyCode::RightAlt;
-    case XK_Return: return input::KeyCode::Enter;
-    case XK_space: return input::KeyCode::Space;
+    case XK_Shift_L:
+        return input::KeyCode::LeftShift;
+    case XK_Shift_R:
+        return input::KeyCode::RightShift;
+    case XK_Control_L:
+        return input::KeyCode::LeftCtrl;
+    case XK_Control_R:
+        return input::KeyCode::RightCtrl;
+    case XK_Caps_Lock:
+        return input::KeyCode::CapsLock;
+    case XK_Alt_L:
+        return input::KeyCode::LeftAlt;
+    case XK_Alt_R:
+        return input::KeyCode::RightAlt;
+    case XK_Return:
+        return input::KeyCode::Enter;
+    case XK_space:
+        return input::KeyCode::Space;
     }
 
     return input::KeyCode::Invalid;
@@ -419,7 +432,7 @@ void
 X11Window::process_events( input::InputListener* listener )
 {
     XEvent event;
-    while( XPending(m_display) > 0 )
+    while ( XPending( m_display ) > 0 )
     {
         XNextEvent( m_display, &event );
 
@@ -440,7 +453,7 @@ X11Window::process_events( input::InputListener* listener )
         break;
         case KeyPress:
         {
-            if( listener )
+            if ( listener )
             {
                 basic::int16 symbol;
                 input::KeyCode code = convert( event, symbol );
@@ -452,7 +465,7 @@ X11Window::process_events( input::InputListener* listener )
         {
             m_mouse_x = event.xmotion.x;
             m_mouse_y = event.xmotion.y;
-            if( listener )
+            if ( listener )
             {
                 listener->mouse_moved( m_mouse_x, m_mouse_y );
             }
@@ -460,18 +473,22 @@ X11Window::process_events( input::InputListener* listener )
         break;
         case ButtonPress:
         {
-            if( listener )
+            if ( listener )
             {
                 input::MouseButton btn = input::MouseButton::Left;
-                switch (event.xbutton.button) {
+                switch ( event.xbutton.button )
+                {
                 case 0:
-                    btn = input::MouseButton::Left; break;
+                    btn = input::MouseButton::Left;
+                    break;
                     break;
                 case 1:
-                    btn = input::MouseButton::Middle; break;
+                    btn = input::MouseButton::Middle;
+                    break;
                     break;
                 case 2:
-                    btn = input::MouseButton::Right; break;
+                    btn = input::MouseButton::Right;
+                    break;
                     break;
                 default:
                     break;
@@ -511,7 +528,8 @@ X11Window::get_mouse_pos( int& out_x, int& out_y )
     return true;
 }
 
-void X11Window::get_size( int& out_width, int& out_height ) const
+void
+X11Window::get_size( int& out_width, int& out_height ) const
 {
     out_width = m_width;
     out_height = m_height;

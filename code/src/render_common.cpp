@@ -92,23 +92,22 @@ convert( basic::String str )
     return static_cast< basic::uint16 >( atoi( str.get_cstr( ) ) );
 }
 
-struct MeshVertex
+struct MeshIndex
 {
-    glm::vec3 pos;
-    glm::vec2 uv;
-    basic::uint16 index;
-    basic::uint16 vi;
-    basic::uint16 ti;
+    basic::uint16 vertex_index;
+    basic::uint16 texture_index;
 };
 
 bool
 load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
 {
     basic::Vector< glm::vec3 > vert_coords;
-    vert_coords.reserve( 1000 );
     basic::Vector< glm::vec2 > tex_coords;
-    basic::Vector< MeshVertex > vertexes;
-    vertexes.reserve( 1000 );
+    basic::Vector< MeshIndex > indexes;
+
+    vert_coords.reserve( 1000 );
+    tex_coords.reserve( 1000 );
+    indexes.resize( 1000 );
 
     basic::uint32 offset = 0;
     int line_counter = 0;
@@ -121,15 +120,15 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
     {
         ++line_counter;
 
-        offset += basic::String::read_line(
-                reinterpret_cast< basic::char_t* >( data.get_raw( ) + offset ),
-                static_cast< basic::uint32 >( data.get_size( ) - offset ),
-                line );
-
         if ( offset >= data.get_size( ) )
         {
             break;
         }
+
+        offset += basic::String::read_line(
+                reinterpret_cast< basic::char_t* >( data.get_raw( ) + offset ),
+                static_cast< basic::uint32 >( data.get_size( ) - offset ),
+                line );
 
         if ( line.front( ) == '#' || line.is_empty( ) )
         {
@@ -169,36 +168,15 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
             basic::uint32 step = faces.get_size( ) >= 6 ? 2 : 1;
             for ( basic::uint32 i = 0; i < faces.get_size( ); i += step )
             {
-                MeshVertex v;
-                v.vi = faces[ i ];
-                v.pos = vert_coords.get( v.vi - 1 );
+                MeshIndex index;
+                index.vertex_index = faces[ i ] - 1;
 
                 if ( step > 1 && !tex_coords.is_empty( ) )
                 {
-                    v.ti = faces[ i + 1 ];
-                    v.uv = tex_coords.get( faces[ v.ti - 1 ] );
+                    index.texture_index = faces[ i + 1 ] - 1;
                 }
 
-                int index = -1;
-                bool has_vertex = false;
-                /*(for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
-                {
-                    auto& vv = vertexes[ i ];
-                    has_vertex = vv.vi == v.vi && vv.ti == v.ti;
-                    if ( has_vertex )
-                    {
-                        index = vv.index;
-                        break;
-                    }
-                }*/
-                if ( index < 0 )
-                {
-                    index = vertexes.get_size( );
-                    v.index = index;
-                    vertexes.push( v );
-                }
-
-                // out_mesh.ib.push( index );
+                out_mesh.ib.push( index.vertex_index );
             }
         }
     }
@@ -206,12 +184,19 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
     double delta = basic::get_milliseconds( ) - s;
     delta = 0.0;
 
-    out_mesh.vb.reserve( vertexes.get_size( ) );
-    for ( basic::uint32 i = 0; i < vertexes.get_size( ); ++i )
+    out_mesh.vb.reserve( vert_coords.get_size( ) );
+    glm::vec2 tex_coord;
+    for ( auto& pos : vert_coords )
     {
-        auto& vv = vertexes[ i ];
-
-        out_mesh.vb.push( {vv.pos, {255, 255, 255, 255}, vv.uv} );
+        // tex_coord = {  };
+        out_mesh.vb.push( {pos, {255, 255, 255, 255}, tex_coord} );
+    }
+    if ( !tex_coords.is_empty( ) )
+    {
+        for ( auto& index : indexes )
+        {
+            out_mesh.vb[ index.vertex_index ].uv = tex_coords[ index.texture_index ];
+        }
     }
 
     return true;

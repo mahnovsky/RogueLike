@@ -121,9 +121,14 @@ public:
     void
     load( IndexBuffer buffer ) override
     {
+        m_count = size( buffer );
+
         glGenBuffers( 1, &m_handle );
         glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, m_handle );
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, size( buffer ), buffer.get_raw( ), GL_STATIC_DRAW );
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER,
+                      m_count * sizeof( basic::uint16 ),
+                      buffer.get_raw( ),
+                      GL_STATIC_DRAW );
     }
 
 private:
@@ -217,9 +222,10 @@ public:
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
         glEnable( GL_DEPTH_TEST );
-        // glEnable(GL_CULL_FACE);
+        // glEnable( GL_CULL_FACE );
         // glCullFace(GL_BACK);
         glDepthFunc( GL_LESS );
+        // glDepthMask( GL_TRUE );
 
         return true;
     }
