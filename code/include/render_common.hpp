@@ -16,6 +16,14 @@ extern "C" {
 #include "defines.hpp"
 #include "glm/glm.hpp"
 
+enum class RenderResourceType
+{
+	StaticMesh,
+	Texture,
+	ShaderProgram,
+	Count
+};
+
 struct VertexFMT
 {
     basic::uint32 offset;
@@ -128,6 +136,14 @@ basic::Vector< VertexFMT > get_fmt_list( const glm::vec3* );
 basic::Vector< VertexFMT > get_fmt_list( const Vertex* );
 
 basic::Vector< VertexFMT > get_fmt_list( const Vertex_T* );
+
+basic::int32 get_uniform(basic::uint32 program, const char* name);
+
+void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v);
+
+void set_uniform(basic::uint32 program, const char* name, const basic::Color& color);
+
+void set_uniform(basic::uint32 program, const char* name, const glm::mat4& mat);
 
 struct RenderNode
 {

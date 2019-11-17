@@ -246,8 +246,9 @@ void Win32_Window::process_events(input::InputListener* listener)
 		case WM_MBUTTONDOWN:
 			listener->mouse_pressed(input::MouseButton::Middle, pos.x, pos.y);
 		case WM_MOUSEMOVE:
-			
 			listener->mouse_moved(pos.x, pos.y);
+		case WM_CHAR:
+			listener->key_pressed(input::KeyCode::AaZz, (wchar_t)msg.wParam);
 		default:
 			break; 
 		}

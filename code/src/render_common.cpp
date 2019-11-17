@@ -432,6 +432,37 @@ get_fmt_list( const Vertex_T* )
     return res;
 }
 
+basic::int32 get_uniform(basic::uint32 program, const char* name)
+{
+	return glGetUniformLocation(program, name);
+}
+
+void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v)
+{
+	basic::int32 pos = get_uniform(program, name);
+
+	glUniform2f(pos, v.x, v.y);
+}
+
+void set_uniform(basic::uint32 program, const char* name, const basic::Color& color)
+{
+	basic::int32 pos = get_uniform(program, name);
+
+	glm::vec4 c{ static_cast<float>(color.red) / 255,
+		static_cast<float>(color.blue) / 255,
+		static_cast<float>(color.green) / 255,
+		static_cast<float>(color.alpha) / 255 };
+
+	glUniform4fv(pos, 1, glm::value_ptr(c));
+}
+
+void set_uniform(basic::uint32 program, const char* name, const glm::mat4& mat)
+{
+	basic::int32 pos = get_uniform(program, name);
+
+	glUniformMatrix4fv(pos, 1, GL_FALSE, glm::value_ptr(mat));
+}
+
 void
 RenderNode::set_color( const basic::Color& color )
 {

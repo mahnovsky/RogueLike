@@ -416,7 +416,7 @@ mem_copy( void* destination, const void* source, memory_size bytes )
 int
 mem_cmp( const void* ptr1, const void* ptr2, memory_size bytes )
 {
-    ASSERT( ptr1 != ptr2 );
+	if (ptr1 == ptr2) return 0;
     ASSERT( ptr2 != nullptr );
     ASSERT( bytes > 0 );
 

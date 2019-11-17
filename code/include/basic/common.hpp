@@ -26,6 +26,12 @@ size( const basic::Vector< U >& v )
     return v.get_size( );
 }
 
+template <class T>
+basic::uint32 constexpr enum2num(T e)
+{
+	return static_cast<basic::uint32>(e);
+}
+
 #define MAX_COUNTER_VALUE 32
 
 #ifdef __GNUC__

@@ -150,6 +150,9 @@
     <ClCompile Include="..\code\src\render_system.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\src\static_mesh.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="..\code\include\render_system.hpp">
       <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\basic\common.hpp">
+      <Filter>code\include\basic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

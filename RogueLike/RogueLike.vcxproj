@@ -160,6 +160,7 @@
     <ClCompile Include="..\code\src\root_widget.cpp" />
     <ClCompile Include="..\code\src\shader.cpp" />
     <ClCompile Include="..\code\src\sprite.cpp" />
+    <ClCompile Include="..\code\src\static_mesh.cpp" />
     <ClCompile Include="..\code\src\text.cpp" />
     <ClCompile Include="..\code\src\texture.cpp" />
     <ClCompile Include="..\code\src\timer_manager.cpp" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\game\game_instance.hpp" />
+    <ClInclude Include="..\code\include\basic\common.hpp" />
     <ClInclude Include="..\code\include\basic\debug.hpp" />
     <ClInclude Include="..\code\include\basic\file.hpp" />
     <ClInclude Include="..\code\include\basic\image.hpp" />

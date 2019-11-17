@@ -6,19 +6,34 @@
 #include "render_common.hpp"
 #include "transform.hpp"
 
+class IRenderObject;
+class RenderComponent;
+
 struct RenderComponent : public IComponent
 {
     DECLARE_COMPONENT( RenderComponent )
 
-    basic::uint32 array_object = 0;
-    basic::int32 vertex_elements = 0;
-    basic::int32 index_elements = 0;
-    basic::uint32 flags = 0;
-    Material material;
     basic::Color color;
     glm::mat4 model;
-    StaticMesh* mesh;
     class TransformComponent* transform;
+
+	void initialize(IRenderObject* obj);
+
+	void update_mvp(const glm::mat4& mvp);
+
+	void on_resource_changed(RenderResourceType type, const basic::String& name);
+
+	const basic::String& get_resource_name(RenderResourceType type) const;
+
+	void set_resource_name(RenderResourceType type, const basic::String& name);
+
+	friend class RenderSystem;
+
+private:
+	IRenderObject* m_render_object;
+
+	constexpr static basic::uint32 resources_count = static_cast<basic::uint32>(RenderResourceType::Count);
+	basic::String m_resourses[resources_count];
 };
 
 struct TransformComponent : public IComponent
@@ -46,7 +61,7 @@ public:
     RenderSystem( EntityComponentSystem* ecs );
     ~RenderSystem( ) override;
 
-    void initialize( EntityComponentSystem* ecs, ICamera* cam );
+    void initialize( IRender* render, EntityComponentSystem* ecs, ICamera* cam );
 
     void draw( EntityComponentSystem* ecs );
 
@@ -59,6 +74,7 @@ public:
     static void load_component( RenderComponent* comp, StaticMesh* m );
 
 private:
+	IRender* m_render;
     ICamera* m_camera;
     basic::uint32 m_transform_id;
     basic::uint32 m_render_id;

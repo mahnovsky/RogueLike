@@ -29,6 +29,8 @@ public:
 
     bool load( ResourceStorage* storage ) override;
 
+	basic::uint32 get_handle() const;
+
     void bind( ) const;
 
     void unbind( ) const;    

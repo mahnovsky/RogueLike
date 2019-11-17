@@ -116,6 +116,8 @@ Transform::get_forward( ) const
 void
 Transform::update_final_matrix( ) const
 {
+	is_changed = true;
+
     glm::mat4 const identity( 1.f );
 
     glm::mat4 pivot = glm::translate( identity, -m_pivot_point );

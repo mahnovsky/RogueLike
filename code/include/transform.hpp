@@ -45,4 +45,6 @@ private:
     glm::quat m_quat;
     glm::vec3 m_scale;
     basic::Vector< Transform* > m_children;
+public:
+	mutable bool is_changed = false;
 };

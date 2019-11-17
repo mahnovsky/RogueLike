@@ -1,6 +1,8 @@
 #pragma once
 
 #include "defines.hpp"
+#include "resource_storage.hpp"
+#include "object_manager.hpp"
 
 enum EngineCallbackType 
 {
@@ -67,6 +69,8 @@ public:
 
     basic::uint32 get_fps() const;
 
+	ResourceStorage& get_rs();
+
 private:
     void process_event( );
     
@@ -92,4 +96,8 @@ private:
     double m_delta;
 
     basic::uint32 m_fps;
+
+	ObjectManager m_object_manager;
+
+	ResourceStorage m_rs;
 };

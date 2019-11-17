@@ -205,7 +205,7 @@ rnd( )
 }
 
 Entity*
-make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
+make_ent( EntityComponentSystem* ecs, const char* mesh, const char* shader )
 {
     Entity* ent = ecs->create( );
 
@@ -220,7 +220,8 @@ make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
 
     auto rc = ent->add_component< RenderComponent >( );
 
-    rc->material.set_shader( shader );
+	rc->set_resource_name(RenderResourceType::ShaderProgram, shader);
+	rc->set_resource_name(RenderResourceType::StaticMesh, mesh);
 
     auto mc = ent->add_component< MoveComponent >( );
     mc->angle_speed = rnd( );
@@ -228,7 +229,7 @@ make_ent( EntityComponentSystem* ecs, StaticMesh* m, ShaderProgram* shader )
     mc->move_direction = {rnd( ), 0.f, rnd( )};
     // ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
 
-    RenderSystem::load_component( rc, m );
+    //RenderSystem::load_component( rc, m );
 
     return ent;
 }
@@ -246,7 +247,7 @@ GameInstance::init( )
     ms->initialize( );
 
     m_render_system = m_ecs->create_system< RenderSystem >( );
-    m_render_system->initialize( m_ecs, m_game_camera );
+    m_render_system->initialize( m_engine->get_render(), m_ecs, m_game_camera );
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
@@ -291,24 +292,15 @@ GameInstance::init( )
 
         m_ui_root->add_child( wnd );
     }
-
-    ShaderProgram* def_shader = m_rs->get_resorce< ShaderProgram >( "default" );
-
-    auto cow_data = basic::get_file_content( "meshes/cow.obj" );
-    auto gpu_fact = m_engine->get_render( )->get_factory( );
-    StaticMesh* mesh = StaticMesh::create( m_manager, "cow.mesh", gpu_fact, std::move( cow_data ) );
-
-    if ( mesh && def_shader )
-    {
+    
         for ( int i = 0; i < 5; ++i )
         {
-            m_player = make_ent( m_ecs, mesh, def_shader );
+            m_player = make_ent( m_ecs, "meshes/cow.obj", "default");
         }
-    }
 
-    if ( m_player )
+    //if ( m_player )
     {
-        auto mc = m_player->get_component< MoveComponent >( );
+       /*auto mc = m_player->get_component< MoveComponent >( );
         if ( mc )
         {
             mc->move_speed = 0.f;
@@ -319,13 +311,9 @@ GameInstance::init( )
         {
             tr->tr.set_euler_angles( {0.f, 0.f, 0.f} );
             tr->tr.set_position( {10.f, 0.f, 10.f} );
-        }
+        }*/
 
-        auto plane_data = basic::get_file_content( "meshes/plane.obj" );
-        StaticMesh* plane
-                = StaticMesh::create( m_manager, "plane.mesh", gpu_fact, std::move( plane_data ) );
-
-        Entity* plane_ent = make_ent( m_ecs, plane, def_shader );
+        Entity* plane_ent = make_ent( m_ecs, "meshes/plane.obj", "default" );
         if ( plane_ent )
         {
             auto trc = plane_ent->get_component< TransformComponent >( );
@@ -360,9 +348,9 @@ GameInstance::frame( float delta )
 
     print_fps( );
 
-    if ( m_player )
+    //if ( m_player )
     {
-        auto mc = m_player->get_component< MoveComponent >( );
+        /*auto mc = m_player->get_component< MoveComponent >( );
         auto tr = m_player->get_component< TransformComponent >( );
 
         ASSERT( mc );
@@ -379,7 +367,7 @@ GameInstance::frame( float delta )
         glm::vec3 dist = -fw * 10.f + up * 7.f;
         auto cam_pos = pos + dist;
 
-        m_game_camera->init( cam_pos, pos, up );
+        m_game_camera->init( cam_pos, pos, up );*/
     }
 }
 
@@ -391,6 +379,7 @@ GameInstance::cleanup( )
 void
 GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 {
+	return;
     if ( code == input::KeyCode::AaZz && m_player )
     {
         auto mc = m_player->get_component< MoveComponent >( );
@@ -400,13 +389,15 @@ GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
         }
 
         wchar_t key_sym = static_cast< wchar_t >( key );
+		float vel = 100.f;
+
         if ( key_sym == L'W' || key_sym == L'w' )
         {
-            mc->move_speed = 10.f;
+            mc->move_speed = vel;
         }
         if ( key_sym == L'S' || key_sym == L's' )
         {
-            mc->move_speed = -10.f;
+            mc->move_speed = -vel;
         }
         if ( key_sym == L'A' || key_sym == L'a' )
         {

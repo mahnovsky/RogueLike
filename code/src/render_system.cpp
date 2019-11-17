@@ -3,11 +3,41 @@
 #include "render_common.hpp"
 #include "static_mesh.hpp"
 
+#include "render.hpp"
 #include "camera.hpp"
 #include "material.hpp"
 
+void RenderComponent::initialize(IRenderObject* obj)
+{
+	m_render_object = obj;
+	obj->on_component_changed(*this);
+}
+
+inline void RenderComponent::update_mvp(const glm::mat4& mvp)
+{
+	m_render_object->update_mvp(mvp);
+}
+
+void RenderComponent::on_resource_changed(RenderResourceType type, const basic::String& name)
+{
+	m_render_object->on_component_changed(*this);
+}
+
+const basic::String& RenderComponent::get_resource_name(RenderResourceType type) const
+{
+	return m_resourses[enum2num(type)];
+}
+
+void RenderComponent::set_resource_name(RenderResourceType type, const basic::String& name)
+{
+	const basic::uint32 index = enum2num(type);
+	m_resourses[index] = name;
+	on_resource_changed(type, m_resourses[index]);
+}
+
 RenderSystem::RenderSystem( EntityComponentSystem* ecs )
-    : m_camera( nullptr )
+    : m_render(nullptr)
+	, m_camera( nullptr )
     , m_transform_id( 0 )
     , m_render_id( 0 )
 {
@@ -18,7 +48,7 @@ RenderSystem::~RenderSystem( )
 }
 
 void
-RenderSystem::initialize( EntityComponentSystem* ecs, ICamera* cam )
+RenderSystem::initialize(IRender* render, EntityComponentSystem* ecs, ICamera* cam )
 {
     ecs->registry_component< RenderComponent >( "RenderComponent" );
     ecs->registry_component< TransformComponent >( "TransformComponent" );
@@ -29,6 +59,7 @@ RenderSystem::initialize( EntityComponentSystem* ecs, ICamera* cam )
     ecs->subscribe( m_transform_id, this );
     ecs->subscribe( m_render_id, this );
 
+	m_render = render;
     m_camera = cam;
 }
 
@@ -41,44 +72,15 @@ RenderSystem::draw( EntityComponentSystem* ecs )
 
     for ( auto comp : components )
     {
-        glm::mat4 model{1.f};
-        if ( comp->transform )
+        if ( comp->transform && comp->transform->tr.is_changed )
         {
-            model = comp->transform->tr.get_matrix( );
+			glm::mat4 pv(1.f);
+			m_camera->get_matrix(pv);
+
+            comp->update_mvp( pv * comp->transform->tr.get_matrix( ) );
+
+			comp->transform->tr.is_changed = false;
         }
-
-        draw( comp, model );
-    }
-}
-
-void
-RenderSystem::draw( RenderComponent* component, const glm::mat4& model )
-{
-    ASSERT( component );
-
-    glBindVertexArray( component->array_object );
-
-    component->material.enable( );
-
-    glm::mat4 mvp = model;
-    if ( m_camera )
-    {
-        glm::mat4 pv( 1.f );
-        m_camera->get_matrix( pv );
-
-        mvp = pv * mvp;
-    }
-
-    component->material.set_uniform( "MVP", mvp );
-    component->material.set_uniform( "Color", component->color );
-
-    if ( component->index_elements > 0 )
-    {
-        glDrawElements( GL_TRIANGLES, component->index_elements, GL_UNSIGNED_SHORT, nullptr );
-    }
-    else if ( component->vertex_elements > 0 )
-    {
-        glDrawArrays( GL_TRIANGLES, 0, component->vertex_elements );
     }
 }
 
@@ -94,10 +96,15 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
             TransformComponent* tc = ent->get_component< TransformComponent >( );
             RenderComponent* rc = ent->get_component< RenderComponent >( );
 
-            if ( rc && tc )
-            {
-                rc->transform = tc;
-            }
+			if (rc)
+			{
+				rc->initialize( m_render->create_object(*rc) );
+				
+				if (tc)
+				{
+					rc->transform = tc;
+				}
+			}
         }
     }
     break;
@@ -108,38 +115,12 @@ RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, Compo
         if ( component_id == m_transform_id )
         {
             RenderComponent* rc = ent->get_component< RenderComponent >( );
+			m_render->delete_object(rc->m_render_object);
             rc->transform = nullptr;
-            if ( rc->mesh )
-            {
-                rc->mesh->release( );
-            }
         }
     }
     break;
     default:
         break;
     }
-}
-
-void
-RenderSystem::load_component( RenderComponent* comp, StaticMesh* m )
-{
-    ASSERT( m );
-
-    comp->color = basic::Color{255, 255, 255, 255};
-
-    glGenVertexArrays( 1, &comp->array_object );
-    glBindVertexArray( comp->array_object );
-
-    comp->mesh = m;
-    m->retain( );
-
-    m->bind( );
-
-    m->apply_fmt( );
-
-    comp->index_elements = static_cast< basic::int32 >( m->get_index_count( ) );
-    comp->vertex_elements = static_cast< basic::int32 >( m->get_vertex_count( ) );
-
-    glBindVertexArray( 0 );
 }

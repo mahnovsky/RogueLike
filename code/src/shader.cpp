@@ -62,6 +62,11 @@ ShaderProgram::load( ResourceStorage* storage )
     return false;
 }
 
+basic::uint32 ShaderProgram::get_handle() const
+{
+	return m_shader_program;
+}
+
 void
 print_shader_info( GLuint shader )
 {
