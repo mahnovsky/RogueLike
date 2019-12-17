@@ -12,8 +12,6 @@ public:
 
 	bool load(ResourceStorage* rs) override;
 
-    void initialize( IVertexBuffer* vbo, IIndexBuffer* ibo );
-
     void bind( );
 
     void apply_fmt( ) const;
@@ -31,14 +29,8 @@ public:
 	static StaticMesh* create( ObjectManager* obj_mng,
 							   const char* name );
 
-    static StaticMesh* create( ObjectManager* obj_mng,
-                               const char* name,
-                               IGpuFactory* factory,
-                               basic::Vector< basic::uint8 > data );
 
 private:
-    IVertexBuffer* m_vbo;
-    IIndexBuffer* m_ibo;
 
 	basic::uint32 m_vbo_u;
 	basic::uint32 m_vib_u;

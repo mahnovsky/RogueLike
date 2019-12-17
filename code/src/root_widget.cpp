@@ -35,8 +35,21 @@ void RootWidget::invoke_action(const basic::String &action_name, Widget *w)
     }
 }
 
+void RootWidget::bind_key_action(input::KeyCode code, const basic::String& action)
+{
+	m_key_actions.push({ code, action });
+}
+
 void RootWidget::key_pressed(KeyCode code, basic::int16 key)
 {
+	for(auto& it : m_key_actions)
+	{
+		if(it.key == code)
+		{
+			invoke_action(it.value, this);
+		}
+	}
+
     on_key_pressed(code, key);
 }
 

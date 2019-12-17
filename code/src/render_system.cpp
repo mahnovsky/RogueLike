@@ -13,6 +13,11 @@ void RenderComponent::initialize(IRenderObject* obj)
 	obj->on_component_changed(*this);
 }
 
+void RenderComponent::update_color()
+{
+	m_render_object->update_color(color);
+}
+
 inline void RenderComponent::update_mvp(const glm::mat4& mvp)
 {
 	m_render_object->update_mvp(mvp);
@@ -33,6 +38,12 @@ void RenderComponent::set_resource_name(RenderResourceType type, const basic::St
 	const basic::uint32 index = enum2num(type);
 	m_resourses[index] = name;
 	on_resource_changed(type, m_resourses[index]);
+}
+
+void RenderComponent::set_color(basic::Color color)
+{
+	this->color = color;
+	update_color();
 }
 
 RenderSystem::RenderSystem( EntityComponentSystem* ecs )

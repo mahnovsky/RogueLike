@@ -19,9 +19,9 @@ public:
 
     void init( );
 
-    void draw( IRender* render );
+    void draw( IRender* render ) const;
 
-    void frame( float delta );
+    void frame( float delta ) const;
 
     void cleanup( );
 
@@ -30,7 +30,7 @@ public:
     friend void open_menu_action( Widget* w, void* user_data );
 
 private:
-    void print_fps( );
+    void print_fps( ) const;
 
 private:
     Engine* m_engine;

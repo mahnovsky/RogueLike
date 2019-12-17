@@ -5,19 +5,12 @@
 
 namespace basic
 {
-	String::String()
-		: m_buffer()
-	{
-	}
-
 	String::String(const char_t* cstr)
-		: m_buffer()
 	{
 		init(cstr);
 	}
 
     String::String(const char_t* cstr, uint32 count)
-		: m_buffer()
 	{
         basic::memory_size len = str_length( cstr, MAX_LEN ) + 1;
 
@@ -28,13 +21,7 @@ namespace basic
         push_cend();
 	}
 
-	String::String(const String& other)
-        : m_buffer(other.m_buffer)
-	{
-	}
-
-	String::String(String&& other)
-        : m_buffer()
+	String::String(String&& other) noexcept
     {
         m_buffer = std::move(other.m_buffer);
 	}
@@ -47,6 +34,7 @@ namespace basic
 	void String::append(const char_t* cstr)
 	{
 		uint32 count = static_cast<uint32>(str_length(cstr, MAX_LEN));
+
 		append(cstr, count);
 	}
 

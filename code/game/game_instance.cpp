@@ -34,6 +34,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
     , m_ui_root( NEW_OBJ( RootWidget, engine, m_manager ) )
+	, m_player(nullptr)
 {
     m_game_camera->set_name( "game_camera" );
     m_game_camera->retain( );
@@ -264,7 +265,7 @@ GameInstance::init( )
     m_ui_root->add_action( wa_exit );
     m_ui_root->add_action( wa_close );
     m_ui_root->add_action( wa_open_menu );
-
+	m_ui_root->bind_key_action(input::KeyCode::Esc, wa_open_menu.name);
     {
         WidgetList* wnd = NEW_OBJ( WidgetList, m_manager, {400.f, 200.f} );
 
@@ -293,40 +294,47 @@ GameInstance::init( )
         m_ui_root->add_child( wnd );
     }
     
-        for ( int i = 0; i < 5; ++i )
-        {
-            m_player = make_ent( m_ecs, "meshes/cow.obj", "default");
-        }
+	for (int i = 0; i < 5; ++i)
+	{
+		if (!m_player)
+		{
+			m_player = make_ent(m_ecs, "meshes/cow.obj", "default");
+			continue;
+		}
+		make_ent(m_ecs, "meshes/cow.obj", "default");
+	}
 
-    //if ( m_player )
-    {
-       /*auto mc = m_player->get_component< MoveComponent >( );
-        if ( mc )
-        {
-            mc->move_speed = 0.f;
-            mc->angle_speed = 0.f;
-        }
-        auto tr = m_player->get_component< TransformComponent >( );
-        if ( tr )
-        {
-            tr->tr.set_euler_angles( {0.f, 0.f, 0.f} );
-            tr->tr.set_position( {10.f, 0.f, 10.f} );
-        }*/
+	if (m_player)
+	{
+		auto mc = m_player->get_component< MoveComponent >();
+		if (mc)
+		{
+			mc->move_speed = 0.f;
+			mc->angle_speed = 0.f;
+		}
+		auto tr = m_player->get_component< TransformComponent >();
+		if (tr)
+		{
+			tr->tr.set_euler_angles({ 0.f, 0.f, 0.f });
+			tr->tr.set_position({ 10.f, 0.f, 10.f });
+			tr->tr.set_scale({ 0.5f, 0.5f, 0.5f });
+		}
+	}
 
-        Entity* plane_ent = make_ent( m_ecs, "meshes/plane.obj", "default" );
-        if ( plane_ent )
-        {
-            auto trc = plane_ent->get_component< TransformComponent >( );
-            trc->tr.set_scale( {50.f, 1.f, 50.f} );
+	Entity* plane_ent = make_ent(m_ecs, "meshes/plane.obj", "default");
+	if (plane_ent)
+	{
+		auto trc = plane_ent->get_component< TransformComponent >();
+		trc->tr.set_scale({ 100.f, 1.f, 100.f });
 
-            auto render_comp = plane_ent->get_component< RenderComponent >( );
-            render_comp->color = {105, 105, 105, 255};
+		auto render_comp = plane_ent->get_component< RenderComponent >();
+		render_comp->set_color({ 105, 105, 105, 255 });
 
-            auto move_comp = plane_ent->get_component< MoveComponent >( );
-            move_comp->move_speed = 0.f;
-            move_comp->angle_speed = 0.f;
-        }
-    }
+		auto move_comp = plane_ent->get_component< MoveComponent >();
+		move_comp->move_speed = 0.f;
+		move_comp->angle_speed = 0.f;
+	}
+    
 
     m_engine->get_input( )->add_listener( this );
 
@@ -334,7 +342,7 @@ GameInstance::init( )
 }
 
 void
-GameInstance::draw( IRender* )
+GameInstance::draw( IRender* ) const
 {
     m_render_system->draw( m_ecs );
 
@@ -342,32 +350,59 @@ GameInstance::draw( IRender* )
 }
 
 void
-GameInstance::frame( float delta )
+GameInstance::frame( float delta ) const
 {
     m_ecs->update( delta );
 
     print_fps( );
 
-    //if ( m_player )
+    if ( m_player )
     {
-        /*auto mc = m_player->get_component< MoveComponent >( );
+        auto mc = m_player->get_component< MoveComponent >( );
         auto tr = m_player->get_component< TransformComponent >( );
 
-        ASSERT( mc );
-        ASSERT( tr );
+		if (mc && tr)
+		{
+			mc->move_speed = 0.f;
+			mc->angle_speed = 0.f;
 
-        mc->move_speed = 0.f;
-        mc->angle_speed = 0.f;
+			input::Input* input = m_engine->get_input();
 
-        auto pos = tr->tr.get_position( );
-        auto fw = tr->tr.get_forward( );
-        mc->move_direction = fw;
+			const float vel = 60.f;
+			const float angle_vel = 5.f;
 
-        glm::vec3 up = {0.f, 1.f, 0.f};
-        glm::vec3 dist = -fw * 10.f + up * 7.f;
-        auto cam_pos = pos + dist;
+			if( input->is_key_pressed(input::KeyCode::A) )
+				mc->angle_speed = angle_vel;
+			if( input->is_key_pressed(input::KeyCode::D) )
+				mc->angle_speed = -angle_vel;
+			if( input->is_key_pressed(input::KeyCode::W) )
+				mc->move_speed = vel;
+			if( input->is_key_pressed(input::KeyCode::S) )
+				mc->move_speed = -vel;
+			if( input->is_key_pressed(input::KeyCode::Space) )
+			{
+				auto pos = tr->tr.get_position();
+				pos.y += (vel * delta);
+				tr->tr.set_position(pos);
+			}
+			if(input->is_key_pressed(input::KeyCode::E))
+			{
+				auto pos = tr->tr.get_position();
+				pos.y -= (vel * delta);
+				tr->tr.set_position(pos);
+			}
 
-        m_game_camera->init( cam_pos, pos, up );*/
+
+			auto pos = tr->tr.get_position();
+			auto fw = tr->tr.get_forward();
+			mc->move_direction = fw;
+
+			glm::vec3 up = { 0.f, 1.f, 0.f };
+			glm::vec3 dist = -fw * 10.f + up * 7.f;
+			auto cam_pos = pos + dist;
+
+			m_game_camera->init(cam_pos, pos, up);
+		}
     }
 }
 
@@ -379,52 +414,37 @@ GameInstance::cleanup( )
 void
 GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 {
+	
 	return;
-    if ( code == input::KeyCode::AaZz && m_player )
-    {
-        auto mc = m_player->get_component< MoveComponent >( );
-        if ( !mc )
-        {
-            return;
-        }
 
-        wchar_t key_sym = static_cast< wchar_t >( key );
-		float vel = 100.f;
+	auto mc = m_player->get_component< MoveComponent >();
+	auto tr = m_player->get_component< TransformComponent >();
+	if (!mc || !tr)
+	{
+		return;
+	}
 
-        if ( key_sym == L'W' || key_sym == L'w' )
-        {
-            mc->move_speed = vel;
-        }
-        if ( key_sym == L'S' || key_sym == L's' )
-        {
-            mc->move_speed = -vel;
-        }
-        if ( key_sym == L'A' || key_sym == L'a' )
-        {
-            mc->angle_speed = 10.f;
-        }
-        if ( key_sym == L'D' || key_sym == L'd' )
-        {
-            mc->angle_speed = -10.f;
-        }
-        if ( key_sym == L' ' )
-        {
-            auto tr = m_player->get_component< TransformComponent >( );
-
-            if ( tr )
-            {
-                auto pos = tr->tr.get_position( );
-                pos.y += 0.1f;
-                tr->tr.set_position( pos );
-            }
-        }
-    }
+	const float vel = 100.f;
+	switch (code)
+	{
+	case input::KeyCode::A: mc->angle_speed = 10.f; break;
+	case input::KeyCode::D: mc->angle_speed = -10.f; break;
+	case input::KeyCode::W: mc->move_speed = vel; break;
+	case input::KeyCode::S: mc->move_speed = -vel; break;
+	case input::KeyCode::Space:
+		{
+		auto pos = tr->tr.get_position();
+		pos.y += 0.1f;
+		tr->tr.set_position(pos);
+		}
+		break;
+	}
 }
 
 void
-GameInstance::print_fps( )
+GameInstance::print_fps( ) const
 {
-#define BUFF_SIZE 256
+	constexpr int BUFF_SIZE = 256;
     static basic::char_t buff[ BUFF_SIZE ];
     static basic::uint32 fps;
 

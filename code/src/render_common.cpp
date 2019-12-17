@@ -86,12 +86,6 @@ private:
     basic::uint32 m_object;
 };
 
-static basic::uint16
-convert( basic::String str )
-{
-    return static_cast< basic::uint16 >( atoi( str.get_cstr( ) ) );
-}
-
 struct MeshIndex
 {
     basic::uint16 vertex_index;
@@ -145,38 +139,41 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
 
         if ( items.front( ) == "v" && items.get_size( ) > 3 )
         {
-            float x = static_cast< float >( atof( items[ 1 ].get_cstr( ) ) );
-            float y = static_cast< float >( atof( items[ 2 ].get_cstr( ) ) );
-            float z = static_cast< float >( atof( items[ 3 ].get_cstr( ) ) );
+			basic::conv::ConvStatus status;
 
-            vert_coords.push( {x, y, z} );
+#define CHECK(name, it) abs((abs(name) - abs(basic::string_to<float>(items[it], status)))  )
+
+			float x1 = basic::string_to<float>(items[1], status);
+			ASSERT(status == basic::conv::ConvStatus::Ok);
+
+			float y1 = basic::string_to<float>(items[2], status);
+			ASSERT(status == basic::conv::ConvStatus::Ok);
+
+			float z1 = basic::string_to<float>(items[3], status);
+			ASSERT(status == basic::conv::ConvStatus::Ok);
+			
+
+            vert_coords.push( {x1, y1, z1} );
         }
         else if ( items.front( ) == "vt" && items.get_size( ) > 2 )
         {
-            float tx = static_cast< float >( atof( items[ 1 ].get_cstr( ) ) );
-            float ty = static_cast< float >( atof( items[ 2 ].get_cstr( ) ) );
+			basic::conv::ConvStatus status;
+			auto tx = basic::string_to<float>(items[1], status);
+			auto ty = basic::string_to<float>(items[2], status);
 
             tex_coords.push( {tx, ty} );
         }
         else if ( items.front( ) == "f" && items.get_size( ) > 3 )
         {
             basic::Vector< basic::uint16 > faces;
-            items[ 1 ].split_to< basic::uint16 >( faces, '/', convert );
-            items[ 2 ].split_to< basic::uint16 >( faces, '/', convert );
-            items[ 3 ].split_to< basic::uint16 >( faces, '/', convert );
+            items[ 1 ].split_to< basic::uint16 >( faces, '/');
+            items[ 2 ].split_to< basic::uint16 >( faces, '/');
+            items[ 3 ].split_to< basic::uint16 >( faces, '/');
 
-            basic::uint32 step = faces.get_size( ) >= 6 ? 2 : 1;
+            const basic::uint32 step = faces.get_size( ) >= 6 ? 2 : 1;
             for ( basic::uint32 i = 0; i < faces.get_size( ); i += step )
             {
-                MeshIndex index;
-                index.vertex_index = faces[ i ] - 1;
-
-                if ( step > 1 && !tex_coords.is_empty( ) )
-                {
-                    index.texture_index = faces[ i + 1 ] - 1;
-                }
-
-                out_mesh.ib.push( index.vertex_index );
+                out_mesh.ib.push(faces[i] - 1);
             }
         }
     }

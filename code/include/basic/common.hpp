@@ -11,6 +11,7 @@
 #include "string.hpp"
 #include "time.hpp"
 #include "vector.hpp"
+#include  "convert.hpp"
 
 template < class T, class U >
 T

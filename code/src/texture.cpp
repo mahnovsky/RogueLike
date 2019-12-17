@@ -212,3 +212,8 @@ Texture::get_rect( basic::uint32 index, TextureRect& out_rect ) const
     }
     return false;
 }
+
+GLuint Texture::get_handle() const
+{
+	return m_texture;
+}

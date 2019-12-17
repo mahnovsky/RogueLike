@@ -10,19 +10,19 @@ extern HINSTANCE g_instance;
 class Win32_Window : public IWindow
 {
 public:
-    Win32_Window();
+    Win32_Window();    
 
-    virtual void get_size( int& out_width, int& out_height ) const;
+	~Win32_Window() = default;
 
-    ~Win32_Window();
+	void get_size(int& out_width, int& out_height) const override;
 
-    virtual bool init( int width, int height, const char* const title );
+    bool init( int width, int height, const char* const title ) override;
 
-    virtual void process_events(input::InputListener*);
+    void process_events(input::InputListener*) override;
 
-    virtual void swap_buffers( );
+    void swap_buffers( ) override;
 
-    virtual bool is_quit( ) const;
+    bool is_quit( ) const override;
 
     static LRESULT CALLBACK WindowProc(
         HWND   hwnd,
@@ -34,6 +34,8 @@ public:
 private:
     bool init_opengl();
 
+	void fill_key_map();
+
 private:
     HWND m_handle;
     HINSTANCE m_instance;
@@ -44,6 +46,8 @@ private:
     bool m_is_running;
     int m_width;
     int m_height;
+
+	input::KeyCode key_map[0xFF] = {input::KeyCode::Invalid};
 };
 
 IWindow* IWindow::create()
@@ -76,10 +80,7 @@ Win32_Window::Win32_Window()
 	,m_width(800)
 	,m_height(600)
 {
-}
-
-Win32_Window::~Win32_Window()
-{
+	fill_key_map();
 }
 
 void Win32_Window::get_size( int& out_width, int& out_height ) const
@@ -221,10 +222,35 @@ bool Win32_Window::init_opengl()
     return true;
 }
 
+void Win32_Window::fill_key_map()
+{
+	key_map[VK_SPACE] = input::KeyCode::Space;
+	key_map[VK_RETURN] = input::KeyCode::Enter;
+	key_map[VK_LCONTROL] = input::KeyCode::LeftCtrl;
+	key_map[VK_RCONTROL] = input::KeyCode::RightCtrl;
+	key_map[VK_LSHIFT] = input::KeyCode::LeftShift;
+	key_map[VK_RSHIFT] = input::KeyCode::RightShift;
+	key_map[VK_TAB] = input::KeyCode::Tab;
+	key_map[VK_ESCAPE] = input::KeyCode::Esc;
+	key_map[VK_BACK] = input::KeyCode::Backspace;
+	key_map[VK_CAPITAL] = input::KeyCode::CapsLock;
+
+	const char beg = static_cast<char>(input::KeyCode::A);
+	for(char c = 'A'; c < 'Z'; ++c)
+	{
+		key_map[c] = static_cast<input::KeyCode>(beg + (c - 'A'));
+	}
+
+	for (char c = 'a'; c < 'z'; ++c)
+	{
+		key_map[c] = static_cast<input::KeyCode>(beg + (c - 'A'));
+	}
+}
+
 void Win32_Window::process_events(input::InputListener* listener)
 {
     static MSG msg;
-    if( PeekMessageA( &msg, 0, 0, 0, PM_REMOVE ) != 0 )
+    while( PeekMessageA( &msg, 0, 0, 0, PM_REMOVE ) != 0 )
     {
         TranslateMessage( &msg );
         DispatchMessage( &msg );
@@ -233,6 +259,7 @@ void Win32_Window::process_events(input::InputListener* listener)
         {
             m_is_running = false;
         }
+
 		POINT pos;
 		pos.x = GET_X_LPARAM(msg.lParam);
 		pos.y = GET_Y_LPARAM(msg.lParam);
@@ -241,17 +268,26 @@ void Win32_Window::process_events(input::InputListener* listener)
 		{
 		case WM_LBUTTONDOWN:
 			listener->mouse_pressed(input::MouseButton::Left, pos.x, pos.y);
+			break;
 		case WM_RBUTTONDOWN:
 			listener->mouse_pressed(input::MouseButton::Right, pos.x, pos.y);
+			break;
 		case WM_MBUTTONDOWN:
 			listener->mouse_pressed(input::MouseButton::Middle, pos.x, pos.y);
+			break;
 		case WM_MOUSEMOVE:
 			listener->mouse_moved(pos.x, pos.y);
-		case WM_CHAR:
-			listener->key_pressed(input::KeyCode::AaZz, (wchar_t)msg.wParam);
+			break;
+		case WM_KEYDOWN:
+			listener->key_pressed(key_map[msg.wParam], static_cast<wchar_t>(msg.wParam));
+			break;
+		case WM_KEYUP:
+			listener->key_released(key_map[msg.wParam], static_cast<wchar_t>(msg.wParam));
+			break;
 		default:
-			break; 
+			break;
 		}
+
     }
 }
 

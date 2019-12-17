@@ -47,6 +47,8 @@ public:
 
     bool get_rect( basic::uint32 index, TextureRect& out_rect ) const;
 
+	basic::uint32 get_handle() const;
+
 private:
     basic::uint32 m_texture;
     basic::uint32 m_width;

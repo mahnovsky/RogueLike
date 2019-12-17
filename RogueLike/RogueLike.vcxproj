@@ -132,6 +132,7 @@
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
+    <ClCompile Include="..\code\src\basic\convert.cpp" />
     <ClCompile Include="..\code\src\basic\debug.cpp" />
     <ClCompile Include="..\code\src\basic\file.cpp" />
     <ClCompile Include="..\code\src\basic\image.cpp" />
@@ -153,7 +154,7 @@
     <ClCompile Include="..\code\src\platform\win32_file.cpp" />
     <ClCompile Include="..\code\src\platform\win32_time.cpp" />
     <ClCompile Include="..\code\src\platform\win32_window.cpp" />
-    <ClCompile Include="..\code\src\render.cpp" />
+    <ClCompile Include="..\code\src\opengl_render.cpp" />
     <ClCompile Include="..\code\src\render_common.cpp" />
     <ClCompile Include="..\code\src\render_system.cpp" />
     <ClCompile Include="..\code\src\resource_storage.cpp" />

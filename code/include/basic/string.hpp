@@ -2,6 +2,7 @@
 
 #include "debug.hpp"
 #include "vector.hpp"
+#include "convert.hpp"
 
 namespace basic
 {
@@ -13,11 +14,12 @@ public:
     static const uint32 MAX_LEN = Vector<char_t>::MAX_LEN;
     static const char CSTR_END = 0;
 
-    String();
+    String() = default;
+	String(const String& other) = default;
+
     String(const char_t* cstr);
     String(const char_t* cstr, uint32 count);
-    String(const String& other);
-    String(String&& other);
+    String(String&& other) noexcept;
 
     void init(const char_t* cstr);
 
@@ -53,8 +55,29 @@ public:
 
 	void split(Vector< String >& out, char_t item) const;
 
-    template < class Type, class Convert >
-	void split_to(basic::Vector< Type >& out, char_t item, Convert convert_func) const
+	template < class Type >
+	void split_to(basic::Vector< Type >& out, char_t item) const
+	{
+		Vector<String> splits;
+		split(splits, item);
+
+		conv::ConvStatus status = conv::ConvStatus::Ok;
+
+		for (auto& item : splits)
+		{
+			Type t_item = string_to<Type>(item, status);
+
+			if(status != conv::ConvStatus::Ok)
+			{
+				break;
+			}
+
+			out.push(t_item);
+		}
+	}
+
+    template < class Type >
+	void split_to(basic::Vector< Type >& out, char_t item, Type (*convert_func)(String)) const
     {
 		Vector<String> splits;
         split(splits, item);

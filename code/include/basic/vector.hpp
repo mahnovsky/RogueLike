@@ -14,70 +14,88 @@ struct Token
     using Value = decltype( B );
 };
 
-template < class T >
-struct Initializer
+
+template < class T, bool U >
+struct Selector
 {
-    template < class... Args >
-    static void
-    construct( T* ptr, Token< true >, Args... args )
-    {
-        new ( ptr ) T( args... );
-    }
+	
+};
 
-    template < class... Args >
-    static void
-    construct( T** data, Token< true >, Args... )
-    {
-        ( *data ) = nullptr;
-    }
+template < class T >
+struct Selector<T, true>
+{
+	static void construct(T* data, uint32 count)
+	{
+		for(int32 i = 0; i < count; ++i)
+		{
+			data[i] = T();
+		}
+	}
 
-    static void
-    construct( T*, Token< true > )
-    {
-    }
+	static void destruct(T*, uint32)
+	{
+	}
 
-    static void
-    construct( T** data, Token< true > )
-    {
-        ( *data ) = nullptr;
-    }
+	static void copy(T* data, T* const src, uint32 count)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			data[i] = src[i];
+		}
+	}
+};
 
-    static void
-    destruct( T*, Token< true > )
-    {
-    }
+template < class T >
+struct Selector<T*, true>
+{
+	static void construct(T** data, uint32 count)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			data[i] = nullptr;
+		}
+	}
 
-    static void
-    copy( T*, const T*, Token< true > )
-    {
-    }
+	static void destruct(T** , uint32 )
+	{
+	}
 
-    static void
-    construct( T* ptr, Token< false > )
-    {
-        new ( static_cast< void* >( ptr ) ) T( );
-    }
+	static void copy(T** data, T** const src, uint32 count)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			data[i] = src[i];
+		}
+	}
+};
 
-    static void
-    destruct( T* ptr, Token< false > )
-    {
-        ptr->~T( );
-    }
+template < class T >
+struct Selector<T, false>
+{
+	template <class ... Args>
+	static void construct(T* data, uint32 count, Args ... args)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			new (data + i) T( args ...);
+		}
+	}
 
-    static void
-    copy( T* ptr, const T* src, Token< false > )
-    {
-        const T& ref = *src;
+	static void destruct(T* data, uint32 count)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			(data + i)->~T();
+		}
+	}
 
-        new ( static_cast< void* >( ptr ) ) T( ref );
-    }
-
-    template < class... Args >
-    static void
-    construct( T* ptr, Token< false >, Args... args )
-    {
-        new ( static_cast< void* >( ptr ) ) T( args... );
-    }
+	static void copy(T* data, T* const src, uint32 count)
+	{
+		for (uint32 i = 0; i < count; ++i)
+		{
+			new (static_cast<void*>(data + i)) T(src[i]);
+		}
+	}
 };
 
 struct DefaultAllocator
@@ -193,12 +211,7 @@ public:
         uint32 m_index;
     };
 
-    Vector( )
-        : m_data( nullptr )
-        , m_size( 0 )
-        , m_capacity( DEFAULT_CAPACITY )
-    {
-    }
+	Vector() = default;
 
     Vector( const Vector< T >& other )
         : m_data( nullptr )
@@ -207,14 +220,14 @@ public:
     {
         if ( realloc( ) && m_size > 0 )
         {
-            mem_copy( m_data, other.m_data, sizeof( T ) * other.m_size );
-            copy_elements( other.m_data, 0 );
+			Selector<T, std::is_pod<T>::value>::copy(m_data, other.m_data, m_size);
         }
     }
 
-    Vector( Vector< T >&& other ) noexcept : m_data( other.m_data ),
-                                             m_size( other.m_size ),
-                                             m_capacity( other.m_capacity )
+    Vector( Vector< T >&& other ) noexcept 
+		: m_data( other.m_data )
+		, m_size( other.m_size )
+        , m_capacity( other.m_capacity )
     {
         other.m_data = nullptr;
         other.m_size = 0;
@@ -250,7 +263,7 @@ public:
         return ConstIterator( *this, get_size( ) );
     }
 
-    Vector< T >&
+    auto&
     operator=( const Vector< T >& v )
     {
         if ( v.m_size == 0 )
@@ -261,16 +274,15 @@ public:
         m_size = v.m_size;
         m_capacity = v.m_capacity;
 
-        if ( realloc( ) )
+        if ( realloc( ) && m_size > 0 )
         {
-            mem_copy( m_data, v.m_data, sizeof( T ) * m_size );
-            copy_elements( v.m_data, 0 );
+			Selector<T, std::is_pod<T>::value>::copy(m_data, v.m_data, m_size);
         }
 
         return *this;
     }
 
-    Vector< T >&
+    auto&
     operator=( Vector< T >&& v ) noexcept
     {
         force_clear( );
@@ -351,28 +363,6 @@ public:
         return find_first( index, item );
     }
 
-    template < class P >
-    struct Fill
-    {
-        void
-        fill( P* ptr, uint32 size )
-        {
-        }
-    };
-
-    template < class P >
-    struct Fill< P* >
-    {
-        void
-        fill( P** ptr, uint32 size )
-        {
-            for ( uint32 i = 0; i < size; ++i )
-            {
-                ptr[ i ] = nullptr;
-            }
-        }
-    };
-
     void
     reserve( uint32 count )
     {
@@ -381,17 +371,18 @@ public:
         m_size = ( m_size > count ) ? count : m_size;
 
         realloc( );
-
-        Fill< T >( ).fill( m_data, m_capacity );
     }
 
     void
     resize( uint32 count )
     {
+		uint32 prev_size = m_size;
         reserve( count );
         m_size = count;
-
-        construct_elements( 0 );
+		if (m_size > prev_size)
+		{
+			Selector<T, std::is_pod_v<T>>::construct(m_data + prev_size, m_size - prev_size);
+		}
     }
 
     void
@@ -416,8 +407,6 @@ public:
         {
             uint32 mem_size = count * sizeof( T );
             mem_copy( m_data, ptr, mem_size );
-
-            construct_elements( 0 );
 
             return true;
         }
@@ -487,7 +476,8 @@ public:
         }
 
         T* last = m_data + m_size;
-        Initializer< T >::construct( last, Token< std::is_pod< T >::value >( ) );
+		Selector<T, std::is_pod_v<T>>::construct(last, 1);
+
         ( *last ) = std::move( item );
         ++m_size;
     }
@@ -520,14 +510,14 @@ public:
     }
 
     template < class... Args >
-    void emplace( Args... args )
+    void emplace( Args... args ) noexcept
     {
         if ( !m_data )
         {
             init( );
         }
 
-        uint32 need_size = m_size + 1;
+        const uint32 need_size = m_size + 1;
         if ( need_size > m_capacity && !grow( ) )
         {
             ASSERT_M( 0, "Failed push item, realloc was failed" );
@@ -535,7 +525,9 @@ public:
         }
 
         T* last = m_data + m_size;
-        Initializer< T >::construct( last, Token< std::is_pod< T >::value >( ), args... );
+
+		Selector<T, std::is_pod_v<T>>::construct(last, 1, args ...);
+
         ++m_size;
     }
 
@@ -631,7 +623,7 @@ public:
         {
             T* pos = m_data + index;
             uint32 move_count = m_size - ( index + 1 );
-            Initializer< T >::destruct( pos, Token< std::is_pod< T >::value >( ) );
+            Selector< T, std::is_pod<T>::value >::destruct( pos, 1 );
             ASSERT( m_size > 0 );
             if ( m_size > 1 && index < ( m_size - 1 ) )
             {
@@ -698,7 +690,7 @@ public:
     void
     clear( )
     {
-        destruct_elements( 0 );
+		Selector< T, std::is_pod<T>::value >::destruct(m_data, m_size);
         m_size = 0;
     }
 
@@ -774,37 +766,10 @@ private:
         return realloc( );
     }
 
-    void
-    construct_elements( uint32 pos )
-    {
-        for ( uint32 i = pos; i < m_size; ++i )
-        {
-            Initializer< T >::construct( m_data + i, Token< std::is_pod< T >::value >( ) );
-        }
-    }
-
-    void
-    destruct_elements( uint32 pos )
-    {
-        for ( uint32 i = pos; i < m_size; ++i )
-        {
-            Initializer< T >::destruct( m_data + i, Token< std::is_pod< T >::value >( ) );
-        }
-    }
-
-    void
-    copy_elements( const T* src, uint32 pos )
-    {
-        for ( uint32 i = pos; i < m_size; ++i )
-        {
-            Initializer< T >::copy( m_data + i, src + i, Token< std::is_pod< T >::value >( ) );
-        }
-    }
-
 private:
-    T* m_data;
-    uint32 m_size;
-    uint32 m_capacity;
+    T* m_data = nullptr;
+    uint32 m_size = 0;
+    uint32 m_capacity = DEFAULT_CAPACITY;
 };
 
 }  // namespace basic

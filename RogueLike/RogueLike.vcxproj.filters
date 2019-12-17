@@ -51,9 +51,6 @@
     <ClCompile Include="..\code\src\glew.c">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\render.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\shader.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
@@ -152,6 +149,12 @@
     </ClCompile>
     <ClCompile Include="..\code\src\static_mesh.cpp">
       <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\opengl_render.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\basic\convert.cpp">
+      <Filter>code\src\basic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

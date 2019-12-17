@@ -13,11 +13,12 @@ struct RenderComponent : public IComponent
 {
     DECLARE_COMPONENT( RenderComponent )
 
-    basic::Color color;
     glm::mat4 model;
     class TransformComponent* transform;
 
 	void initialize(IRenderObject* obj);
+
+	void update_color();
 
 	void update_mvp(const glm::mat4& mvp);
 
@@ -27,6 +28,8 @@ struct RenderComponent : public IComponent
 
 	void set_resource_name(RenderResourceType type, const basic::String& name);
 
+	void set_color(basic::Color color);
+	
 	friend class RenderSystem;
 
 private:
@@ -34,6 +37,7 @@ private:
 
 	constexpr static basic::uint32 resources_count = static_cast<basic::uint32>(RenderResourceType::Count);
 	basic::String m_resourses[resources_count];
+	basic::Color color = { 255, 255, 255, 255 };
 };
 
 struct TransformComponent : public IComponent
@@ -64,8 +68,6 @@ public:
     void initialize( IRender* render, EntityComponentSystem* ecs, ICamera* cam );
 
     void draw( EntityComponentSystem* ecs );
-
-    void draw( RenderComponent* component, const glm::mat4& model );
 
     void on_component_event( Entity* ent,
                              basic::uint32 component_id,

@@ -16,6 +16,8 @@ public:
 	virtual void on_component_changed(RenderComponent& comp) = 0;
 
 	virtual void update_mvp(const glm::mat4& mvp) = 0;
+
+	virtual void update_color(basic::Color color) = 0;
 };
 
 class IRender
@@ -32,8 +34,6 @@ public:
 	virtual IRenderObject* create_object(RenderComponent& comp) = 0;
 
 	virtual void delete_object(IRenderObject* obj) = 0;
-
-    virtual IGpuFactory* get_factory( ) = 0;
 
     static IRender* create( );
 };
