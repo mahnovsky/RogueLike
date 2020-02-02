@@ -56,6 +56,18 @@ struct MeshData
     IndexBuffer ib;
 };
 
+enum MeshLoadFlags
+{
+	IGNORE_UV = 0x1,
+	IGNORE_NORMAL = 0x2
+};
+
+struct MeshLoadSettings
+{
+	basic::uint32 flags;
+	glm::mat4 vertex_transform;
+};
+
 enum NodeOptionFlag
 {
     USE_PARENT_VAO = 1 << 1,
@@ -80,6 +92,8 @@ void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v);
 void set_uniform(basic::uint32 program, const char* name, const basic::Color& color);
 
 void set_uniform(basic::uint32 program, const char* name, const glm::mat4& mat);
+
+void set_uniform(basic::uint32 program, const char* name, basic::int32 v);
 
 struct RenderNode
 {
@@ -199,7 +213,7 @@ public:
 
     static void remove_node( RenderNode* node );
 
-    Transform* get_transform( );
+    Transform* get_transform( ) const;
 
     void add_child( RenderNode* node );
 
@@ -228,7 +242,7 @@ private:
     basic::Vector< RenderNode* > children;
 };
 
-bool load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh );
+bool load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSettings settings );
 
 void fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb );
 

@@ -8,13 +8,9 @@ class StaticMesh : public FileResource
 {
 public:
     StaticMesh( ObjectManager* obj_mng, const char* name );
-    ~StaticMesh( ) override;
+    ~StaticMesh( ) override = default;
 
 	bool load(ResourceStorage* rs) override;
-
-    void bind( );
-
-    void apply_fmt( ) const;
 
     basic::uint32 get_vertex_count( ) const;
 
@@ -27,7 +23,8 @@ public:
 	const basic::Vector<VertexFMT>& get_fmt_list() const;
 
 	static StaticMesh* create( ObjectManager* obj_mng,
-							   const char* name );
+							   const char* name, 
+		const MeshLoadSettings& settings);
 
 
 private:

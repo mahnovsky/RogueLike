@@ -63,11 +63,11 @@ class RenderSystem : public ISystem
 {
 public:
     RenderSystem( EntityComponentSystem* ecs );
-    ~RenderSystem( ) override;
+    ~RenderSystem( ) override = default;
 
     void initialize( IRender* render, EntityComponentSystem* ecs, ICamera* cam );
 
-    void draw( EntityComponentSystem* ecs );
+    void draw( EntityComponentSystem* ecs ) const;
 
     void on_component_event( Entity* ent,
                              basic::uint32 component_id,

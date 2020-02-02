@@ -23,17 +23,20 @@ public:
 
     bool add_resource( FileResource* file_resource );
 
-    template < class T >
-    T*
-    get_resorce( const char* file )
+    template < class T, class ... Args >
+    T* get_resorce( const char* file, Args ... args )
     {
         T* res = dynamic_cast< T* >( find_resource( file ) );
 
         if ( !res )
         {
-            res = T::create( m_manager, file );
+            res = T::create( m_manager, file, args ... );
 
-            add_resource( res );
+            if(!add_resource( res ))
+            {
+				DELETE_OBJ(res);
+				res = nullptr;
+            }
         }
 
         return res;

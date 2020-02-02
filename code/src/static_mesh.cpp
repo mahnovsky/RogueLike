@@ -16,7 +16,6 @@ bool StaticMesh::load(ResourceStorage* rs)
 	return true;
 }
 
-
 basic::uint32
 StaticMesh::get_vertex_count( ) const
 {
