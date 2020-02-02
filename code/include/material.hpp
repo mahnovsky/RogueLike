@@ -23,6 +23,8 @@ public:
 
     void set_shader( ShaderProgram* sp );
 
+	ShaderProgram* get_shader();
+
 private:
     ShaderProgram* m_shader;
     Texture* m_texture;

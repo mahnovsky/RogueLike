@@ -49,7 +49,7 @@ Widget::init( ResourceStorage* storage )
         return;
     }
 
-    ShaderProgram* shader = storage->get_resorce< ShaderProgram >( "primitive" );
+    const auto shader = storage->get_resorce< ShaderProgram >( "primitive" );
 
     if ( shader )
     {
@@ -259,7 +259,7 @@ Widget::set_picture( Texture* tex )
     if ( !m_picture )
     {
         ASSERT( m_storage != nullptr );
-        ShaderProgram* shader = m_storage->get_resorce< ShaderProgram >( "texture" );
+        auto shader = m_storage->get_resorce< ShaderProgram >( "texture" );
         m_picture = RenderNode::create_node( shader, tex );
 
         VertexBufferT vb;

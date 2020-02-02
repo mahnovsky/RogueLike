@@ -53,4 +53,6 @@ private:
     class RenderSystem* m_render_system;
 
     Entity* m_player;
+
+	bool m_is_menu_opened = false;
 };

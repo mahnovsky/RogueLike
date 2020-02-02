@@ -97,3 +97,8 @@ Material::set_shader( ShaderProgram* sp )
     m_shader = sp;
     m_shader->retain( );
 }
+
+ShaderProgram* Material::get_shader()
+{
+	return m_shader;
+}

@@ -88,25 +88,41 @@ private:
 
 struct MeshIndex
 {
-    basic::uint16 vertex_index;
-    basic::uint16 texture_index;
+	basic::uint16 index = 0;
+    basic::uint16 vertex_index = 0;
+    basic::uint16 texture_index = 0;
+	basic::uint16 normal_index = 0;
 };
 
+bool operator == (const MeshIndex& a, const MeshIndex& b)
+{
+	return a.normal_index == b.normal_index &&
+		a.vertex_index == b.vertex_index &&
+		a.texture_index == b.texture_index;
+}
+
 bool
-load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
+load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSettings settings)
 {
     basic::Vector< glm::vec3 > vert_coords;
     basic::Vector< glm::vec2 > tex_coords;
-    basic::Vector< MeshIndex > indexes;
-
+    
     vert_coords.reserve( 1000 );
     tex_coords.reserve( 1000 );
-    indexes.resize( 1000 );
+    
 
     basic::uint32 offset = 0;
     int line_counter = 0;
 
-    double s = basic::get_milliseconds( );
+	struct Triangle
+	{
+		basic::uint16 vertex_indices[3] = { 0 };
+		basic::uint16 texture_indices[3] = { 0 };
+		basic::uint16 normal_indices[3] = { 0 };
+	};
+
+	basic::Vector<Triangle> triangles;
+	triangles.reserve(1000);
 
     basic::String line;
 
@@ -141,8 +157,6 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
         {
 			basic::conv::ConvStatus status;
 
-#define CHECK(name, it) abs((abs(name) - abs(basic::string_to<float>(items[it], status)))  )
-
 			float x1 = basic::string_to<float>(items[1], status);
 			ASSERT(status == basic::conv::ConvStatus::Ok);
 
@@ -170,30 +184,71 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh )
             items[ 2 ].split_to< basic::uint16 >( faces, '/');
             items[ 3 ].split_to< basic::uint16 >( faces, '/');
 
-            const basic::uint32 step = faces.get_size( ) >= 6 ? 2 : 1;
-            for ( basic::uint32 i = 0; i < faces.get_size( ); i += step )
-            {
-                out_mesh.ib.push(faces[i] - 1);
-            }
+			triangles.push({});
+			Triangle& triangle = triangles.back();
+
+            const basic::uint32 step = faces.get_size( ) / 3;
+			ASSERT(step > 0);
+			ASSERT(step <= 3);
+
+			basic::uint32 step_counter = 0;
+			while (step_counter < step)
+			{
+				for (basic::uint32 i = 0; i < 3; ++i)
+				{
+					switch (step_counter)
+					{
+					case 0: triangle.vertex_indices[i] = faces[i * step] - 1; break;
+					case 1: triangle.texture_indices[i] = faces[(i * step) + 1] - 1; break;
+					case 2: triangle.normal_indices[i] = faces[(i * step) + 2] - 1; break;
+					default: break;
+					}
+					
+				}
+				++step_counter;
+			}
         }
     }
 
-    double delta = basic::get_milliseconds( ) - s;
-    delta = 0.0;
-
+    
     out_mesh.vb.reserve( vert_coords.get_size( ) );
-    glm::vec2 tex_coord;
-    for ( auto& pos : vert_coords )
+
+	basic::Color color{ 255, 255, 255, 255 };
+	basic::Vector<MeshIndex> indices;
+	indices.reserve(triangles.get_size() * 3);
+	out_mesh.ib.reserve(triangles.get_size() * 3);
+	out_mesh.vb.reserve(triangles.get_size() * 3);
+
+    for ( auto& triangle : triangles )
     {
-        // tex_coord = {  };
-        out_mesh.vb.push( {pos, {255, 255, 255, 255}, tex_coord} );
-    }
-    if ( !tex_coords.is_empty( ) )
-    {
-        for ( auto& index : indexes )
-        {
-            out_mesh.vb[ index.vertex_index ].uv = tex_coords[ index.texture_index ];
-        }
+		for (int v = 0; v < 3; ++v)
+		{
+			MeshIndex index;
+			index.vertex_index = triangle.vertex_indices[v];
+			index.texture_index = triangle.texture_indices[v];
+			index.normal_index = triangle.normal_indices[v];
+			
+			basic::uint32 pos = 0;
+			if (!indices.find_first(pos, index))
+			{
+				index.index = out_mesh.vb.get_size();
+				out_mesh.vb.push({});
+				Vertex& vertex = out_mesh.vb.back();
+
+				vertex.pos = vert_coords[index.vertex_index];
+				vertex.color = color;
+
+				if (!tex_coords.is_empty())
+					vertex.uv = tex_coords[index.texture_index];
+
+				out_mesh.ib.push(index.index);
+				indices.push(index);
+			}
+			else
+			{
+				out_mesh.ib.push(indices[pos].index);
+			}
+		}
     }
 
     return true;
@@ -252,8 +307,7 @@ RenderNode::remove_node( RenderNode* node )
     basic::mem_free( node );
 }
 
-Transform*
-RenderNode::get_transform( )
+Transform* RenderNode::get_transform( ) const
 {
     return transform;
 }
@@ -291,8 +345,7 @@ RenderNode::set_order( basic::int32 order )
     }
 }
 
-basic::uint32
-create_buffer( basic::uint32 buffer_type,
+basic::uint32 create_buffer( basic::uint32 buffer_type,
                basic::uint32 buffer_usage,
                const void* data,
                basic::uint32 size )
@@ -441,6 +494,13 @@ void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v)
 	glUniform2f(pos, v.x, v.y);
 }
 
+void set_uniform(basic::uint32 program, const char* name, basic::int32 v)
+{
+	basic::int32 pos = get_uniform(program, name);
+
+	glUniform1i(pos, v);
+}
+
 void set_uniform(basic::uint32 program, const char* name, const basic::Color& color)
 {
 	basic::int32 pos = get_uniform(program, name);
@@ -489,7 +549,7 @@ RenderNode::update_indices( IndexBuffer* indices )
 
     glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
 
-    basic::int32 need_elements = static_cast< basic::int32 >( indices->get_size( ) );
+    const basic::int32 need_elements = static_cast< basic::int32 >( indices->get_size( ) );
 
     if ( index_elements == 0 || index_elements < need_elements )
     {
@@ -534,6 +594,9 @@ RenderNode::draw_node( basic::uint32 prev_vao )
 
     material->set_uniform( "MVP", mvp );
     material->set_uniform( "Color", color );
+	auto shader = material->get_shader()->get_handle();
+    const basic::int32 use_texture = material->get_texture() == nullptr ? 0 : 1;
+	set_uniform(shader, "UseTexture", use_texture);
 
     if ( index_object > 0 )
     {
@@ -555,7 +618,7 @@ RenderNode::draw_node( basic::uint32 prev_vao )
 basic::uint32
 RenderNode::get_buffer_usage( ) const
 {
-    basic::uint32 buffer_usage
+	const basic::uint32 buffer_usage
             = ( flags & USE_DYNAMIC_VBO ) == 0 ? GL_STATIC_DRAW : GL_DYNAMIC_DRAW;
 
     return buffer_usage;

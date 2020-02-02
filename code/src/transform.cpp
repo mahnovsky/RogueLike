@@ -5,9 +5,6 @@
 Transform::Transform( )
     : m_parent( nullptr )
     , m_final_mat( 1.f )
-    , m_pos( )
-    , m_pivot_point( )
-    , m_quat( )
     , m_scale( 1.f )
 {
 }

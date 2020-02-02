@@ -54,10 +54,6 @@ RenderSystem::RenderSystem( EntityComponentSystem* ecs )
 {
 }
 
-RenderSystem::~RenderSystem( )
-{
-}
-
 void
 RenderSystem::initialize(IRender* render, EntityComponentSystem* ecs, ICamera* cam )
 {
@@ -74,8 +70,7 @@ RenderSystem::initialize(IRender* render, EntityComponentSystem* ecs, ICamera* c
     m_camera = cam;
 }
 
-void
-RenderSystem::draw( EntityComponentSystem* ecs )
+void RenderSystem::draw( EntityComponentSystem* ecs ) const
 {
     ASSERT( m_camera );
 

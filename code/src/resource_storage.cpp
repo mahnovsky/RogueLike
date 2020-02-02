@@ -31,13 +31,11 @@ ResourceStorage::~ResourceStorage( )
 bool
 ResourceStorage::add_resource( FileResource* file_resource )
 {
-    if ( !find_resource( file_resource->get_name( ).get_cstr( ) ) )
+    if ( !find_resource( file_resource->get_name( ).get_cstr( ) ) && file_resource->load(this) )
     {
         m_resources.push( file_resource );
 
         file_resource->retain( );
-
-        file_resource->load( this );
 
         return true;
     }

@@ -29,7 +29,7 @@ public:
 
     virtual void clear( ) = 0;
 
-    virtual void present( class IWindow* wnd ) = 0;
+    virtual void present() = 0;
 
 	virtual IRenderObject* create_object(RenderComponent& comp) = 0;
 

@@ -36,7 +36,6 @@ public:
 private:
     void update_final_matrix( ) const;
 
-private:
     Transform* m_parent;
     mutable glm::mat4 m_final_mat;
     glm::vec3 m_pos;

@@ -26,38 +26,41 @@ Texture::~Texture( )
 bool
 Texture::load( ResourceStorage* storage )
 {
-    basic::String name = get_name( );
-    basic::String path = TEXTURE_PATH;
-    basic::String file = path + name;
+    const basic::String name = get_name( );
+    const basic::String path = TEXTURE_PATH;
+    const basic::String file = path + name;
 
     basic::uint32 index;
-    if ( name.find_last( index, '.' ) )
-    {
-        basic::String info_name = TEXTURE_PATH + name.get_substr( 0, index );
-        info_name += "conf";
-        Config* conf = storage->get_resorce< Config >( info_name.get_cstr( ) );
+	if (name.find_last(index, '.'))
+	{
+		basic::String info_name = TEXTURE_PATH + name.get_substr(0, index);
+		info_name += "conf";
 
-        const basic::JsonObject* frames = conf->get_values( "frames" );
+		const auto conf = storage->get_resorce< Config >(info_name.get_cstr());
 
-        auto frames_array = frames->to_array( );
-        for ( const basic::JsonObject* frame : frames_array )
-        {
-            TextureRect rect;
-            do
-            {
+		if (conf != nullptr)
+		{
+			const basic::JsonObject* frames = conf->get_values("frames");
+			auto frames_array = frames->to_array();
+			for (const basic::JsonObject* frame : frames_array)
+			{
+				TextureRect rect;
+				do
+				{
 #define CHECK( exp ) \
     if ( !( exp ) )  \
         break;
-                CHECK( frame->get( "x", rect.x ) )
-                CHECK( frame->get( "y", rect.y ) );
-                CHECK( frame->get( "w", rect.w ) );
-                CHECK( frame->get( "h", rect.h ) );
-                CHECK( frame->get( "name", rect.name ) );
-                m_rects.push( rect );
+					CHECK(frame->get("x", rect.x))
+					CHECK(frame->get("y", rect.y));
+					CHECK(frame->get("w", rect.w));
+					CHECK(frame->get("h", rect.h));
+					CHECK(frame->get("name", rect.name));
+					m_rects.push(rect);
 #undef CHECK
-            } while ( 0 );
-        }
-    }
+				} while (0);
+			}
+		}
+	}
 
     basic::Vector< basic::uint8 > data = basic::get_file_content( file.get_cstr( ) );
 

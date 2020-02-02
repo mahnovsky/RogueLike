@@ -11,20 +11,16 @@ StaticMesh::StaticMesh( ObjectManager* obj_mng, const char* name )
 {
 }
 
-StaticMesh::~StaticMesh( )
-{
-}
-
 bool StaticMesh::load(ResourceStorage* rs)
 {
-	return false;
+	return true;
 }
 
 
 basic::uint32
 StaticMesh::get_vertex_count( ) const
 {
-    return m_index_count;
+    return m_vertex_count;
 }
 
 basic::uint32
@@ -48,13 +44,15 @@ const basic::Vector<VertexFMT>& StaticMesh::get_fmt_list() const
 	return m_fmt_list;
 }
 
-StaticMesh* StaticMesh::create(ObjectManager* obj_mng, const char* name)
+StaticMesh* StaticMesh::create(ObjectManager* obj_mng, const char* name, const MeshLoadSettings& settings)
 {
 	ASSERT(name);
 
 	MeshData mesh_data;
+
 	auto data = basic::get_file_content(name);
-	if (!data.is_empty() && load_mesh(std::move(data), mesh_data) && !mesh_data.vb.is_empty())
+	if (!data.is_empty() && 
+		load_mesh(std::move(data), mesh_data, settings))
 	{
 		auto static_mesh = NEW_OBJ(StaticMesh, obj_mng, name);
 

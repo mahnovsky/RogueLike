@@ -26,7 +26,7 @@ struct Test
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
     , m_manager( NEW_OBJ( ObjectManager ) )
-    , m_rs( NEW_OBJ( ResourceStorage, m_manager ) )
+    , m_rs( nullptr )
     , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 60.f, width / height, 1.f, 1000.f ) )
     , m_ui_camera( NEW_OBJ( OrthoCamera, m_manager, width, height, 0.f, 100.f ) )
     , m_width( width )
@@ -36,6 +36,8 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_ui_root( NEW_OBJ( RootWidget, engine, m_manager ) )
 	, m_player(nullptr)
 {
+	m_rs = &m_engine->get_rs();
+
     m_game_camera->set_name( "game_camera" );
     m_game_camera->retain( );
 
@@ -52,7 +54,6 @@ GameInstance::~GameInstance( )
     SAFE_RELEASE( m_ui_camera );
 
     DELETE_OBJ( m_ecs );
-    DELETE_OBJ( m_rs );
     DELETE_OBJ( m_manager );
 }
 
@@ -66,7 +67,7 @@ exit_action( Widget* w, void* ud )
 }
 
 static void
-close_action( Widget* w, void* )
+close_action( Widget* w, void* user_data )
 {
     LOG( "on widget clicked tag %d", w->get_tag( ) );
     if ( w->get_parent( ) )
@@ -75,19 +76,27 @@ close_action( Widget* w, void* )
     }
 }
 
-void
-open_menu_action( Widget* w, void* user_data )
+basic::Color g_ui_color{ 255, 0, 100, 255 };
+
+void open_menu_action( Widget* w, void* user_data )
 {
     LOG( "on widget clicked tag %d", w->get_tag( ) );
 
-    GameInstance* gi = static_cast< GameInstance* >( user_data );
-    Texture* texture = gi->m_rs->get_resorce< Texture >( "SoM_Icon_2.png" );
+    auto gi = static_cast< GameInstance* >( user_data );
+	if(gi->m_is_menu_opened)
+	{
+		return;
+	}
+	gi->m_is_menu_opened = true;
+
+    Texture* texture = gi->m_rs->get_resorce< Texture >( "btn.png" );
 
     Widget* wnd = NEW_OBJ( WidgetList, gi->m_manager, {200, 300} );
     wnd->set_tag( 1 );
     wnd->init( gi->m_rs );
     wnd->set_position( {gi->m_width / 2, gi->m_height / 2} );
     wnd->set_anchor_point( {0.5f, 0.5f} );
+	
     gi->m_ui_root->add_child( wnd );
 
     for ( int i = 0; i < 3; ++i )
@@ -103,7 +112,7 @@ open_menu_action( Widget* w, void* user_data )
     WidgetText* text = NEW_OBJ( WidgetText, gi->m_manager, {200, 50} );
     text->init( gi->m_rs );
     text->set_text( "exit" );
-    text->set_color( {255, 0, 100, 255} );
+    text->set_color( g_ui_color );
     text->set_press_action( "wa_exit" );
     text->set_tag( 1 );
     text->set_align( AlignV::Center );
@@ -123,25 +132,13 @@ struct MoveComponent : public IComponent
     glm::vec3 move_direction;
 };
 
-class MoveSystem : public ISystem, public input::InputListener
+class MoveSystem : public ISystem
 {
 public:
     MoveSystem( EntityComponentSystem* ecs )
         : m_ecs( ecs )
-    {
-    }
+    {}
 
-    void
-    key_pressed( input::KeyCode code, basic::int16 key ) override
-    {
-        if ( code == input::KeyCode::AaZz )
-        {
-            wchar_t key_sym = static_cast< wchar_t >( key );
-            if ( key_sym == L'W' || key_sym == L'w' )
-            {
-            }
-        }
-    }
 
     void
     on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act ) override
@@ -161,8 +158,7 @@ public:
         }
     }
 
-    void
-    initialize( )
+    void initialize( )
     {
         m_ecs->registry_component< MoveComponent >( "MoveComponent" );
     }
@@ -172,8 +168,7 @@ public:
     {
     }
 
-    void
-    update( float dt ) override
+    void update( float dt ) override
     {
         // return;
         const basic::Vector< MoveComponent* >& mcs = m_ecs->get_components< MoveComponent >( );
@@ -206,7 +201,7 @@ rnd( )
 }
 
 Entity*
-make_ent( EntityComponentSystem* ecs, const char* mesh, const char* shader )
+make_ent(EntityComponentSystem* ecs, const char* mesh, const char* shader, const char* texture = nullptr )
 {
     Entity* ent = ecs->create( );
 
@@ -216,13 +211,16 @@ make_ent( EntityComponentSystem* ecs, const char* mesh, const char* shader )
     glm::vec3 pos{v * rnd( ), 0.f, v * rnd( )};
 
     tr->tr.set_position( pos );
-    const float scale = rnd( ) * 0.5f;
+    const float scale = rnd( ) * 2.5f;
     tr->tr.set_scale( {scale, scale, scale} );
 
     auto rc = ent->add_component< RenderComponent >( );
 
 	rc->set_resource_name(RenderResourceType::ShaderProgram, shader);
 	rc->set_resource_name(RenderResourceType::StaticMesh, mesh);
+	//rc->set_mesh_load_settings()
+	if (texture)
+		rc->set_resource_name(RenderResourceType::Texture, texture);
 
     auto mc = ent->add_component< MoveComponent >( );
     mc->angle_speed = rnd( );
@@ -239,7 +237,8 @@ void
 GameInstance::init( )
 {
     srand( time( nullptr ) );
-    Texture* texture = m_rs->get_resorce< Texture >( "SoM_Icon_2.png" );
+	Texture* texture = m_rs->get_resorce< Texture >("btn.png");
+
     ShaderProgram* shader = m_rs->get_resorce< ShaderProgram >( "texture" );
 
     m_ecs = NEW_OBJ( EntityComponentSystem );
@@ -273,12 +272,14 @@ GameInstance::init( )
         m_fps_text = NEW_OBJ( WidgetText, m_manager, {200, 40} );
         m_fps_text->init( m_rs );
         m_fps_text->set_text( "fps: " );
+		m_fps_text->set_color(g_ui_color);
         m_fps_text->set_align( AlignH::Left );
         wnd->add_child( m_fps_text );
 
         m_mem_text = NEW_OBJ( WidgetText, m_manager, {400, 40} );
         m_mem_text->init( m_rs );
         m_mem_text->set_text( "memory usage: " );
+		m_mem_text->set_color(g_ui_color);
         m_mem_text->set_align( AlignH::Left );
         wnd->add_child( m_mem_text );
 
@@ -286,6 +287,7 @@ GameInstance::init( )
 
         menu_btn->init( m_rs );
         menu_btn->set_text( "MENU" );
+		menu_btn->set_color(g_ui_color);
         menu_btn->set_align( AlignH::Center );
         menu_btn->set_picture( texture );
         wnd->set_press_action( "wa_open_menu" );
@@ -296,15 +298,16 @@ GameInstance::init( )
     
 	for (int i = 0; i < 5; ++i)
 	{
-		if (!m_player)
+		auto cow = make_ent(m_ecs, "meshes/cube.obj", "default");
+		auto rc = cow->get_component<RenderComponent>();
+		if(rc)
 		{
-			m_player = make_ent(m_ecs, "meshes/cow.obj", "default");
-			continue;
+			rc->set_color({ 128, 0, 55, 255 });
 		}
-		make_ent(m_ecs, "meshes/cow.obj", "default");
 	}
 
-	if (m_player)
+	m_player = make_ent(m_ecs, "meshes/cube.obj", "default");
+	/*if (m_player)
 	{
 		auto mc = m_player->get_component< MoveComponent >();
 		if (mc)
@@ -317,18 +320,17 @@ GameInstance::init( )
 		{
 			tr->tr.set_euler_angles({ 0.f, 0.f, 0.f });
 			tr->tr.set_position({ 10.f, 0.f, 10.f });
-			tr->tr.set_scale({ 0.5f, 0.5f, 0.5f });
+			tr->tr.set_scale({ 3.5f, 3.5f, 3.5f });
 		}
-	}
+		auto rc = m_player->get_component<RenderComponent>();
+		rc->set_color({ 130, 0, 80, 255 });
+	}*/
 
-	Entity* plane_ent = make_ent(m_ecs, "meshes/plane.obj", "default");
+	Entity* plane_ent = make_ent(m_ecs, "meshes/plane.obj", "default_texture", "Chess_Board.png");
 	if (plane_ent)
 	{
 		auto trc = plane_ent->get_component< TransformComponent >();
 		trc->tr.set_scale({ 100.f, 1.f, 100.f });
-
-		auto render_comp = plane_ent->get_component< RenderComponent >();
-		render_comp->set_color({ 105, 105, 105, 255 });
 
 		auto move_comp = plane_ent->get_component< MoveComponent >();
 		move_comp->move_speed = 0.f;
@@ -414,9 +416,6 @@ GameInstance::cleanup( )
 void
 GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 {
-	
-	return;
-
 	auto mc = m_player->get_component< MoveComponent >();
 	auto tr = m_player->get_component< TransformComponent >();
 	if (!mc || !tr)

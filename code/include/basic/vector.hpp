@@ -563,12 +563,15 @@ public:
     bool
     find_last( uint32& out_index, T value, uint32 pos = MAX_LEN ) const
     {
+		if (m_size == 0)
+			return false;
+
         if ( pos > m_size )
         {
             pos = m_size - 1;
         }
 
-        for ( T* item = m_data + pos; item != m_data; --item )
+        for ( T* item = m_data + pos; item >= m_data; --item )
         {
             if ( *item == value )
             {

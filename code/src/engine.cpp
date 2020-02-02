@@ -98,9 +98,11 @@ bool Engine::update()
 
     m_render->clear();
 
-    m_callbacks[ Draw ]( this );
+    m_render->present();
 
-    m_render->present( m_window );
+	m_callbacks[Draw](this);
+
+	m_window->swap_buffers();
 
     m_delta = basic::get_milliseconds() - begin;
     m_time += m_delta;
