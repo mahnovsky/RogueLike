@@ -6,6 +6,7 @@
 #include "shader.hpp"
 #include "texture.hpp"
 #include "transform.hpp"
+#include <iostream>
 
 IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
 
@@ -140,8 +141,9 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSetti
                 static_cast< basic::uint32 >( data.get_size( ) - offset ),
                 line );
 
-        if ( line.front( ) == '#' || line.is_empty( ) )
+        if (line.is_empty() || line.front( ) == '#' )
         {
+			++offset;
             continue;
         }
 
@@ -266,7 +268,7 @@ RenderNode::create_node( ShaderProgram* program, Texture* texture )
         basic::uint32 offset = 0;
         node = basic::init_object< RenderNode >( objects_ptr, offset );
         node->material = basic::init_object< Material >( objects_ptr, offset, program, texture );
-        node->transform = basic::init_object< Transform >( objects_ptr, offset );
+        node->transform = basic::init_object< Transform >( objects_ptr, offset, nullptr );
     }
 
     return node;
@@ -352,10 +354,10 @@ basic::uint32 create_buffer( basic::uint32 buffer_type,
 {
     basic::uint32 buffer;
 
-    glGenBuffers( 1, &buffer );
-    glBindBuffer( buffer_type, buffer );
+    CHECKED_CALL(glGenBuffers, 1, &buffer );
+    CHECKED_CALL(glBindBuffer, buffer_type, buffer );
 
-    glBufferData( buffer_type, size, data, buffer_usage );
+    CHECKED_CALL(glBufferData, buffer_type, size, data, buffer_usage );
 
     return buffer;
 }
@@ -444,14 +446,14 @@ get_fmt_list( const Vertex* )
 
     fmt.size = 4;
     fmt.type = GL_UNSIGNED_BYTE;
-    fmt.offset = sizeof( float ) * 3;
+    fmt.offset = sizeof( glm::vec3 );
     fmt.is_normalized = GL_TRUE;
 
     res.push( fmt );
 
     fmt.size = 2;
     fmt.type = GL_FLOAT;
-    fmt.offset = sizeof( float ) * 3 + 4;
+    fmt.offset = sizeof(glm::vec3) + sizeof(basic::Color);
     fmt.is_normalized = GL_FALSE;
 
     res.push( fmt );
@@ -594,9 +596,6 @@ RenderNode::draw_node( basic::uint32 prev_vao )
 
     material->set_uniform( "MVP", mvp );
     material->set_uniform( "Color", color );
-	auto shader = material->get_shader()->get_handle();
-    const basic::int32 use_texture = material->get_texture() == nullptr ? 0 : 1;
-	set_uniform(shader, "UseTexture", use_texture);
 
     if ( index_object > 0 )
     {

@@ -1,5 +1,9 @@
 #include "camera.hpp"
 #include "transform.hpp"
+#include "frustum.hpp"
+
+#undef near
+#undef far
 
 PerspectiveCamera::PerspectiveCamera(
         ObjectManager* manager, float fov, float aspect, float near, float far )
@@ -10,7 +14,14 @@ PerspectiveCamera::PerspectiveCamera(
     , m_projection( )
     , m_view( )
 {
-    m_projection = glm::perspective( glm::radians( fov ), aspect, near, far );
+	float rad_fov = glm::radians(fov);
+    m_projection = glm::perspective( rad_fov, aspect, near, far );
+
+	glm::vec3 center;
+	
+	get_frustum_minimum_bounding_sphere(m_projection[0][0], m_projection[1][1], near, far, center, m_radius);
+
+	m_offset = center.z;
 }
 
 PerspectiveCamera::~PerspectiveCamera( )
@@ -61,6 +72,23 @@ glm::vec3
 PerspectiveCamera::get_position( ) const
 {
     return m_position;
+}
+
+std::vector<OctreeObject*> PerspectiveCamera::get_visible_objects(Octree* octree) const
+{
+	Sphere s;
+	glm::vec3 dir = glm::normalize(m_direction - m_position);
+	s.pos = m_position + dir * m_offset;
+	s.radius = m_radius;
+
+	std::vector<OctreeObject*> res;
+
+	ViewFrustum fr;
+	extract_view_frustum_planes_from_matrix(m_final, fr, true);
+
+	octree->find_objects(s, fr, res);
+	
+	return res;
 }
 
 void

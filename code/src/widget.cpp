@@ -351,6 +351,8 @@ Widget::get_camera( )
 void
 Widget::update_mat( )
 {
+	m_mat = m_view->get_transform()->get_matrix();
+	/*
     m_mat = m_view->get_transform( )->get_matrix( );
     if ( m_parent )
     {
@@ -360,7 +362,7 @@ Widget::update_mat( )
     for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
     {
         m_children[ i ]->update_mat( );
-    }
+    }*/
 }
 
 RootWidget*

@@ -1,27 +1,32 @@
 #include "entity.hpp"
 
-Entity::Entity( EntityID id, EntityComponentSystem* ecs )
-    : m_uid( id )
-    , m_ecs( ecs )
+Entity::Entity(EcsManager* mng): m_manager(mng)
 {
 }
 
-Entity::~Entity( )
+void Entity::add_component(IGenericObject* comp)
 {
-    m_ecs->destroy( this );
+	m_components.push_back(comp);
 }
 
-EntityID
-Entity::get_uid( ) const
+IGenericObject* Entity::get_component(size_t type_index)
 {
-    return m_uid;
+	auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](IGenericObject* obj)
+	{
+		return type_index == obj->type_index();
+	});
+	if (it != m_components.end())
+		return *it;;
+
+	return nullptr;
 }
 
-void
-Entity::on_destroy( )
+EcsManager* Entity::get_manager() const
 {
-    for ( auto comp : m_components )
-    {
-        m_ecs->emit( this, comp->get_type_uid( ), ComponentAction::Detached );
-    }
+	return m_manager;
+}
+
+std::vector<IGenericObject*> Entity::get_components() const
+{
+	return m_components;
 }

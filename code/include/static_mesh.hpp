@@ -23,7 +23,7 @@ public:
 	const basic::Vector<VertexFMT>& get_fmt_list() const;
 
 	static StaticMesh* create( ObjectManager* obj_mng,
-							   const char* name, 
+		const char* name, 
 		const MeshLoadSettings& settings);
 
 

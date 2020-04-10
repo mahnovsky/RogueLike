@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 extern "C" {
 #define GLEW_STATIC
@@ -15,6 +16,24 @@ extern "C" {
 
 #include "defines.hpp"
 #include "glm/glm.hpp"
+
+extern GLenum g_OpenGLError;
+
+#define OPENGL_CHECK_FOR_ERRORS() \
+	if ((g_OpenGLError = glGetError()) != GL_NO_ERROR) \
+	{\
+		LOG("OpenGL error 0x%X\n", (unsigned)g_OpenGLError); \
+		g_OpenGLError = GL_NO_ERROR; \
+	}
+
+
+#define CHECKED_CALL(func, ... ) \
+	func(__VA_ARGS__); \
+	if ((g_OpenGLError = glGetError()) != GL_NO_ERROR) \
+	{\
+		LOG("OpenGL error 0x%X in func %s, line %d\n", (unsigned)g_OpenGLError, #func, __LINE__); \
+		g_OpenGLError = GL_NO_ERROR; \
+	}
 
 enum class RenderResourceType
 {

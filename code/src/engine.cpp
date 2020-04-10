@@ -49,10 +49,6 @@ Engine::Engine( int argc, char** argv )
     }
 }
 
-Engine::~Engine()
-{
-}
-
 bool Engine::init(int width, int height, const char *wnd_title)
 {
     m_window = IWindow::create();
@@ -196,4 +192,3 @@ Engine::process_event( )
     }
 }
 
-IEngine::~IEngine(){}

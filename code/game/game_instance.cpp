@@ -9,25 +9,67 @@
 #include "widget_text.hpp"
 
 #include "entity.hpp"
-#include "entity_component_system.hpp"
+#include "ecs_manager.hpp"
 
 #include "render.hpp"
 #include "render_system.hpp"
 #include "static_mesh.hpp"
 
-#include <stdio.h>
+
 #include <ctime>
 
-struct Test
+
+class MoveComponent : public Component
 {
-    // DECLARE_TYPE_UID;
+public:
+	GENERIC_OBJECT_IMPL(MoveComponent, NS_COMPONENT_TYPE);
+
+	MoveComponent(Entity* ent)
+		:Component(ent)
+	{}
+
+	float angle_speed;
+	float move_speed;
+	glm::vec3 move_direction;
+};
+
+class MoveSystem : public IGenericObject
+{
+public:
+	GENERIC_OBJECT_IMPL(MoveSystem, NS_SYSTEM_TYPE);
+
+	MoveSystem(EcsManager* ecs)
+		: m_ecs(ecs)
+	{}
+
+
+	void update(float dt)
+	{
+		m_ecs->foreach_component<MoveComponent>([dt](MoveComponent* mc)
+			{
+				auto tr = mc->get_entity()->get_component<Transform>();
+				if (tr)
+				{
+					auto pos = tr->get_position();
+					pos += (mc->move_direction * mc->move_speed * dt);
+					tr->set_position(pos);
+
+					glm::vec3 angles = tr->get_euler_angles();
+					angles.y += (mc->angle_speed * dt);
+					tr->set_euler_angles(angles);
+				}
+			});
+	}
+
+public:
+	EcsManager* m_ecs;
 };
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
     , m_manager( NEW_OBJ( ObjectManager ) )
     , m_rs( nullptr )
-    , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 60.f, width / height, 1.f, 1000.f ) )
+    , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 45.f, width / height, 1.f, 200.f ) )
     , m_ui_camera( NEW_OBJ( OrthoCamera, m_manager, width, height, 0.f, 100.f ) )
     , m_width( width )
     , m_height( height )
@@ -123,77 +165,6 @@ void open_menu_action( Widget* w, void* user_data )
     gi->m_ui_root->add_child( wnd );
 }
 
-struct MoveComponent : public IComponent
-{
-    DECLARE_COMPONENT( MoveComponent )
-
-    float angle_speed;
-    float move_speed;
-    glm::vec3 move_direction;
-};
-
-class MoveSystem : public ISystem
-{
-public:
-    MoveSystem( EntityComponentSystem* ecs )
-        : m_ecs( ecs )
-    {}
-
-
-    void
-    on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act ) override
-    {
-        if ( component_id == m_ecs->get_component_id< TransformComponent >( ) )
-        {
-            if ( act == ComponentAction::Attached )
-            {
-                TransformComponent* tc = ent->get_component< TransformComponent >( );
-
-                if ( tc )
-                {
-                    ASSERT( ent );
-                    m_transforms.push( {ent, tc} );
-                }
-            }
-        }
-    }
-
-    void initialize( )
-    {
-        m_ecs->registry_component< MoveComponent >( "MoveComponent" );
-    }
-
-    void
-    start( ) override
-    {
-    }
-
-    void update( float dt ) override
-    {
-        // return;
-        const basic::Vector< MoveComponent* >& mcs = m_ecs->get_components< MoveComponent >( );
-
-        for ( auto mc : mcs )
-        {
-            TransformComponent* tc;
-            if ( mc->entity && ( tc = mc->entity->get_component< TransformComponent >( ) ) )
-            {
-                auto pos = tc->tr.get_position( );
-                pos += ( mc->move_direction * mc->move_speed * dt );
-                tc->tr.set_position( pos );
-
-                glm::vec3 angles = tc->tr.get_euler_angles( );
-                angles.y += ( mc->angle_speed * dt );
-                tc->tr.set_euler_angles( angles );
-            }
-        }
-    }
-
-public:
-    EntityComponentSystem* m_ecs;
-    basic::Vector< basic::Pair< Entity*, TransformComponent* > > m_transforms;
-};
-
 static float
 rnd( )
 {
@@ -201,18 +172,26 @@ rnd( )
 }
 
 Entity*
-make_ent(EntityComponentSystem* ecs, const char* mesh, const char* shader, const char* texture = nullptr )
+make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* texture = nullptr )
 {
-    Entity* ent = ecs->create( );
+	auto ent = ecs->create_entity<Entity>();
+	
+    auto tr = ent->add_component< Transform >( );
 
-    auto tr = ent->add_component< TransformComponent >( );
+    float v = 50.f;
+    glm::vec3 pos{v * rnd( ), 10.f, v * rnd( )};
 
-    float v = 10.f;
-    glm::vec3 pos{v * rnd( ), 0.f, v * rnd( )};
+    tr->set_position( pos );
+    const float scale = rnd( ) * 5.f;
+    tr->set_scale( {scale, scale, scale} );
 
-    tr->tr.set_position( pos );
-    const float scale = rnd( ) * 2.5f;
-    tr->tr.set_scale( {scale, scale, scale} );
+	Sphere s;
+	s.pos = pos;
+	s.radius = scale / 2;
+	
+	auto bounding = ent->add_component<OctreeObject>(s);
+	auto octree = ecs->get_system<Octree>();
+	octree->add_object(bounding);
 
     auto rc = ent->add_component< RenderComponent >( );
 
@@ -226,9 +205,6 @@ make_ent(EntityComponentSystem* ecs, const char* mesh, const char* shader, const
     mc->angle_speed = rnd( );
     mc->move_speed = rnd( ) * 2.f;
     mc->move_direction = {rnd( ), 0.f, rnd( )};
-    // ecs->emit( ent, TransformComponent::TYPE_UID, ComponentAction::Updated );
-
-    //RenderSystem::load_component( rc, m );
 
     return ent;
 }
@@ -239,22 +215,23 @@ GameInstance::init( )
     srand( time( nullptr ) );
 	Texture* texture = m_rs->get_resorce< Texture >("btn.png");
 
-    ShaderProgram* shader = m_rs->get_resorce< ShaderProgram >( "texture" );
+    m_ecs = NEW_OBJ(EcsManager);
 
-    m_ecs = NEW_OBJ( EntityComponentSystem );
+	m_move_system = m_ecs->add_system<MoveSystem>();
+	Box b;
+	b.min = { -512, -512, -512 };
+	b.max = { 512, 512, 512 };
+	m_ecs->add_system<Octree>(b);
+	m_render_system = m_ecs->add_system<RenderSystem>();
 
-    MoveSystem* ms = m_ecs->create_system< MoveSystem >( );
-    ms->initialize( );
-
-    m_render_system = m_ecs->create_system< RenderSystem >( );
-    m_render_system->initialize( m_engine->get_render(), m_ecs, m_game_camera );
+    m_render_system->initialize( m_engine->get_render(), m_game_camera );
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
-    // m_ui_camera.init( {0.f, 0.f, 0.f}, {}, {} );
+    
 
     m_ui_root->init( m_rs );
 
@@ -296,7 +273,7 @@ GameInstance::init( )
         m_ui_root->add_child( wnd );
     }
     
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		auto cow = make_ent(m_ecs, "meshes/cube.obj", "default");
 		auto rc = cow->get_component<RenderComponent>();
@@ -327,20 +304,26 @@ GameInstance::init( )
 	}*/
 
 	Entity* plane_ent = make_ent(m_ecs, "meshes/plane.obj", "default_texture", "Chess_Board.png");
+	
 	if (plane_ent)
 	{
-		auto trc = plane_ent->get_component< TransformComponent >();
-		trc->tr.set_scale({ 100.f, 1.f, 100.f });
+		auto tr = plane_ent->get_component< Transform >();
+		tr->set_scale({ 100.f, 1.f, 100.f });
 
 		auto move_comp = plane_ent->get_component< MoveComponent >();
 		move_comp->move_speed = 0.f;
 		move_comp->angle_speed = 0.f;
+
+		auto pos = tr->get_position();
+		auto bound = plane_ent->get_component<OctreeObject>();
+		Box b;
+		b.min = { pos.x - 50.f, pos.y - 1.f, pos.z - 50.f };
+		b.max = { pos.x + 50.f, pos.y + 1.f, pos.z + 50.f };
+		bound->reset(b);
 	}
     
 
     m_engine->get_input( )->add_listener( this );
-
-    m_ecs->start( );
 }
 
 void
@@ -354,14 +337,13 @@ GameInstance::draw( IRender* ) const
 void
 GameInstance::frame( float delta ) const
 {
-    m_ecs->update( delta );
-
-    print_fps( );
+	static int prev_object_count;
+    print_fps( prev_object_count );
 
     if ( m_player )
     {
         auto mc = m_player->get_component< MoveComponent >( );
-        auto tr = m_player->get_component< TransformComponent >( );
+        auto tr = m_player->get_component< Transform>( );
 
 		if (mc && tr)
 		{
@@ -383,41 +365,41 @@ GameInstance::frame( float delta ) const
 				mc->move_speed = -vel;
 			if( input->is_key_pressed(input::KeyCode::Space) )
 			{
-				auto pos = tr->tr.get_position();
+				auto pos = tr->get_position();
 				pos.y += (vel * delta);
-				tr->tr.set_position(pos);
+				tr->set_position(pos);
 			}
 			if(input->is_key_pressed(input::KeyCode::E))
 			{
-				auto pos = tr->tr.get_position();
+				auto pos = tr->get_position();
 				pos.y -= (vel * delta);
-				tr->tr.set_position(pos);
+				tr->set_position(pos);
 			}
 
 
-			auto pos = tr->tr.get_position();
-			auto fw = tr->tr.get_forward();
+			auto pos = tr->get_position();
+			auto fw = tr->get_forward();
 			mc->move_direction = fw;
 
 			glm::vec3 up = { 0.f, 1.f, 0.f };
-			glm::vec3 dist = -fw * 10.f + up * 7.f;
+			glm::vec3 dist = -fw * 20.f + up * 7.f;
 			auto cam_pos = pos + dist;
 
 			m_game_camera->init(cam_pos, pos, up);
 		}
     }
-}
 
-void
-GameInstance::cleanup( )
-{
+	m_move_system->update(delta);
+	m_render_system->update(delta);
+
+	prev_object_count = m_render_system->get_draw_object_count();
 }
 
 void
 GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 {
 	auto mc = m_player->get_component< MoveComponent >();
-	auto tr = m_player->get_component< TransformComponent >();
+	auto tr = m_player->get_component< Transform >();
 	if (!mc || !tr)
 	{
 		return;
@@ -432,16 +414,17 @@ GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 	case input::KeyCode::S: mc->move_speed = -vel; break;
 	case input::KeyCode::Space:
 		{
-		auto pos = tr->tr.get_position();
+		auto pos = tr->get_position();
 		pos.y += 0.1f;
-		tr->tr.set_position(pos);
+		tr->set_position(pos);
 		}
 		break;
+	default: break;
 	}
 }
 
 void
-GameInstance::print_fps( ) const
+GameInstance::print_fps( int objects ) const
 {
 	constexpr int BUFF_SIZE = 256;
     static basic::char_t buff[ BUFF_SIZE ];
@@ -456,6 +439,6 @@ GameInstance::print_fps( ) const
         }
     }
 
-    basic::String::format( buff, BUFF_SIZE, "memory usage: %u", basic::get_memory_usage( ) );
+    basic::String::format( buff, BUFF_SIZE, "draw objects: %u", objects);
     m_mem_text->set_text( buff );
 }

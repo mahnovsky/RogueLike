@@ -11,7 +11,6 @@ WidgetText::WidgetText(ObjectManager* manager, const glm::vec2 &size)
     , m_font( nullptr )
     , m_text()
     , m_text_render(nullptr)
-    , m_text_size()
 {}
 
 WidgetText::~WidgetText()

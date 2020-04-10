@@ -1,61 +1,50 @@
 #pragma once
 
-#include "component.hpp"
-#include "entity_component_system.hpp"
+#include <vector>
+#include <string>
 
-using EntityID = basic::uint32;
+#include "ecs.hpp"
 
-class Entity
+#include "generic/generic_object.hpp"
+#include "ecs_manager.hpp"
+
+class Entity : public IGenericObject
 {
 public:
-    Entity( EntityID id, EntityComponentSystem* ecs );
-    virtual ~Entity( );
+	GENERIC_OBJECT_IMPL(Entity, NS_ENTITY_TYPE);
 
-    template < class T >
-    T*
-    add_component( )
-    {
-        T* comp = m_ecs->create_component< T >( );
+	Entity(EcsManager* mng);
 
-        comp->entity = this;
+	~Entity() override = default;
 
-        m_components.insert( T::TYPE_UID, comp );
+	void add_component(IGenericObject* comp);
 
-        m_ecs->emit( this, T::TYPE_UID, ComponentAction::Attached );
+	IGenericObject* get_component(size_t type_index);
 
-        return comp;
-    }
+	EcsManager* get_manager() const;
 
-    template < class T >
-    T*
-    get_component( )
-    {
-        T* comp = nullptr;
-        if ( size( m_components ) > T::TYPE_UID && m_components[ T::TYPE_UID ] != nullptr )
-        {
-            comp = dynamic_cast< T* >( m_components[ T::TYPE_UID ] );
-        }
-        return comp;
-    }
+	std::vector<IGenericObject*> get_components() const;
 
-    template < class T >
-    const T*
-    get_component( ) const
-    {
-        T* comp = nullptr;
-        if ( size( m_components ) > T::TYPE_UID )
-        {
-            comp = m_components[ T::TYPE_UID ];
-        }
-        return comp;
-    }
+	template <class T>
+	T* get_component()
+	{
+		return dynamic_cast<T*>(get_component(TypeInfo<T, NS_COMPONENT_TYPE>::type_index));
+	}
 
-    EntityID get_uid( ) const;
+	template <class T, class ... Args>
+	T* add_component(Args ... args)
+	{
+		T* comp = m_manager->create_component<T, Args ...>(this, args ...);
 
-    virtual void on_destroy( );
+		add_component(comp);
+
+		return comp;
+	}
+
 
 private:
-    const EntityID m_uid;
-    EntityComponentSystem* m_ecs;
-    basic::Vector< IComponent* > m_components;
+	EcsManager* m_manager;
+
+	std::vector<IGenericObject*> m_components;
+	std::string m_name;
 };

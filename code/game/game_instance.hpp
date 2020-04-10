@@ -4,12 +4,9 @@
 
 #include "camera.hpp"
 #include "engine.hpp"
-#include "font.hpp"
 #include "input.hpp"
 #include "resource_storage.hpp"
-#include "shader.hpp"
-#include "sprite.hpp"
-#include "text.hpp"
+
 
 class GameInstance : public input::InputListener
 {
@@ -23,14 +20,12 @@ public:
 
     void frame( float delta ) const;
 
-    void cleanup( );
-
     void key_pressed( input::KeyCode code, basic::int16 key ) override;
 
     friend void open_menu_action( Widget* w, void* user_data );
 
 private:
-    void print_fps( ) const;
+    void print_fps( int objects) const;
 
 private:
     Engine* m_engine;
@@ -49,10 +44,12 @@ private:
     WidgetText* m_mem_text;
     RenderNode* m_cow;
     RootWidget* m_ui_root;
-    EntityComponentSystem* m_ecs;
+	EcsManager* m_ecs;
     class RenderSystem* m_render_system;
 
     Entity* m_player;
 
 	bool m_is_menu_opened = false;
+
+	class MoveSystem* m_move_system;
 };

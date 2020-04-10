@@ -1,11 +1,16 @@
 #pragma once
 
+#include "ecs.hpp"
 #include "defines.hpp"
+#include "component.hpp"
 
-class Transform
+class Transform : public Component
 {
 public:
-    Transform( );
+	GENERIC_OBJECT_IMPL(Transform, NS_COMPONENT_TYPE);
+
+    Transform( Entity* ent );
+	~Transform() override;
 
     void set_parent( Transform* parent );
 
@@ -34,16 +39,19 @@ public:
     glm::vec3 get_forward( ) const;
 
 private:
-    void update_final_matrix( ) const;
+    void update_final_matrix() const;
+
+	mutable glm::mat4 m_final_mat;
 
     Transform* m_parent;
-    mutable glm::mat4 m_final_mat;
+	basic::Vector< Transform* > m_children;
+    
     glm::vec3 m_pos;
     glm::vec3 m_euler_angles;
     glm::vec3 m_pivot_point;
     glm::quat m_quat;
     glm::vec3 m_scale;
-    basic::Vector< Transform* > m_children;
+
 public:
-	mutable bool is_changed = false;
+	mutable bool is_changed = true;
 };

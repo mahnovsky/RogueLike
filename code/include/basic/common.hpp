@@ -13,6 +13,15 @@
 #include "vector.hpp"
 #include  "convert.hpp"
 
+#include <vector>
+#include <cstdint>
+
+using std::uint8_t;
+using std::uint16_t;
+using std::uint32_t; 
+using std::uint64_t;
+
+
 template < class T, class U >
 T
 size_as( const basic::Vector< U >& v )

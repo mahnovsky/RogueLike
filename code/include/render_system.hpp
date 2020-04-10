@@ -1,26 +1,35 @@
 #pragma once
 
 #include "entity.hpp"
-#include "entity_component_system.hpp"
-#include "material.hpp"
+#include "ecs.hpp"
+
 #include "render_common.hpp"
 #include "transform.hpp"
 
 class IRenderObject;
 class RenderComponent;
 
-struct RenderComponent : public IComponent
+class RenderComponent : public Component
 {
-    DECLARE_COMPONENT( RenderComponent )
+public:
+	GENERIC_OBJECT_IMPL(RenderComponent, NS_COMPONENT_TYPE);
+
+	RenderComponent(Entity* ent)
+		:Component(ent)
+		, m_render_object(nullptr)
+	{}
 
     glm::mat4 model;
-    class TransformComponent* transform;
+
+    class Transform* transform;
+
+	basic::String camera;
 
 	void initialize(IRenderObject* obj);
 
-	void update_color();
+	void update_color() const;
 
-	void update_mvp(const glm::mat4& mvp);
+	void update_mvp(const glm::mat4& mvp) const;
 
 	void on_resource_changed(RenderResourceType type, const basic::String& name);
 
@@ -36,48 +45,41 @@ private:
 	IRenderObject* m_render_object;
 
 	constexpr static basic::uint32 resources_count = static_cast<basic::uint32>(RenderResourceType::Count);
-	basic::String m_resourses[resources_count];
+	basic::String m_resources[resources_count];
 	basic::Color color = { 255, 255, 255, 255 };
 };
 
-struct TransformComponent : public IComponent
-{
-    DECLARE_COMPONENT( TransformComponent )
-
-    Transform tr;
-};
-
-class TransformSystem : public ISystem
+class RenderSystem : public IGenericObject
 {
 public:
-    void update( EntityComponentSystem* ecs );
+	GENERIC_OBJECT_IMPL(RenderSystem, NS_SYSTEM_TYPE);
 
-    void on_component_event( Entity* ent,
-                             basic::uint32 component_id,
-                             ComponentAction act ) override;
+	RenderSystem(const RenderSystem&) = delete;
+	RenderSystem(RenderSystem&&) noexcept = delete;
 
-private:
-};
-
-class RenderSystem : public ISystem
-{
-public:
-    RenderSystem( EntityComponentSystem* ecs );
+    RenderSystem(EcsManager* ecs);
     ~RenderSystem( ) override = default;
 
-    void initialize( IRender* render, EntityComponentSystem* ecs, ICamera* cam );
 
-    void draw( EntityComponentSystem* ecs ) const;
+	void update(float dt) 
+	{
+		draw(m_ecs);
+	}
 
-    void on_component_event( Entity* ent,
-                             basic::uint32 component_id,
-                             ComponentAction act ) override;
+    void initialize( IRender* render, ICamera* cam );
 
-    static void load_component( RenderComponent* comp, StaticMesh* m );
+    void draw(EcsManager* ecs ) const;
+
+	int get_draw_object_count() const
+	{
+		return m_draw_object_count;
+	}
 
 private:
+	EcsManager* m_ecs;
 	IRender* m_render;
     ICamera* m_camera;
     basic::uint32 m_transform_id;
     basic::uint32 m_render_id;
+	mutable int m_draw_object_count;
 };

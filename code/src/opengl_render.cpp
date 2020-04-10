@@ -20,41 +20,17 @@ extern "C" {
 
 #include <GL/gl.h>
 
-typedef void(*DrawFunc)(struct RenderInstance&);
+GLenum g_OpenGLError = GL_NO_ERROR;
 
-struct RenderInstance
-{
-	GLuint program;
-	GLuint texture;
-	GLuint vao;
-	GLuint element_count;
-	DrawFunc draw_func;
-	glm::mat4 mvp{ 1.0f };
-	basic::Color color{ 255, 255, 255, 255 };
-};
-
-void draw_insices(RenderInstance& instance)
-{
-	glDrawElements(GL_TRIANGLES, instance.element_count, GL_UNSIGNED_SHORT, nullptr);
-}
-
-void draw_vertices(RenderInstance& instance)
-{
-	glDrawArrays(GL_TRIANGLES, 0, instance.element_count);
-}
-
-void draw_dummy(RenderInstance& instance)
-{
-}
 
 class OpenGLRenderObject final : public IRenderObject
 {
 public:
 	OpenGLRenderObject() = delete;
 
-	OpenGLRenderObject(ResourceStorage* rs, basic::uint32 uid, basic::Vector<RenderInstance>& instances)
-		: m_uid(uid)
-		, m_instances(instances)
+	OpenGLRenderObject(ResourceStorage* rs)
+		: m_vao(0)
+		, m_color{ 255, 255, 255, 255 }
 		, m_rs(rs)
 		, m_mesh(nullptr)
 		, m_program(nullptr)
@@ -64,7 +40,8 @@ public:
 
 	~OpenGLRenderObject() override
 	{
-		m_instances[m_uid].vao = 0;
+		glDeleteVertexArrays(1, &m_vao);
+		
 		SAFE_RELEASE(m_mesh);
 		SAFE_RELEASE(m_texture);
 		SAFE_RELEASE(m_program);
@@ -95,8 +72,9 @@ public:
 
 	void update_mvp(const glm::mat4& mvp) override
 	{
-		m_instances[m_uid].mvp = mvp;
+		m_mvp = mvp;
 	}
+
 
 	void apply_changes(RenderResourceType type, const basic::String& name)
 	{
@@ -125,45 +103,34 @@ public:
 			m_mesh->release();
 		}
 
-		m_mesh = m_rs->get_resorce<StaticMesh>(name.get_cstr(), m_mesh_settings);
+		MeshLoadSettings settings;
+		m_mesh = m_rs->get_resorce<StaticMesh>(name.get_cstr(), settings);
 		if (m_mesh)
 		{
-			RenderInstance& instance = m_instances[m_uid];
-
-			if (m_mesh->get_index_count() > 0)
-			{
-				instance.draw_func = draw_insices;
-				instance.element_count = m_mesh->get_index_count();
-			}
-			else if (m_mesh->get_vertex_count() > 0)
-			{
-				instance.draw_func = draw_vertices;
-				instance.element_count = m_mesh->get_vertex_count();
-			}
-
 			m_mesh->retain();
+			OPENGL_CHECK_FOR_ERRORS();
+			glGenVertexArrays(1, &m_vao);
+			CHECKED_CALL(glBindVertexArray, m_vao);
 
-			glBindVertexArray(instance.vao);
-
-			glBindBuffer(GL_ARRAY_BUFFER, m_mesh->get_vbo());
+			CHECKED_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_mesh->get_vbo());
 
 			auto fmt_list = m_mesh->get_fmt_list();
 			basic::uint32 i = 0;
 			for (const auto& fmt : fmt_list)
 			{
-				glVertexAttribPointer(i,
+				CHECKED_CALL(glVertexAttribPointer, i,
 					static_cast<GLint>(fmt.size),
 					fmt.type,
 					fmt.is_normalized,
 					sizeof(Vertex),
 					reinterpret_cast<const void*>(fmt.offset));
 
-				glEnableVertexAttribArray(i);
+				CHECKED_CALL(glEnableVertexAttribArray, i);
 
 				++i;
 			}
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_mesh->get_ibo());
+			CHECKED_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_mesh->get_ibo());
 		}
 	}
 
@@ -178,14 +145,12 @@ public:
 		if (m_program)
 		{
 			m_program->retain();
-
-			m_instances[m_uid].program = m_program->get_handle();
 		}
 	}
 
 	void update_color(basic::Color color) override
 	{
-		m_instances[m_uid].color = color;
+		m_color = color;
 	}
 
 	void update_texture(const basic::String& name)
@@ -199,19 +164,44 @@ public:
 		if (m_texture)
 		{
 			m_texture->retain();
-
-			m_instances[m_uid].texture = m_texture->get_handle();
 		}
 	}
 
+	void draw_object() const
+	{
+		CHECKED_CALL(glBindVertexArray, m_vao);
+		CHECKED_CALL(glUseProgram, m_program->get_handle());
+
+		if (m_texture)
+		{
+			CHECKED_CALL(glActiveTexture, GL_TEXTURE0);
+
+			CHECKED_CALL(glBindTexture, GL_TEXTURE_2D, m_texture->get_handle());
+		}
+
+		auto program = m_program->get_handle();
+		set_uniform(program, "MVP", m_mvp);
+		set_uniform(program, "Color", m_color);
+
+		if (m_mesh->get_index_count() > 0)
+		{
+			CHECKED_CALL(glDrawElements, GL_TRIANGLES, m_mesh->get_index_count() * sizeof(short), GL_UNSIGNED_SHORT, nullptr);
+		}
+		else if (m_mesh->get_vertex_count() > 0)
+		{
+			CHECKED_CALL(glDrawArrays, GL_TRIANGLES, 0, m_mesh->get_vertex_count());
+		}
+
+	}
+
 private:
-	basic::uint32 m_uid;
-	basic::Vector<RenderInstance>& m_instances;
+	GLuint m_vao;
+	basic::Color m_color;
 	ResourceStorage* m_rs;
 	StaticMesh* m_mesh;
 	ShaderProgram* m_program;
 	Texture* m_texture;
-	MeshLoadSettings m_mesh_settings;
+	glm::mat4 m_mvp;
 };
 
 float quad_vertices[] = { 
@@ -228,8 +218,15 @@ class OpenGLRender final : public IRender
 {
 public:
 	OpenGLRender()
-		: m_rs(nullptr)
-		, m_mvp_uniform(0)
+		:m_width(0)
+		,m_height(0)
+		,m_fbo(0)
+		,m_texture_color_buffer(0)
+		,m_screen_quad_vao(0)
+		,m_screen_quad_vbo(0)
+		,m_post_program(nullptr)
+		,m_rs(nullptr)
+		,m_mvp_uniform(0)
 	{
 	}
 
@@ -241,7 +238,11 @@ public:
 		{
 			return false;
 		}
+
+		m_width = width;
+		m_height = height;
 		m_rs = rs;
+
 		const char* gl_version = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
 		LOG("gl version %s", gl_version);
@@ -255,118 +256,61 @@ public:
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-
+		OPENGL_CHECK_FOR_ERRORS();
 		//glEnable( GL_CULL_FACE );
 		//glCullFace(GL_FRONT);
-
-		glGenFramebuffers(1, &m_fbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-
-		glGenTextures(1, &m_texture_color_buffer);
-		glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);
-
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer, 0);
-
-		unsigned int rbo;
-		glGenRenderbuffers(1, &rbo);
-		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		glGenVertexArrays(1, &m_screen_quad_vao);
-		glBindVertexArray(m_screen_quad_vao);
-		m_screen_quad_vbo = create_buffer(GL_ARRAY_BUFFER, GL_STATIC_DRAW, quad_vertices, sizeof(float) * 24);
 		
-		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		glBindVertexArray(0);
-
-		m_post_program = m_rs->get_resorce<ShaderProgram>("posteffect");
-		ASSERT(m_post_program != nullptr);
-
-		m_post_program->retain();
-
-		m_width = width;
-		m_height = height;
+		init_fbo();
 
 		return true;
 	}
 
 	void clear() override
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+		if (m_fbo > 0)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-		glEnable(GL_DEPTH_TEST);
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glEnable(GL_DEPTH_TEST);
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+		}
+		
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	void present() override
 	{
-		for (auto& instance : m_instances)
+		present_objects();
+
+		present_color_texture();
+
+		glBindVertexArray(0);
+	}
+
+	void present_objects()
+	{
+		while (!m_objects_to_present.is_empty())
 		{
-			glBindVertexArray(instance.vao);
-			glUseProgram(instance.program);
+			auto& obj = m_objects_to_present.back();
 
-			if(instance.texture > 0)
-			{
-				glActiveTexture(GL_TEXTURE0);
+			obj->draw_object();
 
-				glBindTexture(GL_TEXTURE_2D, instance.texture);
-			}
+			OPENGL_CHECK_FOR_ERRORS();
 
-			set_uniform(instance.program, "MVP", instance.mvp);
-			set_uniform(instance.program, "Color", instance.color);
-
-			instance.draw_func(instance);
+			m_objects_to_present.pop();
 		}
-		glBindVertexArray(0);
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glDisable(GL_DEPTH_TEST);
-
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glBindVertexArray(m_screen_quad_vao);
-		const GLuint post_effect = m_post_program->get_handle();
-		glUseProgram(post_effect);
-
-		set_uniform(post_effect, "width", m_width);
-		set_uniform(post_effect, "height", m_height);
-
-		glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);	
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-
-		glUseProgram(0);
-		glBindVertexArray(0);
 	}
 
 	IRenderObject* create_object(RenderComponent& comp) override
 	{
-		const basic::uint32 uid = m_instances.get_size();
-		m_instances.push({ 0, 0, 0, 0, draw_dummy });
+		//auto obj = NEW_OBJ(OpenGLRenderObject, m_rs);
 
-		GLuint vao;
-		glGenVertexArrays(1, &vao);
-		m_instances[uid].vao = vao;
+		//obj->on_component_changed(comp);
 
-		auto obj = NEW_OBJ(OpenGLRenderObject, m_rs, uid, m_instances);
-
+		m_objects.emplace(m_rs);
+		IRenderObject* obj = &m_objects.back();
 		obj->on_component_changed(comp);
-
-		m_objects.push(obj);
 
 		return obj;
 	}
@@ -375,14 +319,90 @@ public:
 	{
 		basic::uint32 index = 0;
 		auto internal_obj = dynamic_cast<OpenGLRenderObject*>(obj);
-		if (m_objects.find_first(index, internal_obj))
+
+		
+	}
+
+	void init_fbo()
+	{
+		if(!m_use_fbo)
 		{
-			m_objects.swap_remove(index);
-			DELETE_OBJ(obj);
+			return;
+		}
+		CHECKED_CALL(glGenFramebuffers, 1, &m_fbo);
+		CHECKED_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_fbo);
+
+		CHECKED_CALL(glGenTextures, 1, &m_texture_color_buffer);
+		CHECKED_CALL(glBindTexture, GL_TEXTURE_2D, m_texture_color_buffer);
+
+		CHECKED_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		CHECKED_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer, 0);
+
+		unsigned int rbo;
+		glGenRenderbuffers(1, &rbo);
+		glBindRenderbuffer(GL_RENDERBUFFER, rbo);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_width, m_height);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		CHECKED_CALL(glGenVertexArrays, 1, &m_screen_quad_vao);
+		CHECKED_CALL(glBindVertexArray, m_screen_quad_vao);
+		m_screen_quad_vbo = create_buffer(GL_ARRAY_BUFFER, GL_STATIC_DRAW, quad_vertices, sizeof(float) * 24);
+		OPENGL_CHECK_FOR_ERRORS();
+
+		CHECKED_CALL(glEnableVertexAttribArray, 0);
+		CHECKED_CALL(glVertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		CHECKED_CALL(glEnableVertexAttribArray, 1);
+		CHECKED_CALL(glVertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+		CHECKED_CALL(glBindVertexArray, 0);
+
+		OPENGL_CHECK_FOR_ERRORS();
+		m_post_program = m_rs->get_resorce<ShaderProgram>("post_effect");
+		ASSERT(m_post_program != nullptr);
+
+		m_post_program->retain();
+	}
+
+	void present_color_texture() const
+	{
+		if (m_fbo > 0)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glDisable(GL_DEPTH_TEST);
+
+			glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			glBindVertexArray(m_screen_quad_vao);
+			const GLuint post_effect = m_post_program->get_handle();
+			glUseProgram(post_effect);
+
+			set_uniform(post_effect, "width", m_width);
+			set_uniform(post_effect, "height", m_height);
+
+			glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
 	}
 
+	void add_to_frame(IRenderObject* object) override
+	{
+		const auto gl_obj = dynamic_cast<OpenGLRenderObject*>(object);
+
+		//m_instances.push(gl_obj->get_instance());
+		m_objects_to_present.push(gl_obj);
+	}
+
 private:
+	bool m_use_fbo = true;
 	GLint m_width;
 	GLint m_height;
 	GLuint m_fbo;
@@ -392,8 +412,9 @@ private:
 	ShaderProgram* m_post_program;
 	ResourceStorage* m_rs;
 	GLint m_mvp_uniform;
-	basic::Vector<OpenGLRenderObject*> m_objects;
-	basic::Vector<RenderInstance> m_instances;
+
+	basic::Vector<OpenGLRenderObject> m_objects;
+	basic::Vector<OpenGLRenderObject*> m_objects_to_present;
 };
 
 IRender*
@@ -403,6 +424,11 @@ IRender::create()
 }
 
 OpenGLRender::~OpenGLRender()
-{
+{	
 	SAFE_RELEASE(m_post_program);
+	
+	glDeleteVertexArrays(1, &m_screen_quad_vao);
+	glDeleteBuffers(1, &m_screen_quad_vbo);
+	glDeleteTextures(1, &m_texture_color_buffer);
+	glDeleteFramebuffers(1, &m_fbo);
 }

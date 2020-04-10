@@ -10,34 +10,38 @@
 void RenderComponent::initialize(IRenderObject* obj)
 {
 	m_render_object = obj;
+	obj->update_color(color);
 	obj->on_component_changed(*this);
 }
 
-void RenderComponent::update_color()
+void RenderComponent::update_color() const
 {
-	m_render_object->update_color(color);
+	if(m_render_object)
+		m_render_object->update_color(color);
 }
 
-inline void RenderComponent::update_mvp(const glm::mat4& mvp)
+void RenderComponent::update_mvp(const glm::mat4& mvp) const
 {
-	m_render_object->update_mvp(mvp);
+	if(m_render_object)
+		m_render_object->update_mvp(mvp);
 }
 
 void RenderComponent::on_resource_changed(RenderResourceType type, const basic::String& name)
 {
-	m_render_object->on_component_changed(*this);
+	if(m_render_object)
+		m_render_object->on_component_changed(*this);
 }
 
 const basic::String& RenderComponent::get_resource_name(RenderResourceType type) const
 {
-	return m_resourses[enum2num(type)];
+	return m_resources[enum2num(type)];
 }
 
 void RenderComponent::set_resource_name(RenderResourceType type, const basic::String& name)
 {
 	const basic::uint32 index = enum2num(type);
-	m_resourses[index] = name;
-	on_resource_changed(type, m_resourses[index]);
+	m_resources[index] = name;
+	on_resource_changed(type, m_resources[index]);
 }
 
 void RenderComponent::set_color(basic::Color color)
@@ -46,8 +50,9 @@ void RenderComponent::set_color(basic::Color color)
 	update_color();
 }
 
-RenderSystem::RenderSystem( EntityComponentSystem* ecs )
-    : m_render(nullptr)
+RenderSystem::RenderSystem(EcsManager* ecs)
+    : m_ecs(ecs)
+	, m_render(nullptr)
 	, m_camera( nullptr )
     , m_transform_id( 0 )
     , m_render_id( 0 )
@@ -55,78 +60,54 @@ RenderSystem::RenderSystem( EntityComponentSystem* ecs )
 }
 
 void
-RenderSystem::initialize(IRender* render, EntityComponentSystem* ecs, ICamera* cam )
+RenderSystem::initialize(IRender* render, ICamera* cam )
 {
-    ecs->registry_component< RenderComponent >( "RenderComponent" );
-    ecs->registry_component< TransformComponent >( "TransformComponent" );
-
-    m_transform_id = ecs->get_component_id< TransformComponent >( );
-    m_render_id = ecs->get_component_id< RenderComponent >( );
-
-    ecs->subscribe( m_transform_id, this );
-    ecs->subscribe( m_render_id, this );
-
 	m_render = render;
     m_camera = cam;
 }
 
-void RenderSystem::draw( EntityComponentSystem* ecs ) const
+void RenderSystem::draw( EcsManager* ecs ) const
 {
     ASSERT( m_camera );
 
-    const basic::Vector< RenderComponent* >& components = ecs->get_components< RenderComponent >( );
+	auto octree = ecs->get_system<Octree>();
+	auto res = m_camera->get_visible_objects(octree);
 
-    for ( auto comp : components )
-    {
-        if ( comp->transform && comp->transform->tr.is_changed )
-        {
-			glm::mat4 pv(1.f);
-			m_camera->get_matrix(pv);
+	if(res.empty())
+	{
+		return;
+	}
 
-            comp->update_mvp( pv * comp->transform->tr.get_matrix( ) );
+	glm::mat4 pv(1.f);
 
-			comp->transform->tr.is_changed = false;
-        }
-    }
-}
+	m_camera->get_matrix(pv);
 
-void
-RenderSystem::on_component_event( Entity* ent, basic::uint32 component_id, ComponentAction act )
-{
-    switch ( act )
-    {
-    case ComponentAction::Attached:
-    {
-        if ( component_id == m_transform_id || component_id == m_render_id )
-        {
-            TransformComponent* tc = ent->get_component< TransformComponent >( );
-            RenderComponent* rc = ent->get_component< RenderComponent >( );
+	m_draw_object_count = 0;
+	for(auto oc : res)
+	{
+		auto ent = oc->get_entity();
 
-			if (rc)
-			{
-				rc->initialize( m_render->create_object(*rc) );
-				
-				if (tc)
-				{
-					rc->transform = tc;
-				}
-			}
-        }
-    }
-    break;
-    case ComponentAction::Updated:
-        break;
-    case ComponentAction::Detached:
-    {
-        if ( component_id == m_transform_id )
-        {
-            RenderComponent* rc = ent->get_component< RenderComponent >( );
-			m_render->delete_object(rc->m_render_object);
-            rc->transform = nullptr;
-        }
-    }
-    break;
-    default:
-        break;
-    }
+		auto rc = ent->get_component<RenderComponent>();
+		if (!rc->m_render_object)
+		{
+			rc->initialize(m_render->create_object(*rc));
+		}
+
+		auto tr = ent->get_component<Transform>();
+		
+		if (tr)
+		{
+			rc->update_mvp(pv * tr->get_matrix());
+
+			tr->is_changed = false;
+		}
+		else
+		{
+			rc->update_mvp(pv);
+		}
+
+		m_render->add_to_frame(rc->m_render_object);
+
+		++m_draw_object_count;
+	}
 }

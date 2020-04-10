@@ -4,6 +4,8 @@
 #include "basic/file.hpp"
 #include "config.hpp"
 
+#include "render_common.hpp"
+
 basic::uint32 ShaderProgram::m_current_shader_program;
 
 ShaderProgram::ShaderProgram( ObjectManager* manager, const char* file )
@@ -53,6 +55,7 @@ ShaderProgram::load( ResourceStorage* storage )
             return false;
         }
 
+		m_shader_program = glCreateProgram();
         BaseShader* vertex = storage->get_resorce< BaseShader >( vertex_file.get_cstr( ) );
         BaseShader* fragment = storage->get_resorce< BaseShader >( fragment_file.get_cstr( ) );
 
@@ -79,7 +82,7 @@ bool
 is_shader_compiled( GLuint shader )
 {
     GLint success = 0;
-    glGetShaderiv( shader, GL_COMPILE_STATUS, &success );
+    CHECKED_CALL(glGetShaderiv, shader, GL_COMPILE_STATUS, &success );
 
     return success > 0;
 }
@@ -144,6 +147,7 @@ ShaderProgram::init( BaseShader* vertex, BaseShader* fragment )
     {
         if ( link_program( vertex->get_handle( ), fragment->get_handle( ) ) )
         {
+			
             m_vertex_shader = vertex;
             m_fragment_shader = fragment;
 
@@ -161,30 +165,27 @@ ShaderProgram::init( BaseShader* vertex, BaseShader* fragment )
 bool
 ShaderProgram::link_program( basic::uint32 vshader, basic::uint32 fshader )
 {
-    m_shader_program = glCreateProgram( );
-
+    
     glAttachShader( m_shader_program, vshader );
     glAttachShader( m_shader_program, fshader );
     glLinkProgram( m_shader_program );
 
-    if ( check_shader_link( m_shader_program ) )
-    {
-        return true;
-    }
+	OPENGL_CHECK_FOR_ERRORS();
 
-    return false;
+    return check_shader_link(m_shader_program);
 }
 
 static GLuint
-compile( basic::Vector< basic::uint8 > data, basic::uint32 type )
+compile( basic::Vector< basic::uint8 > data, GLenum type )
 {
-    GLuint handle = glCreateShader( type );
+	OPENGL_CHECK_FOR_ERRORS();
+    GLuint handle = CHECKED_CALL( glCreateShader, type );
     data.push( 0 );
     char* data_ptr = reinterpret_cast< GLchar* >( data.get_raw( ) );
-    GLint gsize = static_cast< GLint >( data.get_size( ) );
+    auto gsize = static_cast< GLint >( data.get_size( ) );
 
-    glShaderSource( handle, 1, &data_ptr, &gsize );
-    glCompileShader( handle );
+    CHECKED_CALL(glShaderSource, handle, 1, &data_ptr, &gsize );
+    CHECKED_CALL(glCompileShader, handle );
 
     return handle;
 }
@@ -192,6 +193,7 @@ compile( basic::Vector< basic::uint8 > data, basic::uint32 type )
 BaseShader::BaseShader( ObjectManager* manager, basic::uint32 type, const char* file )
     : FileResource( manager, SharedObjectType::BaseShader, file )
     , m_handle( 0 )
+	, m_type(type)
 {
     bool is_valid = type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER;
     ASSERT( is_valid );
@@ -207,7 +209,7 @@ BaseShader::~BaseShader( )
 bool
 BaseShader::load( ResourceStorage* )
 {
-    if ( is_valid( ) )
+    if ( m_handle != 0 )
     {
         return true;
     }
@@ -219,7 +221,7 @@ BaseShader::load( ResourceStorage* )
 
     if ( !data.is_empty( ) )
     {
-        m_handle = compile( data, static_cast< basic::uint32 >( get_tag( ) ) );
+        m_handle = compile( data, m_type );
 
         bool valid = is_valid( );
         if ( !valid )

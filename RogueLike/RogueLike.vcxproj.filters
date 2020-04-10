@@ -141,9 +141,6 @@
     <ClCompile Include="..\code\src\ecs\entity.cpp">
       <Filter>code\src\ecs</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\ecs\entity_component_system.cpp">
-      <Filter>code\src\ecs</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\render_system.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
@@ -155,6 +152,9 @@
     </ClCompile>
     <ClCompile Include="..\code\src\basic\convert.cpp">
       <Filter>code\src\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\octree.cpp">
+      <Filter>code\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -262,6 +262,12 @@
     </ClInclude>
     <ClInclude Include="..\code\include\basic\common.hpp">
       <Filter>code\include\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\octree.h">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\frustum.hpp">
+      <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

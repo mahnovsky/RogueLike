@@ -4,6 +4,11 @@
 
 #include "object.hpp"
 
+#include "octree.h"
+
+// https://github.com/DiligentGraphics/DiligentCore/blob/1edcafe9bd41bdde86869d4e1c0212c78ce123b7/Common/interface/AdvancedMath.hpp
+// https://github.com/sgorsten/linalg
+
 class ICamera
 {
 public:
@@ -20,6 +25,8 @@ public:
     virtual void set_direction( const glm::vec3& dir ) = 0;
 
     virtual void set_up( const glm::vec3& up ) = 0;
+
+	virtual std::vector<OctreeObject*> get_visible_objects(Octree* octree) const { return {}; }
 
     static glm::vec3 convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos );
 
@@ -44,10 +51,11 @@ public:
 
     glm::vec3 get_position( ) const override;
 
+	std::vector<OctreeObject*> get_visible_objects(Octree* octree) const override;
+
 private:
     void update( );
 
-private:
     glm::vec3 m_position;
     glm::vec3 m_direction;
     glm::vec3 m_up;
@@ -55,6 +63,9 @@ private:
     glm::mat4 m_projection;
     glm::mat4 m_view;
     glm::mat4 m_final;
+
+	float m_offset;
+	float m_radius;
 };
 
 class OrthoCamera : public SharedObject, public ICamera

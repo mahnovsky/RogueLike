@@ -143,7 +143,6 @@
     <ClCompile Include="..\code\src\camera.cpp" />
     <ClCompile Include="..\code\src\config.cpp" />
     <ClCompile Include="..\code\src\ecs\entity.cpp" />
-    <ClCompile Include="..\code\src\ecs\entity_component_system.cpp" />
     <ClCompile Include="..\code\src\engine.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
@@ -151,6 +150,7 @@
     <ClCompile Include="..\code\src\material.cpp" />
     <ClCompile Include="..\code\src\object.cpp" />
     <ClCompile Include="..\code\src\object_manager.cpp" />
+    <ClCompile Include="..\code\src\octree.cpp" />
     <ClCompile Include="..\code\src\platform\win32_file.cpp" />
     <ClCompile Include="..\code\src\platform\win32_time.cpp" />
     <ClCompile Include="..\code\src\platform\win32_window.cpp" />
@@ -190,8 +190,10 @@
     <ClInclude Include="..\code\include\ecs\entity_component_system.hpp" />
     <ClInclude Include="..\code\include\engine.hpp" />
     <ClInclude Include="..\code\include\font.hpp" />
+    <ClInclude Include="..\code\include\frustum.hpp" />
     <ClInclude Include="..\code\include\line.hpp" />
     <ClInclude Include="..\code\include\object_manager.hpp" />
+    <ClInclude Include="..\code\include\octree.h" />
     <ClInclude Include="..\code\include\render.hpp" />
     <ClInclude Include="..\code\include\render_common.hpp" />
     <ClInclude Include="..\code\include\render_system.hpp" />

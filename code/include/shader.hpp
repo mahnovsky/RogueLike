@@ -2,11 +2,12 @@
 
 #include "defines.hpp"
 #include "resource_storage.hpp"
+#include <GL/glew.h>
 
 class BaseShader : public FileResource
 {
 public:
-    BaseShader(ObjectManager *manager, basic::uint32 type, const char* file);
+    BaseShader(ObjectManager *manager, GLenum type, const char* file);
     ~BaseShader() override;
 
     bool load(ResourceStorage* storage) override;
@@ -18,7 +19,9 @@ public:
     static BaseShader* create(ObjectManager *manager, const char* file);
 
 private:
+
     basic::uint32 m_handle;
+	GLenum m_type;
 };
 
 class ShaderProgram : public FileResource

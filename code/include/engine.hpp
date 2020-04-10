@@ -20,7 +20,7 @@ using engine_callback = void (*)( class Engine* );
 class IEngine
 {
 public:
-    virtual ~IEngine();
+    virtual ~IEngine() = default;
 
     virtual bool init(int width, int height, const char* wnd_title) = 0;
 
@@ -46,8 +46,12 @@ public:
 class Engine : public IEngine
 {
 public:
+	Engine() = delete;
+	Engine(const Engine&) = delete;
+	Engine(Engine&&) noexcept = delete;
+
     Engine( int argv, char** argc );
-    ~Engine() override;
+    ~Engine() override = default;
 
     bool init(int width, int height, const char* wnd_title) override;
 
