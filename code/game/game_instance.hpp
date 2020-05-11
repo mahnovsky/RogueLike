@@ -6,6 +6,7 @@
 #include "engine.hpp"
 #include "input.hpp"
 #include "resource_storage.hpp"
+#include "generic_object_manager.hpp"
 
 
 class GameInstance : public input::InputListener
@@ -29,7 +30,7 @@ private:
 
 private:
     Engine* m_engine;
-    ObjectManager* m_manager;
+    GenericObjectManager* m_object_manager;
     ResourceStorage* m_rs;
     PerspectiveCamera* m_game_camera;
     OrthoCamera* m_ui_camera;

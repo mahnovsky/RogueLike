@@ -2,8 +2,8 @@
 
 #include "render_common.hpp"
 
-StaticMesh::StaticMesh( ObjectManager* obj_mng, const char* name )
-    : FileResource( obj_mng, SharedObjectType::StaticMesh, name )
+StaticMesh::StaticMesh( GenericObjectManager* obj_mng, const char* name )
+    : FileResource( obj_mng, name )
 	, m_vbo_u(0)
 	, m_vib_u(0)
 	, m_vertex_count(0)
@@ -44,14 +44,14 @@ const basic::Vector<VertexFMT>& StaticMesh::get_fmt_list() const
 	return m_fmt_list;
 }
 
-StaticMesh* StaticMesh::create(ObjectManager* obj_mng, const char* name, const MeshLoadSettings& settings)
+StaticMesh* StaticMesh::create(GenericObjectManager* obj_mng, const char* name, const MeshLoadSettings& settings)
 {
 	ASSERT(name);
 
 	MeshData mesh_data;
 
 	auto data = basic::get_file_content(name);
-	if (!data.is_empty() && 
+	if (!data.empty() && 
 		load_mesh(std::move(data), mesh_data, settings))
 	{
 		auto static_mesh = NEW_OBJ(StaticMesh, obj_mng, name);

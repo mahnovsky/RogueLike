@@ -5,8 +5,8 @@
 
 using namespace input;
 
-RootWidget::RootWidget(Engine *engine, ObjectManager *manager)
-    :Widget (manager, {engine->get_window_size()})
+RootWidget::RootWidget(Engine *engine, GenericObjectManager* manager)
+    :Widget (manager)
     ,m_engine(engine)
 {
     m_engine->get_input()->add_listener(this);

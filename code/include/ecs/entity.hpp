@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "ecs.hpp"
+#include "type_registration.hpp"
 
 #include "generic/generic_object.hpp"
 #include "ecs_manager.hpp"
@@ -15,7 +15,15 @@ public:
 
 	Entity(EcsManager* mng);
 
-	~Entity() override = default;
+	~Entity() override;
+
+	template <class T>
+	bool is_component_exist() const
+	{
+		return is_component_exist(TypeInfo<T, NS_COMPONENT_TYPE>::type_index);
+	}
+
+	bool is_component_exist(size_t type_index) const;
 
 	void add_component(IGenericObject* comp);
 
@@ -41,10 +49,17 @@ public:
 		return comp;
 	}
 
+	Entity* get_parent();
+
+	void add_child(Entity* child);
+
+	void remove_child(Entity* child);
 
 private:
 	EcsManager* m_manager;
-
+	uint64_t m_components_flag = 0;
 	std::vector<IGenericObject*> m_components;
-	std::string m_name;
+
+	Entity* m_parent;
+	std::vector<Entity*> m_children;
 };

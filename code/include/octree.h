@@ -4,7 +4,7 @@
 #include <memory>
 #include <array>
 
-#include "ecs.hpp"
+#include "type_registration.hpp"
 #include "generic/generic_object.hpp"
 #include "generic/pool.hpp"
 #include "render_system.hpp"

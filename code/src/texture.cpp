@@ -6,8 +6,8 @@
 
 #define TEXTURE_PATH "textures/"
 
-Texture::Texture( ObjectManager* manager, const char* file )
-    : FileResource( manager, SharedObjectType::Texture, file )
+Texture::Texture( GenericObjectManager* manager, const char* file )
+    : FileResource( manager, file )
     , m_texture( 0 )
     , m_width( 0 )
     , m_height( 0 )
@@ -23,20 +23,19 @@ Texture::~Texture( )
     }
 }
 
-bool
-Texture::load( ResourceStorage* storage )
+bool Texture::load( ResourceStorage* storage )
 {
-    const basic::String name = get_name( );
-    const basic::String path = TEXTURE_PATH;
-    const basic::String file = path + name;
+    const std::string name = get_name( );
+    const std::string path = TEXTURE_PATH;
+    const std::string file = path + name;
 
-    basic::uint32 index;
-	if (name.find_last(index, '.'))
+    basic::uint32 index = 0;
+	if (name.find_last_of('.') != std::string::npos)
 	{
-		basic::String info_name = TEXTURE_PATH + name.get_substr(0, index);
+		std::string info_name = TEXTURE_PATH + name.substr(0, index);
 		info_name += "conf";
 
-		const auto conf = storage->get_resorce< Config >(info_name.get_cstr());
+		const auto conf = storage->get_resorce< Config >(info_name.c_str());
 
 		if (conf != nullptr)
 		{
@@ -62,10 +61,10 @@ Texture::load( ResourceStorage* storage )
 		}
 	}
 
-    basic::Vector< basic::uint8 > data = basic::get_file_content( file.get_cstr( ) );
+    std::vector< uint8_t > data = basic::get_file_content( file.c_str( ) );
 
     basic::Image img;
-    if ( !data.is_empty( ) && basic::load_image( std::move( data ), img ) )
+    if ( !data.empty( ) && basic::load_image( std::move( data ), img ) )
     {
         init( std::move( img ) );
 
@@ -76,15 +75,14 @@ Texture::load( ResourceStorage* storage )
 }
 
 Texture*
-Texture::create( ObjectManager* manager, const char* file )
+Texture::create( GenericObjectManager* manager, const char* file )
 {
     Texture* tex = NEW_OBJ( Texture, manager, file );
 
     return tex;
 }
 
-void
-Texture::init( basic::Image image )
+void Texture::init( basic::Image image )
 {
     init( image.width, image.height, std::move( image.data ), image.components );
 }
@@ -92,7 +90,7 @@ Texture::init( basic::Image image )
 void
 Texture::init( basic::uint32 width,
                basic::uint32 height,
-               basic::Vector< basic::uint8 > image_data,
+               std::vector< uint8_t > image_data,
                basic::uint32 cc )
 {
     m_width = width;
@@ -114,7 +112,7 @@ Texture::init( basic::uint32 width,
                   0,
                   format,
                   GL_UNSIGNED_BYTE,
-                  image_data.get_raw( ) );
+                  image_data.data( ) );
 
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );

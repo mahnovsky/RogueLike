@@ -3,6 +3,8 @@
 #include "types.hpp"
 #include "vector.hpp"
 
+#include <vector>
+
 namespace basic
 {
 
@@ -19,9 +21,9 @@ struct Image
     uint32 height;
     uint32 components;
 
-    Vector<uint8> data;
+    std::vector<uint8> data;
 };
 
-bool load_image( Vector<uint8> data, Image& out_image );
+bool load_image( std::vector<uint8_t> data, Image& out_image );
 
 }

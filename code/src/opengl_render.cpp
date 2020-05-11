@@ -100,14 +100,14 @@ public:
 	{
 		if (m_mesh)
 		{
-			m_mesh->release();
+			m_mesh->deref();
 		}
 
 		MeshLoadSettings settings;
 		m_mesh = m_rs->get_resorce<StaticMesh>(name.get_cstr(), settings);
 		if (m_mesh)
 		{
-			m_mesh->retain();
+			m_mesh->ref();
 			OPENGL_CHECK_FOR_ERRORS();
 			glGenVertexArrays(1, &m_vao);
 			CHECKED_CALL(glBindVertexArray, m_vao);
@@ -138,13 +138,13 @@ public:
 	{
 		if (m_program)
 		{
-			m_program->release();
+			m_program->deref();
 		}
 
 		m_program = m_rs->get_resorce<ShaderProgram>(name.get_cstr());
 		if (m_program)
 		{
-			m_program->retain();
+			m_program->ref();
 		}
 	}
 
@@ -157,13 +157,13 @@ public:
 	{
 		if(m_texture)
 		{
-			m_texture->release();
+			m_texture->deref();
 		}
 
 		m_texture = m_rs->get_resorce<Texture>(name.get_cstr());
 		if (m_texture)
 		{
-			m_texture->retain();
+			m_texture->ref();
 		}
 	}
 
@@ -367,7 +367,7 @@ public:
 		m_post_program = m_rs->get_resorce<ShaderProgram>("post_effect");
 		ASSERT(m_post_program != nullptr);
 
-		m_post_program->retain();
+		m_post_program->ref();
 	}
 
 	void present_color_texture() const

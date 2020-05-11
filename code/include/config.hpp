@@ -11,14 +11,16 @@ class Config : public FileResource
     };
 
 public:
-    Config( ObjectManager* manager, const char* file );
+    GENERIC_OBJECT_IMPL(Config, NS_RESOURCE_TYPE);
+
+    Config( GenericObjectManager* manager, const char* file );
     ~Config() override;
 
-    bool load( ResourceStorage* ) override;
+    bool load( ResourceStorage* ) ;
 
-    static Config* create(ObjectManager *manager, const char* file );
+    static Config* create(GenericObjectManager *manager, const char* file );
 
-   const basic::JsonObject* get_values( const char* key ) const;
+    const basic::JsonObject* get_values( const char* key ) const;
 
 private:
     basic::Vector<Pair> m_values;

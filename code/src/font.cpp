@@ -13,8 +13,9 @@ namespace
 
 namespace se
 {
-Font::Font( ObjectManager* manager, const char* file )
-    : FileResource( manager, SharedObjectType::Font, file )
+Font::Font(GenericObjectManager* manager, const char* file )
+    : FileResource(manager, file)
+    , m_object_manager( manager )
     , m_shader( nullptr )
     , m_texture( nullptr )
     , m_height( 32.f )
@@ -27,11 +28,11 @@ Font::~Font( )
     basic::mem_free( m_cdata );
     if ( m_texture )
     {
-        m_texture->release( );
+        m_texture->ref();
     }
     if ( m_shader )
     {
-        m_shader->release( );
+        m_shader->ref();
     }
 }
 
@@ -45,13 +46,13 @@ Font::load( ResourceStorage* storage )
 
         return false;
     }
-    m_shader->retain( );
+    m_shader->ref( );
 
-    basic::String path = "fonts/";
+    std::string path = "fonts/";
     path += get_name( );
-    basic::Vector< basic::uint8 > data = basic::get_file_content( path.get_cstr( ) );
+    auto data = basic::get_file_content( path.c_str( ) );
 
-    if ( !data.is_empty( ) )
+    if ( !data.empty( ) )
     {
         const int tw = 512;
         const int th = 512;
@@ -59,7 +60,7 @@ Font::load( ResourceStorage* storage )
         basic::Vector< basic::uint8 > bitmap;
         bitmap.resize( tw * th );
 
-        stbtt_BakeFontBitmap( data.get_raw( ),
+        stbtt_BakeFontBitmap( data.data( ),
                               0,
                               m_height,
                               bitmap.get_raw( ),
@@ -69,12 +70,12 @@ Font::load( ResourceStorage* storage )
                               96,
                               static_cast< stbtt_bakedchar* >( m_cdata ) );
 
-        basic::String name = "bitmap_";
+        std::string name = "bitmap_";
         name += get_name( );
 
-        m_texture = NEW_OBJ( Texture, get_manager( ), name.get_cstr( ) );
+        m_texture = NEW_OBJ( Texture, m_object_manager, name.c_str( ) );
         m_texture->init_font( tw, th, std::move( bitmap ) );
-        m_texture->retain( );
+        m_texture->ref( );
 
         return true;
     }
@@ -162,8 +163,7 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
     node->reset( &vb, &ib );
 }
 
-Font*
-Font::create( ObjectManager* manager, const char* file )
+Font* Font::create( GenericObjectManager* manager, const char* file )
 {
     return NEW_OBJ( Font, manager, file );
 }

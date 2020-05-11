@@ -8,8 +8,8 @@
 
 basic::uint32 ShaderProgram::m_current_shader_program;
 
-ShaderProgram::ShaderProgram( ObjectManager* manager, const char* file )
-    : FileResource( manager, SharedObjectType::ShaderProgram, file )
+ShaderProgram::ShaderProgram(GenericObjectManager* manager, const char* file )
+    : FileResource( manager, file )
     , m_shader_program( 0 )
     , m_vertex_shader( nullptr )
     , m_fragment_shader( nullptr )
@@ -34,30 +34,30 @@ ShaderProgram::load( ResourceStorage* storage )
 
     if ( config )
     {
-        basic::String name = get_name( );
-        const basic::JsonObject* shader_conf = config->get_values( name.get_cstr( ) );
+        std::string name = get_name( );
+        const basic::JsonObject* shader_conf = config->get_values( name.c_str( ) );
 
         ASSERT( shader_conf );
 
-        basic::String vertex_file;
+        std::string vertex_file;
         shader_conf->get( "vertex_shader", vertex_file );
 
-        if ( vertex_file.is_empty( ) )
+        if ( vertex_file.empty( ) )
         {
             return false;
         }
 
-        basic::String fragment_file;
+        std::string fragment_file;
         shader_conf->get( "fragment_shader", fragment_file );
 
-        if ( fragment_file.is_empty( ) )
+        if ( fragment_file.empty( ) )
         {
             return false;
         }
 
 		m_shader_program = glCreateProgram();
-        BaseShader* vertex = storage->get_resorce< BaseShader >( vertex_file.get_cstr( ) );
-        BaseShader* fragment = storage->get_resorce< BaseShader >( fragment_file.get_cstr( ) );
+        BaseShader* vertex = storage->get_resorce< BaseShader >( vertex_file.c_str( ) );
+        BaseShader* fragment = storage->get_resorce< BaseShader >( fragment_file.c_str( ) );
 
         return init( vertex, fragment );
     }
@@ -114,7 +114,7 @@ ShaderProgram::get_uniform( const char* name ) const
 }
 
 ShaderProgram*
-ShaderProgram::create( ObjectManager* manager, const char* file )
+ShaderProgram::create( GenericObjectManager* manager, const char* file )
 {
     ShaderProgram* res = NEW_OBJ( ShaderProgram, manager, file );
 
@@ -151,8 +151,8 @@ ShaderProgram::init( BaseShader* vertex, BaseShader* fragment )
             m_vertex_shader = vertex;
             m_fragment_shader = fragment;
 
-            vertex->retain( );
-            fragment->retain( );
+            vertex->ref( );
+            fragment->ref( );
 
             return true;
         }
@@ -176,13 +176,13 @@ ShaderProgram::link_program( basic::uint32 vshader, basic::uint32 fshader )
 }
 
 static GLuint
-compile( basic::Vector< basic::uint8 > data, GLenum type )
+compile( std::vector< uint8_t > data, GLenum type )
 {
 	OPENGL_CHECK_FOR_ERRORS();
     GLuint handle = CHECKED_CALL( glCreateShader, type );
-    data.push( 0 );
-    char* data_ptr = reinterpret_cast< GLchar* >( data.get_raw( ) );
-    auto gsize = static_cast< GLint >( data.get_size( ) );
+    data.push_back( 0 );
+    char* data_ptr = reinterpret_cast< GLchar* >( data.data( ) );
+    auto gsize = static_cast< GLint >( data.size( ) );
 
     CHECKED_CALL(glShaderSource, handle, 1, &data_ptr, &gsize );
     CHECKED_CALL(glCompileShader, handle );
@@ -190,15 +190,15 @@ compile( basic::Vector< basic::uint8 > data, GLenum type )
     return handle;
 }
 
-BaseShader::BaseShader( ObjectManager* manager, basic::uint32 type, const char* file )
-    : FileResource( manager, SharedObjectType::BaseShader, file )
+BaseShader::BaseShader( GenericObjectManager* manager, basic::uint32 type, const char* file )
+    : FileResource( manager, file )
     , m_handle( 0 )
 	, m_type(type)
 {
     bool is_valid = type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER;
     ASSERT( is_valid );
 
-    set_tag( type );
+    //set_tag( type );
 }
 
 BaseShader::~BaseShader( )
@@ -214,12 +214,12 @@ BaseShader::load( ResourceStorage* )
         return true;
     }
 
-    basic::String file = get_name( );
-    ASSERT( !file.is_empty( ) );
+    std::string file = get_name( );
+    ASSERT( !file.empty( ) );
 
-    basic::Vector< basic::uint8 > data = basic::get_file_content( file.get_cstr( ) );
+    auto data = basic::get_file_content( file.c_str( ) );
 
-    if ( !data.is_empty( ) )
+    if ( !data.empty( ) )
     {
         m_handle = compile( data, m_type );
 
@@ -246,8 +246,7 @@ BaseShader::is_valid( ) const
     return is_shader_compiled( m_handle );
 }
 
-BaseShader*
-BaseShader::create( ObjectManager* manager, const char* file )
+BaseShader* BaseShader::create( GenericObjectManager* manager, const char* file )
 {
     basic::String filename = file;
     if ( filename.ends_of( ".vs" ) )

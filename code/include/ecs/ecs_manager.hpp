@@ -4,19 +4,12 @@
 #include <algorithm>
 
 #include "generic/pool.hpp"
-#include "generic/generic_object.hpp"
+#include "generic_object_manager.hpp"
 
-#include "ecs.hpp"
+#include "type_registration.hpp"
 
 class Entity;
 
-class ISystem
-{
-public:
-	virtual ~ISystem() = default;
-
-	virtual void update(float dt) = 0;
-};
 
 class IContainer
 {
@@ -50,6 +43,9 @@ public:
 class EcsManager
 {
 public:
+	EcsManager(GenericObjectManager* object_manager)
+		:m_object_manager(object_manager)
+	{}
 	~EcsManager() = default;
 
 	template <class T, class ... Args>
@@ -70,6 +66,8 @@ public:
 		auto cont = dynamic_cast<Container<T>*>(m_ent_containers[index].get());
 
 		T* ent = cont->pool.alloc(this, args ...);
+
+		m_object_manager->add_object(ent);
 
 		return ent;
 	}
@@ -102,6 +100,8 @@ public:
 
 		T* comp = cont->pool.alloc(ent, args ...);
 
+		m_object_manager->add_object(comp);
+
 		return comp;
 	}
 
@@ -116,7 +116,7 @@ public:
 	}
 
 	template <class T>
-	std::vector<T*> get_entities()
+	std::vector<T*> get_entities() const
 	{
 		const size_t index = TypeInfo<T, NS_ENTITY_TYPE>::type_index;
 
@@ -138,6 +138,15 @@ public:
 	template <class T, class ... Args>
 	T* add_system(Args ... args)
 	{
+		auto it = std::find_if(m_systems.begin(), m_systems.end(), [](IGenericObject* obj)
+			{
+				return obj->type_index() == TypeInfo<T, NS_SYSTEM_TYPE>::type_index;
+			});
+		if (it != m_systems.end())
+		{
+			return dynamic_cast<T*>(*it);
+		}
+
 		auto system = new T(this, args ...);
 
 		m_systems.emplace_back(system);
@@ -162,6 +171,7 @@ public:
 	}
 
 private:
+	GenericObjectManager* m_object_manager;
 	std::vector<std::unique_ptr<IContainer>> m_ent_containers;
 	std::vector<std::unique_ptr<IContainer>> m_comp_containers;
 

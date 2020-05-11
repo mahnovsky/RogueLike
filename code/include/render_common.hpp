@@ -261,7 +261,7 @@ private:
     basic::Vector< RenderNode* > children;
 };
 
-bool load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSettings settings );
+bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings );
 
 void fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb );
 

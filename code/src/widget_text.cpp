@@ -5,8 +5,8 @@
 #include "font.hpp"
 #include "transform.hpp"
 
-WidgetText::WidgetText(ObjectManager* manager, const glm::vec2 &size)
-    : Widget ( manager, size )
+WidgetText::WidgetText(GenericObjectManager* manager)
+    : Widget ( manager )
     , m_font_name("arial.ttf")
     , m_font( nullptr )
     , m_text()
@@ -26,7 +26,7 @@ void WidgetText::init(ResourceStorage *storage)
 
     if(m_font)
     {
-        m_font->retain();
+        m_font->ref();
 
         m_text_render = m_font->create_text_node();
 

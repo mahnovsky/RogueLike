@@ -16,10 +16,10 @@ Material::Material( ShaderProgram* program, Texture* texture )
 {
     ASSERT( m_shader != nullptr );
 
-    m_shader->retain( );
+    m_shader->ref( );
     if ( m_texture )
     {
-        m_texture->retain( );
+        m_texture->ref( );
     }
 }
 
@@ -91,11 +91,11 @@ Material::set_shader( ShaderProgram* sp )
     ASSERT( sp );
     if ( m_shader )
     {
-        m_shader->release( );
+        m_shader->deref( );
     }
 
     m_shader = sp;
-    m_shader->retain( );
+    m_shader->ref( );
 }
 
 ShaderProgram* Material::get_shader()

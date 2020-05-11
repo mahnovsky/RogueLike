@@ -2,8 +2,9 @@
 
 #include "timer_manager.hpp"
 
-FileResource::FileResource( ObjectManager* manager, SharedObjectType type, const char* file )
-    : SharedObject( manager, type, file )
+FileResource::FileResource(GenericObjectManager* manager, const char* file )
+    :m_object_manager(manager)
+    ,m_file_name(file)
 {
 }
 
@@ -11,7 +12,7 @@ FileResource::~FileResource( )
 {
 }
 
-ResourceStorage::ResourceStorage( ObjectManager* manager )
+ResourceStorage::ResourceStorage(EcsManager* ecs, GenericObjectManager* manager )
     : m_manager( manager )
 {
     TimerManager& timer_manager = TimerManager::get( );
@@ -21,9 +22,9 @@ ResourceStorage::ResourceStorage( ObjectManager* manager )
 
 ResourceStorage::~ResourceStorage( )
 {
-    for ( SharedObject* obj : m_resources )
+    for ( auto obj : m_resources )
     {
-        obj->release( );
+        obj->deref( );
     }
     m_resources.clear( );
 }
@@ -31,11 +32,11 @@ ResourceStorage::~ResourceStorage( )
 bool
 ResourceStorage::add_resource( FileResource* file_resource )
 {
-    if ( !find_resource( file_resource->get_name( ).get_cstr( ) ) && file_resource->load(this) )
+    if ( !find_resource( file_resource->get_name( ).c_str( ) ) && file_resource->load(this) )
     {
         m_resources.push( file_resource );
 
-        file_resource->retain( );
+        file_resource->ref( );
 
         return true;
     }
@@ -69,7 +70,7 @@ ResourceStorage::update_cached_resources( void* storage )
     {
         if ( rs->m_resources[ i ]->get_refs( ) == 1 )
         {
-            rs->m_resources[ i ]->release( );
+            rs->m_resources[ i ]->deref( );
 
             rs->m_resources.swap_remove( i );
         }

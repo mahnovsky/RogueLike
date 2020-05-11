@@ -6,9 +6,8 @@
 #undef far
 
 PerspectiveCamera::PerspectiveCamera(
-        ObjectManager* manager, float fov, float aspect, float near, float far )
-    : SharedObject( manager, SharedObjectType::Camera )
-    , m_position( )
+        float fov, float aspect, float near, float far )
+    : m_position( )
     , m_direction( )
     , m_up( )
     , m_projection( )
@@ -99,9 +98,8 @@ PerspectiveCamera::update( )
     m_final = m_projection * m_view;
 }
 
-OrthoCamera::OrthoCamera( ObjectManager* manager, float width, float height, float near, float far )
-    : SharedObject( manager, SharedObjectType::Camera )
-    , m_projection( )
+OrthoCamera::OrthoCamera( float width, float height, float near, float far )
+    : m_projection( )
     , m_width( width )
     , m_height( height )
     , m_near( near )

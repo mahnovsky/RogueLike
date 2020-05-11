@@ -59,7 +59,7 @@ apply_value( JsonDocument* doc, Variant& v, const cJSON* node )
     }
     else if ( cJSON_IsString( node ) )
     {
-        String s = node->valuestring;
+        std::string s = node->valuestring;
         v.set( s );
     }
     else if ( cJSON_IsArray( node ) )

@@ -2,6 +2,7 @@
 
 #include "defines.hpp"
 #include "resource_storage.hpp"
+#include "type_registration.hpp"
 
 struct TextureRect
 {
@@ -9,24 +10,26 @@ struct TextureRect
     float y;
     float w;
     float h;
-    basic::String name;
+    std::string name;
 };
 
 class Texture : public FileResource
 {
 public:
-    Texture( ObjectManager* manager, const char* file );
+    GENERIC_OBJECT_IMPL(Texture, NS_RESOURCE_TYPE);
+
+    Texture( GenericObjectManager* manager, const char* file );
     ~Texture( ) override;
 
-    bool load( ResourceStorage* ) override;
+    bool load( ResourceStorage* ) ;
 
-    static Texture* create( ObjectManager* manager, const char* file );
+    static Texture* create( GenericObjectManager* manager, const char* file );
 
     void init( basic::Image image );
 
     void init( basic::uint32 width,
                basic::uint32 height,
-               basic::Vector< basic::uint8 > image_data,
+               std::vector< uint8_t > image_data,
                basic::uint32 cc );
 
     void init_font( basic::uint32 width,

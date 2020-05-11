@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ecs.hpp"
+#include "type_registration.hpp"
 #include "defines.hpp"
 #include "component.hpp"
 

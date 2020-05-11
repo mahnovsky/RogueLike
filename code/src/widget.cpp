@@ -6,12 +6,13 @@
 #include "root_widget.hpp"
 #include "shader.hpp"
 #include "transform.hpp"
+#include "generic_object_manager.hpp"
 
-Widget::Widget( ObjectManager* manager, const glm::vec2& size )
-    : SharedObject( manager, SharedObjectType::Widget )
+Widget::Widget( GenericObjectManager* manager )
+    : m_object_manager(manager)
     , m_mat( 1.f )
     , m_pos( )
-    , m_size( size )
+    , m_size(  )
     , m_rect( )
     , m_parent( nullptr )
     , m_children( )
@@ -23,26 +24,29 @@ Widget::Widget( ObjectManager* manager, const glm::vec2& size )
     , m_vertical( AlignV::Center )
     , m_storage( nullptr )
 {
-    m_rect.update( {0.f, 0.f}, size );
+    m_object_manager->add_object(this);
+    set_name("default_widget");
+    m_rect.update({ 0.f, 0.f }, { 100.f, 100.f });
 }
 
 Widget::~Widget( )
 {
+    m_object_manager->remove_object(this);
     RenderNode::remove_node( m_view );
     m_view = nullptr;
 
     for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
     {
-        m_children[ i ]->release( );
+        //m_children[ i ]->release( );
     }
 }
 
 void
 Widget::init( ResourceStorage* storage )
 {
+    m_storage = m_object_manager->find_by_type<ResourceStorage, NS_SYSTEM_TYPE>();
+
     m_storage = storage;
-    m_camera = dynamic_cast< ICamera* >(
-            get_manager( )->find( SharedObjectType::Camera, "ui_camera" ) );
 
     if ( !m_camera )
     {
@@ -71,8 +75,6 @@ Widget::add_child( Widget* node )
     basic::uint32 index = 0;
     if ( !get_child_index( node, index ) )
     {
-        node->retain( );
-
         node->remove_from_parent( );
         node->m_parent = this;
 
@@ -93,8 +95,6 @@ Widget::remove_child( Widget* node )
     if ( get_child_index( node, index ) )
     {
         m_children.remove_by_index( index );
-
-        node->release( );
     }
 }
 
@@ -379,7 +379,7 @@ Widget::get_root( )
 void
 Widget::draw( )
 {
-    if ( !m_visible )
+    //if ( !m_visible )
     {
         return;
     }

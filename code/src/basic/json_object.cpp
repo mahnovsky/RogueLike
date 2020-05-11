@@ -11,7 +11,7 @@ JsonObject::JsonObject()
 
 bool JsonObject::is_object() const
 {
-    return m_objects.get_size() > 0;
+    return m_objects.size() > 0;
 }
 
 bool JsonObject::to_bool() const
@@ -37,24 +37,24 @@ float JsonObject::to_float() const
     return res;
 }
 
-String JsonObject::to_string() const
+std::string JsonObject::to_string() const
 {
-    String res;
+    std::string res;
     bool success = m_value.get(res);
     ASSERT(success);
 
     return res;
 }
 
-Vector<const JsonObject *> JsonObject::to_array() const
+std::vector<const JsonObject *> JsonObject::to_array() const
 {
-    Vector<const JsonObject*> objs;
+    std::vector<const JsonObject*> objs;
 
     if(m_value.get_type() == VariantType::Array)
     {
-        Vector<Variant> tmp;
+        std::vector<Variant> tmp;
         m_value.get( tmp );
-        if(!tmp.is_empty())
+        if(!tmp.empty())
         {
             for (auto& v : tmp )
             {
@@ -62,7 +62,7 @@ Vector<const JsonObject *> JsonObject::to_array() const
                 {
                     void* data = nullptr;
                     v.get(data);
-                    objs.push( static_cast<const JsonObject*>(data) );
+                    objs.push_back( static_cast<const JsonObject*>(data) );
                 }
             }
         }
@@ -75,9 +75,9 @@ const JsonObject *JsonObject::get_object(const char *key) const
 {
     const auto it = m_objects.find(key);
 
-    if(it.is_valid())
+    if(it != m_objects.end())
     {
-        return it.value();
+        return it->second;
     }
 
     return nullptr;
@@ -95,7 +95,7 @@ bool JsonObject::get(const char *key, float &out) const
     return false;
 }
 
-bool JsonObject::get(const char *key, String& out) const
+bool JsonObject::get(const char *key, std::string& out) const
 {
     const JsonObject* obj = get_object(key);
     if(obj)
@@ -114,7 +114,7 @@ void JsonObject::set_value(const Variant &t)
 
 void JsonObject::add_object(const char *name, JsonObject *obj)
 {
-    m_objects.insert( name, obj );
+    m_objects.insert({ name, obj });
 }
 
 }

@@ -2,15 +2,15 @@
 #include "basic/string.hpp"
 
 #include <cstdio>
+#include <vector>
 
 namespace basic
 {
 String g_data_path = "./data/";
 
-Vector< uint8 >
-get_file_content( const char* file_name )
+std::vector< uint8_t > get_file_content( const char* file_name )
 {
-    Vector< uint8 > result;
+    std::vector< uint8_t > result;
     String file_path = g_data_path + file_name;
     FILE* file = fopen( file_path.get_cstr( ), "rb" );
 
@@ -21,7 +21,7 @@ get_file_content( const char* file_name )
         fseek( file, 0, SEEK_SET );
 
         result.resize( static_cast< uint32 >( size ) );
-        fread( result.get_raw( ), sizeof( char ), static_cast< size_t >( size ), file );
+        fread( result.data( ), sizeof( char ), static_cast< size_t >( size ), file );
 
         fclose( file );
     }

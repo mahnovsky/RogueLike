@@ -1,13 +1,14 @@
 #pragma once
 
 #include "vector.hpp"
+#include <vector>
 
 namespace basic
 {
 
 class String;
 
-Vector<uint8> get_file_content( const char* file_name );
+std::vector<uint8> get_file_content( const char* file_name );
 
 bool is_dir_exist( const char* path );
 

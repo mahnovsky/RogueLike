@@ -53,5 +53,5 @@ private:
 #define SAFE_RELEASE( obj_ptr ) \
     if ( obj_ptr )              \
     {                           \
-        obj_ptr->release( );    \
+        obj_ptr->deref( );    \
     }

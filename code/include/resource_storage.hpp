@@ -2,23 +2,34 @@
 
 #include "defines.hpp"
 #include "object.hpp"
+#include "type_registration.hpp"
+#include "generic/generic_object_manager.hpp"
 
 class ResourceStorage;
 
-class FileResource : public SharedObject
+class FileResource : public IGenericObject
 {
 public:
-    FileResource( ObjectManager* manager, SharedObjectType type, const char* file );
+    FileResource(GenericObjectManager* manager, const char* file);
 
-    virtual ~FileResource( );
+    virtual ~FileResource();
 
-    virtual bool load( ResourceStorage* ) = 0;
+    virtual bool load(ResourceStorage*) { return false; }
+
+    GenericObjectManager* get_object_manager() { return m_object_manager; }
+
+    std::string_view get_file_name() const { return m_file_name; }
+private:
+    GenericObjectManager* m_object_manager;
+    std::string m_file_name;
 };
 
-class ResourceStorage final
+class ResourceStorage : public IGenericObject
 {
 public:
-    ResourceStorage( ObjectManager* manager );
+    GENERIC_OBJECT_IMPL(ResourceStorage, NS_SYSTEM_TYPE);
+
+    ResourceStorage( EcsManager* ecs, GenericObjectManager* manager );
     ~ResourceStorage( );
 
     bool add_resource( FileResource* file_resource );
@@ -48,6 +59,6 @@ private:
     static void update_cached_resources( void* storage );
 
 private:
-    ObjectManager* m_manager;
+    GenericObjectManager* m_manager;
     basic::Vector< FileResource* > m_resources;
 };

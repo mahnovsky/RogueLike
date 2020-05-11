@@ -7,8 +7,7 @@
 class WidgetText : public Widget
 {
 public:
-    WidgetText(ObjectManager *manager,
-               const glm::vec2 &size);
+    WidgetText(GenericObjectManager* manager);
 
     ~WidgetText() override;
 

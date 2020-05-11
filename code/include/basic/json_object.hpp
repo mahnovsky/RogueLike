@@ -1,7 +1,10 @@
 #pragma once
 
-#include "hash_map.hpp"
+#include <string>
+#include <map>
+#include <vector>
 
+#include "hash_map.hpp"
 #include "cJSON/cJSON.h"
 
 namespace basic
@@ -21,6 +24,7 @@ enum class VariantType
 class Variant
 {
 public:
+    
     struct Value
     {
         union
@@ -29,7 +33,7 @@ public:
             float f;
             void* d;
         } o;
-        String s;
+        std::string s;
     };
 
     Variant()
@@ -49,10 +53,12 @@ public:
         return *this;
     }
 
+    using string = std::string;
+
 #define CONV(type, en) VariantType conv(const type&) const {return VariantType::en; }
     CONV(bool, Bool)
     CONV(float, Float)
-    CONV(String, String)
+    VariantType conv(const std::string&) const { return VariantType::String; }
     VariantType conv(const void*) const {return VariantType::Data; }
 #undef CONV
 
@@ -60,21 +66,21 @@ public:
     GETTER(bool, b)
     GETTER(float, f)
     GETTER(void*, d)
-    bool get(String& out) const { out = m_value.s; return conv(out) == m_type; }
-    bool get(Vector<Variant>& out) const { out = m_array; return m_type == VariantType::Array; }
+    bool get(std::string& out) const { out = m_value.s; return conv(out) == m_type; }
+    bool get(std::vector<Variant>& out) const { out = m_array; return m_type == VariantType::Array; }
 #undef GETTER
 
 #define SETTER(type, val) void set(type in){ m_value.o.val = in; m_type = conv(in); }
     SETTER(bool, b)
     SETTER(float, f)
     SETTER(void*, d)
-    void set(const String& s) { m_value.s = s; m_type = conv(s); }
-    void set(const Vector<Variant>& v) { m_type = VariantType::Array; m_array = v; }
+    void set(const std::string& s) { m_value.s = s; m_type = conv(s); }
+    void set(const std::vector<Variant>& v) { m_type = VariantType::Array; m_array = v; }
 #undef SETTER
 
     void add_array_item(const Variant& val)
     {
-        m_array.push(val);
+        m_array.push_back(val);
         m_type = VariantType::Array;
     }
 
@@ -86,7 +92,7 @@ public:
 private:
     VariantType m_type;
     Value m_value;
-    Vector<Variant> m_array;
+    std::vector<Variant> m_array;
 };
 
 class JsonObject
@@ -101,15 +107,15 @@ public:
 
     float to_float( ) const;
 
-    String to_string( ) const;
+    std::string to_string( ) const;
 
-    Vector<const JsonObject *> to_array() const;
+    std::vector<const JsonObject *> to_array() const;
 
     const JsonObject *get_object( const char* key ) const;
 
     bool get(const char *key, float& out) const;
 
-    bool get(const char *key, String& out) const;
+    bool get(const char *key, std::string& out) const;
 
     void set_value(const Variant& t);
 
@@ -118,7 +124,7 @@ public:
     friend class JsonDocument;
 private:
     Variant m_value;
-    basic::HashMap<basic::String, JsonObject*> m_objects;
+    std::map<std::string, JsonObject*> m_objects;
 };
 
 }

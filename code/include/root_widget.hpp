@@ -8,7 +8,7 @@ class RootWidget
         , public input::InputListener
 {
 public:
-    RootWidget(Engine* engine, ObjectManager* manager);
+    RootWidget(Engine* engine, GenericObjectManager* manager);
     ~RootWidget() override;
 
     void add_action( const WidgetAction& action );

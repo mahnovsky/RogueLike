@@ -33,10 +33,10 @@ public:
     static glm::vec3 convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos );
 };
 
-class PerspectiveCamera : public SharedObject, public ICamera
+class PerspectiveCamera : public ICamera
 {
 public:
-    PerspectiveCamera( ObjectManager* manager, float fov, float aspect, float near, float far );
+    PerspectiveCamera( float fov, float aspect, float near, float far );
     ~PerspectiveCamera( ) override;
 
     void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up ) override;
@@ -68,10 +68,10 @@ private:
 	float m_radius;
 };
 
-class OrthoCamera : public SharedObject, public ICamera
+class OrthoCamera : public ICamera
 {
 public:
-    OrthoCamera( ObjectManager* manager, float width, float height, float near, float far );
+    OrthoCamera( float width, float height, float near, float far );
 
     void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up );
 

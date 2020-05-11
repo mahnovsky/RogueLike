@@ -1,7 +1,7 @@
 #pragma once
 
 #include "entity.hpp"
-#include "ecs.hpp"
+#include "type_registration.hpp"
 
 #include "render_common.hpp"
 #include "transform.hpp"
@@ -16,6 +16,7 @@ public:
 
 	RenderComponent(Entity* ent)
 		:Component(ent)
+		, transform(nullptr)
 		, m_render_object(nullptr)
 	{}
 

@@ -1,8 +1,8 @@
 #include "widget_list.hpp"
 
 
-WidgetList::WidgetList(ObjectManager *manager, const glm::vec2 &size)
-    :Widget (manager, size)
+WidgetList::WidgetList(GenericObjectManager *manager )
+    :Widget (manager)
     ,m_direction(ListDirection::Vertical)
 {
 }

@@ -14,7 +14,7 @@
 #include "render.hpp"
 #include "render_system.hpp"
 #include "static_mesh.hpp"
-
+#include "text_component.hpp"
 
 #include <ctime>
 
@@ -67,42 +67,35 @@ public:
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
-    , m_manager( NEW_OBJ( ObjectManager ) )
+	, m_object_manager(engine->get_object_manager())
     , m_rs( nullptr )
-    , m_game_camera( NEW_OBJ( PerspectiveCamera, m_manager, 45.f, width / height, 1.f, 200.f ) )
-    , m_ui_camera( NEW_OBJ( OrthoCamera, m_manager, width, height, 0.f, 100.f ) )
+    , m_game_camera( NEW_OBJ( PerspectiveCamera, 45.f, width / height, 1.f, 200.f ) )
+    , m_ui_camera( NEW_OBJ( OrthoCamera, width, height, 0.f, 100.f ) )
     , m_width( width )
     , m_height( height )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
-    , m_ui_root( NEW_OBJ( RootWidget, engine, m_manager ) )
+    , m_ui_root( NEW_OBJ( RootWidget, engine, m_object_manager) )
+	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
 {
-	m_rs = &m_engine->get_rs();
+	m_rs = m_ecs->get_system<ResourceStorage>();
 
-    m_game_camera->set_name( "game_camera" );
-    m_game_camera->retain( );
-
-    m_ui_camera->set_name( "ui_camera" );
-    m_ui_camera->retain( );
-
-    m_ui_root->retain( );
+    //m_ui_root->retain( );
 }
 
 GameInstance::~GameInstance( )
 {
-    SAFE_RELEASE( m_ui_root );
-    SAFE_RELEASE( m_game_camera );
-    SAFE_RELEASE( m_ui_camera );
+    //SAFE_RELEASE( m_ui_root );
+	DELETE_OBJ( m_game_camera );
+	DELETE_OBJ( m_ui_camera );
 
-    DELETE_OBJ( m_ecs );
-    DELETE_OBJ( m_manager );
 }
 
 static void
 exit_action( Widget* w, void* ud )
 {
-    LOG( "on widget clicked tag %d", w->get_tag( ) );
+    //LOG( "on widget clicked tag %d", w->get_tag( ) );
     Engine* engine = static_cast< Engine* >( ud );
 
     engine->shutdown( );
@@ -111,7 +104,7 @@ exit_action( Widget* w, void* ud )
 static void
 close_action( Widget* w, void* user_data )
 {
-    LOG( "on widget clicked tag %d", w->get_tag( ) );
+    //LOG( "on widget clicked tag %d", w->get_tag( ) );
     if ( w->get_parent( ) )
     {
         w->get_parent( )->remove_from_parent( );
@@ -119,7 +112,7 @@ close_action( Widget* w, void* user_data )
 }
 
 basic::Color g_ui_color{ 255, 0, 100, 255 };
-
+/*
 void open_menu_action( Widget* w, void* user_data )
 {
     LOG( "on widget clicked tag %d", w->get_tag( ) );
@@ -164,7 +157,7 @@ void open_menu_action( Widget* w, void* user_data )
 
     gi->m_ui_root->add_child( wnd );
 }
-
+*/
 static float
 rnd( )
 {
@@ -209,15 +202,14 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
     return ent;
 }
 
-void
-GameInstance::init( )
+void GameInstance::init( )
 {
     srand( time( nullptr ) );
 	Texture* texture = m_rs->get_resorce< Texture >("btn.png");
 
-    m_ecs = NEW_OBJ(EcsManager);
+    m_ecs = NEW_OBJ(EcsManager, m_object_manager);
 
-	m_move_system = m_ecs->add_system<MoveSystem>();
+	m_move_system = m_ecs->get_system<MoveSystem>();
 	Box b;
 	b.min = { -512, -512, -512 };
 	b.max = { 512, 512, 512 };
@@ -234,7 +226,7 @@ GameInstance::init( )
     
 
     m_ui_root->init( m_rs );
-
+	/*
     WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
     WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
     WidgetAction wa_close{"wa_close", &close_action, m_engine};
@@ -271,7 +263,7 @@ GameInstance::init( )
         wnd->add_child( menu_btn );
 
         m_ui_root->add_child( wnd );
-    }
+    }*/
     
 	for (int i = 0; i < 10; ++i)
 	{
@@ -320,6 +312,9 @@ GameInstance::init( )
 		b.min = { pos.x - 50.f, pos.y - 1.f, pos.z - 50.f };
 		b.max = { pos.x + 50.f, pos.y + 1.f, pos.z + 50.f };
 		bound->reset(b);
+
+		auto text = plane_ent->add_component<TextComponent>();
+		
 	}
     
 
@@ -430,7 +425,7 @@ GameInstance::print_fps( int objects ) const
     static basic::char_t buff[ BUFF_SIZE ];
     static basic::uint32 fps;
 
-    if ( fps != m_engine->get_fps( ) )
+    if (m_fps_text && fps != m_engine->get_fps( ) )
     {
         fps = m_engine->get_fps( );
         if ( basic::String::format( buff, BUFF_SIZE, "fps: %u", fps ) )
@@ -440,5 +435,6 @@ GameInstance::print_fps( int objects ) const
     }
 
     basic::String::format( buff, BUFF_SIZE, "draw objects: %u", objects);
-    m_mem_text->set_text( buff );
+	if(m_mem_text)
+		m_mem_text->set_text( buff );
 }

@@ -3,6 +3,7 @@
 #include "defines.hpp"
 #include "resource_storage.hpp"
 #include "object_manager.hpp"
+#include "ecs_manager.hpp"
 
 enum EngineCallbackType 
 {
@@ -73,7 +74,9 @@ public:
 
     basic::uint32 get_fps() const;
 
-	ResourceStorage& get_rs();
+    GenericObjectManager* get_object_manager() { return m_object_manager; }
+
+    EcsManager* get_ecs() { return m_ecs; }
 
 private:
     void process_event( );
@@ -101,7 +104,7 @@ private:
 
     basic::uint32 m_fps;
 
-	ObjectManager m_object_manager;
+    GenericObjectManager* m_object_manager;
 
-	ResourceStorage m_rs;
+    EcsManager* m_ecs;
 };

@@ -11,7 +11,7 @@ enum class ListDirection
 class WidgetList : public Widget
 {
 public:
-    WidgetList(ObjectManager* manager, const glm::vec2& size);
+    WidgetList(GenericObjectManager* manager);
     ~WidgetList() override;
 
     void set_direction(ListDirection dir);

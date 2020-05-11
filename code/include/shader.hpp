@@ -7,19 +7,25 @@
 class BaseShader : public FileResource
 {
 public:
-    BaseShader(ObjectManager *manager, GLenum type, const char* file);
+    GENERIC_OBJECT_IMPL(BaseShader, NS_RESOURCE_TYPE);
+
+    BaseShader(GenericObjectManager*manager, GLenum type, const char* file);
     ~BaseShader() override;
 
-    bool load(ResourceStorage* storage) override;
+    bool load(ResourceStorage* storage) ;
 
     basic::uint32 get_handle() const;
 
     bool is_valid() const;
 
-    static BaseShader* create(ObjectManager *manager, const char* file);
+    int32_t get_tag() const { return m_tag; }
+
+    void set_tag(int32_t tag) { m_tag = tag; }
+
+    static BaseShader* create(GenericObjectManager* manager, const char* file);
 
 private:
-
+    int32_t m_tag;
     basic::uint32 m_handle;
 	GLenum m_type;
 };
@@ -27,10 +33,12 @@ private:
 class ShaderProgram : public FileResource
 {
 public:
-    ShaderProgram(ObjectManager *manager, const char* file );
+    GENERIC_OBJECT_IMPL(ShaderProgram, NS_RESOURCE_TYPE);
+
+    ShaderProgram(GenericObjectManager *manager, const char* file );
     ~ShaderProgram( ) override;
 
-    bool load( ResourceStorage* storage ) override;
+    bool load( ResourceStorage* storage );
 
 	basic::uint32 get_handle() const;
 
@@ -40,7 +48,7 @@ public:
 
     basic::int32 get_uniform( const char* name ) const;
 
-    static ShaderProgram* create(ObjectManager *manager, const char* file);
+    static ShaderProgram* create(GenericObjectManager *manager, const char* file);
 
 private:
 

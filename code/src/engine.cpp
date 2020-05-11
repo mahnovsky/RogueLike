@@ -31,8 +31,8 @@ Engine::Engine( int argc, char** argv )
     , m_time( 0.0 )
     , m_delta( 0.0 )
     , m_fps( 0 )
-	, m_object_manager()
-	, m_rs(&m_object_manager)
+    , m_object_manager(NEW_OBJ(GenericObjectManager))
+    , m_ecs(NEW_OBJ(EcsManager, m_object_manager))
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -59,8 +59,9 @@ bool Engine::init(int width, int height, const char *wnd_title)
         return false;
     }
 
+    auto storage = m_ecs->add_system<ResourceStorage>(m_object_manager);
     m_render = IRender::create();
-    if( !m_render->init( &m_rs, width, height ) )
+    if( !m_render->init( storage, width, height ) )
     {
         LOG("Failed init render.");
 
@@ -174,11 +175,6 @@ double Engine::get_frame_time() const
 basic::uint32 Engine::get_fps() const
 {
     return m_fps;
-}
-
-ResourceStorage& Engine::get_rs()
-{
-	return m_rs;
 }
 
 void

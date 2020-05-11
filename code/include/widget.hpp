@@ -5,6 +5,11 @@
 #include "object.hpp"
 #include "input.hpp"
 
+#include "generic_object.hpp"
+#include "type_registration.hpp"
+#include "generic_object_manager.hpp"
+
+
 enum class AlignH
 {
     Center,
@@ -56,11 +61,12 @@ struct WidgetAction
     void* user_data;
 };
 
-class Widget : public SharedObject
+class Widget : public IGenericObject
 {
 public:
-    Widget( ObjectManager* manager,
-            const glm::vec2& size );
+    GENERIC_OBJECT_IMPL(Widget, NS_COMPONENT_TYPE);
+
+    Widget( GenericObjectManager* manager );
 
     ~Widget() override;
 
@@ -138,6 +144,7 @@ protected:
     RootWidget* get_root();
 
 private:
+    GenericObjectManager* m_object_manager;
 	glm::mat4 m_mat;
     glm::vec2 m_pos;
     glm::vec2 m_size;

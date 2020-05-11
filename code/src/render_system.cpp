@@ -59,8 +59,7 @@ RenderSystem::RenderSystem(EcsManager* ecs)
 {
 }
 
-void
-RenderSystem::initialize(IRender* render, ICamera* cam )
+void RenderSystem::initialize(IRender* render, ICamera* cam )
 {
 	m_render = render;
     m_camera = cam;

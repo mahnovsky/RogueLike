@@ -103,7 +103,7 @@ bool operator == (const MeshIndex& a, const MeshIndex& b)
 }
 
 bool
-load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSettings settings)
+load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings)
 {
     basic::Vector< glm::vec3 > vert_coords;
     basic::Vector< glm::vec2 > tex_coords;
@@ -127,18 +127,18 @@ load_mesh( basic::Vector< basic::uint8 > data, MeshData& out_mesh, MeshLoadSetti
 
     basic::String line;
 
-    while ( offset < data.get_size( ) )
+    while ( offset < data.size( ) )
     {
         ++line_counter;
 
-        if ( offset >= data.get_size( ) )
+        if ( offset >= data.size( ) )
         {
             break;
         }
 
         offset += basic::String::read_line(
-                reinterpret_cast< basic::char_t* >( data.get_raw( ) + offset ),
-                static_cast< basic::uint32 >( data.get_size( ) - offset ),
+                reinterpret_cast< basic::char_t* >( data.data( ) + offset ),
+            reinterpret_cast< basic::uint32 >( data.data( ) - offset ),
                 line );
 
         if (line.is_empty() || line.front( ) == '#' )

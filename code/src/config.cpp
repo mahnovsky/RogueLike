@@ -1,7 +1,7 @@
 #include "config.hpp"
 
-Config::Config( ObjectManager* manager, const char* file )
-    : FileResource( manager, SharedObjectType::Config, file )
+Config::Config( GenericObjectManager* manager, const char* file )
+    : FileResource( manager, file )
     , m_values( )
 {
 }
@@ -10,12 +10,11 @@ Config::~Config( )
 {
 }
 
-bool
-Config::load( ResourceStorage* )
+bool Config::load( ResourceStorage* )
 {
-    basic::Vector< basic::uint8 > data = basic::get_file_content( get_name( ).get_cstr( ) );
+   auto data = basic::get_file_content( get_name( ).c_str( ) );
 
-    if ( !data.is_empty( ) && m_doc.load( reinterpret_cast< char* >( data.get_raw( ) ) ) )
+    if ( !data.empty( ) && m_doc.load( reinterpret_cast< char* >( data.data( ) ) ) )
     {
         return true;
     }
@@ -23,8 +22,7 @@ Config::load( ResourceStorage* )
     return false;
 }
 
-Config*
-Config::create( ObjectManager* manager, const char* file )
+Config* Config::create( GenericObjectManager* manager, const char* file )
 {
     return NEW_OBJ( Config, manager, file );
 }

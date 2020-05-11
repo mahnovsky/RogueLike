@@ -31,6 +31,12 @@
     <Filter Include="code\include\ecs">
       <UniqueIdentifier>{b904c2ad-8971-4936-8e5e-3b249fd63c70}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\include\generic">
+      <UniqueIdentifier>{b6d272f6-f0eb-478a-903a-72810b8dd68b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\src\generic">
+      <UniqueIdentifier>{b6567b03-1d23-45e4-aafc-3e3f43b9046d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp">
@@ -55,9 +61,6 @@
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\sprite.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\text.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\texture.cpp">
@@ -156,6 +159,12 @@
     <ClCompile Include="..\code\src\octree.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\src\generic\generic_object_manager.cpp">
+      <Filter>code\src\generic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\src\text_component.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -177,9 +186,6 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\sprite.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\text.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\texture.hpp">
@@ -236,9 +242,6 @@
     <ClInclude Include="..\code\include\widget.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\line.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\object_manager.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
@@ -254,9 +257,6 @@
     <ClInclude Include="..\code\include\ecs\component.hpp">
       <Filter>code\include\ecs</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\ecs\entity_component_system.hpp">
-      <Filter>code\include\ecs</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\render_system.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
@@ -267,6 +267,30 @@
       <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\frustum.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\generic\generic_object.hpp">
+      <Filter>code\include\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\generic\pool.hpp">
+      <Filter>code\include\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\generic\type_info.hpp">
+      <Filter>code\include\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\generic\generic_object_manager.hpp">
+      <Filter>code\include\generic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\ecs\ecs_manager.hpp">
+      <Filter>code\include\ecs</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\type_registration.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\text_component.hpp">
+      <Filter>code\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\static_mesh.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>
