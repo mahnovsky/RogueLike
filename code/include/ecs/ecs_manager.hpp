@@ -151,6 +151,8 @@ public:
 
 		m_systems.emplace_back(system);
 
+		m_object_manager->add_object(system);
+
 		return system;
 	}
 

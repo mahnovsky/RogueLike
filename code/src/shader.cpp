@@ -34,8 +34,7 @@ ShaderProgram::load( ResourceStorage* storage )
 
     if ( config )
     {
-        std::string name = get_name( );
-        const basic::JsonObject* shader_conf = config->get_values( name.c_str( ) );
+        const basic::JsonObject* shader_conf = config->get_values( get_file_name().data( ) );
 
         ASSERT( shader_conf );
 
@@ -194,11 +193,10 @@ BaseShader::BaseShader( GenericObjectManager* manager, basic::uint32 type, const
     : FileResource( manager, file )
     , m_handle( 0 )
 	, m_type(type)
+    , m_tag(type)
 {
     bool is_valid = type == GL_VERTEX_SHADER || type == GL_FRAGMENT_SHADER;
     ASSERT( is_valid );
-
-    //set_tag( type );
 }
 
 BaseShader::~BaseShader( )
@@ -214,10 +212,10 @@ BaseShader::load( ResourceStorage* )
         return true;
     }
 
-    std::string file = get_name( );
+    auto file = get_file_name( );
     ASSERT( !file.empty( ) );
 
-    auto data = basic::get_file_content( file.c_str( ) );
+    auto data = basic::get_file_content( file.data( ) );
 
     if ( !data.empty( ) )
     {

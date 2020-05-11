@@ -384,7 +384,7 @@ GameInstance::frame( float delta ) const
 		}
     }
 
-	m_move_system->update(delta);
+	//m_move_system->update(delta);
 	m_render_system->update(delta);
 
 	prev_object_count = m_render_system->get_draw_object_count();

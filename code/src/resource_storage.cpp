@@ -32,7 +32,7 @@ ResourceStorage::~ResourceStorage( )
 bool
 ResourceStorage::add_resource( FileResource* file_resource )
 {
-    if ( !find_resource( file_resource->get_name( ).c_str( ) ) && file_resource->load(this) )
+    if ( !find_resource( file_resource->get_file_name( ).data( ) ) && file_resource->load(this) )
     {
         m_resources.push( file_resource );
 
