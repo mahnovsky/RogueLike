@@ -6,9 +6,10 @@
 #include "shader.hpp"
 #include "texture.hpp"
 #include "transform.hpp"
+
 #include <iostream>
 
-IndexBuffer::Item QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
+std::uint16_t QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
 
 QuadGenerator::QuadGenerator( const glm::vec3& size,
                               const glm::vec2& anchor,
@@ -53,7 +54,7 @@ QuadGenerator::generate( IndexBuffer& out_vb, int offset )
     for ( int i = 0; i < 6; ++i )
     {
         auto index = indices[ i ] + xoff;
-        out_vb.push( index );
+        out_vb.push_back( index );
     }
 }
 
@@ -102,8 +103,7 @@ bool operator == (const MeshIndex& a, const MeshIndex& b)
 		a.texture_index == b.texture_index;
 }
 
-bool
-load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings)
+bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings)
 {
     basic::Vector< glm::vec3 > vert_coords;
     basic::Vector< glm::vec2 > tex_coords;
@@ -111,7 +111,6 @@ load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings set
     vert_coords.reserve( 1000 );
     tex_coords.reserve( 1000 );
     
-
     basic::uint32 offset = 0;
     int line_counter = 0;
 
@@ -233,8 +232,8 @@ load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings set
 			basic::uint32 pos = 0;
 			if (!indices.find_first(pos, index))
 			{
-				index.index = out_mesh.vb.get_size();
-				out_mesh.vb.push({});
+				index.index = out_mesh.vb.size();
+				out_mesh.vb.push_back({});
 				Vertex& vertex = out_mesh.vb.back();
 
 				vertex.pos = vert_coords[index.vertex_index];
@@ -243,12 +242,12 @@ load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings set
 				if (!tex_coords.is_empty())
 					vertex.uv = tex_coords[index.texture_index];
 
-				out_mesh.ib.push(index.index);
+				out_mesh.ib.push_back(index.index);
 				indices.push(index);
 			}
 			else
 			{
-				out_mesh.ib.push(indices[pos].index);
+				out_mesh.ib.push_back(indices[pos].index);
 			}
 		}
     }
@@ -547,15 +546,15 @@ RenderNode::update_indices( IndexBuffer* indices )
     ASSERT( index_object > 0 );
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, index_object );
-    const basic::uint32 size = sizeof( basic::uint16 ) * indices->get_size( );
+    const basic::uint32 size = sizeof( basic::uint16 ) * indices->size( );
 
-    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
+    glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->data( ), GL_STATIC_DRAW );
 
-    const basic::int32 need_elements = static_cast< basic::int32 >( indices->get_size( ) );
+    const basic::int32 need_elements = static_cast< basic::int32 >( indices->size( ) );
 
     if ( index_elements == 0 || index_elements < need_elements )
     {
-        glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->get_raw( ), GL_STATIC_DRAW );
+        glBufferData( GL_ELEMENT_ARRAY_BUFFER, size, indices->data( ), GL_STATIC_DRAW );
 
         index_elements = need_elements;
 
@@ -564,7 +563,7 @@ RenderNode::update_indices( IndexBuffer* indices )
 
     index_elements = need_elements;
 
-    glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->get_raw( ) );
+    glBufferSubData( GL_ELEMENT_ARRAY_BUFFER, 0, size, indices->data( ) );
 
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 }

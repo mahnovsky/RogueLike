@@ -149,12 +149,12 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
             vb.push( {p2, t2} );
             vb.push( {p3, t3} );
 
-            ib.push( 0 + offset * 4 );
-            ib.push( 1 + offset * 4 );
-            ib.push( 2 + offset * 4 );
-            ib.push( 0 + offset * 4 );
-            ib.push( 2 + offset * 4 );
-            ib.push( 3 + offset * 4 );
+            ib.push_back( 0 + offset * 4 );
+            ib.push_back( 1 + offset * 4 );
+            ib.push_back( 2 + offset * 4 );
+            ib.push_back( 0 + offset * 4 );
+            ib.push_back( 2 + offset * 4 );
+            ib.push_back( 3 + offset * 4 );
         }
         ++offset;
     }

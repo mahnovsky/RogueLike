@@ -66,8 +66,8 @@ struct Vertex
 
 using VertexBufferP = basic::Vector< glm::vec3 >;
 using VertexBufferT = basic::Vector< Vertex_T >;
-using VertexBuffer = basic::Vector< Vertex >;
-using IndexBuffer = basic::Vector< basic::uint16 >;
+using VertexBuffer = std::vector< Vertex >;
+using IndexBuffer = std::vector< basic::uint16 >;
 
 struct MeshData
 {
@@ -168,10 +168,10 @@ public:
         {
             index_object = create_buffer( GL_ELEMENT_ARRAY_BUFFER,
                                           GL_STATIC_DRAW,
-                                          indices->get_raw( ),
-                                          indices->get_size( ) * sizeof( basic::uint16 ) );
+                                          indices->data( ),
+                                          indices->size( ) * sizeof( basic::uint16 ) );
 
-            index_elements = indices->get_size( );
+            index_elements = indices->size( );
         }
 
         basic::Vector< VertexFMT > fmt_list = get_fmt_list( vertices->get_raw( ) );
@@ -283,7 +283,7 @@ struct QuadGenerator
 
     void generate( IndexBuffer& out_ib, int offset );
 
-    static IndexBuffer::Item indices[ 6 ];
+    static std::uint16_t indices[ 6 ];
 
 private:
     glm::vec3 m_size;

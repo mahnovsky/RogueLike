@@ -264,18 +264,18 @@ void GameInstance::init( )
 
         m_ui_root->add_child( wnd );
     }*/
-    
+    /*
 	for (int i = 0; i < 10; ++i)
 	{
-		auto cow = make_ent(m_ecs, "meshes/cube.obj", "default");
+		auto cow = make_ent(m_ecs, "meshes/cube.fbx", "default");
 		auto rc = cow->get_component<RenderComponent>();
 		if(rc)
 		{
 			rc->set_color({ 128, 0, 55, 255 });
 		}
-	}
+	}*/
 
-	m_player = make_ent(m_ecs, "meshes/cube.obj", "default");
+	m_player = make_ent(m_ecs, "meshes/cube.fbx", "default");
 	/*if (m_player)
 	{
 		auto mc = m_player->get_component< MoveComponent >();
@@ -295,7 +295,7 @@ void GameInstance::init( )
 		rc->set_color({ 130, 0, 80, 255 });
 	}*/
 
-	Entity* plane_ent = make_ent(m_ecs, "meshes/plane.obj", "default_texture", "Chess_Board.png");
+	Entity* plane_ent = nullptr;// make_ent(m_ecs, "meshes/plane.obj", "default_texture", "Chess_Board.png");
 	
 	if (plane_ent)
 	{

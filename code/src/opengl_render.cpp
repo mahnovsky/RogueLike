@@ -257,8 +257,8 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 		OPENGL_CHECK_FOR_ERRORS();
-		//glEnable( GL_CULL_FACE );
-		//glCullFace(GL_FRONT);
+		glEnable( GL_CULL_FACE );
+		glCullFace(GL_FRONT);
 		
 
 		init_fbo();
@@ -402,7 +402,7 @@ public:
 	}
 
 private:
-	bool m_use_fbo = true;
+	bool m_use_fbo = false;
 	GLint m_width;
 	GLint m_height;
 	GLuint m_fbo;
