@@ -15,7 +15,6 @@ WidgetText::WidgetText(GenericObjectManager* manager)
 
 WidgetText::~WidgetText()
 {
-    SAFE_RELEASE(m_font);
 }
 
 void WidgetText::init(ResourceStorage *storage)
@@ -26,16 +25,6 @@ void WidgetText::init(ResourceStorage *storage)
 
     if(m_font)
     {
-        m_font->ref();
-
-        m_text_render = m_font->create_text_node();
-
-        m_text_render->set_camera(get_camera());
-
-        m_text_render->set_order(1);
-
-        get_view()->add_child( m_text_render );
-
         update();
     }
 }
@@ -49,12 +38,11 @@ void WidgetText::set_text(const basic::String &text)
 
 void WidgetText::set_color(const basic::Color &color)
 {
-    m_text_render->set_color(color);
 }
 
 basic::Color WidgetText::get_color() const
 {
-    return m_text_render->get_color();
+	return {};
 }
 
 void WidgetText::set_align(AlignH horizontal)
@@ -103,6 +91,5 @@ void WidgetText::apply_align()
 
     glm::vec3 pos{ x_align, y_align, 0.f};
 
-    m_text_render->get_transform()->set_pivot_point(pos);
 	update_mat();
 }

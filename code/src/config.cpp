@@ -1,7 +1,7 @@
 #include "config.hpp"
 
-Config::Config( GenericObjectManager* manager, const char* file )
-    : FileResource( manager, file )
+Config::Config( const char* file )
+    : FileResource( file )
     , m_values( )
 {
 }
@@ -22,9 +22,9 @@ bool Config::load( ResourceStorage* )
     return false;
 }
 
-Config* Config::create( GenericObjectManager* manager, const char* file )
+Config* Config::create( const char* file )
 {
-    return NEW_OBJ( Config, manager, file );
+    return NEW_OBJ( Config, file );
 }
 
 const basic::JsonObject*

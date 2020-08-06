@@ -1,4 +1,5 @@
 #include "generic_object_manager.hpp"
+#include <algorithm>
 
 void GenericObjectManager::add_object(IGenericObject* object)
 {

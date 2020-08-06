@@ -16,14 +16,13 @@ struct TextureRect
 class Texture : public FileResource
 {
 public:
-    GENERIC_OBJECT_IMPL(Texture, NS_RESOURCE_TYPE);
 
-    Texture( GenericObjectManager* manager, const char* file );
+    Texture( const char* file );
     ~Texture( ) override;
 
     bool load( ResourceStorage* ) ;
 
-    static Texture* create( GenericObjectManager* manager, const char* file );
+    static Texture* create( const char* file );
 
     void init( basic::Image image );
 

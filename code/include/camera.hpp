@@ -26,7 +26,7 @@ public:
 
     virtual void set_up( const glm::vec3& up ) = 0;
 
-	virtual std::vector<OctreeObject*> get_visible_objects(Octree* octree) const { return {}; }
+	virtual const std::vector<OctreeObject*>& get_visible_objects(Octree* octree) const { return {}; }
 
     static glm::vec3 convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos );
 
@@ -51,7 +51,7 @@ public:
 
     glm::vec3 get_position( ) const override;
 
-	std::vector<OctreeObject*> get_visible_objects(Octree* octree) const override;
+	const std::vector<OctreeObject*>& get_visible_objects(Octree* octree) const override;
 
 private:
     void update( );

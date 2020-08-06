@@ -55,7 +55,7 @@ log( int line, const char* file, const char* const func, const char* format, ...
 {
     char buffer[ MAX_BUFFER_LEN ];
 
-    stbsp_snprintf( buffer, MAX_BUFFER_LEN, "%s: %d\n\t [ %s ] ", file, line, func );
+    stbsp_snprintf( buffer, MAX_BUFFER_LEN, "[%s: %d] %s: ", file, line, func );
 
 #ifdef __WINDOWS__
 	OutputDebugStringA(buffer);

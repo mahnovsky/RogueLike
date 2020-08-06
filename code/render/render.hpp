@@ -3,8 +3,32 @@
 #include "defines.hpp"
 #include "render_common.hpp"
 
+
 class ICamera;
 class RenderComponent;
+
+struct RenderObjectData;
+
+struct RenderObjectDataDelete { // default deleter for unique_ptr
+	constexpr RenderObjectDataDelete() noexcept = default;
+
+	RenderObjectDataDelete(const RenderObjectDataDelete&) noexcept {}
+
+	void operator()(RenderObjectData* _Ptr) const noexcept;
+};
+
+using RenderObjectDataPtr = std::unique_ptr<RenderObjectData, RenderObjectDataDelete>;
+
+enum class DataPresentMode
+{
+	Point,
+	Line,
+	Triangle,
+	TriangleFan,
+	TriangleStrip
+};
+
+RenderObjectDataPtr create_render_data(DataPresentMode present_mode);
 
 class IRenderObject
 {
@@ -32,6 +56,8 @@ public:
     virtual void present() = 0;
 
 	virtual void add_to_frame(IRenderObject* object) = 0;
+
+	virtual void add_to_frame(const RenderObjectData& data) = 0;
 
 	virtual IRenderObject* create_object(RenderComponent& comp) = 0;
 

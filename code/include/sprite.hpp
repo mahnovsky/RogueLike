@@ -8,7 +8,7 @@ public:
     Sprite( );
     ~Sprite();
 
-    void init( ShaderProgram* shader, Texture* texture );
+    void init( Texture* texture );
 
     void draw( ICamera* camera, IRender* render );
 
@@ -36,6 +36,5 @@ private:
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     float m_angle;
-    RenderNode* m_render_node;
     basic::String m_frame_name;
 };

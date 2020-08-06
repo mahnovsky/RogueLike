@@ -4,7 +4,7 @@
 #include "object_manager.hpp"
 #include "render_common.hpp"
 #include "root_widget.hpp"
-#include "shader.hpp"
+#include "opengl/resource_shader.hpp"
 #include "transform.hpp"
 #include "generic_object_manager.hpp"
 
@@ -16,9 +16,6 @@ Widget::Widget( GenericObjectManager* manager )
     , m_rect( )
     , m_parent( nullptr )
     , m_children( )
-    , m_view( nullptr )
-    , m_debug_rect( nullptr )
-    , m_picture( nullptr )
     , m_visible( true )
     , m_horizontal( AlignH::Center )
     , m_vertical( AlignV::Center )
@@ -32,9 +29,8 @@ Widget::Widget( GenericObjectManager* manager )
 Widget::~Widget( )
 {
     m_object_manager->remove_object(this);
-    RenderNode::remove_node( m_view );
-    m_view = nullptr;
-
+    
+    
     for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
     {
         //m_children[ i ]->release( );
@@ -53,18 +49,7 @@ Widget::init( ResourceStorage* storage )
         return;
     }
 
-    const auto shader = storage->get_resorce< ShaderProgram >( "primitive" );
-
-    if ( shader )
-    {
-        m_view = RenderNode::create_node( shader, nullptr );
-        m_view->set_camera( m_camera );
-
-        m_debug_rect = make_rect( shader, m_rect.left_top, m_rect.right_bottom, 2.f );
-        m_view->add_child( m_debug_rect );
-
-        m_debug_rect->set_color( {255, 0, 200, 255} );
-    }
+    //const auto shader = storage->get_resorce< ShaderProgram >( "primitive" );
 }
 
 void
@@ -73,17 +58,7 @@ Widget::add_child( Widget* node )
     ASSERT( node != nullptr );
 
     basic::uint32 index = 0;
-    if ( !get_child_index( node, index ) )
-    {
-        node->remove_from_parent( );
-        node->m_parent = this;
-
-        m_children.push( node );
-
-        m_view->get_transform( )->add_child( node->m_view->get_transform( ) );
-        node->update_rect( );
-        node->update_mat( );
-    }
+    
 }
 
 void
@@ -213,11 +188,6 @@ glm::vec2
 Widget::get_left_top_world_position( ) const
 {
     glm::vec2 pos = get_world_position( );
-    if ( m_view )
-    {
-        glm::vec3 pivot = m_view->get_transform( )->get_pivot_point( );
-        pos = glm::vec2{pos.x - pivot.x, pos.y - pivot.y};
-    }
 
     return pos;
 }
@@ -255,21 +225,6 @@ Widget::get_vertical_align( ) const
 void
 Widget::set_picture( Texture* tex )
 {
-    ASSERT( tex );
-    if ( !m_picture )
-    {
-        ASSERT( m_storage != nullptr );
-        auto shader = m_storage->get_resorce< ShaderProgram >( "texture" );
-        m_picture = RenderNode::create_node( shader, tex );
-
-        VertexBufferT vb;
-        IndexBuffer ib;
-        QuadGenerator qg( {m_size.x, -m_size.y, -1.f}, {0.f, 1.f}, basic::Color{} );
-        qg.generate( vb, 0 );
-        qg.generate( ib, 0 );
-
-        m_picture->init_node( &vb, &ib, m_view );
-    }
 }
 
 void
@@ -315,31 +270,12 @@ Widget::update_rect( )
     {
         m_rect.update( get_left_top_world_position( ), m_size );
     }
-
-    if ( m_view )
-    {
-        m_view->get_transform( )->set_pivot_point( {m_anchor_point * m_size, 0.f} );
-        m_view->get_transform( )->set_position( glm::vec3( m_pos, 0.f ) );
-
-        if ( m_debug_rect )
-        {
-            VertexBufferP vb;
-            fill_rect( glm::vec2( ), m_size, 2.f, vb );
-            m_debug_rect->update_vertices( &vb );
-        }
-    }
 }
 
 glm::mat4
 Widget::get_matrix( ) const
 {
-    return m_view->get_transform( )->get_matrix( );
-}
-
-RenderNode*
-Widget::get_view( )
-{
-    return m_view;
+	return {};
 }
 
 ICamera*
@@ -351,7 +287,7 @@ Widget::get_camera( )
 void
 Widget::update_mat( )
 {
-	m_mat = m_view->get_transform()->get_matrix();
+
 	/*
     m_mat = m_view->get_transform( )->get_matrix( );
     if ( m_parent )
@@ -379,15 +315,5 @@ Widget::get_root( )
 void
 Widget::draw( )
 {
-    //if ( !m_visible )
-    {
-        return;
-    }
 
-    m_view->draw_node( );
-
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
-    {
-        m_children[ i ]->draw( );
-    }
 }

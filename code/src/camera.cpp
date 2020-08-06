@@ -73,14 +73,15 @@ PerspectiveCamera::get_position( ) const
     return m_position;
 }
 
-std::vector<OctreeObject*> PerspectiveCamera::get_visible_objects(Octree* octree) const
+const std::vector<OctreeObject*>& PerspectiveCamera::get_visible_objects(Octree* octree) const
 {
 	Sphere s;
 	glm::vec3 dir = glm::normalize(m_direction - m_position);
 	s.pos = m_position + dir * m_offset;
 	s.radius = m_radius;
 
-	std::vector<OctreeObject*> res;
+	static std::vector<OctreeObject*> res;
+	res.clear();
 
 	ViewFrustum fr;
 	extract_view_frustum_planes_from_matrix(m_final, fr, true);

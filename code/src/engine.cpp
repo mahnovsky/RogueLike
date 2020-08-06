@@ -49,6 +49,12 @@ Engine::Engine( int argc, char** argv )
     }
 }
 
+Engine::~Engine()
+{
+	DELETE_OBJ(m_ecs);
+	DELETE_OBJ(m_object_manager);
+}
+
 bool Engine::init(int width, int height, const char *wnd_title)
 {
     m_window = IWindow::create();
@@ -59,7 +65,7 @@ bool Engine::init(int width, int height, const char *wnd_title)
         return false;
     }
 
-    auto storage = m_ecs->add_system<ResourceStorage>(m_object_manager);
+    auto storage = m_ecs->add_system<ResourceStorage>();
     m_render = IRender::create();
     if( !m_render->init( storage, width, height ) )
     {

@@ -2,41 +2,28 @@
 
 #include "timer_manager.hpp"
 
-FileResource::FileResource(GenericObjectManager* manager, const char* file )
-    :m_object_manager(manager)
-    ,m_file_name(file)
+#include <algorithm>
+
+FileResource::FileResource( const char* file )
+    : m_file_name(file)
 {
 }
 
-FileResource::~FileResource( )
-{
-}
-
-ResourceStorage::ResourceStorage(EcsManager* ecs, GenericObjectManager* manager )
-    : m_manager( manager )
+ResourceStorage::ResourceStorage(EcsManager*)
 {
     TimerManager& timer_manager = TimerManager::get( );
 
     timer_manager.add( 2.f, &update_cached_resources, this, -1 );
 }
 
-ResourceStorage::~ResourceStorage( )
+bool ResourceStorage::add_resource( FileResourcePtr file_resource )
 {
-    for ( auto obj : m_resources )
-    {
-        obj->deref( );
-    }
-    m_resources.clear( );
-}
+	auto file_name = file_resource->get_file_name();
+	ASSERT(!file_name.empty());
 
-bool
-ResourceStorage::add_resource( FileResource* file_resource )
-{
-    if ( !find_resource( file_resource->get_file_name( ).data( ) ) && file_resource->load(this) )
+    if ( !find_resource(file_name.data( )) && file_resource->load(this) )
     {
-        m_resources.push( file_resource );
-
-        file_resource->ref( );
+        m_resources.push_back( file_resource );
 
         return true;
     }
@@ -44,35 +31,42 @@ ResourceStorage::add_resource( FileResource* file_resource )
     return false;
 }
 
-FileResource*
-ResourceStorage::find_resource( const char* file )
+FileResourcePtr ResourceStorage::find_resource( const char* file )
 {
     FileResource* result = nullptr;
 
-    for ( basic::uint32 i = 0; i < m_resources.get_size( ); ++i )
-    {
-        if ( m_resources[ i ]->get_name( ) == file )
-        {
-            result = m_resources[ i ];
-            break;
-        }
-    }
+	auto it = std::find_if(m_resources.begin(), m_resources.end(), [file](const FileResourcePtr res) {
+		return res->get_file_name() == file;
+	});
 
-    return result;
+	if (it != m_resources.end())
+	{
+		return *it;
+	}
+
+    return nullptr;
 }
 
-void
-ResourceStorage::update_cached_resources( void* storage )
+void ResourceStorage::update_cached_resources( void* storage )
 {
     ResourceStorage* rs = static_cast< ResourceStorage* >( storage );
 
-    for ( basic::uint32 i = 0; i < rs->m_resources.get_size( ); ++i )
-    {
-        if ( rs->m_resources[ i ]->get_refs( ) == 1 )
-        {
-            rs->m_resources[ i ]->deref( );
+	auto it = std::remove_if(rs->m_resources.begin(), rs->m_resources.end(), [](FileResourcePtr res)
+		{
+			return res.use_count() == 1;
+		});
 
-            rs->m_resources.swap_remove( i );
-        }
-    }
+	rs->m_resources.erase(it, rs->m_resources.end());
+}
+
+bool ResourceStorage::_inner_add_resource(FileResourcePtr resource)
+{
+	bool is_loaded = resource->load(this);
+	if (is_loaded)
+	{
+		m_resources.push_back(resource);
+
+		LOG("\tResource \"%s\" loaded successfully", resource->get_file_name().data());
+	}
+	return is_loaded;
 }

@@ -152,6 +152,13 @@ OctreeNode::OctreeNode(Octree* tree, const Box& enclosing_box, uint16_t index, O
 
 OctreeNode::~OctreeNode()
 {
+	for (auto obj : m_objects)
+	{
+		if (obj->get_owner() == this)
+		{
+			obj->set_owner(nullptr);
+		}
+	}
 	if (m_parent)
 	{
 		for (size_t i = 0; i < 8; ++i)

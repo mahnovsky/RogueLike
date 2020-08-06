@@ -46,7 +46,14 @@ public:
 	EcsManager(GenericObjectManager* object_manager)
 		:m_object_manager(object_manager)
 	{}
-	~EcsManager() = default;
+	~EcsManager()
+	{
+		auto cont = std::move(m_systems);
+		for (auto sys : cont)
+		{
+			delete sys;
+		}
+	}
 
 	template <class T, class ... Args>
 	T* create_entity(Args ... args)

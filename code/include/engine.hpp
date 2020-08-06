@@ -52,7 +52,7 @@ public:
 	Engine(Engine&&) noexcept = delete;
 
     Engine( int argv, char** argc );
-    ~Engine() override = default;
+    ~Engine() override;
 
     bool init(int width, int height, const char* wnd_title) override;
 

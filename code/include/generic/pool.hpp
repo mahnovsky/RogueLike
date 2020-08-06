@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <cassert>
+#include "basic/memory.hpp"
 
 template <class T>
 class Pool
@@ -35,7 +36,7 @@ public:
 					obj->~T();
 				}
 			}
-			::free(b.objects);
+			basic::mem_free(b.objects);
 		}
 	}
 
@@ -136,7 +137,7 @@ private:
 
 	void _inner_grow()
 	{
-		_buffers.emplace_back(reinterpret_cast<uint8_t*>(malloc(_buffer_size * sizeof(T))), 0);
+		_buffers.emplace_back(reinterpret_cast<uint8_t*>(basic::mem_alloc(_buffer_size * sizeof(T))), 0);
 	}
 
 private:

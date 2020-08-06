@@ -2,8 +2,9 @@
 #include "GL/glew.h"
 
 #include "render_common.hpp"
-#include "shader.hpp"
+#include "opengl/resource_shader.hpp"
 #include "texture.hpp"
+#include "render.hpp"
 
 namespace
 {
@@ -13,9 +14,8 @@ namespace
 
 namespace se
 {
-Font::Font(GenericObjectManager* manager, const char* file )
-    : FileResource(manager, file)
-    , m_object_manager( manager )
+Font::Font( const char* file )
+    : FileResource(file)
     , m_shader( nullptr )
     , m_texture( nullptr )
     , m_height( 32.f )
@@ -26,30 +26,20 @@ Font::Font(GenericObjectManager* manager, const char* file )
 Font::~Font( )
 {
     basic::mem_free( m_cdata );
-    if ( m_texture )
-    {
-        m_texture->ref();
-    }
-    if ( m_shader )
-    {
-        m_shader->ref();
-    }
 }
 
-bool
-Font::load( ResourceStorage* storage )
+bool Font::load( ResourceStorage* storage )
 {
-    m_shader = storage->get_resorce< ShaderProgram >( "text" );
+    m_shader = storage->get_resorce< ogl::ShaderProgram >( "text" );
     if ( !m_shader )
     {
         LOG( "Failed load text shader" );
 
         return false;
     }
-    m_shader->ref( );
 
     std::string path = "fonts/";
-    path += get_name( );
+    path += get_file_name( );
     auto data = basic::get_file_content( path.c_str( ) );
 
     if ( !data.empty( ) )
@@ -71,24 +61,16 @@ Font::load( ResourceStorage* storage )
                               static_cast< stbtt_bakedchar* >( m_cdata ) );
 
         std::string name = "bitmap_";
-        name += get_name( );
+        name += get_file_name( );
 
-        m_texture = NEW_OBJ( Texture, m_object_manager, name.c_str( ) );
+		Texture* texture = NEW_OBJ(Texture, name.c_str());
+        m_texture = std::dynamic_pointer_cast<Texture>( texture->shared_from_this() );
         m_texture->init_font( tw, th, std::move( bitmap ) );
-        m_texture->ref( );
 
         return true;
     }
 
     return false;
-}
-
-RenderNode*
-Font::create_text_node( )
-{
-    RenderNode* node = RenderNode::create_node( m_shader, m_texture );
-
-    return node;
 }
 
 void
@@ -160,11 +142,11 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
     }
     size.x = x;
 
-    node->reset( &vb, &ib );
+	RenderObjectDataPtr data = create_render_data(DataPresentMode::Triangle);
 }
 
-Font* Font::create( GenericObjectManager* manager, const char* file )
+Font* Font::create( const char* file )
 {
-    return NEW_OBJ( Font, manager, file );
+    return NEW_OBJ( Font, file );
 }
 }

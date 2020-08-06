@@ -29,7 +29,7 @@ private:
 
 private:
     basic::String m_font_name;
-    se::Font* m_font;
+    std::shared_ptr<se::Font> m_font;
     basic::String m_text;
     RenderNode* m_text_render;
     glm::vec2 m_text_size;

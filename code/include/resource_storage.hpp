@@ -5,60 +5,63 @@
 #include "type_registration.hpp"
 #include "generic/generic_object_manager.hpp"
 
+#include <memory>
+
 class ResourceStorage;
 
-class FileResource : public IGenericObject
+class FileResource : public std::enable_shared_from_this<FileResource>
 {
 public:
-    FileResource(GenericObjectManager* manager, const char* file);
+    FileResource(const char* file);
 
-    virtual ~FileResource();
+    virtual ~FileResource() = default;
 
     virtual bool load(ResourceStorage*) { return false; }
 
-    GenericObjectManager* get_object_manager() { return m_object_manager; }
-
     std::string_view get_file_name() const { return m_file_name; }
+
 private:
-    GenericObjectManager* m_object_manager;
     std::string m_file_name;
 };
+
+using FileResourcePtr = std::shared_ptr<FileResource>;
 
 class ResourceStorage : public IGenericObject
 {
 public:
     GENERIC_OBJECT_IMPL(ResourceStorage, NS_SYSTEM_TYPE);
 
-    ResourceStorage( EcsManager* ecs, GenericObjectManager* manager );
-    ~ResourceStorage( );
+    ResourceStorage(EcsManager*);
 
-    bool add_resource( FileResource* file_resource );
+    bool add_resource( FileResourcePtr file_resource );
 
     template < class T, class ... Args >
-    T* get_resorce( const char* file, Args ... args )
+    std::shared_ptr<T> get_resorce( const char* file, Args ... args )
     {
-        T* res = dynamic_cast< T* >( find_resource( file ) );
+		std::shared_ptr<T> res = std::dynamic_pointer_cast< T >( find_resource( file ) );
 
         if ( !res )
         {
-            res = T::create( m_manager, file, args ... );
+			res = std::make_shared<T>(file, args...);
 
-            if(!add_resource( res ))
-            {
-				DELETE_OBJ(res);
-				res = nullptr;
-            }
+			if (!_inner_add_resource(res))
+			{
+				LOG("Failed to load resource: %s", file);
+
+				return {};
+			}
         }
 
-        return res;
+		return res;
     }
 
-    FileResource* find_resource( const char* file );
+    FileResourcePtr find_resource( const char* file );
 
 private:
     static void update_cached_resources( void* storage );
 
+	bool _inner_add_resource(FileResourcePtr resource);
+
 private:
-    GenericObjectManager* m_manager;
-    basic::Vector< FileResource* > m_resources;
+    std::vector< FileResourcePtr > m_resources;
 };

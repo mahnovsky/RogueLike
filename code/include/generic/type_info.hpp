@@ -30,3 +30,13 @@ template <> \
 const uint32_t TypeInfo<type, name_space>::type_index = index; \
 template <> \
 const uint32_t TypeInfo<type, name_space>::type_uid = ((uint32_t)1 << index) | name_space;
+
+#define NS_REGISTRY_TYPE(ns, type, index, name_space) \
+namespace ns { class type; } \
+using full_type = ns::type; \
+template <> \
+const char* TypeInfo<full_type, name_space>::type_name = #type; \
+template <> \
+const uint32_t TypeInfo<full_type, name_space>::type_index = index; \
+template <> \
+const uint32_t TypeInfo<full_type, name_space>::type_uid = ((uint32_t)1 << index) | name_space;

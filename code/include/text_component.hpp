@@ -17,7 +17,7 @@ public:
 
     void set_text( const char* text );
 
-    void set_font( se::Font* font );
+    void set_font( std::shared_ptr<se::Font> font );
 
     void set_font_size( float size );
 
@@ -32,13 +32,11 @@ private:
 
 private:
 
-	se::Font* m_font;
+	std::shared_ptr<se::Font> m_font;
 
 	basic::String m_font_file;
 
     basic::String m_text;
-
-    RenderNode* m_render_node;
 
     float m_font_size;
 };

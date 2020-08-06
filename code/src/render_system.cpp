@@ -5,7 +5,6 @@
 
 #include "render.hpp"
 #include "camera.hpp"
-#include "material.hpp"
 
 void RenderComponent::initialize(IRenderObject* obj)
 {
@@ -70,7 +69,7 @@ void RenderSystem::draw( EcsManager* ecs ) const
     ASSERT( m_camera );
 
 	auto octree = ecs->get_system<Octree>();
-	auto res = m_camera->get_visible_objects(octree);
+	const auto& res = m_camera->get_visible_objects(octree);
 
 	if(res.empty())
 	{

@@ -1,7 +1,7 @@
 #include "material.hpp"
 
 #include "render_common.hpp"
-#include "shader.hpp"
+#include "opengl/resource_shader.hpp"
 #include "texture.hpp"
 
 Material::Material( )

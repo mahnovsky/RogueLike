@@ -6,8 +6,8 @@
 
 #define TEXTURE_PATH "textures/"
 
-Texture::Texture( GenericObjectManager* manager, const char* file )
-    : FileResource( manager, file )
+Texture::Texture( const char* file )
+    : FileResource( file )
     , m_texture( 0 )
     , m_width( 0 )
     , m_height( 0 )
@@ -25,19 +25,18 @@ Texture::~Texture( )
 
 bool Texture::load( ResourceStorage* storage )
 {
-    const std::string name = get_name( );
     const std::string path = TEXTURE_PATH;
-    const std::string file = path + name;
+    const std::string file = path + get_file_name().data();
 
-    basic::uint32 index = 0;
-	if (name.find_last_of('.') != std::string::npos)
+    size_t index = file.find_last_of('.');
+	if (index != std::string::npos)
 	{
-		std::string info_name = TEXTURE_PATH + name.substr(0, index);
-		info_name += "conf";
+		std::string info_name = file.substr(0, index);
+		info_name += ".conf";
 
 		const auto conf = storage->get_resorce< Config >(info_name.c_str());
 
-		if (conf != nullptr)
+		if (conf)
 		{
 			const basic::JsonObject* frames = conf->get_values("frames");
 			auto frames_array = frames->to_array();
@@ -75,9 +74,9 @@ bool Texture::load( ResourceStorage* storage )
 }
 
 Texture*
-Texture::create( GenericObjectManager* manager, const char* file )
+Texture::create( const char* file )
 {
-    Texture* tex = NEW_OBJ( Texture, manager, file );
+    Texture* tex = NEW_OBJ( Texture, file );
 
     return tex;
 }

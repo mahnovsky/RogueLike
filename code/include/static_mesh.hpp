@@ -7,9 +7,7 @@
 class StaticMesh : public FileResource
 {
 public:
-	GENERIC_OBJECT_IMPL(StaticMesh, NS_RESOURCE_TYPE);
-
-    StaticMesh( GenericObjectManager* obj_mng, const char* name );
+    StaticMesh( const char* name );
     ~StaticMesh( ) override = default;
 
 	bool load(ResourceStorage* rs) ;
@@ -23,11 +21,6 @@ public:
 	basic::uint32 get_ibo() const;
 
 	const basic::Vector<VertexFMT>& get_fmt_list() const;
-
-	static StaticMesh* create( GenericObjectManager* obj_mng,
-		const char* name, 
-		const MeshLoadSettings& settings);
-
 
 private:
 

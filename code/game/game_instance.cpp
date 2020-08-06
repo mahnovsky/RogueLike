@@ -1,6 +1,5 @@
 #include "game_instance.hpp"
 
-#include "material.hpp"
 #include "object_manager.hpp"
 #include "render_common.hpp"
 #include "root_widget.hpp"
@@ -15,6 +14,7 @@
 #include "render_system.hpp"
 #include "static_mesh.hpp"
 #include "text_component.hpp"
+#include "transform.hpp"
 
 #include <ctime>
 
@@ -89,7 +89,7 @@ GameInstance::~GameInstance( )
     //SAFE_RELEASE( m_ui_root );
 	DELETE_OBJ( m_game_camera );
 	DELETE_OBJ( m_ui_camera );
-
+	DELETE_OBJ(m_ui_root);
 }
 
 static void
@@ -205,11 +205,11 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
 void GameInstance::init( )
 {
     srand( time( nullptr ) );
-	Texture* texture = m_rs->get_resorce< Texture >("btn.png");
+	std::shared_ptr<Texture> texture = m_rs->get_resorce< Texture >("btn.png");
 
-    m_ecs = NEW_OBJ(EcsManager, m_object_manager);
+	m_ecs = m_engine->get_ecs();
 
-	m_move_system = m_ecs->get_system<MoveSystem>();
+	m_move_system = m_ecs->add_system<MoveSystem>();
 	Box b;
 	b.min = { -512, -512, -512 };
 	b.max = { 512, 512, 512 };
@@ -264,7 +264,7 @@ void GameInstance::init( )
 
         m_ui_root->add_child( wnd );
     }*/
-    /*
+    
 	for (int i = 0; i < 10; ++i)
 	{
 		auto cow = make_ent(m_ecs, "meshes/cube.fbx", "default");
@@ -273,10 +273,10 @@ void GameInstance::init( )
 		{
 			rc->set_color({ 128, 0, 55, 255 });
 		}
-	}*/
+	}
 
 	m_player = make_ent(m_ecs, "meshes/cube.fbx", "default");
-	/*if (m_player)
+	if (m_player)
 	{
 		auto mc = m_player->get_component< MoveComponent >();
 		if (mc)
@@ -284,16 +284,16 @@ void GameInstance::init( )
 			mc->move_speed = 0.f;
 			mc->angle_speed = 0.f;
 		}
-		auto tr = m_player->get_component< TransformComponent >();
+		auto tr = m_player->get_component< Transform >();
 		if (tr)
 		{
-			tr->tr.set_euler_angles({ 0.f, 0.f, 0.f });
-			tr->tr.set_position({ 10.f, 0.f, 10.f });
-			tr->tr.set_scale({ 3.5f, 3.5f, 3.5f });
+			tr->set_euler_angles({ 0.f, 0.f, 0.f });
+			tr->set_position({ 10.f, 0.f, 10.f });
+			tr->set_scale({ 3.5f, 3.5f, 3.5f });
 		}
 		auto rc = m_player->get_component<RenderComponent>();
 		rc->set_color({ 130, 0, 80, 255 });
-	}*/
+	}
 
 	Entity* plane_ent = nullptr;// make_ent(m_ecs, "meshes/plane.obj", "default_texture", "Chess_Board.png");
 	
@@ -326,7 +326,7 @@ GameInstance::draw( IRender* ) const
 {
     m_render_system->draw( m_ecs );
 
-    m_ui_root->draw( );
+    //m_ui_root->draw( );
 }
 
 void
@@ -384,7 +384,7 @@ GameInstance::frame( float delta ) const
 		}
     }
 
-	//m_move_system->update(delta);
+	m_move_system->update(delta);
 	m_render_system->update(delta);
 
 	prev_object_count = m_render_system->get_draw_object_count();

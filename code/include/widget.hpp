@@ -153,9 +153,7 @@ private:
     Widget* m_parent;
     basic::Vector<Widget*> m_children;
     ICamera* m_camera;
-    RenderNode* m_view;
-    RenderNode* m_debug_rect;
-    RenderNode* m_picture;
+    
     basic::String m_press_action_name;
     bool m_visible;
 

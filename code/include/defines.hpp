@@ -3,8 +3,6 @@
 class Config;
 class TimerManager;
 class Texture;
-class ShaderBase;
-class ShaderProgram;
 class FileResource;
 class Text;
 class Sprite;

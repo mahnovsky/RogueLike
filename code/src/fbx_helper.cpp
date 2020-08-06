@@ -7,10 +7,25 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
     if (scene->getMeshCount() > index)
     {
         const ofbx::Mesh* mesh = scene->getMesh(index);
+		if (!mesh)
+		{
+			return false;
+		}
 
         const ofbx::Geometry* geometry = mesh->getGeometry();
+		if (!geometry)
+		{
+			return false;
+		}
 
         const ofbx::Vec3* vertices = geometry->getVertices();
+		if (!vertices)
+		{
+			return false;
+		}
+
+		const ofbx::Vec3* normals = geometry->getNormals();
+		const ofbx::Vec2* uvs0 = geometry->getUVs();
 
         for (int i = 0; i < geometry->getVertexCount(); ++i)
         {
@@ -18,6 +33,19 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
 
             Vertex v;
             v.pos = { vertex.x, vertex.y, vertex.z };
+
+			if (uvs0)
+			{
+				ofbx::Vec2 uv = *(uvs0 + index);
+				v.uv = { uv.x, uv.y };
+			}
+
+			if (normals)
+			{
+				ofbx::Vec3 normal = *(normals + index);
+				v.normal = { normal.x, normal.y, normal.z };
+			}
+
             mesh_data.vb.push_back(v);
         }
 
@@ -25,7 +53,7 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
         for (int i = 0; i < geometry->getIndexCount(); ++i)
         {
             int index = *(indices + i);
-            if (index < 0) index = -1 * index;
+            if (index < 0) index = ~index;
             mesh_data.ib.push_back(index);
         }
 

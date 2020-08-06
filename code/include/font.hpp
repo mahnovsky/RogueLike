@@ -3,6 +3,8 @@
 #include "defines.hpp"
 #include "resource_storage.hpp"
 
+#include "opengl/resource_shader.hpp"
+
 namespace se
 {
 struct bakedchar;
@@ -10,23 +12,18 @@ struct bakedchar;
 class Font : public FileResource
 {
 public:
-    GENERIC_OBJECT_IMPL(Font, NS_RESOURCE_TYPE);
-
-    Font(GenericObjectManager *manager, const char* file );
+    Font( const char* file );
     ~Font( ) override;
 
 	bool load(ResourceStorage*) ;
 
-    RenderNode* create_text_node( );
-
     void update(const char* text, RenderNode* out_object, glm::vec2& size);
 
-    static Font* create(GenericObjectManager* manager, const char* file);
+    static Font* create( const char* file);
 
 private:
-    GenericObjectManager* m_object_manager;
-    ShaderProgram* m_shader;
-    Texture* m_texture;
+	std::shared_ptr<ogl::ShaderProgram> m_shader;
+	std::shared_ptr<Texture> m_texture;
     float m_height;
     void* m_cdata;
 };
