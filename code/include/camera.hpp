@@ -2,8 +2,6 @@
 
 #include "defines.hpp"
 
-#include "object.hpp"
-
 #include "octree.h"
 
 // https://github.com/DiligentGraphics/DiligentCore/blob/1edcafe9bd41bdde86869d4e1c0212c78ce123b7/Common/interface/AdvancedMath.hpp

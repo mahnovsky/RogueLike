@@ -1,6 +1,5 @@
 #include "game_instance.hpp"
 
-#include "object_manager.hpp"
 #include "render_common.hpp"
 #include "root_widget.hpp"
 #include "texture.hpp"
@@ -12,7 +11,7 @@
 
 #include "render.hpp"
 #include "render_system.hpp"
-#include "static_mesh.hpp"
+#include "opengl/static_mesh.hpp"
 #include "text_component.hpp"
 #include "transform.hpp"
 

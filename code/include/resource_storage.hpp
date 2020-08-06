@@ -1,7 +1,6 @@
 #pragma once
 
 #include "defines.hpp"
-#include "object.hpp"
 #include "type_registration.hpp"
 #include "generic/generic_object_manager.hpp"
 

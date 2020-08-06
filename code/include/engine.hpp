@@ -2,7 +2,6 @@
 
 #include "defines.hpp"
 #include "resource_storage.hpp"
-#include "object_manager.hpp"
 #include "ecs_manager.hpp"
 
 enum EngineCallbackType 

@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\include\generic</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -133,6 +133,13 @@
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
+    <ClCompile Include="..\code\render\opengl\glbuffer.cpp" />
+    <ClCompile Include="..\code\render\opengl\glshader.cpp" />
+    <ClCompile Include="..\code\render\opengl\opengl_render.cpp" />
+    <ClCompile Include="..\code\render\opengl\opengl_wrapper.cpp" />
+    <ClCompile Include="..\code\render\opengl\resource_shader.cpp" />
+    <ClCompile Include="..\code\render\opengl\static_mesh.cpp" />
+    <ClCompile Include="..\code\render\render_common.cpp" />
     <ClCompile Include="..\code\src\basic\convert.cpp" />
     <ClCompile Include="..\code\src\basic\debug.cpp" />
     <ClCompile Include="..\code\src\basic\file.cpp" />
@@ -145,25 +152,19 @@
     <ClCompile Include="..\code\src\config.cpp" />
     <ClCompile Include="..\code\src\ecs\entity.cpp" />
     <ClCompile Include="..\code\src\engine.cpp" />
+    <ClCompile Include="..\code\src\fbx_helper.cpp" />
     <ClCompile Include="..\code\src\font.cpp" />
     <ClCompile Include="..\code\src\generic\generic_object_manager.cpp" />
     <ClCompile Include="..\code\src\glew.c" />
     <ClCompile Include="..\code\src\input.cpp" />
-    <ClCompile Include="..\code\src\material.cpp" />
-    <ClCompile Include="..\code\src\object.cpp" />
-    <ClCompile Include="..\code\src\object_manager.cpp" />
     <ClCompile Include="..\code\src\octree.cpp" />
     <ClCompile Include="..\code\src\platform\win32_file.cpp" />
     <ClCompile Include="..\code\src\platform\win32_time.cpp" />
     <ClCompile Include="..\code\src\platform\win32_window.cpp" />
-    <ClCompile Include="..\code\src\opengl_render.cpp" />
-    <ClCompile Include="..\code\src\render_common.cpp" />
     <ClCompile Include="..\code\src\render_system.cpp" />
     <ClCompile Include="..\code\src\resource_storage.cpp" />
     <ClCompile Include="..\code\src\root_widget.cpp" />
-    <ClCompile Include="..\code\src\shader.cpp" />
     <ClCompile Include="..\code\src\sprite.cpp" />
-    <ClCompile Include="..\code\src\static_mesh.cpp" />
     <ClCompile Include="..\code\src\text_component.cpp" />
     <ClCompile Include="..\code\src\texture.cpp" />
     <ClCompile Include="..\code\src\timer_manager.cpp" />
@@ -172,6 +173,8 @@
     <ClCompile Include="..\code\src\widget_list.cpp" />
     <ClCompile Include="..\code\src\widget_text.cpp" />
     <ClCompile Include="..\code\third_party\cJSON\cJSON.c" />
+    <ClCompile Include="..\code\third_party\minz\miniz.c" />
+    <ClCompile Include="..\code\third_party\OpenFBX\ofbx.cpp" />
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -197,15 +200,10 @@
     <ClInclude Include="..\code\include\generic\generic_object_manager.hpp" />
     <ClInclude Include="..\code\include\generic\pool.hpp" />
     <ClInclude Include="..\code\include\generic\type_info.hpp" />
-    <ClInclude Include="..\code\include\object_manager.hpp" />
     <ClInclude Include="..\code\include\octree.h" />
-    <ClInclude Include="..\code\include\render.hpp" />
-    <ClInclude Include="..\code\include\render_common.hpp" />
     <ClInclude Include="..\code\include\render_system.hpp" />
     <ClInclude Include="..\code\include\resource_storage.hpp" />
-    <ClInclude Include="..\code\include\shader.hpp" />
     <ClInclude Include="..\code\include\sprite.hpp" />
-    <ClInclude Include="..\code\include\static_mesh.hpp" />
     <ClInclude Include="..\code\include\text_component.hpp" />
     <ClInclude Include="..\code\include\texture.hpp" />
     <ClInclude Include="..\code\include\texture_cache.hpp" />
@@ -217,6 +215,17 @@
     <ClInclude Include="..\code\include\widget_text.hpp" />
     <ClInclude Include="..\code\include\window.hpp" />
     <ClInclude Include="..\code\include\world.hpp" />
+    <ClInclude Include="..\code\render\opengl\glbuffer.hpp" />
+    <ClInclude Include="..\code\render\opengl\glshader.hpp" />
+    <ClInclude Include="..\code\render\opengl\gltypes.hpp" />
+    <ClInclude Include="..\code\render\opengl\opengl_wrapper.hpp" />
+    <ClInclude Include="..\code\render\opengl\resource_shader.hpp" />
+    <ClInclude Include="..\code\render\opengl\static_mesh.hpp" />
+    <ClInclude Include="..\code\render\render.hpp" />
+    <ClInclude Include="..\code\render\render_common.hpp" />
+    <ClInclude Include="..\code\render\render_object_manager.hpp" />
+    <ClInclude Include="..\code\third_party\minz\miniz.h" />
+    <ClInclude Include="..\code\third_party\OpenFBX\ofbx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

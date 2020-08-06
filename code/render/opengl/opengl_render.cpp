@@ -65,9 +65,9 @@ public:
 		glDeleteVertexArrays(1, &m_instance.vao);
 	}
 
-	void on_resource_changed(RenderResourceType type, const basic::String& name) override
+	void on_resource_changed(RenderResourceType type, const std::string& name) override
 	{
-		if (!name.is_empty())
+		if (!name.empty())
 		{
 			apply_changes(type, name);
 		}
@@ -79,9 +79,9 @@ public:
 		{
 			auto type = static_cast<RenderResourceType>(i);
 
-			const basic::String& name = comp.get_resource_name(type);
+			const std::string& name = comp.get_resource_name(type);
 
-			if (!name.is_empty())
+			if (!name.empty())
 			{
 				apply_changes(type, name);
 			}
@@ -93,7 +93,7 @@ public:
 		m_instance.mvp = mvp;
 	}
 
-	void apply_changes(RenderResourceType type, const basic::String& name)
+	void apply_changes(RenderResourceType type, const std::string& name)
 	{
 		switch (type)
 		{
@@ -113,9 +113,9 @@ public:
 		}
 	}
 
-	void update_mesh(const basic::String& name)
+	void update_mesh(const std::string& name)
 	{
-		m_mesh = m_rs->get_resorce<StaticMesh>(name.get_cstr());
+		m_mesh = m_rs->get_resorce<StaticMesh>(name.c_str());
 		if (m_mesh)
 		{
 			OPENGL_CHECK_FOR_ERRORS();
@@ -147,9 +147,9 @@ public:
 		}
 	}
 
-	void update_program(const basic::String& name)
+	void update_program(const std::string& name)
 	{
-		m_program = m_rs->get_resorce<ogl::ShaderProgram>(name.get_cstr());
+		m_program = m_rs->get_resorce<ogl::ShaderProgram>(name.c_str());
 		if (m_program)
 		{
 			m_instance.program = m_program->get_handle();
@@ -167,9 +167,9 @@ public:
 		m_instance.color = color;
 	}
 
-	void update_texture(const basic::String& name)
+	void update_texture(const std::string& name)
 	{
-		m_texture = m_rs->get_resorce<Texture>(name.get_cstr());
+		m_texture = m_rs->get_resorce<Texture>(name.c_str());
 		if (m_texture)
 		{
 			m_instance.texture = m_texture->get_handle();

@@ -35,7 +35,7 @@ class IRenderObject
 public:
 	virtual ~IRenderObject() = default;
 
-	virtual void on_resource_changed(RenderResourceType type, const basic::String& name) = 0;
+	virtual void on_resource_changed(RenderResourceType type, const std::string& name) = 0;
 
 	virtual void on_component_changed(RenderComponent& comp) = 0;
 

@@ -1,7 +1,6 @@
 #include "widget.hpp"
 
 #include "camera.hpp"
-#include "object_manager.hpp"
 #include "render_common.hpp"
 #include "root_widget.hpp"
 #include "opengl/resource_shader.hpp"

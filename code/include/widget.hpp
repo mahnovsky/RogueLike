@@ -2,7 +2,6 @@
 
 #include "defines.hpp"
 
-#include "object.hpp"
 #include "input.hpp"
 
 #include "generic_object.hpp"

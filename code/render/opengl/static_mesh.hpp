@@ -1,6 +1,5 @@
 #pragma once
 
-#include "object.hpp"
 #include "resource_storage.hpp"
 #include "render_common.hpp"
 

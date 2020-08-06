@@ -46,22 +46,3 @@ REGISTRY_TYPE(RenderSystem, STI_Render, NS_SYSTEM_TYPE);
 REGISTRY_TYPE(MoveSystem, STI_Move, NS_SYSTEM_TYPE);
 REGISTRY_TYPE(Octree, STI_Octree, NS_SYSTEM_TYPE);
 REGISTRY_TYPE(ResourceStorage, STI_ResourceStorage, NS_SYSTEM_TYPE);
-
-#define NS_RESOURCE_TYPE 4
-
-enum ResourceTypeIndex
-{
-	RTI_Config,
-	RTI_Texture,
-	RTI_Font,
-	RTI_StaticMesh,
-	RTI_ShaderProgram,
-	RTI_BaseShader
-};
-
-REGISTRY_TYPE(Config, RTI_Config, NS_RESOURCE_TYPE);
-REGISTRY_TYPE(Texture, RTI_Texture, NS_RESOURCE_TYPE);
-REGISTRY_TYPE(Font, RTI_Font, NS_RESOURCE_TYPE);
-REGISTRY_TYPE(StaticMesh, RTI_StaticMesh, NS_RESOURCE_TYPE);
-NS_REGISTRY_TYPE(ogl, ShaderProgram, RTI_ShaderProgram, NS_RESOURCE_TYPE);
-REGISTRY_TYPE(BaseShader, RTI_BaseShader, NS_RESOURCE_TYPE);
