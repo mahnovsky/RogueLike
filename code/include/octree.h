@@ -191,6 +191,7 @@ public:
 	GENERIC_OBJECT_IMPL(Octree, NS_SYSTEM_TYPE);
 
 	Octree(EcsManager* manager, const Box& b);
+	~Octree() override {}
 
 	OctreeNode* create_node(const Box& enclosing_box, OctreeNode* parent, int layer);
 

@@ -12,7 +12,7 @@
 
 #include "render.hpp"
 #include "render_system.hpp"
-#include "static_mesh.hpp"
+#include "opengl/static_mesh.hpp"
 #include "text_component.hpp"
 #include "transform.hpp"
 

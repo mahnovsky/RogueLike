@@ -1,10 +1,16 @@
 #include "render_system.hpp"
 
 #include "render_common.hpp"
-#include "static_mesh.hpp"
+#include "opengl/static_mesh.hpp"
 
 #include "render.hpp"
 #include "camera.hpp"
+
+RenderComponent::RenderComponent(Entity* ent)
+	:Component(ent)
+	, transform(nullptr)
+	, m_render_object(nullptr)
+{}
 
 void RenderComponent::initialize(IRenderObject* obj)
 {
@@ -25,18 +31,18 @@ void RenderComponent::update_mvp(const glm::mat4& mvp) const
 		m_render_object->update_mvp(mvp);
 }
 
-void RenderComponent::on_resource_changed(RenderResourceType type, const basic::String& name)
+void RenderComponent::on_resource_changed(RenderResourceType type, const std::string& name)
 {
 	if(m_render_object)
 		m_render_object->on_component_changed(*this);
 }
 
-const basic::String& RenderComponent::get_resource_name(RenderResourceType type) const
+const std::string& RenderComponent::get_resource_name(RenderResourceType type) const
 {
 	return m_resources[enum2num(type)];
 }
 
-void RenderComponent::set_resource_name(RenderResourceType type, const basic::String& name)
+void RenderComponent::set_resource_name(RenderResourceType type, const std::string& name)
 {
 	const basic::uint32 index = enum2num(type);
 	m_resources[index] = name;
@@ -56,6 +62,11 @@ RenderSystem::RenderSystem(EcsManager* ecs)
     , m_transform_id( 0 )
     , m_render_id( 0 )
 {
+}
+
+void RenderSystem::update(float dt)
+{
+	draw(m_ecs);
 }
 
 void RenderSystem::initialize(IRender* render, ICamera* cam )
@@ -108,4 +119,9 @@ void RenderSystem::draw( EcsManager* ecs ) const
 
 		++m_draw_object_count;
 	}
+}
+
+int RenderSystem::get_draw_object_count() const
+{
+	return m_draw_object_count;
 }
