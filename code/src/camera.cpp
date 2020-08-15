@@ -80,15 +80,62 @@ const std::vector<OctreeObject*>& PerspectiveCamera::get_visible_objects(Octree*
 	s.pos = m_position + dir * m_offset;
 	s.radius = m_radius;
 
-	static std::vector<OctreeObject*> res;
-	res.clear();
+	m_last_visible_objects.clear();
 
 	ViewFrustum fr;
 	extract_view_frustum_planes_from_matrix(m_final, fr, true);
 
-	octree->find_objects(s, fr, res);
+	octree->find_objects(s, fr, m_last_visible_objects);
 	
-	return res;
+	return m_last_visible_objects;
+}
+
+glm::vec2 convert_world_to_screen(
+	const glm::vec3& pos,
+	const glm::mat4& projection,
+	const glm::mat4& view,
+	const glm::vec2& view_size,
+	const glm::vec2& offset
+	)
+{
+	glm::vec4 world_pos = glm::vec4(pos, 1.f);
+	glm::vec4 clip_space_pos = projection * (view * world_pos);
+	glm::vec3 ndc_space_pos = glm::vec3(clip_space_pos) / clip_space_pos.w;
+	glm::vec2 vp_pos = (glm::vec2(ndc_space_pos.x + 1.0, ndc_space_pos.y + 1.0) / 2.f) * view_size + offset;
+
+	return vp_pos;
+}
+
+std::vector<OctreeObject*> PerspectiveCamera::select_objects(glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom)
+{
+	std::vector<OctreeObject*> result;
+
+	for (auto obj : m_last_visible_objects)
+	{
+		if (obj->is_exist(ShapeType::Sphere))
+		{
+			auto sphere = obj->get_sphere();
+
+			glm::vec2 vp_pos = convert_world_to_screen(sphere.pos, m_projection, m_view, view_size, {});
+			glm::vec2 vp_right_pos = convert_world_to_screen(sphere.pos + glm::vec3(1.f, 0.f, 0.f) * sphere.radius, 
+				m_projection, m_view, view_size, {});
+
+			float radius = glm::length(vp_pos - vp_right_pos);
+
+			auto center = left_top + (right_bottom - left_top) / 2.f;
+			auto dir = glm::normalize(center - vp_pos);
+
+			vp_pos = vp_pos + dir * radius;
+
+			if (vp_pos.x > left_top.x && vp_pos.x < right_bottom.x &&
+				vp_pos.y < left_top.y && vp_pos.y > right_bottom.y)
+			{
+				result.push_back(obj);
+			}
+		}
+	}
+
+	return result;
 }
 
 void

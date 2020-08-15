@@ -1,5 +1,11 @@
 #pragma once
 
+#include <cstdint>
+#include <cstddef>
+
+using std::uint32_t;
+using std::int32_t;
+
 extern "C" {
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -17,7 +23,6 @@ extern "C" {
 
 namespace ogl
 {
-
 	enum class VertexDrawMode : GLenum
 	{
 		Points = GL_POINTS,

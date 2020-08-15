@@ -18,7 +18,7 @@ namespace ogl
 		}
 	}
 
-	void Buffer::init(BufferType buffer_type, BufferUsage buffer_usage, const void* data_ptr, std::uint32_t size)
+	void Buffer::init_raw(BufferType buffer_type, BufferUsage buffer_usage, const void* data_ptr, std::uint32_t size)
 	{
 		m_buffer_type = buffer_type;
 		m_buffer_usage = buffer_usage;
@@ -34,5 +34,10 @@ namespace ogl
 	void Buffer::bind()
 	{
 		bind_buffer(m_handle, m_buffer_type);
+	}
+	
+	uint32_t Buffer::get_handle() const
+	{
+		return m_handle;
 	}
 }

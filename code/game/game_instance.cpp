@@ -329,15 +329,15 @@ GameInstance::draw( IRender* ) const
 }
 
 void
-GameInstance::frame( float delta ) const
+GameInstance::frame(float delta) const
 {
 	static int prev_object_count;
-    print_fps( prev_object_count );
+	print_fps(prev_object_count);
 
-    if ( m_player )
-    {
-        auto mc = m_player->get_component< MoveComponent >( );
-        auto tr = m_player->get_component< Transform>( );
+	if (m_player)
+	{
+		auto mc = m_player->get_component< MoveComponent >();
+		auto tr = m_player->get_component< Transform>();
 
 		if (mc && tr)
 		{
@@ -349,21 +349,21 @@ GameInstance::frame( float delta ) const
 			const float vel = 60.f;
 			const float angle_vel = 5.f;
 
-			if( input->is_key_pressed(input::KeyCode::A) )
+			if (input->is_key_pressed(input::KeyCode::A))
 				mc->angle_speed = angle_vel;
-			if( input->is_key_pressed(input::KeyCode::D) )
+			if (input->is_key_pressed(input::KeyCode::D))
 				mc->angle_speed = -angle_vel;
-			if( input->is_key_pressed(input::KeyCode::W) )
+			if (input->is_key_pressed(input::KeyCode::W))
 				mc->move_speed = vel;
-			if( input->is_key_pressed(input::KeyCode::S) )
+			if (input->is_key_pressed(input::KeyCode::S))
 				mc->move_speed = -vel;
-			if( input->is_key_pressed(input::KeyCode::Space) )
+			if (input->is_key_pressed(input::KeyCode::Space))
 			{
 				auto pos = tr->get_position();
 				pos.y += (vel * delta);
 				tr->set_position(pos);
 			}
-			if(input->is_key_pressed(input::KeyCode::E))
+			if (input->is_key_pressed(input::KeyCode::E))
 			{
 				auto pos = tr->get_position();
 				pos.y -= (vel * delta);
@@ -381,7 +381,29 @@ GameInstance::frame( float delta ) const
 
 			m_game_camera->init(cam_pos, pos, up);
 		}
-    }
+	}
+	static std::vector<OctreeObject*> objects;
+	
+	for (auto obj : objects)
+	{
+		auto ent = obj->get_entity();
+		auto rc = ent->get_component<RenderComponent>();
+		if (rc)
+		{
+			rc->set_color({ 128, 0, 55, 255 });
+		}
+	}
+
+	objects = m_game_camera->select_objects({m_width, m_height}, { 0, 500 }, { 500, 0 });
+	for (auto obj : objects)
+	{
+		auto ent = obj->get_entity();
+		auto rc = ent->get_component<RenderComponent>();
+		if (rc)
+		{
+			rc->set_color({ 100, 100, 100, 255 });
+		}
+	}
 
 	m_move_system->update(delta);
 	m_render_system->update(delta);

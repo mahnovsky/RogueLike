@@ -134,6 +134,8 @@ public:
 
 	const Box& get_box() const;
 
+	const Sphere& get_sphere() const;
+
 private:
 	class OctreeNode* m_owner;
 

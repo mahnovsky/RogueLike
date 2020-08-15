@@ -13,6 +13,8 @@
 #include "opengl/resource_shader.hpp"
 #include "static_mesh.hpp"
 
+#include "opengl_wrapper.hpp"
+
 extern "C" {
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -62,7 +64,7 @@ public:
 
 	~OpenGLRenderObject() override
 	{
-		glDeleteVertexArrays(1, &m_instance.vao);
+		ogl::delete_vertex_array(m_instance.vao);
 	}
 
 	void on_resource_changed(RenderResourceType type, const std::string& name) override
@@ -72,7 +74,7 @@ public:
 			apply_changes(type, name);
 		}
 	}
-
+	/*
 	void on_component_changed(RenderComponent& comp) override
 	{
 		for (basic::uint32 i = 0; i < enum2num(RenderResourceType::Count); ++i)
@@ -86,7 +88,7 @@ public:
 				apply_changes(type, name);
 			}
 		}
-	}
+	}*/
 
 	void update_mvp(const glm::mat4& mvp) override
 	{
@@ -119,28 +121,34 @@ public:
 		if (m_mesh)
 		{
 			OPENGL_CHECK_FOR_ERRORS();
-			glGenVertexArrays(1, &m_instance.vao);
-			CHECKED_CALL(glBindVertexArray, m_instance.vao);
 
-			CHECKED_CALL(glBindBuffer, GL_ARRAY_BUFFER, m_mesh->get_vbo());
+			m_instance.vao = ogl::create_vertex_array();
+
+			ogl::bind_vertex_array(m_instance.vao);
+
+			ogl::bind_buffer(m_mesh->get_vbo(), ogl::BufferType::Array);
 
 			auto fmt_list = m_mesh->get_fmt_list();
 			basic::uint32 i = 0;
 			for (const auto& fmt : fmt_list)
 			{
-				CHECKED_CALL(glVertexAttribPointer, i,
-					static_cast<GLint>(fmt.size),
+				ogl::vertex_attrib_pointer(i, 
+					fmt.size,
 					fmt.type,
 					fmt.is_normalized,
 					sizeof(Vertex),
 					reinterpret_cast<const void*>(fmt.offset));
 
-				CHECKED_CALL(glEnableVertexAttribArray, i);
+
+				ogl::enable_vertex_attrib_array(i);
 
 				++i;
 			}
 
-			CHECKED_CALL(glBindBuffer, GL_ELEMENT_ARRAY_BUFFER, m_mesh->get_ibo());
+			if (m_mesh->get_index_count() > 0)
+			{
+				ogl::bind_buffer(m_mesh->get_ibo(), ogl::BufferType::Element);
+			}
 
 			m_instance.index_count = m_mesh->get_index_count();
 			m_instance.vertex_count = m_mesh->get_vertex_count();
@@ -317,7 +325,8 @@ public:
 	{
 		auto program = render_data.program;
 
-		CHECKED_CALL(glBindVertexArray, render_data.vao);
+		ogl::bind_vertex_array(render_data.vao);
+		
 		CHECKED_CALL(glUseProgram, program);
 
 		if (render_data.texture)
@@ -340,12 +349,11 @@ public:
 		}
 	}
 
-	IRenderObject* create_object(RenderComponent& comp) override
+	IRenderObject* create_object() override
 	{
 		m_objects.push_back(NEW_OBJ(OpenGLRenderObject, m_rs));
 
 		IRenderObject* obj = m_objects.back();
-		obj->on_component_changed(comp);
 
 		return obj;
 	}

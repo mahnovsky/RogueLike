@@ -142,6 +142,11 @@ const Box& OctreeObject::get_box() const
 	return m_shape.box;
 }
 
+const Sphere& OctreeObject::get_sphere() const
+{
+	return m_shape.sphere;
+}
+
 OctreeNode::OctreeNode(Octree* tree, const Box& enclosing_box, uint16_t index, OctreeNode* parent)
 	: m_tree(tree)
 	, m_parent(parent)

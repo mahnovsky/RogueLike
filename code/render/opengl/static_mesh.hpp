@@ -3,6 +3,8 @@
 #include "resource_storage.hpp"
 #include "render_common.hpp"
 
+#include "glbuffer.hpp"
+
 class StaticMesh : public FileResource
 {
 public:
@@ -11,20 +13,20 @@ public:
 
 	bool load(ResourceStorage* rs) ;
 
-    basic::uint32 get_vertex_count( ) const;
+    uint32_t get_vertex_count( ) const;
 
-    basic::uint32 get_index_count( ) const;
+	uint32_t get_index_count( ) const;
 
-	basic::uint32 get_vbo() const;
+	uint32_t get_vbo() const;
 
-	basic::uint32 get_ibo() const;
+	uint32_t get_ibo() const;
 
 	const basic::Vector<VertexFMT>& get_fmt_list() const;
 
 private:
 
-	basic::uint32 m_vbo_u;
-	basic::uint32 m_vib_u;
+	ogl::Buffer m_vbo;
+	ogl::Buffer m_ibo;
 
 	basic::uint32 m_vertex_count;
 	basic::uint32 m_index_count;

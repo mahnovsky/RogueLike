@@ -6,8 +6,8 @@
 
 StaticMesh::StaticMesh( const char* name )
     : FileResource( name )
-	, m_vbo_u(0)
-	, m_vib_u(0)
+	, m_vbo()
+	, m_ibo()
 	, m_vertex_count(0)
 	, m_index_count(0)
 {
@@ -26,19 +26,21 @@ bool StaticMesh::load(ResourceStorage* rs)
 		(scene = ofbx::load(data.data(), data.size(), fbx_load_flags)) &&
 		load_fbx_mesh(scene, 0, mesh_data))
 	{
-		m_vbo_u = create_buffer(GL_ARRAY_BUFFER,
-			GL_STATIC_DRAW,
-			mesh_data.vb.data(),
-			mesh_data.vb.size() * sizeof(Vertex));
+		m_vbo.init<Vertex>(
+			ogl::BufferType::Array, 
+			ogl::BufferUsage::Static, 
+			mesh_data.vb.data(), 
+			mesh_data.vb.size());
 
 		m_vertex_count = mesh_data.vb.size();
 
 		if (!mesh_data.ib.empty())
 		{
-			m_vib_u = create_buffer(GL_ELEMENT_ARRAY_BUFFER,
-				GL_STATIC_DRAW,
+			m_ibo.init<uint16_t>(
+				ogl::BufferType::Element,
+				ogl::BufferUsage::Static,
 				mesh_data.ib.data(),
-				mesh_data.ib.size() * sizeof(basic::uint16));
+				mesh_data.ib.size());
 
 			m_index_count = mesh_data.ib.size();
 		}
@@ -46,30 +48,32 @@ bool StaticMesh::load(ResourceStorage* rs)
 		Vertex v;
 		m_fmt_list = ::get_fmt_list(&v);
 
+		scene->destroy();
+
 		return true;
 	}
 
 	return false;
 }
 
-basic::uint32 StaticMesh::get_vertex_count( ) const
+uint32_t StaticMesh::get_vertex_count( ) const
 {
     return m_vertex_count;
 }
 
-basic::uint32 StaticMesh::get_index_count( ) const
+uint32_t StaticMesh::get_index_count( ) const
 {
     return m_index_count;
 }
 
-basic::uint32 StaticMesh::get_vbo() const
+uint32_t StaticMesh::get_vbo() const
 {
-	return m_vbo_u;
+	return m_vbo.get_handle();
 }
 
-basic::uint32 StaticMesh::get_ibo() const
+uint32_t StaticMesh::get_ibo() const
 {
-	return m_vib_u;
+	return m_ibo.get_handle();
 }
 
 const basic::Vector<VertexFMT>& StaticMesh::get_fmt_list() const

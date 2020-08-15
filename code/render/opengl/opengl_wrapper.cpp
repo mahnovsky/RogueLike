@@ -4,6 +4,27 @@ namespace ogl
 {
 	GLenum g_OpenGLError;
 
+	uint32_t create_vertex_array()
+	{
+		GLuint vao;
+		glGenVertexArrays(1, &vao);
+		CHECK_LAST_CALL();
+
+		return vao;
+	}
+
+	void delete_vertex_array(uint32_t vao)
+	{
+		glDeleteVertexArrays(1, &vao);
+		CHECK_LAST_CALL();
+	}
+
+	void bind_vertex_array(uint32_t vao)
+	{
+		glBindVertexArray(vao);
+		CHECK_LAST_CALL();
+	}
+
 	std::uint32_t create_buffer(
 		BufferType buffer_type,
 		BufferUsage buffer_usage, 
@@ -27,11 +48,10 @@ namespace ogl
 		const void* data,
 		std::uint32_t size)
 	{
-		const GLenum btype = static_cast<GLenum>(buffer_type);
-		glBindBuffer(btype, handle);
-		CHECK_LAST_CALL();
+		const uint32_t btype = static_cast<uint32_t>(buffer_type);
+		bind_buffer(handle, static_cast<BufferType>(btype));
 
-		const GLenum busage = static_cast<GLenum>(buffer_type);
+		const GLenum busage = static_cast<GLenum>(buffer_usage);
 		glBufferData(btype, size, data, busage);
 		CHECK_LAST_CALL();
 	}
@@ -44,7 +64,19 @@ namespace ogl
 
 	void bind_buffer(std::uint32_t handle, BufferType buffer_type)
 	{
-		glBindBuffer(handle, static_cast<GLenum>(buffer_type));
+		glBindBuffer(static_cast<GLenum>(buffer_type), handle);
+		CHECK_LAST_CALL();
+	}
+
+	void vertex_attrib_pointer(uint32_t index, uint32_t size, uint32_t type, uint32_t is_normalized, uint32_t stride, const void* ptr)
+	{
+		glVertexAttribPointer( index, size, type, is_normalized, stride, ptr);
+		CHECK_LAST_CALL();
+	}
+
+	void enable_vertex_attrib_array(uint32_t index)
+	{
+		glEnableVertexAttribArray(index);
 		CHECK_LAST_CALL();
 	}
 

@@ -16,7 +16,18 @@ void RenderComponent::initialize(IRenderObject* obj)
 {
 	m_render_object = obj;
 	obj->update_color(color);
-	obj->on_component_changed(*this);
+	
+	for (basic::uint32 i = 0; i < enum2num(RenderResourceType::Count); ++i)
+	{
+		auto type = static_cast<RenderResourceType>(i);
+
+		const std::string& name = get_resource_name(type);
+
+		if (!name.empty())
+		{
+			obj->on_resource_changed(type, name);
+		}
+	}
 }
 
 void RenderComponent::update_color() const
@@ -33,8 +44,8 @@ void RenderComponent::update_mvp(const glm::mat4& mvp) const
 
 void RenderComponent::on_resource_changed(RenderResourceType type, const std::string& name)
 {
-	if(m_render_object)
-		m_render_object->on_component_changed(*this);
+	if (m_render_object)
+		m_render_object->on_resource_changed(type, name);
 }
 
 const std::string& RenderComponent::get_resource_name(RenderResourceType type) const
@@ -99,7 +110,7 @@ void RenderSystem::draw( EcsManager* ecs ) const
 		auto rc = ent->get_component<RenderComponent>();
 		if (!rc->m_render_object)
 		{
-			rc->initialize(m_render->create_object(*rc));
+			rc->initialize(m_render->create_object());
 		}
 
 		auto tr = ent->get_component<Transform>();

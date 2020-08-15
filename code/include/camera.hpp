@@ -51,6 +51,8 @@ public:
 
 	const std::vector<OctreeObject*>& get_visible_objects(Octree* octree) const override;
 
+	std::vector<OctreeObject*> select_objects(glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom);
+
 private:
     void update( );
 
@@ -64,6 +66,8 @@ private:
 
 	float m_offset;
 	float m_radius;
+
+	mutable std::vector<OctreeObject*> m_last_visible_objects;
 };
 
 class OrthoCamera : public ICamera

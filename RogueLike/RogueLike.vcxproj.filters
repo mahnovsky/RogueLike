@@ -168,9 +168,6 @@
     <ClCompile Include="..\code\render\render_common.cpp">
       <Filter>code\src\render</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\render\opengl\opengl_render.cpp">
-      <Filter>code\src\render</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\render\opengl\opengl_wrapper.cpp">
       <Filter>code\src\render\opengl</Filter>
     </ClCompile>
@@ -184,6 +181,9 @@
       <Filter>code\src\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\static_mesh.cpp">
+      <Filter>code\src\render\opengl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\render\opengl\opengl_render.cpp">
       <Filter>code\src\render\opengl</Filter>
     </ClCompile>
   </ItemGroup>
