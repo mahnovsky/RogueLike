@@ -166,7 +166,7 @@ OrthoCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& 
 void
 OrthoCamera::update( )
 {
-    m_projection = glm::ortho( 0.f, m_width, m_height, 0.f, m_near, m_far );
+    m_projection = glm::ortho( 0.f, m_width, 0.f, m_height, m_near, m_far );
 
     m_view = glm::lookAt( m_position, glm::vec3( 0, 0, 0 ), glm::vec3( 0, -1, 0 ) );
 }

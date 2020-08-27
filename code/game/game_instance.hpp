@@ -23,6 +23,8 @@ public:
 
     void key_pressed( input::KeyCode code, basic::int16 key ) override;
 
+	void on_mouse_event(const input::MouseEvent& mouse_event) override;
+
     friend void open_menu_action( Widget* w, void* user_data );
 
 private:
@@ -51,6 +53,13 @@ private:
     Entity* m_player;
 
 	bool m_is_menu_opened = false;
+
+	IRenderObject* m_selection_rect;
+
+	bool m_selection_state = false;
+	glm::vec2 m_start_pos;
+	glm::vec2 m_end_pos;
+
 
 	class MoveSystem* m_move_system;
 };

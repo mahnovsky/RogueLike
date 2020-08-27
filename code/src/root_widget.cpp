@@ -52,7 +52,7 @@ void RootWidget::key_pressed(KeyCode code, basic::int16 key)
 
     on_key_pressed(code, key);
 }
-
+/*
 void RootWidget::mouse_pressed(MouseButton button, basic::int32 x, basic::int32 y)
 {   
     on_mouse_pressed( button, x, y );
@@ -62,3 +62,4 @@ void RootWidget::mouse_moved(basic::int32 x, basic::int32 y)
 {
     on_mouse_move(x, y);
 }
+*/

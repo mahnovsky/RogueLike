@@ -70,6 +70,9 @@ private:
 	mutable std::vector<OctreeObject*> m_last_visible_objects;
 };
 
+#undef near
+#undef far
+
 class OrthoCamera : public ICamera
 {
 public:

@@ -15,6 +15,7 @@ public:
 	GENERIC_OBJECT_IMPL(RenderComponent, NS_COMPONENT_TYPE);
 
 	RenderComponent(Entity* ent);
+	~RenderComponent() override;
 
 	void initialize(IRenderObject* obj);
 
@@ -70,7 +71,5 @@ private:
 	EcsManager* m_ecs;
 	IRender* m_render;
     ICamera* m_camera;
-    basic::uint32 m_transform_id;
-    basic::uint32 m_render_id;
 	mutable int m_draw_object_count;
 };

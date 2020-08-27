@@ -13,6 +13,38 @@ StaticMesh::StaticMesh( const char* name )
 {
 }
 
+bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
+{
+	if (data.vertices.empty())
+	{
+		return false;
+	}
+
+	m_vbo.init<Vertex>(
+		ogl::BufferType::Array,
+		usage,
+		data.vertices.data(),
+		data.vertices.size());
+
+	m_vertex_count = data.vertices.size();
+
+	if (!data.indices.empty())
+	{
+		m_ibo.init<uint16_t>(
+			ogl::BufferType::Element,
+			ogl::BufferUsage::Static,
+			data.indices.data(),
+			data.indices.size());
+
+		m_index_count = data.indices.size();
+	}
+
+	Vertex v;
+	m_fmt_list = ::get_fmt_list(&v);
+
+	return true;
+}
+
 bool StaticMesh::load(ResourceStorage* rs)
 {
 	auto file_name = get_file_name();
@@ -26,31 +58,11 @@ bool StaticMesh::load(ResourceStorage* rs)
 		(scene = ofbx::load(data.data(), data.size(), fbx_load_flags)) &&
 		load_fbx_mesh(scene, 0, mesh_data))
 	{
-		m_vbo.init<Vertex>(
-			ogl::BufferType::Array, 
-			ogl::BufferUsage::Static, 
-			mesh_data.vb.data(), 
-			mesh_data.vb.size());
-
-		m_vertex_count = mesh_data.vb.size();
-
-		if (!mesh_data.ib.empty())
-		{
-			m_ibo.init<uint16_t>(
-				ogl::BufferType::Element,
-				ogl::BufferUsage::Static,
-				mesh_data.ib.data(),
-				mesh_data.ib.size());
-
-			m_index_count = mesh_data.ib.size();
-		}
-
-		Vertex v;
-		m_fmt_list = ::get_fmt_list(&v);
+		bool result = init(mesh_data, ogl::BufferUsage::Static);
 
 		scene->destroy();
 
-		return true;
+		return result;
 	}
 
 	return false;

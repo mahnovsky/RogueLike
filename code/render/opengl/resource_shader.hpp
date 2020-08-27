@@ -15,8 +15,6 @@ namespace ogl
 
 		bool load(ResourceStorage* storage);
 
-		static BaseShader* create(const char* file);
-
 		const ogl::Shader& get_shader() const;
 
 	private:
@@ -31,8 +29,6 @@ namespace ogl
 		bool load(ResourceStorage* storage);
 
 		basic::uint32 get_handle() const;
-
-		static ShaderProgram* create(const char* file);
 
 	private:
 

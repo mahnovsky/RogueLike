@@ -59,13 +59,6 @@ namespace ogl
 		return true;
 	}
 
-	BaseShader* BaseShader::create(const char* file)
-	{
-		
-
-		return nullptr;
-	}
-
 	const ogl::Shader& BaseShader::get_shader() const
 	{
 		return m_shader;
@@ -117,13 +110,6 @@ namespace ogl
 	basic::uint32 ShaderProgram::get_handle() const
 	{
 		return m_program.get_handle();
-	}
-
-	ShaderProgram* ShaderProgram::create(const char* file)
-	{
-		ShaderProgram* res = NEW_OBJ(ShaderProgram, file);
-
-		return res;
 	}
 
 	bool ShaderProgram::init(std::shared_ptr<BaseShader> vertex, std::shared_ptr<BaseShader> fragment)

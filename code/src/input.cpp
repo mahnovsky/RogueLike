@@ -7,10 +7,6 @@ void InputListener::key_pressed(input::KeyCode , basic::int16 ) {}
 
 void InputListener::key_released(input::KeyCode, basic::int16) {}
 
-void InputListener::mouse_pressed(input::MouseButton , basic::int32 , basic::int32 ) {}
-
-void InputListener::mouse_moved(basic::int32 , basic::int32 ){}
-
 
 void Input::key_pressed(input::KeyCode code, basic::int16 key)
 {
@@ -30,20 +26,12 @@ void Input::key_released(KeyCode code, basic::int16 key)
 	}
 }
 
-void Input::mouse_pressed(input::MouseButton button, basic::int32 x, basic::int32 y)
+void Input::on_mouse_event(const MouseEvent& mouse_event)
 {
-    for(InputListener* listener : m_listeners)
-    {
-        listener->mouse_pressed( button, x, y );
-    }
-}
-
-void Input::mouse_moved(basic::int32 x, basic::int32 y)
-{
-    for(InputListener* listener : m_listeners)
-    {
-        listener->mouse_moved( x, y );
-    }
+	for (InputListener* listener : m_listeners)
+	{
+		listener->on_mouse_event(mouse_event);
+	}
 }
 
 void Input::add_listener(InputListener *listener)

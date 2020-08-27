@@ -12,6 +12,10 @@ RenderComponent::RenderComponent(Entity* ent)
 	, m_render_object(nullptr)
 {}
 
+RenderComponent::~RenderComponent()
+{
+}
+
 void RenderComponent::initialize(IRenderObject* obj)
 {
 	m_render_object = obj;
@@ -25,7 +29,7 @@ void RenderComponent::initialize(IRenderObject* obj)
 
 		if (!name.empty())
 		{
-			obj->on_resource_changed(type, name);
+			obj->set_resource(type, name);
 		}
 	}
 }
@@ -45,7 +49,7 @@ void RenderComponent::update_mvp(const glm::mat4& mvp) const
 void RenderComponent::on_resource_changed(RenderResourceType type, const std::string& name)
 {
 	if (m_render_object)
-		m_render_object->on_resource_changed(type, name);
+		m_render_object->set_resource(type, name);
 }
 
 const std::string& RenderComponent::get_resource_name(RenderResourceType type) const
@@ -70,8 +74,6 @@ RenderSystem::RenderSystem(EcsManager* ecs)
     : m_ecs(ecs)
 	, m_render(nullptr)
 	, m_camera( nullptr )
-    , m_transform_id( 0 )
-    , m_render_id( 0 )
 {
 }
 

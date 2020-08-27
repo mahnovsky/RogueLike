@@ -18,7 +18,7 @@ namespace ogl
 
 		friend class Program;
 	private:
-		GLuint m_handle;
+		Handle m_handle;
 		ShaderType m_type;
 	};
 
@@ -35,6 +35,6 @@ namespace ogl
 		uint32_t get_handle() const;
 
 	private:
-		GLuint m_handle;
+		Handle m_handle;
 	};
 }

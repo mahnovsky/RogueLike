@@ -6,39 +6,24 @@
 
 class ICamera;
 
-struct RenderObjectData;
-
-struct RenderObjectDataDelete { // default deleter for unique_ptr
-	constexpr RenderObjectDataDelete() noexcept = default;
-
-	RenderObjectDataDelete(const RenderObjectDataDelete&) noexcept {}
-
-	void operator()(RenderObjectData* _Ptr) const noexcept;
-};
-
-using RenderObjectDataPtr = std::unique_ptr<RenderObjectData, RenderObjectDataDelete>;
-
-enum class DataPresentMode
-{
-	Point,
-	Line,
-	Triangle,
-	TriangleFan,
-	TriangleStrip
-};
-
-RenderObjectDataPtr create_render_data(DataPresentMode present_mode);
-
 class IRenderObject
 {
 public:
 	virtual ~IRenderObject() = default;
 
-	virtual void on_resource_changed(RenderResourceType type, const std::string& name) = 0;
+	virtual void set_resource(RenderResourceType type, const std::string& resource_name) = 0;
 
 	virtual void update_mvp(const glm::mat4& mvp) = 0;
 
 	virtual void update_color(basic::Color color) = 0;
+
+	virtual MeshData& get_mesh_data() = 0;
+
+	virtual void update_mesh_data() = 0;
+
+	virtual void set_vertex_draw_mode(VertexDrawMode mode) = 0;
+
+	virtual void set_vertex_buffer_usage(VertexBufferUsage usage) = 0;
 };
 
 class IRender
@@ -53,8 +38,6 @@ public:
     virtual void present() = 0;
 
 	virtual void add_to_frame(IRenderObject* object) = 0;
-
-	virtual void add_to_frame(const RenderObjectData& data) = 0;
 
 	virtual IRenderObject* create_object() = 0;
 

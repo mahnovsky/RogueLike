@@ -15,6 +15,8 @@
 
 #include "opengl_wrapper.hpp"
 
+using namespace ogl;
+
 extern "C" {
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -26,6 +28,7 @@ GLenum g_OpenGLError = GL_NO_ERROR;
 
 struct RenderObjectData
 {
+	ogl::VertexDrawMode draw_mode = ogl::VertexDrawMode::Triangles;
 	GLuint vao;
 	GLuint texture;
 	GLuint program;
@@ -34,18 +37,6 @@ struct RenderObjectData
 	basic::Color color;
 	glm::mat4 mvp;
 };
-
-void RenderObjectDataDelete::operator()(RenderObjectData* _Ptr) const noexcept { // delete a pointer
-
-	delete _Ptr;
-}
-
-RenderObjectDataPtr create_render_data(DataPresentMode present_mode)
-{
-	RenderObjectDataPtr data{ new RenderObjectData, RenderObjectDataDelete() };
-
-	return std::move(data);
-}
 
 class OpenGLRenderObject final : public IRenderObject
 {
@@ -60,14 +51,18 @@ public:
 		, m_instance()
 	{
 		memset(&m_instance, 0, sizeof(RenderObjectData));
+		m_instance.draw_mode = ogl::VertexDrawMode::Triangles;
 	}
 
 	~OpenGLRenderObject() override
 	{
-		ogl::delete_vertex_array(m_instance.vao);
+		if (m_instance.vao != INVALID_HANDLE)
+		{
+			ogl::delete_vertex_array(m_instance.vao);
+		}
 	}
 
-	void on_resource_changed(RenderResourceType type, const std::string& name) override
+	void set_resource(RenderResourceType type, const std::string& name) override
 	{
 		if (!name.empty())
 		{
@@ -120,38 +115,18 @@ public:
 		m_mesh = m_rs->get_resorce<StaticMesh>(name.c_str());
 		if (m_mesh)
 		{
-			OPENGL_CHECK_FOR_ERRORS();
-
-			m_instance.vao = ogl::create_vertex_array();
-
-			ogl::bind_vertex_array(m_instance.vao);
-
-			ogl::bind_buffer(m_mesh->get_vbo(), ogl::BufferType::Array);
-
-			auto fmt_list = m_mesh->get_fmt_list();
-			basic::uint32 i = 0;
-			for (const auto& fmt : fmt_list)
+			if (m_instance.vao != INVALID_HANDLE)
 			{
-				ogl::vertex_attrib_pointer(i, 
-					fmt.size,
-					fmt.type,
-					fmt.is_normalized,
-					sizeof(Vertex),
-					reinterpret_cast<const void*>(fmt.offset));
-
-
-				ogl::enable_vertex_attrib_array(i);
-
-				++i;
+				ogl::delete_vertex_array(m_instance.vao);
+				m_instance.vao = INVALID_HANDLE;
 			}
 
-			if (m_mesh->get_index_count() > 0)
+			if (auto res = ogl::create_vertex_array())
 			{
-				ogl::bind_buffer(m_mesh->get_ibo(), ogl::BufferType::Element);
+				m_instance.vao = res.value();
 			}
 
-			m_instance.index_count = m_mesh->get_index_count();
-			m_instance.vertex_count = m_mesh->get_vertex_count();
+			setup_buffers();
 		}
 	}
 
@@ -210,16 +185,124 @@ public:
 		}
 	}*/
 
+	void update_mesh_data(const MeshData& data)
+	{
+		if (m_instance.vao == INVALID_HANDLE)
+		{
+			auto res = ogl::create_vertex_array();
+
+			m_instance.vao = res.value_or(INVALID_HANDLE);
+		}
+
+		if (m_instance.vao != INVALID_HANDLE)
+		{
+			m_mesh = std::make_shared<StaticMesh>("mesh");
+
+			if (m_mesh->init(data, m_buffer_usage))
+			{
+				setup_buffers();
+			}
+		}
+	}
+
+	void setup_buffers()
+	{
+		m_instance.index_count = m_mesh->get_index_count();
+		m_instance.vertex_count = m_mesh->get_vertex_count();
+
+		ogl::bind_vertex_array(m_instance.vao);
+		ogl::bind_buffer(m_mesh->get_vbo(), ogl::BufferType::Array);
+
+		auto fmt_list = m_mesh->get_fmt_list();
+		basic::uint32 i = 0;
+		for (const auto& fmt : fmt_list)
+		{
+			ogl::vertex_attrib_pointer(i,
+				fmt.size,
+				fmt.type,
+				fmt.is_normalized,
+				sizeof(Vertex),
+				reinterpret_cast<const void*>(fmt.offset));
+
+
+			ogl::enable_vertex_attrib_array(i);
+
+			++i;
+		}
+
+		if (m_mesh->get_index_count() > 0)
+		{
+			ogl::bind_buffer(m_mesh->get_ibo(), ogl::BufferType::Element);
+		}
+	}
+
 	const RenderObjectData& get_render_instance() const
 	{
 		return m_instance;
 	}
 
+	MeshData& get_mesh_data() override
+	{
+		if (!m_mesh_data)
+		{
+			m_mesh_data.reset(new MeshData);
+		}
+
+		return *m_mesh_data;
+	}
+
+	void update_mesh_data() override
+	{
+		if (m_mesh_data)
+		{
+			update_mesh_data(*m_mesh_data);
+		}
+	}
+
+	void set_vertex_draw_mode(::VertexDrawMode mode) override
+	{
+		m_instance.draw_mode = translate_draw_mode(mode);
+	}
+
+	static ogl::BufferUsage translate_buffer_usage(VertexBufferUsage usage)
+	{
+		switch (usage)
+		{
+		case VertexBufferUsage::Static: return ogl::BufferUsage::Static;
+		case VertexBufferUsage::Dynamic: return ogl::BufferUsage::Dynamic;
+		case VertexBufferUsage::Streaming: return ogl::BufferUsage::Stream;
+		}
+
+		return ogl::BufferUsage::Static;
+	}
+
+	static ogl::VertexDrawMode translate_draw_mode(::VertexDrawMode mode)
+	{
+		switch (mode)
+		{
+		case ::VertexDrawMode::Line: return ogl::VertexDrawMode::Lines;
+		case ::VertexDrawMode::LineStrip: return ogl::VertexDrawMode::LineStrip;
+		case ::VertexDrawMode::Point: return ogl::VertexDrawMode::Points;
+		case ::VertexDrawMode::Triangle: return ogl::VertexDrawMode::Triangles;
+		case ::VertexDrawMode::TriangleFan: return ogl::VertexDrawMode::TriangleFan;
+		case ::VertexDrawMode::TriangleStrip: return ogl::VertexDrawMode::TriangleStrip;
+		}
+
+		return ogl::VertexDrawMode::Triangles;
+	}
+
+	void set_vertex_buffer_usage(VertexBufferUsage usage) override
+	{
+		m_buffer_usage = translate_buffer_usage(usage);
+	}
+
 private:
 	ResourceStorage* m_rs;
+	BufferUsage m_buffer_usage;
 	std::shared_ptr<StaticMesh> m_mesh;
 	std::shared_ptr<ogl::ShaderProgram> m_program;
 	std::shared_ptr<Texture> m_texture;
+	std::unique_ptr<MeshData> m_mesh_data;
 	RenderObjectData m_instance;
 };
 
@@ -275,7 +358,6 @@ public:
 
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
-		OPENGL_CHECK_FOR_ERRORS();
 
 		glEnable( GL_CULL_FACE );
 		glCullFace(GL_BACK);
@@ -316,8 +398,6 @@ public:
 			m_objects_to_present_data.pop_back();
 
 			draw_instance(instance);
-
-			OPENGL_CHECK_FOR_ERRORS();
 		}
 	}
 
@@ -327,25 +407,27 @@ public:
 
 		ogl::bind_vertex_array(render_data.vao);
 		
-		CHECKED_CALL(glUseProgram, program);
+		glUseProgram(program);
 
 		if (render_data.texture)
 		{
-			CHECKED_CALL(glActiveTexture, GL_TEXTURE0);
+			glActiveTexture(GL_TEXTURE0);
 
-			CHECKED_CALL(glBindTexture, GL_TEXTURE_2D, render_data.texture);
+			glBindTexture(GL_TEXTURE_2D, render_data.texture);
 		}
 
 		set_uniform(program, "MVP", render_data.mvp);
 		set_uniform(program, "Color", render_data.color);
 
+		GLenum mode = static_cast<GLenum>(render_data.draw_mode);
+
 		if (render_data.index_count > 0)
 		{
-			CHECKED_CALL(glDrawElements, GL_TRIANGLES, render_data.index_count * sizeof(short), GL_UNSIGNED_SHORT, nullptr);
+			glDrawElements(mode, render_data.index_count * sizeof(short), GL_UNSIGNED_SHORT, nullptr);
 		}
 		else
 		{
-			CHECKED_CALL(glDrawArrays, GL_TRIANGLES, 0, render_data.vertex_count);
+			glDrawArrays(mode, 0, render_data.vertex_count);
 		}
 	}
 
@@ -360,6 +442,11 @@ public:
 
 	void delete_object(IRenderObject* obj) override
 	{
+		auto it = std::find(m_objects.begin(), m_objects.end(), obj);
+		if (it != m_objects.end())
+		{
+			m_objects.erase(it);
+		}
 		DELETE_OBJ(obj);
 	}
 
@@ -369,18 +456,18 @@ public:
 		{
 			return;
 		}
-		CHECKED_CALL(glGenFramebuffers, 1, &m_fbo);
-		CHECKED_CALL(glBindFramebuffer, GL_FRAMEBUFFER, m_fbo);
+		glGenFramebuffers(1, &m_fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
-		CHECKED_CALL(glGenTextures, 1, &m_texture_color_buffer);
-		CHECKED_CALL(glBindTexture, GL_TEXTURE_2D, m_texture_color_buffer);
+		glGenTextures(1, &m_texture_color_buffer);
+		glBindTexture(GL_TEXTURE_2D, m_texture_color_buffer);
 
-		CHECKED_CALL(glTexImage2D, GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		glTexImage2D( GL_TEXTURE_2D, 0, GL_RGB, m_width, m_height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-		CHECKED_CALL(glFramebufferTexture2D, GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_texture_color_buffer, 0);
 
 		unsigned int rbo;
 		glGenRenderbuffers(1, &rbo);
@@ -391,19 +478,22 @@ public:
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		CHECKED_CALL(glGenVertexArrays, 1, &m_screen_quad_vao);
-		CHECKED_CALL(glBindVertexArray, m_screen_quad_vao);
-		m_screen_quad_vbo = create_buffer(GL_ARRAY_BUFFER, GL_STATIC_DRAW, quad_vertices, sizeof(float) * 24);
-		OPENGL_CHECK_FOR_ERRORS();
+		glGenVertexArrays(1, &m_screen_quad_vao);
+		glBindVertexArray(m_screen_quad_vao);
+		ogl::BufferDescription desc;
+		desc.buffer_type = BufferType::Array;
+		desc.buffer_usage = BufferUsage::Static;
+		desc.data = quad_vertices;
+		desc.size = sizeof(float) * 24;
+		m_screen_quad_vbo = ogl::create_buffer(desc).value_or(INVALID_HANDLE);
+		
+		glEnableVertexAttribArray( 0);
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
 
-		CHECKED_CALL(glEnableVertexAttribArray, 0);
-		CHECKED_CALL(glVertexAttribPointer, 0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
-		CHECKED_CALL(glEnableVertexAttribArray, 1);
-		CHECKED_CALL(glVertexAttribPointer, 1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+		glBindVertexArray(0);
 
-		CHECKED_CALL(glBindVertexArray, 0);
-
-		OPENGL_CHECK_FOR_ERRORS();
 		m_post_program = m_rs->get_resorce<ogl::ShaderProgram>("post_effect");
 		ASSERT(m_post_program != nullptr);
 	}
@@ -438,7 +528,7 @@ public:
 		add_to_frame(gl_obj->get_render_instance());
 	}
 
-	void add_to_frame(const RenderObjectData& data) override
+	void add_to_frame(const RenderObjectData& data)
 	{
 		m_objects_to_present_data.push_back(data);
 	}
@@ -470,7 +560,7 @@ OpenGLRender::~OpenGLRender()
 {	
 	for (auto obj : m_objects)
 	{
-		delete_object(obj);
+		DELETE_OBJ(obj);
 	}
 	
 	glDeleteVertexArrays(1, &m_screen_quad_vao);

@@ -179,7 +179,8 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
 
 	Sphere s;
 	s.pos = pos;
-	s.radius = scale / 2;
+	float a = scale / 2;
+	s.radius = glm::sqrt(a*a / 2);
 	
 	auto bounding = ent->add_component<OctreeObject>(s);
 	auto octree = ecs->get_system<Octree>();
@@ -189,9 +190,11 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
 
 	rc->set_resource_name(RenderResourceType::ShaderProgram, shader);
 	rc->set_resource_name(RenderResourceType::StaticMesh, mesh);
-	//rc->set_mesh_load_settings()
+
 	if (texture)
+	{
 		rc->set_resource_name(RenderResourceType::Texture, texture);
+	}
 
     auto mc = ent->add_component< MoveComponent >( );
     mc->angle_speed = rnd( );
@@ -199,6 +202,46 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
     mc->move_direction = {rnd( ), 0.f, rnd( )};
 
     return ent;
+}
+
+static void update_selection_rect(IRenderObject* so, ICamera* cam, glm::vec2 left_bottom, glm::vec2 right_top)
+{
+	auto& data = so->get_mesh_data();
+
+	data.vertices.clear();
+	Vertex pos;
+	pos.color = { 255, 255, 255, 255 };
+	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
+	data.vertices.push_back(pos);
+
+	pos.pos = { left_bottom.x, right_top.y, 0.f }; // left-top
+	data.vertices.push_back(pos);
+
+	pos.pos = { right_top.x, right_top.y, 0.f }; // right-top
+	data.vertices.push_back(pos);
+
+	pos.pos = { right_top.x, left_bottom.y, 0.f }; // right-bottom
+	data.vertices.push_back(pos);
+
+	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
+	data.vertices.push_back(pos);
+
+	//data.indices = { 0, 1, 1, 2, 2, 3, 3, 0 };
+
+	glm::mat4 vp;
+	cam->get_matrix(vp);
+	so->update_mvp(vp);
+	so->update_mesh_data();
+}
+
+static void init_selection_rect(IRenderObject* so, ICamera* cam)
+{
+	so->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
+	so->set_vertex_draw_mode(VertexDrawMode::LineStrip);
+	so->set_resource(RenderResourceType::ShaderProgram, "default");
+	so->update_color({ 0, 255, 0, 255 });
+
+	update_selection_rect(so, cam, { 10.f, 10.f }, { 500.f, 500.f });
 }
 
 void GameInstance::init( )
@@ -215,7 +258,9 @@ void GameInstance::init( )
 	m_ecs->add_system<Octree>(b);
 	m_render_system = m_ecs->add_system<RenderSystem>();
 
-    m_render_system->initialize( m_engine->get_render(), m_game_camera );
+	IRender* render = m_engine->get_render();
+
+    m_render_system->initialize( render, m_game_camera );
 
     m_cam_pos = {10.f, 10.f, 10.f};
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
@@ -223,6 +268,9 @@ void GameInstance::init( )
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
     
+	m_selection_rect = render->create_object();
+
+	init_selection_rect(m_selection_rect, m_ui_camera);
 
     m_ui_root->init( m_rs );
 	/*
@@ -316,7 +364,6 @@ void GameInstance::init( )
 		
 	}
     
-
     m_engine->get_input( )->add_listener( this );
 }
 
@@ -328,11 +375,46 @@ GameInstance::draw( IRender* ) const
     //m_ui_root->draw( );
 }
 
-void
-GameInstance::frame(float delta) const
+static void highlight_selected(PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
+{
+	static std::vector<OctreeObject*> objects;
+
+	for (auto obj : objects)
+	{
+		auto ent = obj->get_entity();
+		auto rc = ent->get_component<RenderComponent>();
+		if (rc)
+		{
+			rc->set_color({ 128, 0, 55, 255 });
+		}
+	}
+
+	glm::vec2 left_top;
+	left_top.x = min(start.x, end.x);
+	left_top.y = max(start.y, end.y);
+
+	glm::vec2 right_bottom;
+	right_bottom.x = max(start.x, end.x);
+	right_bottom.y = min(start.y, end.y);
+
+	objects = game_camera->select_objects({ width, height }, left_top, right_bottom);
+	for (auto obj : objects)
+	{
+		auto ent = obj->get_entity();
+		auto rc = ent->get_component<RenderComponent>();
+		if (rc)
+		{
+			rc->set_color({ 100, 100, 100, 255 });
+		}
+	}
+}
+
+void GameInstance::frame(float delta) const
 {
 	static int prev_object_count;
 	print_fps(prev_object_count);
+
+	input::Input* input = m_engine->get_input();
 
 	if (m_player)
 	{
@@ -343,8 +425,6 @@ GameInstance::frame(float delta) const
 		{
 			mc->move_speed = 0.f;
 			mc->angle_speed = 0.f;
-
-			input::Input* input = m_engine->get_input();
 
 			const float vel = 60.f;
 			const float angle_vel = 5.f;
@@ -382,33 +462,21 @@ GameInstance::frame(float delta) const
 			m_game_camera->init(cam_pos, pos, up);
 		}
 	}
-	static std::vector<OctreeObject*> objects;
 	
-	for (auto obj : objects)
-	{
-		auto ent = obj->get_entity();
-		auto rc = ent->get_component<RenderComponent>();
-		if (rc)
-		{
-			rc->set_color({ 128, 0, 55, 255 });
-		}
-	}
-
-	objects = m_game_camera->select_objects({m_width, m_height}, { 0, 500 }, { 500, 0 });
-	for (auto obj : objects)
-	{
-		auto ent = obj->get_entity();
-		auto rc = ent->get_component<RenderComponent>();
-		if (rc)
-		{
-			rc->set_color({ 100, 100, 100, 255 });
-		}
-	}
 
 	m_move_system->update(delta);
 	m_render_system->update(delta);
 
 	prev_object_count = m_render_system->get_draw_object_count();
+
+	if (m_selection_state)
+	{
+		update_selection_rect(m_selection_rect, m_ui_camera, m_start_pos, m_end_pos);
+
+		m_engine->get_render()->add_to_frame(m_selection_rect);
+
+		highlight_selected(m_game_camera, m_width, m_height, m_start_pos, m_end_pos);
+	}
 }
 
 void
@@ -436,6 +504,39 @@ GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 		}
 		break;
 	default: break;
+	}
+}
+
+void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
+{
+	if (mouse_event.type == input::MouseEventType::Pressed &&
+		mouse_event.button == input::MouseButton::Left)
+	{
+		m_selection_state = true;
+		m_start_pos.x = mouse_event.pos_x;
+		m_start_pos.y = m_height - mouse_event.pos_y;
+	}
+
+	if (mouse_event.type == input::MouseEventType::Moved &&
+		mouse_event.button == input::MouseButton::Left)
+	{
+		if (m_selection_state && 
+			(mouse_event.pos_x > m_width ||
+			mouse_event.pos_y > m_height ||
+			mouse_event.pos_x <= 5 ||
+			mouse_event.pos_y <= 5))
+		{
+			m_selection_state = false;
+		}
+		LOG("mouse move pos: %d, %d", mouse_event.pos_x, mouse_event.pos_y);
+		m_end_pos.x = mouse_event.pos_x;
+		m_end_pos.y = m_height - mouse_event.pos_y;
+	}
+
+	if (mouse_event.type == input::MouseEventType::Released &&
+		mouse_event.button == input::MouseButton::Left)
+	{
+		m_selection_state = false;
 	}
 }
 

@@ -17,24 +17,22 @@ extern "C" {
 #include "defines.hpp"
 #include "glm/glm.hpp"
 
-extern GLenum g_OpenGLError;
+enum class VertexDrawMode
+{
+	Point,
+	Line,
+	LineStrip,
+	Triangle,
+	TriangleFan,
+	TriangleStrip
+};
 
-#define OPENGL_CHECK_FOR_ERRORS() \
-	if ((g_OpenGLError = glGetError()) != GL_NO_ERROR) \
-	{\
-		LOG("OpenGL error 0x%X\n", (unsigned)g_OpenGLError); \
-		g_OpenGLError = GL_NO_ERROR; \
-		ASSERT(false); \
-	}
-
-
-#define CHECKED_CALL(func, ... ) \
-	func(__VA_ARGS__); \
-	if ((g_OpenGLError = glGetError()) != GL_NO_ERROR) \
-	{\
-		LOG("OpenGL error 0x%X in func %s, line %d\n", (unsigned)g_OpenGLError, #func, __LINE__); \
-		g_OpenGLError = GL_NO_ERROR; \
-	}
+enum class VertexBufferUsage
+{
+	Static,
+	Dynamic,
+	Streaming
+};
 
 enum class RenderResourceType
 {
@@ -46,10 +44,10 @@ enum class RenderResourceType
 
 struct VertexFMT
 {
-    basic::uint32 offset;
-    basic::uint32 size;
-    basic::uint32 type;
-    basic::uint8 is_normalized;
+    uint32_t offset;
+	uint32_t size;
+	uint32_t type;
+    uint8_t is_normalized;
 };
 
 struct Vertex_T
@@ -73,8 +71,8 @@ using IndexBuffer = std::vector< basic::uint16 >;
 
 struct MeshData
 {
-    VertexBuffer vb;
-    IndexBuffer ib;
+    VertexBuffer vertices;
+    IndexBuffer indices;
 };
 
 enum MeshLoadFlags
@@ -95,26 +93,12 @@ enum NodeOptionFlag
     USE_DYNAMIC_VBO = 1 << 2
 };
 
-basic::uint32 create_buffer( basic::uint32 buffer_type,
-                             basic::uint32 buffer_usage,
-                             const void* data,
-                             basic::uint32 size );
 
 basic::Vector< VertexFMT > get_fmt_list( const glm::vec3* );
 
 basic::Vector< VertexFMT > get_fmt_list( const Vertex* );
 
 basic::Vector< VertexFMT > get_fmt_list( const Vertex_T* );
-
-basic::int32 get_uniform(basic::uint32 program, const char* name);
-
-void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v);
-
-void set_uniform(basic::uint32 program, const char* name, const basic::Color& color);
-
-void set_uniform(basic::uint32 program, const char* name, const glm::mat4& mat);
-
-void set_uniform(basic::uint32 program, const char* name, basic::int32 v);
 
 bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings );
 

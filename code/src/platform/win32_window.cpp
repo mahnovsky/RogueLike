@@ -250,6 +250,7 @@ void Win32_Window::fill_key_map()
 void Win32_Window::process_events(input::InputListener* listener)
 {
     static MSG msg;
+	static input::MouseEvent mouse_event;
     while( PeekMessageA( &msg, 0, 0, 0, PM_REMOVE ) != 0 )
     {
         TranslateMessage( &msg );
@@ -263,20 +264,46 @@ void Win32_Window::process_events(input::InputListener* listener)
 		POINT pos;
 		pos.x = GET_X_LPARAM(msg.lParam);
 		pos.y = GET_Y_LPARAM(msg.lParam);
+		mouse_event.pos_x = pos.x;
+		mouse_event.pos_y = pos.y;
 
 		switch (msg.message)
 		{
 		case WM_LBUTTONDOWN:
-			listener->mouse_pressed(input::MouseButton::Left, pos.x, pos.y);
+			mouse_event.type = input::MouseEventType::Pressed;
+			mouse_event.button = input::MouseButton::Left;
+			
+			listener->on_mouse_event(mouse_event);
 			break;
 		case WM_RBUTTONDOWN:
-			listener->mouse_pressed(input::MouseButton::Right, pos.x, pos.y);
+			mouse_event.type = input::MouseEventType::Pressed;
+			mouse_event.button = input::MouseButton::Right;
+
+			listener->on_mouse_event(mouse_event);
 			break;
-		case WM_MBUTTONDOWN:
-			listener->mouse_pressed(input::MouseButton::Middle, pos.x, pos.y);
+		case WM_MBUTTONUP:
+			mouse_event.type = input::MouseEventType::Pressed;
+			mouse_event.button = input::MouseButton::Middle;
+
+			listener->on_mouse_event(mouse_event);
 			break;
+		case WM_LBUTTONUP:
+			mouse_event.type = input::MouseEventType::Released;
+			mouse_event.button = input::MouseButton::Left;
+
+			listener->on_mouse_event(mouse_event);
+			break;
+		case WM_RBUTTONUP:
+			mouse_event.type = input::MouseEventType::Released;
+			mouse_event.button = input::MouseButton::Right;
+
+			listener->on_mouse_event(mouse_event);
+			break;
+		
 		case WM_MOUSEMOVE:
-			listener->mouse_moved(pos.x, pos.y);
+			mouse_event.type = input::MouseEventType::Moved;
+
+			listener->on_mouse_event(mouse_event);
 			break;
 		case WM_KEYDOWN:
 			listener->key_pressed(key_map[msg.wParam], static_cast<wchar_t>(msg.wParam));

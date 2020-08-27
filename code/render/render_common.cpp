@@ -211,13 +211,13 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
     }
 
     
-    out_mesh.vb.reserve( vert_coords.get_size( ) );
+    out_mesh.vertices.reserve( vert_coords.get_size( ) );
 
 	basic::Color color{ 255, 255, 255, 255 };
 	basic::Vector<MeshIndex> indices;
 	indices.reserve(triangles.get_size() * 3);
-	out_mesh.ib.reserve(triangles.get_size() * 3);
-	out_mesh.vb.reserve(triangles.get_size() * 3);
+	out_mesh.indices.reserve(triangles.get_size() * 3);
+	out_mesh.vertices.reserve(triangles.get_size() * 3);
 
     for ( auto& triangle : triangles )
     {
@@ -231,9 +231,9 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
 			basic::uint32 pos = 0;
 			if (!indices.find_first(pos, index))
 			{
-				index.index = out_mesh.vb.size();
-				out_mesh.vb.push_back({});
-				Vertex& vertex = out_mesh.vb.back();
+				index.index = out_mesh.vertices.size();
+				out_mesh.vertices.push_back({});
+				Vertex& vertex = out_mesh.vertices.back();
 
 				vertex.pos = vert_coords[index.vertex_index];
 				vertex.color = color;
@@ -241,32 +241,17 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
 				if (!tex_coords.is_empty())
 					vertex.uv = tex_coords[index.texture_index];
 
-				out_mesh.ib.push_back(index.index);
+				out_mesh.indices.push_back(index.index);
 				indices.push(index);
 			}
 			else
 			{
-				out_mesh.ib.push_back(indices[pos].index);
+				out_mesh.indices.push_back(indices[pos].index);
 			}
 		}
     }
 
     return true;
-}
-
-basic::uint32 create_buffer( basic::uint32 buffer_type,
-               basic::uint32 buffer_usage,
-               const void* data,
-               basic::uint32 size )
-{
-    basic::uint32 buffer;
-
-    CHECKED_CALL(glGenBuffers, 1, &buffer );
-    CHECKED_CALL(glBindBuffer, buffer_type, buffer );
-
-    CHECKED_CALL(glBufferData, buffer_type, size, data, buffer_usage );
-
-    return buffer;
 }
 
 void
@@ -373,42 +358,4 @@ get_fmt_list( const Vertex_T* )
     res.push( fmt );
 
     return res;
-}
-
-basic::int32 get_uniform(basic::uint32 program, const char* name)
-{
-	return glGetUniformLocation(program, name);
-}
-
-void set_uniform(basic::uint32 program, const char* name, const glm::vec2& v)
-{
-	basic::int32 pos = get_uniform(program, name);
-
-	glUniform2f(pos, v.x, v.y);
-}
-
-void set_uniform(basic::uint32 program, const char* name, basic::int32 v)
-{
-	basic::int32 pos = get_uniform(program, name);
-
-	glUniform1i(pos, v);
-}
-
-void set_uniform(basic::uint32 program, const char* name, const basic::Color& color)
-{
-	basic::int32 pos = get_uniform(program, name);
-
-	glm::vec4 c{ static_cast<float>(color.red) / 255,
-		static_cast<float>(color.blue) / 255,
-		static_cast<float>(color.green) / 255,
-		static_cast<float>(color.alpha) / 255 };
-
-	glUniform4fv(pos, 1, glm::value_ptr(c));
-}
-
-void set_uniform(basic::uint32 program, const char* name, const glm::mat4& mat)
-{
-	basic::int32 pos = get_uniform(program, name);
-
-	glUniformMatrix4fv(pos, 1, GL_FALSE, glm::value_ptr(mat));
 }

@@ -141,8 +141,6 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
         ++offset;
     }
     size.x = x;
-
-	RenderObjectDataPtr data = create_render_data(DataPresentMode::Triangle);
 }
 
 Font* Font::create( const char* file )

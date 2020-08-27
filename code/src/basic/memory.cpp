@@ -359,7 +359,7 @@ _mem_realloc( void* ptr, memory_size bytes )
 void
 _mem_free( void* ptr )
 {
-    memory_manager.free_chunck( internal_get_chunk( ptr ) );
+	memory_manager.free_chunck(internal_get_chunk(ptr));
 }
 
 void*

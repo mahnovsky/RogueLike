@@ -2,9 +2,12 @@
 
 #include <cstdint>
 #include <cstddef>
+#include <optional>
 
 using std::uint32_t;
 using std::int32_t;
+using Handle = uint32_t;
+using Result = std::optional<Handle>;
 
 extern "C" {
 #define GLEW_STATIC

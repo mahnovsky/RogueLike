@@ -28,9 +28,25 @@ enum class KeyCode : char
 
 enum MouseButton
 {
+	None,
     Left,
     Middle,
     Right
+};
+
+enum MouseEventType
+{
+	Pressed,
+	Released,
+	Moved
+};
+
+struct MouseEvent
+{
+	MouseEventType type;
+	MouseButton button;
+	int pos_x;
+	int pos_y;
 };
 
 class InputListener
@@ -40,8 +56,7 @@ public:
     virtual void key_pressed(KeyCode code, basic::int16 key);
 	virtual void key_released(KeyCode code, basic::int16 key);
 	
-    virtual void mouse_pressed(MouseButton button, basic::int32 x, basic::int32 y);
-    virtual void mouse_moved(basic::int32 x, basic::int32 y);
+	virtual void on_mouse_event(const MouseEvent& mouse_event) {}
 };
 
 class Input : public InputListener
@@ -53,8 +68,7 @@ public:
     void key_pressed(KeyCode code, basic::int16 key) override;
 	void key_released(KeyCode code, basic::int16 key) override;
 
-    void mouse_pressed(MouseButton button, basic::int32 x, basic::int32 y) override;
-    void mouse_moved(int x, int y) override;
+	void on_mouse_event(const MouseEvent& mouse_event) override;
 
     void add_listener( InputListener* listener );
     void remove_listener( InputListener* listener );

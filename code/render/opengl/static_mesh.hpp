@@ -11,7 +11,9 @@ public:
     StaticMesh( const char* name );
     ~StaticMesh( ) override = default;
 
-	bool load(ResourceStorage* rs) ;
+	bool init(const MeshData& data, ogl::BufferUsage usage);
+
+	bool load(ResourceStorage* rs);
 
     uint32_t get_vertex_count( ) const;
 

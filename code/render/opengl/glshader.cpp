@@ -19,9 +19,14 @@ namespace ogl
 
 	bool Shader::init(std::vector<uint8_t> data)
 	{
-		m_handle = compile_shader(m_type, data.data(), data.size());
+		if (auto res = load_shader(m_type, data.data(), data.size()))
+		{
+			m_handle = res.value();
 
-		return is_shader_compiled(m_handle);
+			return true;
+		}
+		
+		return false;
 	}
 
 	std::string_view Shader::get_error_message() const
@@ -30,8 +35,12 @@ namespace ogl
 	}
 
 	Program::Program()
-		:m_handle(ogl::create_program())
+		:m_handle()
 	{
+		if (auto res = ogl::create_program())
+		{
+			m_handle = res.value();
+		}
 	}
 
 	Program::~Program()

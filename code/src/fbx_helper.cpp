@@ -46,7 +46,7 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
 				v.normal = { normal.x, normal.y, normal.z };
 			}
 
-            mesh_data.vb.push_back(v);
+            mesh_data.vertices.push_back(v);
         }
 
         const int* indices = geometry->getFaceIndices();
@@ -54,7 +54,7 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
         {
             int index = *(indices + i);
             if (index < 0) index = ~index;
-            mesh_data.ib.push_back(index);
+            mesh_data.indices.push_back(index);
         }
 
         return true;
