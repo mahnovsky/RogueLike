@@ -2,8 +2,9 @@
 
 #include <vector>
 #include <string_view>
-
+#include <algorithm>
 #include "generic_object.hpp"
+
 
 class GenericObjectManager : public IGenericObjectListener
 {

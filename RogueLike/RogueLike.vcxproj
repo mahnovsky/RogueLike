@@ -203,6 +203,7 @@
     <ClInclude Include="..\code\include\octree.h" />
     <ClInclude Include="..\code\include\render_system.hpp" />
     <ClInclude Include="..\code\include\resource_storage.hpp" />
+    <ClInclude Include="..\code\include\root_widget.hpp" />
     <ClInclude Include="..\code\include\sprite.hpp" />
     <ClInclude Include="..\code\include\text_component.hpp" />
     <ClInclude Include="..\code\include\texture.hpp" />

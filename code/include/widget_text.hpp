@@ -7,13 +7,13 @@
 class WidgetText : public Widget
 {
 public:
-    WidgetText(GenericObjectManager* manager);
+    WidgetText(RootWidget* root);
 
     ~WidgetText() override;
 
     void init(ResourceStorage* storage) override;
 
-    void set_text(const basic::String& text);
+    void set_text(const std::string& text);
 
     void set_color(const basic::Color& color);
 
@@ -27,10 +27,12 @@ private:
 
     void apply_align();
 
+	void draw(IRender* render) override;
+
 private:
-    basic::String m_font_name;
+    std::string m_font_name;
     std::shared_ptr<se::Font> m_font;
-    basic::String m_text;
-    RenderNode* m_text_render;
+	std::string m_text;
+    IRenderObject* m_text_render;
     glm::vec2 m_text_size;
 };

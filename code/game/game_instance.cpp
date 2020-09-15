@@ -74,7 +74,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_height( height )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
-    , m_ui_root( NEW_OBJ( RootWidget, engine, m_object_manager) )
+    , m_ui_root( NEW_OBJ( RootWidget, engine, m_ui_camera) )
 	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
 {
@@ -203,29 +203,41 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
 
     return ent;
 }
+constexpr float EPS = 0.001f;
 
 static void update_selection_rect(IRenderObject* so, ICamera* cam, glm::vec2 left_bottom, glm::vec2 right_top)
 {
 	auto& data = so->get_mesh_data();
 
-	data.vertices.clear();
+	if (fabs(right_top.x - left_bottom.x) < EPS)
+	{
+		right_top.x += 0.5f;
+	}
+	if (fabs(right_top.y - left_bottom.y) < EPS)
+	{
+		right_top.y += 0.5f;
+	}
+
+	static VertexBuffer vertices;
+	vertices.clear();
 	Vertex pos;
 	pos.color = { 255, 255, 255, 255 };
 	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
-	data.vertices.push_back(pos);
+	vertices.push_back(pos);
 
 	pos.pos = { left_bottom.x, right_top.y, 0.f }; // left-top
-	data.vertices.push_back(pos);
+	vertices.push_back(pos);
 
 	pos.pos = { right_top.x, right_top.y, 0.f }; // right-top
-	data.vertices.push_back(pos);
+	vertices.push_back(pos);
 
 	pos.pos = { right_top.x, left_bottom.y, 0.f }; // right-bottom
-	data.vertices.push_back(pos);
+	vertices.push_back(pos);
 
 	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
-	data.vertices.push_back(pos);
+	vertices.push_back(pos);
 
+	setup_vertices(data.vertex_data, vertices);
 	//data.indices = { 0, 1, 1, 2, 2, 3, 3, 0 };
 
 	glm::mat4 vp;
@@ -273,6 +285,14 @@ void GameInstance::init( )
 	init_selection_rect(m_selection_rect, m_ui_camera);
 
     m_ui_root->init( m_rs );
+
+	m_fps_text = NEW_OBJ( WidgetText, m_ui_root);
+	m_fps_text->init(m_rs);
+	m_fps_text->set_text("fps: ");
+	m_fps_text->set_color(g_ui_color);
+	m_fps_text->set_align(AlignH::Left);
+	
+
 	/*
     WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
     WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
@@ -368,9 +388,12 @@ void GameInstance::init( )
 }
 
 void
-GameInstance::draw( IRender* ) const
+GameInstance::draw( IRender* render ) const
 {
-    m_render_system->draw( m_ecs );
+    //m_render_system->draw( m_ecs );
+
+	Widget* w = m_fps_text;
+	w->draw(render);
 
     //m_ui_root->draw( );
 }
@@ -528,7 +551,6 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 		{
 			m_selection_state = false;
 		}
-		LOG("mouse move pos: %d, %d", mouse_event.pos_x, mouse_event.pos_y);
 		m_end_pos.x = mouse_event.pos_x;
 		m_end_pos.y = m_height - mouse_event.pos_y;
 	}
@@ -540,23 +562,29 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 	}
 }
 
-void
-GameInstance::print_fps( int objects ) const
+void GameInstance::print_fps(int objects) const
 {
 	constexpr int BUFF_SIZE = 256;
-    static basic::char_t buff[ BUFF_SIZE ];
-    static basic::uint32 fps;
+	static basic::char_t buff[BUFF_SIZE];
+	static basic::uint32 fps;
 
-    if (m_fps_text && fps != m_engine->get_fps( ) )
-    {
-        fps = m_engine->get_fps( );
-        if ( basic::String::format( buff, BUFF_SIZE, "fps: %u", fps ) )
-        {
-            m_fps_text->set_text( buff );
-        }
-    }
+	if (fps != m_engine->get_fps())
+	{
+		fps = m_engine->get_fps();
+		LOG("FPS: %d", fps);
 
-    basic::String::format( buff, BUFF_SIZE, "draw objects: %u", objects);
-	if(m_mem_text)
-		m_mem_text->set_text( buff );
+		if (m_fps_text)
+		{
+			if (basic::String::format(buff, BUFF_SIZE, "fps NJFSNDFKJNFKDJN: %u", fps))
+			{
+				m_fps_text->set_text(buff);
+			}
+		}
+	}
+	/*
+	basic::String::format(buff, BUFF_SIZE, "draw objects: %u", objects);
+	if (m_mem_text)
+		m_mem_text->set_text(buff);*/
 }
+
+	

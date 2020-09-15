@@ -33,7 +33,7 @@ public:
 
     void init_font( basic::uint32 width,
                     basic::uint32 height,
-                    basic::Vector< basic::uint8 > image_data );
+                    std::vector< uint8_t > image_data );
 
     void set( basic::uint32 width, basic::uint32 height, basic::uint32 handle, basic::uint32 cc );
 

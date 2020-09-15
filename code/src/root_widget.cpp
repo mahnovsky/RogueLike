@@ -5,9 +5,10 @@
 
 using namespace input;
 
-RootWidget::RootWidget(Engine *engine, GenericObjectManager* manager)
-    :Widget (manager)
+RootWidget::RootWidget(IEngine*engine, ICamera* ui_camera)
+    :Widget (this)
     ,m_engine(engine)
+	,m_ui_camera(ui_camera)
 {
     m_engine->get_input()->add_listener(this);
 }
@@ -38,6 +39,11 @@ void RootWidget::invoke_action(const basic::String &action_name, Widget *w)
 void RootWidget::bind_key_action(input::KeyCode code, const basic::String& action)
 {
 	m_key_actions.push({ code, action });
+}
+
+const ICamera* RootWidget::get_ui_camera() const
+{
+	return m_ui_camera;
 }
 
 void RootWidget::key_pressed(KeyCode code, basic::int16 key)

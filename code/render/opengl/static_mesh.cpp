@@ -10,23 +10,38 @@ StaticMesh::StaticMesh( const char* name )
 	, m_ibo()
 	, m_vertex_count(0)
 	, m_index_count(0)
+	, m_element_size(0)
 {
 }
 
 bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 {
-	if (data.vertices.empty())
+	if (data.vertex_data.data == nullptr)
 	{
 		return false;
 	}
 
-	m_vbo.init<Vertex>(
+	m_fmt_list = get_vertex_format_description(data.vertex_data.format);
+	m_element_size = data.vertex_data.item_size;
+
+	bool result = m_vbo.init_raw(ogl::BufferType::Array, usage, 
+		data.vertex_data.data, 
+		data.vertex_data.count, 
+		data.vertex_data.item_size);
+	if (!result)
+	{
+		LOG("Failed to init VBO");
+		return false;
+	}
+
+	//m_vbo.init_raw(ogl::BufferType::Array, usage, data.vertex_data.data, data.vertex_data.count,)
+	/*m_vbo.init<Vertex>(
 		ogl::BufferType::Array,
 		usage,
 		data.vertices.data(),
-		data.vertices.size());
+		data.vertices.size());*/
 
-	m_vertex_count = data.vertices.size();
+	m_vertex_count = data.vertex_data.count;
 
 	if (!data.indices.empty())
 	{
@@ -38,9 +53,6 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 
 		m_index_count = data.indices.size();
 	}
-
-	Vertex v;
-	m_fmt_list = ::get_fmt_list(&v);
 
 	return true;
 }
@@ -88,7 +100,12 @@ uint32_t StaticMesh::get_ibo() const
 	return m_ibo.get_handle();
 }
 
-const basic::Vector<VertexFMT>& StaticMesh::get_fmt_list() const
+uint32_t StaticMesh::get_element_size() const
+{
+	return m_element_size;
+}
+
+const std::vector<VertexFMT>& StaticMesh::get_fmt_list() const
 {
 	return m_fmt_list;
 }

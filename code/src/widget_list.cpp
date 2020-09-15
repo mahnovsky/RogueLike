@@ -1,8 +1,8 @@
 #include "widget_list.hpp"
 
 
-WidgetList::WidgetList(GenericObjectManager *manager )
-    :Widget (manager)
+WidgetList::WidgetList(RootWidget* root)
+    :Widget (root)
     ,m_direction(ListDirection::Vertical)
 {
 }

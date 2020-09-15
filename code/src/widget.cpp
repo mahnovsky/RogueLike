@@ -7,8 +7,8 @@
 #include "transform.hpp"
 #include "generic_object_manager.hpp"
 
-Widget::Widget( GenericObjectManager* manager )
-    : m_object_manager(manager)
+Widget::Widget(RootWidget* widget)
+    : m_root(widget)
     , m_mat( 1.f )
     , m_pos( )
     , m_size(  )
@@ -20,27 +20,16 @@ Widget::Widget( GenericObjectManager* manager )
     , m_vertical( AlignV::Center )
     , m_storage( nullptr )
 {
-    m_object_manager->add_object(this);
-    set_name("default_widget");
     m_rect.update({ 0.f, 0.f }, { 100.f, 100.f });
 }
 
 Widget::~Widget( )
-{
-    m_object_manager->remove_object(this);
-    
-    
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
-    {
-        //m_children[ i ]->release( );
-    }
+{   
 }
 
 void
 Widget::init( ResourceStorage* storage )
 {
-    m_storage = m_object_manager->find_by_type<ResourceStorage, NS_SYSTEM_TYPE>();
-
     m_storage = storage;
 
     if ( !m_camera )
@@ -56,20 +45,18 @@ Widget::add_child( Widget* node )
 {
     ASSERT( node != nullptr );
 
-    basic::uint32 index = 0;
-    
+	if (std::find(m_children.begin(), m_children.end(), node) == m_children.end())
+	{
+		m_children.push_back(node);
+	}
 }
 
-void
-Widget::remove_child( Widget* node )
+void Widget::remove_child( Widget* node )
 {
     ASSERT( node->get_parent( ) == this );
 
-    basic::uint32 index;
-    if ( get_child_index( node, index ) )
-    {
-        m_children.remove_by_index( index );
-    }
+	auto it = std::remove(m_children.begin(), m_children.end(), node);
+	m_children.erase(it, m_children.end());
 }
 
 void
@@ -93,7 +80,7 @@ Widget::is_contains( Widget* child )
 {
     ASSERT( child->get_parent( ) == this );
 
-    return m_children.is_contains( child );
+    return std::find(m_children.begin(), m_children.end(), child) != m_children.end();
 }
 
 bool
@@ -104,7 +91,15 @@ Widget::get_child_index( Widget* node, basic::uint32& out_index ) const
         return false;
     }
 
-    return m_children.find_first( out_index, node, 0 );
+	for (size_t i = 0; i < m_children.size(); ++i)
+	{
+		if (m_children[i] == node)
+		{
+			out_index = i;
+			return true;
+		}
+	}
+    return false;
 }
 
 Widget*
@@ -116,14 +111,14 @@ Widget::get_parent( )
 Widget*
 Widget::get_child( basic::uint32 index )
 {
-    ASSERT( index < m_children.get_size( ) );
-    return m_children.get( index );
+    ASSERT( index < m_children.size( ) );
+    return m_children.at( index );
 }
 
 basic::uint32
 Widget::get_child_count( ) const
 {
-    return m_children.get_size( );
+    return m_children.size( );
 }
 
 void
@@ -238,7 +233,7 @@ Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y
         }
     }
 
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
+    for ( basic::uint32 i = 0; i < m_children.size( ); ++i )
     {
         m_children[ i ]->on_mouse_pressed( btn, x, y );
     }
@@ -247,7 +242,7 @@ Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y
 void
 Widget::on_mouse_move( basic::int32 x, basic::int32 y )
 {
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
+    for ( basic::uint32 i = 0; i < m_children.size( ); ++i )
     {
         m_children[ i ]->on_mouse_move( x, y );
     }
@@ -256,7 +251,7 @@ Widget::on_mouse_move( basic::int32 x, basic::int32 y )
 void
 Widget::on_key_pressed( input::KeyCode code, basic::int16 sym )
 {
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
+    for ( basic::uint32 i = 0; i < m_children.size( ); ++i )
     {
         m_children[ i ]->on_key_pressed( code, sym );
     }
@@ -309,10 +304,4 @@ Widget::get_root( )
     }
 
     return dynamic_cast< RootWidget* >( this );
-}
-
-void
-Widget::draw( )
-{
-
 }

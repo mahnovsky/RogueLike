@@ -42,6 +42,37 @@ enum class RenderResourceType
 	Count
 };
 
+enum class VertexDataType
+{
+	Float,
+	UnsignedByte,
+	UnsignedShort,
+	UnsignedInt
+};
+
+enum RenderStateFlags
+{
+	RSF_BLEND = 0x1,
+	RSF_DEPTH_TEST = 0x2,
+	RSF_CULL_TEST = 0x4
+};
+
+enum VertexFormat
+{
+	VF_XYZ = 0x1,
+	VF_UV = 0x2,
+	VF_NORMAL = 0x4,
+	VF_COLOR_RGBA = 0x8
+};
+
+struct VertexData
+{
+	uint32_t format = 0;
+	uint32_t count = 0;
+	uint32_t item_size = 0;
+	void* data = nullptr;
+};
+
 struct VertexFMT
 {
     uint32_t offset;
@@ -64,64 +95,28 @@ struct Vertex
 	glm::vec3 normal;
 };
 
-using VertexBufferP = basic::Vector< glm::vec3 >;
-using VertexBufferT = basic::Vector< Vertex_T >;
+using VertexBufferP = std::vector< glm::vec3 >;
+using VertexBufferT = std::vector< Vertex_T >;
 using VertexBuffer = std::vector< Vertex >;
 using IndexBuffer = std::vector< basic::uint16 >;
 
 struct MeshData
 {
-    VertexBuffer vertices;
+	VertexData vertex_data;
+    //VertexBuffer vertices;
     IndexBuffer indices;
 };
 
-enum MeshLoadFlags
-{
-	IGNORE_UV = 0x1,
-	IGNORE_NORMAL = 0x2
-};
+void setup_vertices(VertexData& out, const VertexBuffer& vertices);
 
-struct MeshLoadSettings
-{
-	basic::uint32 flags;
-	glm::mat4 vertex_transform;
-};
+void setup_vertices(VertexData& out, const VertexBufferT& vertices);
 
-enum NodeOptionFlag
-{
-    USE_PARENT_VAO = 1 << 1,
-    USE_DYNAMIC_VBO = 1 << 2
-};
+std::vector<VertexFMT> get_vertex_format_description(uint32_t format_flags);
 
+std::vector< VertexFMT > get_fmt_list( const glm::vec3* );
 
-basic::Vector< VertexFMT > get_fmt_list( const glm::vec3* );
+std::vector< VertexFMT > get_fmt_list( const Vertex* );
 
-basic::Vector< VertexFMT > get_fmt_list( const Vertex* );
+std::vector< VertexFMT > get_fmt_list( const Vertex_T* );
 
-basic::Vector< VertexFMT > get_fmt_list( const Vertex_T* );
-
-bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings );
-
-void fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb );
-
-void fill_rect( const glm::vec2& left_top,
-                const glm::vec2& right_bottom,
-                float width,
-                VertexBufferP& out_vb );
-
-
-struct QuadGenerator
-{
-    QuadGenerator( const glm::vec3& size, const glm::vec2& anchor, const basic::Color& color );
-
-    void generate( VertexBufferT& out_vb, int offset, const struct TextureRect* rect = nullptr );
-
-    void generate( IndexBuffer& out_ib, int offset );
-
-    static std::uint16_t indices[ 6 ];
-
-private:
-    glm::vec3 m_size;
-    glm::vec2 m_anchor;
-    basic::Color m_color;
-};
+bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh );

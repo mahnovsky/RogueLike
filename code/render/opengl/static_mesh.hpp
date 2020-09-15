@@ -23,15 +23,18 @@ public:
 
 	uint32_t get_ibo() const;
 
-	const basic::Vector<VertexFMT>& get_fmt_list() const;
+	uint32_t get_element_size() const;
+
+	const std::vector<VertexFMT>& get_fmt_list() const;
 
 private:
 
 	ogl::Buffer m_vbo;
 	ogl::Buffer m_ibo;
 
-	basic::uint32 m_vertex_count;
-	basic::uint32 m_index_count;
+	uint32_t m_vertex_count;
+	uint32_t m_index_count;
+	uint32_t m_element_size;
 
-	basic::Vector<VertexFMT> m_fmt_list;
+	std::vector<VertexFMT> m_fmt_list;
 };

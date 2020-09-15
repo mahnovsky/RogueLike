@@ -8,6 +8,7 @@
 #include "type_registration.hpp"
 #include "generic_object_manager.hpp"
 
+class RootWidget;
 
 enum class AlignH
 {
@@ -60,18 +61,16 @@ struct WidgetAction
     void* user_data;
 };
 
-class Widget : public IGenericObject
+class Widget 
 {
 public:
-    GENERIC_OBJECT_IMPL(Widget, NS_COMPONENT_TYPE);
+    Widget( RootWidget* widget );
 
-    Widget( GenericObjectManager* manager );
-
-    ~Widget() override;
+    virtual ~Widget();
 
     virtual void init(ResourceStorage* storage);
 
-    virtual void draw();
+	virtual void draw(IRender* render) {}
 
     virtual void add_child( Widget* node );
 
@@ -134,23 +133,22 @@ protected:
 
     glm::mat4 get_matrix() const;
 
-    RenderNode* get_view();
-
     ICamera* get_camera();
 
 	void update_mat();
 
     RootWidget* get_root();
 
+protected:
+    RootWidget* m_root;
 private:
-    GenericObjectManager* m_object_manager;
 	glm::mat4 m_mat;
     glm::vec2 m_pos;
     glm::vec2 m_size;
     glm::vec2 m_anchor_point;
     Rect m_rect;
     Widget* m_parent;
-    basic::Vector<Widget*> m_children;
+    std::vector<Widget*> m_children;
     ICamera* m_camera;
     
     basic::String m_press_action_name;
@@ -160,5 +158,4 @@ protected:
     AlignH m_horizontal;
     AlignV m_vertical;
     ResourceStorage* m_storage;
-    RootWidget* m_root;
 };

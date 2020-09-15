@@ -26,7 +26,7 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
 
 		const ofbx::Vec3* normals = geometry->getNormals();
 		const ofbx::Vec2* uvs0 = geometry->getUVs();
-
+		VertexBuffer buffer;
         for (int i = 0; i < geometry->getVertexCount(); ++i)
         {
             ofbx::Vec3 vertex(*(vertices + i));
@@ -46,8 +46,10 @@ bool load_fbx_mesh(ofbx::IScene* scene, int index, MeshData& mesh_data)
 				v.normal = { normal.x, normal.y, normal.z };
 			}
 
-            mesh_data.vertices.push_back(v);
+			buffer.push_back(v);
         }
+
+		setup_vertices(mesh_data.vertex_data, buffer);
 
         const int* indices = geometry->getFaceIndices();
         for (int i = 0; i < geometry->getIndexCount(); ++i)

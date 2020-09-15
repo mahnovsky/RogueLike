@@ -8,55 +8,6 @@
 
 #include <iostream>
 
-std::uint16_t QuadGenerator::indices[ 6 ] = {0, 1, 3, 1, 2, 3};
-
-QuadGenerator::QuadGenerator( const glm::vec3& size,
-                              const glm::vec2& anchor,
-                              const basic::Color& c )
-    : m_size( size )
-    , m_anchor( anchor )
-    , m_color{c}
-{
-}
-
-void
-QuadGenerator::generate( VertexBufferT& out_vb, int offset, const TextureRect* rect )
-{
-    float xoff = offset * m_size.x;
-    float left = ( 0.f - m_anchor.x ) * m_size.x + xoff;
-    float right = ( 1.f - m_anchor.x ) * m_size.x + xoff;
-    float bottom = ( 0.f - m_anchor.y ) * m_size.y;
-    float top = ( 1.f - m_anchor.y ) * m_size.y;
-    float z = m_size.z;
-
-    glm::vec2 t_rt{1.f, 0.f};
-    glm::vec2 t_rb{1.f, 1.f};
-    glm::vec2 t_lb{0.f, 1.f};
-    glm::vec2 t_lt{0.f, 0.f};
-    if ( rect )
-    {
-        t_rt = {rect->x + rect->w, rect->y};
-        t_rb = {rect->x + rect->w, rect->y + rect->h};
-        t_lb = {rect->x, rect->y + rect->h};
-        t_lt = {rect->x, rect->y};
-    }
-    out_vb.push( {{right, top, z}, t_rt} );
-    out_vb.push( {{right, bottom, z}, t_rb} );
-    out_vb.push( {{left, bottom, z}, t_lb} );
-    out_vb.push( {{left, top, z}, t_lt} );
-}
-
-void
-QuadGenerator::generate( IndexBuffer& out_vb, int offset )
-{
-    int xoff = offset * 6;
-    for ( int i = 0; i < 6; ++i )
-    {
-        auto index = indices[ i ] + xoff;
-        out_vb.push_back( index );
-    }
-}
-
 struct EnableArrayBuffer
 {
     EnableArrayBuffer( basic::uint32 object, basic::uint32& prev_vao )
@@ -102,7 +53,7 @@ bool operator == (const MeshIndex& a, const MeshIndex& b)
 		a.texture_index == b.texture_index;
 }
 
-bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSettings settings)
+bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh )
 {
     basic::Vector< glm::vec3 > vert_coords;
     basic::Vector< glm::vec2 > tex_coords;
@@ -211,13 +162,13 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
     }
 
     
-    out_mesh.vertices.reserve( vert_coords.get_size( ) );
+    //out_mesh.vertices.reserve( vert_coords.get_size( ) );
 
 	basic::Color color{ 255, 255, 255, 255 };
 	basic::Vector<MeshIndex> indices;
 	indices.reserve(triangles.get_size() * 3);
 	out_mesh.indices.reserve(triangles.get_size() * 3);
-	out_mesh.vertices.reserve(triangles.get_size() * 3);
+	//out_mesh.vertices.reserve(triangles.get_size() * 3);
 
     for ( auto& triangle : triangles )
     {
@@ -231,9 +182,9 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
 			basic::uint32 pos = 0;
 			if (!indices.find_first(pos, index))
 			{
-				index.index = out_mesh.vertices.size();
-				out_mesh.vertices.push_back({});
-				Vertex& vertex = out_mesh.vertices.back();
+				//index.index = out_mesh.vertices.size();
+				//out_mesh.vertices.push_back({});
+				Vertex vertex;// = out_mesh.vertices.back();
 
 				vertex.pos = vert_coords[index.vertex_index];
 				vertex.color = color;
@@ -254,47 +205,110 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh, MeshLoadSetting
     return true;
 }
 
-void
-fill_line( const glm::vec2& p0, const glm::vec2& p1, float width, VertexBufferP& out_vb )
+void setup_vertices(VertexData& out, const VertexBuffer& vertices)
 {
-    glm::vec3 pos0 = glm::vec3( p0, 0 );
-    glm::vec3 pos1 = glm::vec3( p1, 0 );
+	if (out.data != nullptr &&
+		out.count >= vertices.size() &&
+		out.item_size == sizeof(Vertex))
+	{
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data, vertices.data(), bytes);
+	}
+	else
+	{
+		if (out.data != nullptr)
+		{
+			basic::mem_free(out.data);
+		}
+		out.format = VF_XYZ | VF_COLOR_RGBA | VF_UV | VF_NORMAL;
+		out.count = vertices.size();
+		out.item_size = sizeof(Vertex);
+		out.data = basic::mem_alloc(out.count * out.item_size);
 
-    glm::vec3 delta = pos1 - pos0;
-    float sq_dist = glm::dot( delta, delta );
-    ASSERT( sq_dist > 0.1f );
-    ASSERT( width > 0.1f );
-
-    glm::vec3 up{0.f, 0.f, 1.f};
-    glm::vec3 dir = glm::normalize( glm::cross( delta, up ) );
-
-    //{ 0, 1, 2, 3, 2, 1 }
-    const float half_width = width / 2;
-    out_vb.push( ( dir * half_width ) + pos0 );
-    out_vb.push( ( dir * half_width ) + pos1 );
-    out_vb.push( ( dir * -half_width ) + pos0 );
-    out_vb.push( ( dir * -half_width ) + pos1 );
-    out_vb.push( ( dir * -half_width ) + pos0 );
-    out_vb.push( ( dir * half_width ) + pos1 );
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data, vertices.data(), bytes);
+	}
 }
 
-void
-fill_rect( const glm::vec2& left_top,
-           const glm::vec2& right_bottom,
-           float width,
-           VertexBufferP& out_vb )
+void setup_vertices(VertexData& out, const VertexBufferT& vertices)
 {
-    glm::vec2 left_bottom( left_top.x, right_bottom.y );
-    glm::vec2 right_top( right_bottom.x, left_top.y );
+	if (out.data != nullptr && 
+		out.count >= vertices.size() &&
+		out.item_size == sizeof(Vertex_T))
+	{
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data, vertices.data(), bytes);
+	}
+	else
+	{
+		if (out.data != nullptr)
+		{
+			basic::mem_free(out.data);
+		}
+		out.format = VF_XYZ | VF_UV;
+		out.count = vertices.size();
+		out.item_size = sizeof(Vertex_T);
+		out.data = basic::mem_alloc(out.count * out.item_size);
 
-    fill_line( left_bottom, left_top, width, out_vb );
-    fill_line( left_top, right_top, width, out_vb );
-    fill_line( right_top, right_bottom, width, out_vb );
-    fill_line( right_bottom, left_bottom, width, out_vb );
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data, vertices.data(), bytes);
+	}
 }
 
-basic::Vector< VertexFMT >
-get_fmt_list( const glm::vec3* )
+// order pos, color, uv, normals
+std::vector<VertexFMT> get_vertex_format_description(uint32_t format_flags)
+{
+	std::vector<VertexFMT> result;
+	VertexFMT fmt;
+	int offset = 0;
+	if ((format_flags & VF_XYZ) > 0)
+	{
+		fmt.is_normalized = 0;
+		fmt.offset = 0;
+		fmt.size = 3;
+		fmt.type = GL_FLOAT;
+		offset += sizeof(glm::vec3);
+
+		result.push_back(fmt);
+	}
+
+	if ((format_flags & VF_COLOR_RGBA) > 0)
+	{
+		fmt.is_normalized = 1;
+		fmt.offset = offset;
+		fmt.size = 4;
+		fmt.type = GL_UNSIGNED_BYTE;
+		offset += sizeof(basic::Color);
+
+		result.push_back(fmt);
+	}
+
+	if ((format_flags & VF_UV) > 0)
+	{
+		fmt.is_normalized = 0;
+		fmt.offset = offset;
+		fmt.size = 2;
+		fmt.type = GL_FLOAT;
+		offset += sizeof(glm::vec2);
+
+		result.push_back(fmt);
+	}
+
+	if ((format_flags & VF_NORMAL) > 0)
+	{
+		fmt.is_normalized = 0;
+		fmt.offset = offset;
+		fmt.size = 3;
+		fmt.type = GL_FLOAT;
+		offset += sizeof(glm::vec3);
+
+		result.push_back(fmt);
+	}
+
+	return result;
+}
+
+std::vector< VertexFMT > get_fmt_list( const glm::vec3* )
 {
     VertexFMT fmt;
     fmt.size = 3;
@@ -302,15 +316,15 @@ get_fmt_list( const glm::vec3* )
     fmt.offset = 0;
     fmt.is_normalized = GL_FALSE;
 
-    basic::Vector< VertexFMT > res;
-    res.push( fmt );
+    std::vector< VertexFMT > res;
+    res.push_back( fmt );
+
     return res;
 }
 
-basic::Vector< VertexFMT >
-get_fmt_list( const Vertex* )
+std::vector< VertexFMT > get_fmt_list( const Vertex* )
 {
-    basic::Vector< VertexFMT > res;
+    std::vector< VertexFMT > res;
 
     VertexFMT fmt;
     fmt.size = 3;
@@ -318,29 +332,28 @@ get_fmt_list( const Vertex* )
     fmt.offset = 0;
     fmt.is_normalized = GL_FALSE;
 
-    res.push( fmt );
+    res.push_back( fmt );
 
     fmt.size = 4;
     fmt.type = GL_UNSIGNED_BYTE;
     fmt.offset = sizeof( glm::vec3 );
     fmt.is_normalized = GL_TRUE;
 
-    res.push( fmt );
+    res.push_back( fmt );
 
     fmt.size = 2;
     fmt.type = GL_FLOAT;
     fmt.offset = sizeof(glm::vec3) + sizeof(basic::Color);
     fmt.is_normalized = GL_FALSE;
 
-    res.push( fmt );
+    res.push_back( fmt );
 
     return res;
 }
 
-basic::Vector< VertexFMT >
-get_fmt_list( const Vertex_T* )
+std::vector< VertexFMT > get_fmt_list( const Vertex_T* )
 {
-    basic::Vector< VertexFMT > res;
+	std::vector< VertexFMT > res;
 
     VertexFMT fmt;
     fmt.size = 3;
@@ -348,14 +361,14 @@ get_fmt_list( const Vertex_T* )
     fmt.offset = 0;
     fmt.is_normalized = GL_FALSE;
 
-    res.push( fmt );
+    res.push_back( fmt );
 
     fmt.size = 2;
     fmt.type = GL_FLOAT;
     fmt.offset = sizeof( float ) * 3;
     fmt.is_normalized = GL_FALSE;
 
-    res.push( fmt );
+    res.push_back( fmt );
 
     return res;
 }

@@ -23,20 +23,7 @@ Sprite::init( Texture* texture )
 
     VertexBufferT vb;
 
-    QuadGenerator generator( m_size, m_anchor, m_color );
     TextureRect rect;
-
-    if(!m_frame_name.is_empty() && texture->get_rect(m_frame_name.get_cstr(), rect))
-    {
-        generator.generate( vb, 0, &rect );
-    }
-    else
-    {
-        generator.generate( vb, 0 );
-    }
-
-    IndexBuffer ib;
-    generator.generate( ib, 0 );
 }
 
 void
@@ -81,8 +68,6 @@ Sprite::set_anchor( float x, float y )
     m_anchor = {x, y};
 
     VertexBufferT vb;
-    QuadGenerator generator( m_size, m_anchor, m_color );
-    generator.generate( vb, 0 );
 }
 
 void Sprite::set_angle(float angle)

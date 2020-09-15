@@ -5,6 +5,7 @@
 
 #include "opengl/resource_shader.hpp"
 
+
 namespace se
 {
 struct bakedchar;
@@ -17,7 +18,7 @@ public:
 
 	bool load(ResourceStorage*) ;
 
-    void update(const char* text, RenderNode* out_object, glm::vec2& size);
+    void update(const char* text, IRenderObject* out_object, glm::vec2& size);
 
     static Font* create( const char* file);
 
@@ -26,5 +27,6 @@ private:
 	std::shared_ptr<Texture> m_texture;
     float m_height;
     void* m_cdata;
+	std::string m_texture_name;
 };
 }

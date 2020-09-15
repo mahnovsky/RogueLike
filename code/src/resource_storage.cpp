@@ -21,10 +21,8 @@ bool ResourceStorage::add_resource( FileResourcePtr file_resource )
 	auto file_name = file_resource->get_file_name();
 	ASSERT(!file_name.empty());
 
-    if ( !find_resource(file_name.data( )) && file_resource->load(this) )
+    if ( !find_resource(file_name.data( )) && _inner_add_resource(file_resource) )
     {
-        m_resources.push_back( file_resource );
-
         return true;
     }
 

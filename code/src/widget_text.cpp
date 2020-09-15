@@ -4,9 +4,13 @@
 #include "resource_storage.hpp"
 #include "font.hpp"
 #include "transform.hpp"
+#include "render_system.hpp"
+#include "render.hpp"
+#include "root_widget.hpp"
+#include "camera.hpp"
 
-WidgetText::WidgetText(GenericObjectManager* manager)
-    : Widget ( manager )
+WidgetText::WidgetText(RootWidget* root)
+    : Widget (root)
     , m_font_name("arial.ttf")
     , m_font( nullptr )
     , m_text()
@@ -21,7 +25,7 @@ void WidgetText::init(ResourceStorage *storage)
 {
     Widget::init( storage );
 
-    m_font = storage->get_resorce<se::Font>(m_font_name.get_cstr());
+    m_font = storage->get_resorce<se::Font>(m_font_name.c_str());
 
     if(m_font)
     {
@@ -29,7 +33,7 @@ void WidgetText::init(ResourceStorage *storage)
     }
 }
 
-void WidgetText::set_text(const basic::String &text)
+void WidgetText::set_text(const std::string& text)
 {
     m_text = text;
 
@@ -61,9 +65,16 @@ void WidgetText::set_align(AlignV vertical)
 
 void WidgetText::update()
 {
-    if(!m_text.is_empty())
+    if(!m_text.empty() && m_text_render)
     {
-        m_font->update( m_text.get_cstr(), m_text_render, m_text_size );
+		glm::mat4 vp;
+		m_root->get_ui_camera()->get_matrix(vp);
+
+		glm::mat4 mvp = vp * glm::translate(glm::mat4{ 1.f }, {400.f, 300.f, 0.f});
+		m_text_render->update_mvp(mvp);
+		m_text_render->update_color({ 255,255,255,255 });
+		m_text_render->set_render_state(RSF_CULL_TEST);
+		m_font->update(m_text.c_str(), m_text_render, m_text_size);
 
         apply_align();
     }
@@ -92,4 +103,15 @@ void WidgetText::apply_align()
     glm::vec3 pos{ x_align, y_align, 0.f};
 
 	update_mat();
+}
+
+void WidgetText::draw(IRender* render)
+{
+	if (!m_text_render)
+	{
+		m_text_render = render->create_object();
+		
+		update();
+	}
+	render->add_to_frame(m_text_render);
 }

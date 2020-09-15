@@ -36,6 +36,7 @@ struct RenderObjectData
 	GLuint index_count;
 	basic::Color color;
 	glm::mat4 mvp;
+	uint32_t flags;
 };
 
 class OpenGLRenderObject final : public IRenderObject
@@ -52,6 +53,7 @@ public:
 	{
 		memset(&m_instance, 0, sizeof(RenderObjectData));
 		m_instance.draw_mode = ogl::VertexDrawMode::Triangles;
+		m_instance.flags = 0;
 	}
 
 	~OpenGLRenderObject() override
@@ -69,21 +71,6 @@ public:
 			apply_changes(type, name);
 		}
 	}
-	/*
-	void on_component_changed(RenderComponent& comp) override
-	{
-		for (basic::uint32 i = 0; i < enum2num(RenderResourceType::Count); ++i)
-		{
-			auto type = static_cast<RenderResourceType>(i);
-
-			const std::string& name = comp.get_resource_name(type);
-
-			if (!name.empty())
-			{
-				apply_changes(type, name);
-			}
-		}
-	}*/
 
 	void update_mvp(const glm::mat4& mvp) override
 	{
@@ -215,13 +202,15 @@ public:
 
 		auto fmt_list = m_mesh->get_fmt_list();
 		basic::uint32 i = 0;
+		const uint32_t element_size = m_mesh->get_element_size();
+		
 		for (const auto& fmt : fmt_list)
 		{
 			ogl::vertex_attrib_pointer(i,
 				fmt.size,
 				fmt.type,
 				fmt.is_normalized,
-				sizeof(Vertex),
+				element_size,
 				reinterpret_cast<const void*>(fmt.offset));
 
 
@@ -294,6 +283,11 @@ public:
 	void set_vertex_buffer_usage(VertexBufferUsage usage) override
 	{
 		m_buffer_usage = translate_buffer_usage(usage);
+	}
+
+	void set_render_state(uint32_t flag) override
+	{
+		m_instance.flags |= flag;
 	}
 
 private:
@@ -401,10 +395,34 @@ public:
 		}
 	}
 
+	void apply_state_flags(uint32_t flags)
+	{
+		if (flags == 0)
+		{
+			glEnable(GL_BLEND);
+			glEnable(GL_CULL_FACE);
+			return;
+		}
+
+		if ((flags & RSF_BLEND) > 0)
+		{
+			glDisable(GL_BLEND);
+			m_current_state |= RSF_BLEND;
+		}
+
+		if ((flags & RSF_CULL_TEST) > 0)
+		{
+			glDisable(GL_CULL_FACE);
+			m_current_state |= RSF_CULL_TEST;
+		}
+	}
+
 	void draw_instance(const RenderObjectData& render_data)
 	{
 		auto program = render_data.program;
 
+		apply_state_flags(render_data.flags);
+		
 		ogl::bind_vertex_array(render_data.vao);
 		
 		glUseProgram(program);
@@ -418,9 +436,10 @@ public:
 
 		set_uniform(program, "MVP", render_data.mvp);
 		set_uniform(program, "Color", render_data.color);
+		set_uniform(program, "texture_sampler", 0);
 
 		GLenum mode = static_cast<GLenum>(render_data.draw_mode);
-
+		
 		if (render_data.index_count > 0)
 		{
 			glDrawElements(mode, render_data.index_count * sizeof(short), GL_UNSIGNED_SHORT, nullptr);
@@ -548,6 +567,8 @@ private:
 	std::vector<OpenGLRenderObject*> m_objects;
 	std::vector<OpenGLRenderObject*> m_objects_to_present;
 	std::vector<RenderObjectData> m_objects_to_present_data;
+
+	uint32_t m_current_state = 0;
 };
 
 IRender*

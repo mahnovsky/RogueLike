@@ -25,6 +25,11 @@ Texture::~Texture( )
 
 bool Texture::load( ResourceStorage* storage )
 {
+	if (m_texture != 0)
+	{
+		return true;
+	}
+
     const std::string path = TEXTURE_PATH;
     const std::string file = path + get_file_name().data();
 
@@ -126,7 +131,7 @@ Texture::init( basic::uint32 width,
 void
 Texture::init_font( basic::uint32 width,
                     basic::uint32 height,
-                    basic::Vector< basic::uint8 > image_data )
+                    std::vector< uint8_t > image_data )
 {
     m_width = width;
     m_height = height;
@@ -144,7 +149,8 @@ Texture::init_font( basic::uint32 width,
                   0,
                   GL_RED,
                   GL_UNSIGNED_BYTE,
-                  image_data.get_raw( ) );
+                  image_data.data( ) );
+
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );

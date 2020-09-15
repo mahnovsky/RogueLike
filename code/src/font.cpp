@@ -14,6 +14,8 @@ namespace
 
 namespace se
 {
+	using namespace std::string_literals;
+
 Font::Font( const char* file )
     : FileResource(file)
     , m_shader( nullptr )
@@ -38,8 +40,8 @@ bool Font::load( ResourceStorage* storage )
         return false;
     }
 
-    std::string path = "fonts/";
-    path += get_file_name( );
+    std::string path = "fonts/"s + get_file_name().data();
+    
     auto data = basic::get_file_content( path.c_str( ) );
 
     if ( !data.empty( ) )
@@ -47,25 +49,18 @@ bool Font::load( ResourceStorage* storage )
         const int tw = 512;
         const int th = 512;
 
-        basic::Vector< basic::uint8 > bitmap;
+        std::vector< uint8_t > bitmap;
         bitmap.resize( tw * th );
 
-        stbtt_BakeFontBitmap( data.data( ),
-                              0,
-                              m_height,
-                              bitmap.get_raw( ),
-                              tw,
-                              th,
-                              32,
-                              96,
+        stbtt_BakeFontBitmap( data.data( ), 0, m_height, bitmap.data( ), tw, th, 32, 96,
                               static_cast< stbtt_bakedchar* >( m_cdata ) );
 
-        std::string name = "bitmap_";
-        name += get_file_name( );
+		m_texture_name = "font_bitmap_"s + get_file_name().data();
 
-		Texture* texture = NEW_OBJ(Texture, name.c_str());
-        m_texture = std::dynamic_pointer_cast<Texture>( texture->shared_from_this() );
+		m_texture = std::make_shared<Texture>(m_texture_name.c_str());
+        //m_texture = std::dynamic_pointer_cast<Texture>( texture->shared_from_this() );
         m_texture->init_font( tw, th, std::move( bitmap ) );
+		storage->add_resource(m_texture);
 
         return true;
     }
@@ -73,12 +68,9 @@ bool Font::load( ResourceStorage* storage )
     return false;
 }
 
-void
-Font::update( const char* text, RenderNode* node, glm::vec2& size )
+void Font::update( const char* text, IRenderObject* text_object, glm::vec2& size )
 {
-    ASSERT( node != nullptr );
-
-    if ( !text )
+    if ( !text || !text_object )
     {
         return;
     }
@@ -88,7 +80,13 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
 
     float x = 0;
     float y = 0;
-    basic::uint16 offset = 0;
+    uint16_t offset = 0;
+	auto& mesh_data = text_object->get_mesh_data();
+	mesh_data.indices.clear();
+
+	text_object->set_resource(RenderResourceType::ShaderProgram, "text");
+	text_object->set_resource(RenderResourceType::Texture, m_texture_name);
+	text_object->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
 
     while ( *( text + offset ) )
     {
@@ -109,8 +107,8 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
 
             auto xmin = q.x0;
             auto xmax = q.x1;
-            auto ymin = q.y1;
-            auto ymax = q.y0;
+            auto ymin = -q.y1;
+            auto ymax = -q.y0;
             float height = ymin - ymax;
             if ( size.y < height )
             {
@@ -120,27 +118,37 @@ Font::update( const char* text, RenderNode* node, glm::vec2& size )
             glm::vec3 p1 = {xmin, ymax, 0};
             glm::vec3 p2 = {xmax, ymax, 0};
             glm::vec3 p3 = {xmax, ymin, 0};
+			/*
+			info.uvs[0] = { quad.s0, quad.t1 };
+			info.uvs[1] = { quad.s0, quad.t0 };
+			info.uvs[2] = { quad.s1, quad.t0 };
+			info.uvs[3] = { quad.s1, quad.t1 };*/
+
             glm::vec2 t0 = {q.s0, q.t1};
             glm::vec2 t1 = {q.s0, q.t0};
             glm::vec2 t2 = {q.s1, q.t0};
             glm::vec2 t3 = {q.s1, q.t1};
 
             /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp*/
-            vb.push( {p0, t0} );
-            vb.push( {p1, t1} );
-            vb.push( {p2, t2} );
-            vb.push( {p3, t3} );
+            vb.push_back( {p0, t0} );
+            vb.push_back( {p1, t1} );
+            vb.push_back( {p2, t2} );
+            vb.push_back( {p3, t3} );
 
-            ib.push_back( 0 + offset * 4 );
-            ib.push_back( 1 + offset * 4 );
-            ib.push_back( 2 + offset * 4 );
-            ib.push_back( 0 + offset * 4 );
-            ib.push_back( 2 + offset * 4 );
-            ib.push_back( 3 + offset * 4 );
+			mesh_data.indices.push_back( 0 + offset * 4 );
+			mesh_data.indices.push_back( 1 + offset * 4 );
+			mesh_data.indices.push_back( 2 + offset * 4 );
+			mesh_data.indices.push_back( 0 + offset * 4 );
+			mesh_data.indices.push_back( 2 + offset * 4 );
+			mesh_data.indices.push_back( 3 + offset * 4 );
         }
         ++offset;
     }
     size.x = x;
+	
+	setup_vertices(mesh_data.vertex_data, std::move(vb));
+	
+	text_object->update_mesh_data();
 }
 
 Font* Font::create( const char* file )

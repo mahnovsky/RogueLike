@@ -18,24 +18,27 @@ namespace ogl
 		}
 	}
 
-	bool Buffer::init_raw(BufferType buffer_type, BufferUsage buffer_usage, const void* data_ptr, std::uint32_t size)
+	bool Buffer::init_raw(BufferType buffer_type, BufferUsage buffer_usage, const void* data_ptr, uint32_t count, uint32_t item_size)
 	{
 		m_buffer_type = buffer_type;
 		m_buffer_usage = buffer_usage;
+		m_element_count = count;
 
 		BufferDescription desc;
 		desc.buffer_type = buffer_type;
 		desc.buffer_usage = buffer_usage;
 		desc.data = data_ptr;
-		desc.size = size;
+		desc.size = item_size * count;
 
 		auto res = create_buffer(desc);
-		if(res.has_value())
+		if (res.has_value())
 		{
 			m_handle = res.value();
+
+			return true;
 		}
 
-		return res.has_value();
+		return false;
 	}
 
 	void Buffer::update(const void* data_ptr, std::uint32_t size)

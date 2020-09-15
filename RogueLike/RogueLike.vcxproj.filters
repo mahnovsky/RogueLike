@@ -203,9 +203,6 @@
     <ClInclude Include="..\code\include\texture.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\texture_cache.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\timer_manager.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
@@ -329,6 +326,9 @@
     </ClInclude>
     <ClInclude Include="..\code\render\opengl\static_mesh.hpp">
       <Filter>code\include\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\root_widget.hpp">
+      <Filter>code\include</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

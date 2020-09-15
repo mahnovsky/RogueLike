@@ -24,6 +24,8 @@ public:
 	virtual void set_vertex_draw_mode(VertexDrawMode mode) = 0;
 
 	virtual void set_vertex_buffer_usage(VertexBufferUsage usage) = 0;
+
+	virtual void set_render_state(uint32_t flag) = 0;
 };
 
 class IRender

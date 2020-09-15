@@ -23,6 +23,7 @@ class EcsManager;
 class World;
 class Entity;
 class StaticMesh;
+class IRenderObject;
 
 class TransformComponent;
 
