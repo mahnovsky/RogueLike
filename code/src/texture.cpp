@@ -23,7 +23,7 @@ Texture::~Texture( )
     }
 }
 
-bool Texture::load( ResourceStorage* storage )
+bool Texture::load( core::ResourceStorage* storage )
 {
 	if (m_texture != 0)
 	{

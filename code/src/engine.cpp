@@ -22,7 +22,8 @@ void Engine::out_of_memory()
 static void dummy( Engine* ){}
 
 Engine::Engine( int argc, char** argv )
-    : m_window( nullptr ) 
+    : m_system_manager()
+	, m_window( nullptr ) 
     , m_render( nullptr )
     , m_input(nullptr)
     , m_quit( false )
@@ -33,6 +34,7 @@ Engine::Engine( int argc, char** argv )
     , m_fps( 0 )
     , m_object_manager(NEW_OBJ(GenericObjectManager))
     , m_ecs(NEW_OBJ(EcsManager, m_object_manager))
+	, IEngine(m_system_manager)
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -47,6 +49,8 @@ Engine::Engine( int argc, char** argv )
     {
        m_cmd_args.emplace( argv[i] );
     }
+
+	m_system_manager.add_system(this);
 }
 
 Engine::~Engine()
@@ -57,6 +61,8 @@ Engine::~Engine()
 
 bool Engine::init(int width, int height, const char *wnd_title)
 {
+	m_input = input::Input::create();
+
     m_window = IWindow::create();
     if( !m_window->init( width, height, wnd_title ) )
     {
@@ -65,16 +71,17 @@ bool Engine::init(int width, int height, const char *wnd_title)
         return false;
     }
 
-    auto storage = m_ecs->add_system<ResourceStorage>();
     m_render = IRender::create();
-    if( !m_render->init( storage, width, height ) )
+	core::ResourceStorage* rs = m_system_manager.get_system<core::ResourceStorage>();
+
+    if( !m_render->init( rs, width, height ) )
     {
         LOG("Failed init render.");
 
         return false;
     }
 
-    m_input = input::Input::create();
+	m_system_manager.initialize();
 
     if( m_callbacks[ Init ])
     {
@@ -190,7 +197,7 @@ Engine::process_event( )
 
     if( m_window->is_quit() )
     {
-        m_quit = true;
+		m_system_manager.shutdown();
     }
 }
 

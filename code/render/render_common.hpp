@@ -65,12 +65,14 @@ enum VertexFormat
 	VF_COLOR_RGBA = 0x8
 };
 
+void deleter(void*);
+
 struct VertexData
 {
 	uint32_t format = 0;
 	uint32_t count = 0;
 	uint32_t item_size = 0;
-	void* data = nullptr;
+	std::unique_ptr<void, void(*)(void*)> data = {nullptr, deleter};
 };
 
 struct VertexFMT
@@ -120,3 +122,31 @@ std::vector< VertexFMT > get_fmt_list( const Vertex* );
 std::vector< VertexFMT > get_fmt_list( const Vertex_T* );
 
 bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh );
+
+class DrawingRect
+{
+public:
+	DrawingRect(IRender* render);
+	~DrawingRect();
+
+	void set_position(const glm::vec2& pos);
+
+	void set_size(const glm::vec2& size);
+
+	void set_view_projection_matrix(const glm::mat4& vp);
+
+	void draw();
+
+	void update_rect();
+
+	void init_rect();
+
+private:
+	IRender* m_render;
+	IRenderObject* m_rect_object;
+	VertexBuffer m_vertices;
+	glm::vec2 m_pos;
+	glm::vec2 m_size;
+	glm::mat4 m_view_projection;
+	bool m_need_update;
+};

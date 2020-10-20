@@ -2,7 +2,7 @@
 
 #include "defines.hpp"
 #include "render_common.hpp"
-
+#include "resource_storage.hpp"
 
 class ICamera;
 
@@ -33,7 +33,7 @@ class IRender
 public:
     virtual ~IRender( ) = default;
 
-    virtual bool init( ResourceStorage* rs, int width, int height ) = 0;
+    virtual bool init( core::ResourceStorage* rs, int width, int height ) = 0;
 
     virtual void clear( ) = 0;
 

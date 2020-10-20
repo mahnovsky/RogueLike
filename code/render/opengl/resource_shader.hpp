@@ -7,13 +7,13 @@
 
 namespace ogl
 {
-	class BaseShader : public FileResource
+	class BaseShader : public core::FileResource
 	{
 	public:
 		BaseShader(const char* file);
 		~BaseShader() override = default;
 
-		bool load(ResourceStorage* storage);
+		bool load(core::ResourceStorage* storage);
 
 		const ogl::Shader& get_shader() const;
 
@@ -21,14 +21,14 @@ namespace ogl
 		ogl::Shader m_shader;
 	};
 
-	class ShaderProgram : public FileResource
+	class ShaderProgram : public core::FileResource
 	{
 	public:
 		ShaderProgram(const char* file);
 
-		bool load(ResourceStorage* storage);
+		bool load(core::ResourceStorage* storage);
 
-		basic::uint32 get_handle() const;
+		uint32_t get_handle() const;
 
 	private:
 

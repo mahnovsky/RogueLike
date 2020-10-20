@@ -7,11 +7,11 @@
 class WidgetText : public Widget
 {
 public:
-    WidgetText(RootWidget* root);
+    WidgetText(core::WidgetSystem* root);
 
     ~WidgetText() override;
 
-    void init(ResourceStorage* storage) override;
+    void initialize() override;
 
     void set_text(const std::string& text);
 
@@ -35,4 +35,5 @@ private:
 	std::string m_text;
     IRenderObject* m_text_render;
     glm::vec2 m_text_size;
+	basic::Color m_color;
 };

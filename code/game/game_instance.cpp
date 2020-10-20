@@ -1,7 +1,7 @@
 #include "game_instance.hpp"
 
 #include "render_common.hpp"
-#include "root_widget.hpp"
+#include "widget_system.hpp"
 #include "texture.hpp"
 #include "widget_list.hpp"
 #include "widget_text.hpp"
@@ -67,28 +67,27 @@ public:
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
 	, m_object_manager(engine->get_object_manager())
-    , m_rs( nullptr )
+    , m_rs(nullptr)
     , m_game_camera( NEW_OBJ( PerspectiveCamera, 45.f, width / height, 1.f, 200.f ) )
-    , m_ui_camera( NEW_OBJ( OrthoCamera, width, height, 0.f, 100.f ) )
     , m_width( width )
     , m_height( height )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
-    , m_ui_root( NEW_OBJ( RootWidget, engine, m_ui_camera) )
+    , m_ui_root( nullptr )
 	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
 {
-	m_rs = m_ecs->get_system<ResourceStorage>();
-
-    //m_ui_root->retain( );
+	auto& sm = engine->get_system_manager();
+	m_rs = sm.get_system<core::ResourceStorage>();
+	m_ui_root = sm.get_system<core::WidgetSystem>();
 }
 
 GameInstance::~GameInstance( )
 {
     //SAFE_RELEASE( m_ui_root );
+	
 	DELETE_OBJ( m_game_camera );
-	DELETE_OBJ( m_ui_camera );
-	DELETE_OBJ(m_ui_root);
+	DELETE_OBJ(m_selection_rect);
 }
 
 static void
@@ -205,7 +204,7 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
 }
 constexpr float EPS = 0.001f;
 
-static void update_selection_rect(IRenderObject* so, ICamera* cam, glm::vec2 left_bottom, glm::vec2 right_top)
+static void update_selection_rect(IRenderObject* so, const ICamera* cam, glm::vec2 left_bottom, glm::vec2 right_top)
 {
 	auto& data = so->get_mesh_data();
 
@@ -246,7 +245,7 @@ static void update_selection_rect(IRenderObject* so, ICamera* cam, glm::vec2 lef
 	so->update_mesh_data();
 }
 
-static void init_selection_rect(IRenderObject* so, ICamera* cam)
+static void init_selection_rect(IRenderObject* so, const ICamera* cam)
 {
 	so->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
 	so->set_vertex_draw_mode(VertexDrawMode::LineStrip);
@@ -278,19 +277,19 @@ void GameInstance::init( )
     m_cam_move_direction = glm::normalize( glm::vec3{0.f, 0.f, 0.f} - m_cam_pos );
 
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
-    m_ui_camera->init( {0.f, 0.f, 0.f}, {}, {} );
     
-	m_selection_rect = render->create_object();
+	m_selection_rect = NEW_OBJ(DrawingRect, render);
+	glm::mat4 ui_vp;
+	m_ui_root->get_ui_camera()->get_matrix(ui_vp);
 
-	init_selection_rect(m_selection_rect, m_ui_camera);
-
-    m_ui_root->init( m_rs );
+	m_selection_rect->set_view_projection_matrix(ui_vp);
 
 	m_fps_text = NEW_OBJ( WidgetText, m_ui_root);
-	m_fps_text->init(m_rs);
 	m_fps_text->set_text("fps: ");
 	m_fps_text->set_color(g_ui_color);
 	m_fps_text->set_align(AlignH::Left);
+
+	m_ui_root->get_root_widget()->add_child(m_fps_text);
 	
 
 	/*
@@ -392,10 +391,7 @@ GameInstance::draw( IRender* render ) const
 {
     //m_render_system->draw( m_ecs );
 
-	Widget* w = m_fps_text;
-	w->draw(render);
-
-    //m_ui_root->draw( );
+	m_ui_root->get_root_widget()->draw(render);
 }
 
 static void highlight_selected(PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
@@ -494,10 +490,9 @@ void GameInstance::frame(float delta) const
 
 	if (m_selection_state)
 	{
-		update_selection_rect(m_selection_rect, m_ui_camera, m_start_pos, m_end_pos);
-
-		m_engine->get_render()->add_to_frame(m_selection_rect);
-
+		m_selection_rect->set_position(m_start_pos);
+		m_selection_rect->set_size(m_end_pos - m_start_pos);
+		m_selection_rect->draw();
 		highlight_selected(m_game_camera, m_width, m_height, m_start_pos, m_end_pos);
 	}
 }
@@ -571,11 +566,10 @@ void GameInstance::print_fps(int objects) const
 	if (fps != m_engine->get_fps())
 	{
 		fps = m_engine->get_fps();
-		LOG("FPS: %d", fps);
 
 		if (m_fps_text)
 		{
-			if (basic::String::format(buff, BUFF_SIZE, "fps NJFSNDFKJNFKDJN: %u", fps))
+			if (basic::String::format(buff, BUFF_SIZE, "fps: %u", fps))
 			{
 				m_fps_text->set_text(buff);
 			}

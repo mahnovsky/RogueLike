@@ -3,6 +3,7 @@
 #include "defines.hpp"
 #include "resource_storage.hpp"
 #include "ecs_manager.hpp"
+#include "system_manager.hpp"
 
 enum EngineCallbackType 
 {
@@ -18,10 +19,17 @@ enum EngineCallbackType
 using engine_callback = void (*)( class Engine* );
 
 
-class IEngine
+class IEngine 
+	: public core::TSystem<IEngine, core::SUID_EngineSystem>
 {
 public:
+	IEngine(core::SystemManager& manager)
+		:core::TSystem<IEngine, core::SUID_EngineSystem>(manager)
+	{}
+
     virtual ~IEngine() = default;
+
+	virtual void initialize() override {}
 
     virtual bool init(int width, int height, const char* wnd_title) = 0;
 
@@ -30,8 +38,6 @@ public:
     virtual void cleanup() = 0;
 
     virtual void set_callback( EngineCallbackType type, engine_callback callback ) = 0;
-
-    virtual void shutdown() = 0;
 
     virtual IRender* get_render() = 0;
 
@@ -42,9 +48,12 @@ public:
     virtual double get_frame_time() const = 0;
 
     virtual basic::uint32 get_fps() const = 0;
+
+	virtual core::SystemManager& get_system_manager() = 0;
 };
 
-class Engine : public IEngine
+class Engine 
+	: public IEngine
 {
 public:
 	Engine() = delete;
@@ -64,6 +73,8 @@ public:
 
     void shutdown() override;
 
+	void destroy() override {}
+
     IRender* get_render() override;
 
     input::Input* get_input() override;
@@ -78,6 +89,8 @@ public:
 
     EcsManager* get_ecs() { return m_ecs; }
 
+	core::SystemManager& get_system_manager() { return m_system_manager; }
+
 private:
     void process_event( );
     
@@ -85,6 +98,8 @@ private:
 
 private:
     static Engine* _instance;
+
+	core::SystemManager m_system_manager;
 
     IWindow* m_window;
 

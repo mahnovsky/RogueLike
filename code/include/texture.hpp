@@ -13,14 +13,14 @@ struct TextureRect
     std::string name;
 };
 
-class Texture : public FileResource
+class Texture : public core::FileResource
 {
 public:
 
     Texture( const char* file );
     ~Texture( ) override;
 
-    bool load( ResourceStorage* ) ;
+    bool load( core::ResourceStorage* ) ;
 
     static Texture* create( const char* file );
 

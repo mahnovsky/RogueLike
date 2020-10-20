@@ -102,6 +102,12 @@ namespace ogl
 		return {};
 	}
 
+	void use_program(Handle program)
+	{
+		glUseProgram(program);
+		CHECK_LAST_CALL();
+	}
+
 	void delete_program(Handle program)
 	{
 		glDeleteProgram(program);

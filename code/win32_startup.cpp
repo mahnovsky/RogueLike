@@ -1,6 +1,11 @@
 
 #include <windows.h>
+
 #include "engine.hpp"
+#include "system_manager.hpp"
+
+#include "widget_system.hpp"
+#include "resource_storage.hpp"
 
 void game_init(Engine*);
 
@@ -12,11 +17,16 @@ int __stdcall WinMain( HINSTANCE instance,
                        int show )
 {
     g_instance = instance;
-
+	
 	IEngine* engine = NEW_OBJ(Engine, 0, nullptr);
 
-	engine->set_callback(Init, &game_init);
+	core::SystemManager& system_manager = engine->get_system_manager();
 
+	system_manager.add_system<core::ResourceStorage>();
+	system_manager.add_system<core::WidgetSystem>();
+
+	engine->set_callback(Init, &game_init);
+	
 	if (engine->init(1024, 768, "RogueLike"))
 	{
 		while (engine->update());

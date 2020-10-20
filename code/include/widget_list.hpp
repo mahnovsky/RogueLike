@@ -11,7 +11,7 @@ enum class ListDirection
 class WidgetList : public Widget
 {
 public:
-    WidgetList(RootWidget* root);
+    WidgetList(core::WidgetSystem* root);
     ~WidgetList() override;
 
     void set_direction(ListDirection dir);

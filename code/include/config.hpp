@@ -2,7 +2,7 @@
 
 #include "resource_storage.hpp"
 
-class Config : public FileResource
+class Config : public core::FileResource
 {
     struct Pair
     {
@@ -14,7 +14,7 @@ public:
     Config( const char* file );
     ~Config() override;
 
-    bool load( ResourceStorage* ) ;
+    bool load( core::ResourceStorage* ) ;
 
     static Config* create( const char* file );
 

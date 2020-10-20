@@ -7,7 +7,7 @@
 #include "input.hpp"
 #include "resource_storage.hpp"
 #include "generic_object_manager.hpp"
-
+#include "system_manager.hpp"
 
 class GameInstance : public input::InputListener
 {
@@ -33,10 +33,9 @@ private:
 private:
     Engine* m_engine;
     GenericObjectManager* m_object_manager;
-    ResourceStorage* m_rs;
+    core::ResourceStorage* m_rs;
     PerspectiveCamera* m_game_camera;
-    OrthoCamera* m_ui_camera;
-
+    
     glm::vec3 m_cam_pos;
     glm::vec3 m_cam_move_direction;
 
@@ -46,7 +45,7 @@ private:
     WidgetText* m_fps_text;
     WidgetText* m_mem_text;
     RenderNode* m_cow;
-    RootWidget* m_ui_root;
+    core::WidgetSystem* m_ui_root;
 	EcsManager* m_ecs;
     class RenderSystem* m_render_system;
 
@@ -54,12 +53,11 @@ private:
 
 	bool m_is_menu_opened = false;
 
-	IRenderObject* m_selection_rect;
+	DrawingRect* m_selection_rect;
 
 	bool m_selection_state = false;
 	glm::vec2 m_start_pos;
 	glm::vec2 m_end_pos;
-
 
 	class MoveSystem* m_move_system;
 };

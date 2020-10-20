@@ -30,7 +30,7 @@ Font::~Font( )
     basic::mem_free( m_cdata );
 }
 
-bool Font::load( ResourceStorage* storage )
+bool Font::load( core::ResourceStorage* storage )
 {
     m_shader = storage->get_resorce< ogl::ShaderProgram >( "text" );
     if ( !m_shader )
@@ -98,18 +98,18 @@ void Font::update( const char* text, IRenderObject* text_object, glm::vec2& size
 
         if ( ch >= 32 )
         {
-            stbtt_aligned_quad q;
+            ::stbtt_aligned_quad q;
             int w = static_cast< int >( m_texture->get_width( ) );
             int h = static_cast< int >( m_texture->get_height( ) );
 
             stbtt_GetBakedQuad(
-                    static_cast< stbtt_bakedchar* >( m_cdata ), w, h, ch - 32, &x, &y, &q, 1 );
+                    static_cast< ::stbtt_bakedchar* >( m_cdata ), w, h, ch - 32, &x, &y, &q, 1 );
 
             auto xmin = q.x0;
             auto xmax = q.x1;
             auto ymin = -q.y1;
             auto ymax = -q.y0;
-            float height = ymin - ymax;
+            float height = fabs(ymin - ymax);
             if ( size.y < height )
             {
                 size.y = height;

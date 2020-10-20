@@ -13,7 +13,7 @@ public:
     TextComponent(Entity* ent, const char* font_file);
 	~TextComponent();
 
-	void init(ResourceStorage* storage);
+	void init(core::ResourceStorage* storage);
 
     void set_text( const char* text );
 

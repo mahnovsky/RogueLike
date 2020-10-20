@@ -5,7 +5,7 @@
 
 #include "glbuffer.hpp"
 
-class StaticMesh : public FileResource
+class StaticMesh : public core::FileResource
 {
 public:
     StaticMesh( const char* name );
@@ -13,7 +13,7 @@ public:
 
 	bool init(const MeshData& data, ogl::BufferUsage usage);
 
-	bool load(ResourceStorage* rs);
+	bool load(core::ResourceStorage* rs);
 
     uint32_t get_vertex_count( ) const;
 

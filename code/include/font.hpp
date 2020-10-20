@@ -10,13 +10,13 @@ namespace se
 {
 struct bakedchar;
 
-class Font : public FileResource
+class Font : public core::FileResource
 {
 public:
     Font( const char* file );
     ~Font( ) override;
 
-	bool load(ResourceStorage*) ;
+	bool load(core::ResourceStorage*) ;
 
     void update(const char* text, IRenderObject* out_object, glm::vec2& size);
 

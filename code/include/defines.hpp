@@ -9,14 +9,16 @@ class Sprite;
 class SharedObject;
 class ObjectManager;
 class Engine;
-class ResourceStorage;
+namespace core {
+	class ResourceStorage;
+	class WidgetSystem;
+}
 class IRender;
 class ICamera;
 class IWindow;
 class Transform;
 class Material;
 class Widget;
-class RootWidget;
 class WidgetList;
 class WidgetText;
 class EcsManager;
@@ -39,15 +41,7 @@ namespace se
 class Font;
 }
 
-#include <cstdint>
-
-using std::uint8_t;
-using std::uint16_t;
-using std::uint32_t;
-
-using std::int8_t;
-using std::int16_t;
-using std::int32_t;
+#include "stdext.hpp"
 
 #include "basic/common.hpp"
 

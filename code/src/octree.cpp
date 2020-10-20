@@ -113,7 +113,8 @@ void OctreeObject::set_position(const glm::vec3& pos)
 	{
 		m_shape.sphere.pos = pos;
 	}
-	m_owner->update(this);
+	if(m_owner)
+		m_owner->update(this);
 }
 
 void OctreeObject::set_radius(float radius)

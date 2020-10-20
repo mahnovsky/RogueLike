@@ -5,6 +5,7 @@
 #include "opengl/resource_shader.hpp"
 #include "texture.hpp"
 #include "transform.hpp"
+#include "render.hpp"
 
 #include <iostream>
 
@@ -205,6 +206,11 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh )
     return true;
 }
 
+void deleter(void* dat)
+{
+	basic::mem_free(dat);
+}
+
 void setup_vertices(VertexData& out, const VertexBuffer& vertices)
 {
 	if (out.data != nullptr &&
@@ -212,21 +218,17 @@ void setup_vertices(VertexData& out, const VertexBuffer& vertices)
 		out.item_size == sizeof(Vertex))
 	{
 		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
-		memcpy(out.data, vertices.data(), bytes);
+		memcpy(out.data.get(), vertices.data(), bytes);
 	}
 	else
 	{
-		if (out.data != nullptr)
-		{
-			basic::mem_free(out.data);
-		}
 		out.format = VF_XYZ | VF_COLOR_RGBA | VF_UV | VF_NORMAL;
 		out.count = vertices.size();
 		out.item_size = sizeof(Vertex);
-		out.data = basic::mem_alloc(out.count * out.item_size);
+		out.data = { basic::mem_alloc(out.count * out.item_size), deleter };
 
 		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
-		memcpy(out.data, vertices.data(), bytes);
+		memcpy(out.data.get(), vertices.data(), bytes);
 	}
 }
 
@@ -237,21 +239,17 @@ void setup_vertices(VertexData& out, const VertexBufferT& vertices)
 		out.item_size == sizeof(Vertex_T))
 	{
 		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
-		memcpy(out.data, vertices.data(), bytes);
+		memcpy(out.data.get(), vertices.data(), bytes);
 	}
 	else
 	{
-		if (out.data != nullptr)
-		{
-			basic::mem_free(out.data);
-		}
 		out.format = VF_XYZ | VF_UV;
 		out.count = vertices.size();
 		out.item_size = sizeof(Vertex_T);
-		out.data = basic::mem_alloc(out.count * out.item_size);
+		out.data = { basic::mem_alloc(out.count * out.item_size), deleter };
 
 		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
-		memcpy(out.data, vertices.data(), bytes);
+		memcpy(out.data.get(), vertices.data(), bytes);
 	}
 }
 
@@ -371,4 +369,94 @@ std::vector< VertexFMT > get_fmt_list( const Vertex_T* )
     res.push_back( fmt );
 
     return res;
+}
+
+DrawingRect::DrawingRect(IRender* render)
+	:m_render(render)
+	,m_rect_object(nullptr)
+	,m_vertices()
+	,m_pos()
+	,m_size(1.f, 1.f)
+{
+	init_rect();
+}
+
+DrawingRect::~DrawingRect()
+{
+	m_render->delete_object(m_rect_object);
+}
+
+void DrawingRect::set_position(const glm::vec2& pos)
+{
+	m_pos = pos;
+	m_need_update = true;
+}
+
+void DrawingRect::set_size(const glm::vec2& size)
+{
+	m_size = size;
+	m_need_update = true;
+}
+
+void DrawingRect::set_view_projection_matrix(const glm::mat4& vp)
+{
+	m_view_projection = vp;
+	m_need_update = true;
+}
+
+void DrawingRect::draw()
+{
+	if (m_need_update)
+	{
+		update_rect();
+	}
+
+	m_render->add_to_frame(m_rect_object);
+}
+
+void DrawingRect::update_rect()
+{
+	auto& data = m_rect_object->get_mesh_data();
+	glm::vec2 left_bottom = m_pos;
+	glm::vec2 right_top = m_pos + m_size;
+
+	m_vertices.clear();
+	Vertex pos;
+	pos.color = { 255, 255, 255, 255 };
+	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
+	m_vertices.push_back(pos);
+
+	pos.pos = { left_bottom.x, right_top.y, 0.f }; // left-top
+	m_vertices.push_back(pos);
+
+	pos.pos = { right_top.x, right_top.y, 0.f }; // right-top
+	m_vertices.push_back(pos);
+
+	pos.pos = { right_top.x, left_bottom.y, 0.f }; // right-bottom
+	m_vertices.push_back(pos);
+
+	pos.pos = { left_bottom.x, left_bottom.y, 0.f }; // left-bottom
+	m_vertices.push_back(pos);
+
+	setup_vertices(data.vertex_data, m_vertices);
+	
+	m_rect_object->update_mvp(m_view_projection);
+
+	m_rect_object->update_mesh_data();
+
+	m_need_update = false;
+}
+
+void DrawingRect::init_rect()
+{
+	if (!m_rect_object)
+	{
+		m_rect_object = m_render->create_object();
+	}
+	m_rect_object->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
+	m_rect_object->set_vertex_draw_mode(VertexDrawMode::LineStrip);
+	m_rect_object->set_resource(RenderResourceType::ShaderProgram, "default");
+	m_rect_object->update_color({ 0, 255, 0, 255 });
+
+	update_rect();
 }

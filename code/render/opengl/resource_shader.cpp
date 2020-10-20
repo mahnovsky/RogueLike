@@ -37,7 +37,7 @@ namespace ogl
 	{	
 	}
 
-	bool BaseShader::load(ResourceStorage*)
+	bool BaseShader::load(core::ResourceStorage*)
 	{
 		auto file = get_file_name();
 		ASSERT(!file.empty());
@@ -72,7 +72,7 @@ namespace ogl
 	{
 	}
 
-	bool ShaderProgram::load(ResourceStorage* storage)
+	bool ShaderProgram::load(core::ResourceStorage* storage)
 	{
 		std::shared_ptr<Config> config = storage->get_resorce< Config >("shaders/programs.conf");
 
@@ -107,7 +107,7 @@ namespace ogl
 		return false;
 	}
 
-	basic::uint32 ShaderProgram::get_handle() const
+	uint32_t ShaderProgram::get_handle() const
 	{
 		return m_program.get_handle();
 	}

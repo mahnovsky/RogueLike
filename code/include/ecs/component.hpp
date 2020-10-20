@@ -7,7 +7,7 @@ class Buffer
 {
 public:
 	Buffer(uint32_t in_count)
-		: m_count(in_count)
+		: m_max_count(in_count)
 		, m_free_elements(in_count, true)
 		, m_elements(basic::mem_alloc(sizeof(T)* in_count))
 	{}
@@ -20,13 +20,13 @@ public:
 	bool is_contain(const T* element) const
 	{
 		uint32_t offset = element - m_elements;
-		return (offset >= 0 && offset < (sizeof(T) * m_count));
+		return (offset >= 0 && offset < (sizeof(T) * m_max_count));
 	}
 
 	T* create()
 	{
 		uint32_t index = 0;
-		for (uint32_t index = 0; index < m_count; ++index)
+		for (uint32_t index = 0; index < m_max_count; ++index)
 		{
 			T* elem = create(index);
 			if (elem)
@@ -40,7 +40,7 @@ public:
 
 	T* create(uint32_t index)
 	{
-		if (index < m_count, m_free_elements[index])
+		if (index < m_max_count, m_free_elements[index])
 		{
 			m_free_elements[index] = false;
 			return new (m_elements + index) T();
@@ -51,7 +51,7 @@ public:
 
 	void destroy(uint32_t index)
 	{
-		if (index < m_count && !m_free_elements[index])
+		if (index < m_max_count && !m_free_elements[index])
 		{
 			T* element = m_elements + index;
 			element->~T();
@@ -66,7 +66,7 @@ public:
 
 	T* get(uint32_t index)
 	{
-		if (index < m_count && !m_free_elements[index])
+		if (index < m_max_count && !m_free_elements[index])
 		{
 			return m_elements + index;
 		}
@@ -74,7 +74,7 @@ public:
 	}
 
 private:
-	const uint32_t m_count;
+	const uint32_t m_max_count;
 	std::vector<bool> m_free_elements;
 	T* m_elements;
 };

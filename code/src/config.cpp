@@ -10,7 +10,7 @@ Config::~Config( )
 {
 }
 
-bool Config::load( ResourceStorage* )
+bool Config::load( core::ResourceStorage* )
 {
    auto data = basic::get_file_content( get_file_name( ).data() );
 

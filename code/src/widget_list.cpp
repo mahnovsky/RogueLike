@@ -1,7 +1,7 @@
 #include "widget_list.hpp"
 
 
-WidgetList::WidgetList(RootWidget* root)
+WidgetList::WidgetList(core::WidgetSystem* root)
     :Widget (root)
     ,m_direction(ListDirection::Vertical)
 {
@@ -54,6 +54,4 @@ void WidgetList::update_list()
             new_pos.x += size.x;
         }
     }
-
-	update_mat();
 }

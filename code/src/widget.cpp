@@ -2,52 +2,61 @@
 
 #include "camera.hpp"
 #include "render_common.hpp"
-#include "root_widget.hpp"
+#include "widget_system.hpp"
 #include "opengl/resource_shader.hpp"
 #include "transform.hpp"
 #include "generic_object_manager.hpp"
 
-Widget::Widget(RootWidget* widget)
-    : m_root(widget)
-    , m_mat( 1.f )
-    , m_pos( )
-    , m_size(  )
-    , m_rect( )
+#include "engine.hpp"
+#include "render.hpp"
+
+Widget::Widget(core::WidgetSystem* root)
+    : m_root(root)
+	, m_world_space_rect({ 1.f, 1.f })
     , m_parent( nullptr )
     , m_children( )
+	, m_camera(root->get_ui_camera())
     , m_visible( true )
     , m_horizontal( AlignH::Center )
     , m_vertical( AlignV::Center )
     , m_storage( nullptr )
+	, m_debug_rect(nullptr)
 {
-    m_rect.update({ 0.f, 0.f }, { 100.f, 100.f });
+	_initialize_debug_rect();
 }
 
 Widget::~Widget( )
-{   
-}
-
-void
-Widget::init( ResourceStorage* storage )
 {
-    m_storage = storage;
-
-    if ( !m_camera )
-    {
-        return;
-    }
-
-    //const auto shader = storage->get_resorce< ShaderProgram >( "primitive" );
+	if (m_debug_rect)
+	{
+		DELETE_OBJ(m_debug_rect);
+	}
+	for (Widget* child : m_children)
+	{
+		DELETE_OBJ(child);
+	}
 }
 
-void
-Widget::add_child( Widget* node )
+void Widget::draw(IRender* render)
+{
+	if (m_debug_rect)
+	{
+		m_debug_rect->draw();
+	}
+
+	for (auto child : m_children)
+	{
+		child->draw(render);
+	}
+}
+
+void Widget::add_child( Widget* node )
 {
     ASSERT( node != nullptr );
 
-	if (std::find(m_children.begin(), m_children.end(), node) == m_children.end())
+	if (stdext::push_unique(m_children, node))
 	{
-		m_children.push_back(node);
+		node->initialize();
 	}
 }
 
@@ -57,16 +66,16 @@ void Widget::remove_child( Widget* node )
 
 	auto it = std::remove(m_children.begin(), m_children.end(), node);
 	m_children.erase(it, m_children.end());
+
+	stdext::remove(m_children, node);
 }
 
-void
-Widget::remove_children( )
+void Widget::remove_children( )
 {
     m_children.clear( );
 }
 
-void
-Widget::remove_from_parent( )
+void Widget::remove_from_parent( )
 {
     if ( m_parent )
     {
@@ -75,16 +84,14 @@ Widget::remove_from_parent( )
     m_parent = nullptr;
 }
 
-bool
-Widget::is_contains( Widget* child )
+bool Widget::is_contains( Widget* child )
 {
     ASSERT( child->get_parent( ) == this );
 
-    return std::find(m_children.begin(), m_children.end(), child) != m_children.end();
+    return stdext::is_contains(m_children, child);
 }
 
-bool
-Widget::get_child_index( Widget* node, basic::uint32& out_index ) const
+bool Widget::get_child_index( Widget* node, basic::uint32& out_index ) const
 {
     if ( node->get_parent( ) != this )
     {
@@ -102,134 +109,121 @@ Widget::get_child_index( Widget* node, basic::uint32& out_index ) const
     return false;
 }
 
-Widget*
-Widget::get_parent( )
+Widget* Widget::get_parent( )
 {
     return m_parent;
 }
 
-Widget*
-Widget::get_child( basic::uint32 index )
+Widget* Widget::get_child( uint32_t index )
 {
     ASSERT( index < m_children.size( ) );
+
     return m_children.at( index );
 }
 
-basic::uint32
-Widget::get_child_count( ) const
+uint32_t Widget::get_child_count( ) const
 {
     return m_children.size( );
 }
 
-void
-Widget::set_press_action( const basic::String& action_name )
+void Widget::set_press_action( const basic::String& action_name )
 {
     m_press_action_name = action_name;
 }
 
-void
-Widget::set_position( const glm::vec2& pos )
+void Widget::set_position( const glm::vec2& pos )
 {
-    m_pos = pos;
+    m_local_pos = pos;
+	m_world_space_rect.pos = pos;
 
-    update_mat( );
-    update_rect( );
+	if (m_parent)
+	{
+		m_world_space_rect.pos += m_parent->get_world_position();
+	}
+	if (m_debug_rect)
+	{
+		m_debug_rect->set_position(m_world_space_rect.pos + glm::vec2(0.5f, 0.5f));
+	}
 }
 
-glm::vec2
-Widget::get_size( ) const
+glm::vec2 Widget::get_size( ) const
 {
-    return m_size;
+    return m_world_space_rect.size;
 }
 
-void
-Widget::set_size( const glm::vec2& size )
+void Widget::set_size( const glm::vec2& size )
 {
-    m_size = size;
+    m_world_space_rect.size = size;
 
-    update_rect( );
+	if (m_debug_rect)
+	{
+		m_debug_rect->set_size(size - glm::vec2(1.0f, 1.0f));
+	}
 }
 
-void
-Widget::set_anchor_point( const glm::vec2& anchor_point )
+void Widget::set_anchor_point( const glm::vec2& anchor_point )
 {
     m_anchor_point = anchor_point;
-
-    update_mat( );
-    update_rect( );
 }
 
-glm::vec2
-Widget::convert_to_world_space( const glm::vec2& pos ) const
+glm::vec2 Widget::convert_to_world_space( const glm::vec2& pos ) const
 {
-    if ( m_parent )
-    {
-        glm::mat4 mat = m_parent->get_matrix( );
-
-        return mat * glm::vec4{pos, 0.f, 1.f};
-    }
-
     return pos;
 }
 
-glm::vec2
-Widget::get_world_position( ) const
+glm::vec2 Widget::get_world_position( ) const
 {
-    return convert_to_world_space( m_pos );
+    return m_world_space_rect.pos;
 }
 
-glm::vec2
-Widget::get_left_top_world_position( ) const
+glm::vec2 Widget::get_local_position() const
+{
+	return m_local_pos;
+}
+
+glm::vec2 Widget::get_left_top_world_position( ) const
 {
     glm::vec2 pos = get_world_position( );
 
     return pos;
 }
 
-bool
-Widget::hit_test( const glm::vec2& point )
+bool Widget::hit_test( const glm::vec2& point )
 {
-    return m_rect.hit_test( point );
+    return m_world_space_rect.hit_test( point );
 }
 
-void
-Widget::set_visible( bool visible )
+void Widget::set_visible( bool visible )
 {
     m_visible = visible;
 }
 
-bool
-Widget::get_visible( ) const
+bool Widget::get_visible( ) const
 {
     return m_visible;
 }
 
-AlignH
-Widget::get_horizontal_align( ) const
+AlignH Widget::get_horizontal_align( ) const
 {
     return m_horizontal;
 }
 
-AlignV
-Widget::get_vertical_align( ) const
+AlignV Widget::get_vertical_align( ) const
 {
     return m_vertical;
 }
 
-void
-Widget::set_picture( Texture* tex )
+void Widget::set_picture( Texture* tex )
 {
 }
 
-void
-Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
+void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
 {
-    if ( !m_press_action_name.is_empty( ) && m_rect.hit_test( {x, y} ) )
+    if ( !m_press_action_name.is_empty( ) && m_world_space_rect.hit_test( {x, y} ) )
     {
-        RootWidget* root = get_root( );
+		core::WidgetSystem* root = get_widget_system();
         if ( root )
         {
-            root->invoke_action( m_press_action_name, this );
         }
     }
 
@@ -239,8 +233,7 @@ Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y
     }
 }
 
-void
-Widget::on_mouse_move( basic::int32 x, basic::int32 y )
+void Widget::on_mouse_move( basic::int32 x, basic::int32 y )
 {
     for ( basic::uint32 i = 0; i < m_children.size( ); ++i )
     {
@@ -248,8 +241,7 @@ Widget::on_mouse_move( basic::int32 x, basic::int32 y )
     }
 }
 
-void
-Widget::on_key_pressed( input::KeyCode code, basic::int16 sym )
+void Widget::on_key_pressed( input::KeyCode code, basic::int16 sym )
 {
     for ( basic::uint32 i = 0; i < m_children.size( ); ++i )
     {
@@ -257,51 +249,27 @@ Widget::on_key_pressed( input::KeyCode code, basic::int16 sym )
     }
 }
 
-void
-Widget::update_rect( )
-{
-    if ( m_parent )
-    {
-        m_rect.update( get_left_top_world_position( ), m_size );
-    }
-}
-
-glm::mat4
-Widget::get_matrix( ) const
-{
-	return {};
-}
-
-ICamera*
-Widget::get_camera( )
+const ICamera* Widget::get_camera( ) const 
 {
     return m_camera;
 }
 
-void
-Widget::update_mat( )
+core::WidgetSystem* Widget::get_widget_system( )
 {
-
-	/*
-    m_mat = m_view->get_transform( )->get_matrix( );
-    if ( m_parent )
-    {
-        m_mat = m_mat * m_parent->get_matrix( );
-    }
-
-    for ( basic::uint32 i = 0; i < m_children.get_size( ); ++i )
-    {
-        m_children[ i ]->update_mat( );
-    }*/
+	return m_root;
 }
 
-RootWidget*
-Widget::get_root( )
+void Widget::_initialize_debug_rect()
 {
-    if ( m_parent )
-    {
-        return m_parent->get_root( );
-    }
-
-    return dynamic_cast< RootWidget* >( this );
+	IEngine* engine = m_root->get_engine();
+	IRender* render = engine->get_render();
+	if ( render )
+	{
+		m_debug_rect = NEW_OBJ(DrawingRect, render);
+		m_debug_rect->set_position(m_world_space_rect.pos);
+		m_debug_rect->set_size(m_world_space_rect.size);
+		glm::mat4 vp;
+		m_root->get_ui_camera()->get_matrix(vp);
+		m_debug_rect->set_view_projection_matrix(vp);
+	}
 }

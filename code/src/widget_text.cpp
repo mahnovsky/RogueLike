@@ -6,31 +6,39 @@
 #include "transform.hpp"
 #include "render_system.hpp"
 #include "render.hpp"
-#include "root_widget.hpp"
+#include "widget_system.hpp"
 #include "camera.hpp"
+#include "engine.hpp"
 
-WidgetText::WidgetText(RootWidget* root)
+WidgetText::WidgetText(core::WidgetSystem* root)
     : Widget (root)
     , m_font_name("arial.ttf")
     , m_font( nullptr )
     , m_text()
     , m_text_render(nullptr)
-{}
+	, m_text_size()
+	, m_color{ 255, 255, 255, 255 }
+{
+}
 
 WidgetText::~WidgetText()
 {
 }
 
-void WidgetText::init(ResourceStorage *storage)
+void WidgetText::initialize()
 {
-    Widget::init( storage );
+	core::SystemManager& manager = m_root->get_system_manager();
+	core::ResourceStorage* storage = manager.get_system<core::ResourceStorage>();
 
-    m_font = storage->get_resorce<se::Font>(m_font_name.c_str());
+	if (!m_font && storage)
+	{
+		m_font = storage->get_resorce<se::Font>(m_font_name.c_str());
 
-    if(m_font)
-    {
-        update();
-    }
+		if (m_font)
+		{
+			update();
+		}
+	}
 }
 
 void WidgetText::set_text(const std::string& text)
@@ -42,11 +50,16 @@ void WidgetText::set_text(const std::string& text)
 
 void WidgetText::set_color(const basic::Color &color)
 {
+	m_color = color;
+	if (m_text_render)
+	{
+		m_text_render->update_color(color);
+	}
 }
 
 basic::Color WidgetText::get_color() const
 {
-	return {};
+	return m_color;
 }
 
 void WidgetText::set_align(AlignH horizontal)
@@ -70,11 +83,14 @@ void WidgetText::update()
 		glm::mat4 vp;
 		m_root->get_ui_camera()->get_matrix(vp);
 
-		glm::mat4 mvp = vp * glm::translate(glm::mat4{ 1.f }, {400.f, 300.f, 0.f});
+		glm::vec3 pos = glm::vec3(get_local_position(), 0.f);
+		glm::mat4 mvp = vp * glm::translate(glm::mat4{ 1.f }, pos);
+
 		m_text_render->update_mvp(mvp);
-		m_text_render->update_color({ 255,255,255,255 });
+		m_text_render->update_color(m_color);
 		m_text_render->set_render_state(RSF_CULL_TEST);
 		m_font->update(m_text.c_str(), m_text_render, m_text_size);
+		set_size(m_text_size);
 
         apply_align();
     }
@@ -101,12 +117,12 @@ void WidgetText::apply_align()
     }
 
     glm::vec3 pos{ x_align, y_align, 0.f};
-
-	update_mat();
 }
 
 void WidgetText::draw(IRender* render)
 {
+	Widget::draw(render);
+
 	if (!m_text_render)
 	{
 		m_text_render = render->create_object();

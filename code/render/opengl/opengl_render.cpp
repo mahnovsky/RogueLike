@@ -44,7 +44,7 @@ class OpenGLRenderObject final : public IRenderObject
 public:
 	OpenGLRenderObject() = delete;
 
-	OpenGLRenderObject(ResourceStorage* rs)
+	OpenGLRenderObject(core::ResourceStorage* rs)
 		: m_rs(rs)
 		, m_mesh(nullptr)
 		, m_program(nullptr)
@@ -287,11 +287,11 @@ public:
 
 	void set_render_state(uint32_t flag) override
 	{
-		m_instance.flags |= flag;
+		m_instance.flags ^= flag;
 	}
 
 private:
-	ResourceStorage* m_rs;
+	core::ResourceStorage* m_rs;
 	BufferUsage m_buffer_usage;
 	std::shared_ptr<StaticMesh> m_mesh;
 	std::shared_ptr<ogl::ShaderProgram> m_program;
@@ -328,7 +328,7 @@ public:
 
 	~OpenGLRender() override;
 
-	bool init(ResourceStorage* rs, int width, int height) override
+	bool init(core::ResourceStorage* rs, int width, int height) override
 	{
 		if (glewInit() != GLEW_OK)
 		{
@@ -344,7 +344,7 @@ public:
 		LOG("gl version %s", gl_version);
 
 		glViewport(0, 0, width, height);
-		glClearColor(0.0, 0.0, 0.0, 1.0);
+		glClearColor(0.3, 0.3, 0.3, 1.0);
 		glClearDepth(1.0);
 
 		glEnable(GL_BLEND);
@@ -353,8 +353,9 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LESS);
 
+		/*TODO:
 		glEnable( GL_CULL_FACE );
-		glCullFace(GL_BACK);
+		glCullFace(GL_BACK);*/
 		
 
 		init_fbo();
@@ -393,27 +394,29 @@ public:
 
 			draw_instance(instance);
 		}
+		if (!m_objects_to_destroy.empty())
+		{
+			for (auto obj : m_objects_to_destroy)
+			{
+				DELETE_OBJ(obj);
+			}
+			m_objects_to_destroy.clear();
+		}
 	}
 
 	void apply_state_flags(uint32_t flags)
 	{
-		if (flags == 0)
+		std::pair<uint32_t, uint32_t> states[] = { 
+			{RSF_BLEND, GL_BLEND}, 
+			{RSF_DEPTH_TEST, GL_DEPTH_TEST}, 
+			{RSF_CULL_TEST, GL_CULL_FACE} 
+		};
+		for (uint32_t i = 0; i < 3; ++i)
 		{
-			glEnable(GL_BLEND);
-			glEnable(GL_CULL_FACE);
-			return;
-		}
-
-		if ((flags & RSF_BLEND) > 0)
-		{
-			glDisable(GL_BLEND);
-			m_current_state |= RSF_BLEND;
-		}
-
-		if ((flags & RSF_CULL_TEST) > 0)
-		{
-			glDisable(GL_CULL_FACE);
-			m_current_state |= RSF_CULL_TEST;
+			auto& state = states[i];
+			((flags & state.first) > 0) ? 
+				glDisable(state.second) : 
+				glEnable(state.second);
 		}
 	}
 
@@ -421,11 +424,11 @@ public:
 	{
 		auto program = render_data.program;
 
-		apply_state_flags(render_data.flags);
+		//apply_state_flags(render_data.flags);
 		
 		ogl::bind_vertex_array(render_data.vao);
 		
-		glUseProgram(program);
+		ogl::use_program(program);
 
 		if (render_data.texture)
 		{
@@ -461,12 +464,10 @@ public:
 
 	void delete_object(IRenderObject* obj) override
 	{
-		auto it = std::find(m_objects.begin(), m_objects.end(), obj);
-		if (it != m_objects.end())
+		if (stdext::remove(m_objects, dynamic_cast<OpenGLRenderObject*>(obj)))
 		{
-			m_objects.erase(it);
+			m_objects_to_destroy.push_back(obj);
 		}
-		DELETE_OBJ(obj);
 	}
 
 	void init_fbo()
@@ -553,7 +554,7 @@ public:
 	}
 
 private:
-	bool m_use_fbo = true;
+	bool m_use_fbo = false;
 	GLint m_width;
 	GLint m_height;
 	GLuint m_fbo;
@@ -561,11 +562,11 @@ private:
 	GLuint m_screen_quad_vao;
 	GLuint m_screen_quad_vbo;
 	std::shared_ptr<ogl::ShaderProgram> m_post_program;
-	ResourceStorage* m_rs;
+	core::ResourceStorage* m_rs;
 	GLint m_mvp_uniform;
 
 	std::vector<OpenGLRenderObject*> m_objects;
-	std::vector<OpenGLRenderObject*> m_objects_to_present;
+	std::vector<IRenderObject*> m_objects_to_destroy;
 	std::vector<RenderObjectData> m_objects_to_present_data;
 
 	uint32_t m_current_state = 0;

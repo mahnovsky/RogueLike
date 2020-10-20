@@ -8,7 +8,7 @@
 #include "type_registration.hpp"
 #include "generic_object_manager.hpp"
 
-class RootWidget;
+class IEngine;
 
 enum class AlignH
 {
@@ -26,29 +26,24 @@ enum class AlignV
 
 struct Rect
 {
-    glm::vec2 left_top;
-    glm::vec2 right_bottom;
+    glm::vec2 pos; // left-bottom
+    glm::vec2 size;
 
-    Rect()
-        :left_top()
-        ,right_bottom()
+	Rect() = default;
+	Rect(const glm::vec2& _size)
+		:pos()
+		, size(_size)
+	{}
+    Rect( const glm::vec2& _pos, const glm::vec2& _size )
+        :pos(_pos)
+        ,size(_size)
     {}
 
-    Rect( const glm::vec2& lt, const glm::vec2& tb )
-        :left_top(lt)
-        ,right_bottom(tb)
-    {}
-
-    void update(const glm::vec2& pos, const glm::vec2& size)
+    bool hit_test(const glm::vec2& point)
     {
-        left_top = pos;
-        right_bottom = pos + size;
-    }
-
-    bool hit_test(const glm::vec2& pos)
-    {
-        return pos.x >= left_top.x && pos.y >= left_top.y &&
-                pos.x <= right_bottom.x && pos.y <= right_bottom.y;
+		glm::vec2 rt = pos + size;
+        return point.x >= pos.x && point.y >= pos.y &&
+                point.x <= rt.x && pos.y <= rt.y;
     }
 };
 
@@ -64,13 +59,13 @@ struct WidgetAction
 class Widget 
 {
 public:
-    Widget( RootWidget* widget );
+    Widget( core::WidgetSystem* widget );
 
     virtual ~Widget();
 
-    virtual void init(ResourceStorage* storage);
+	virtual void initialize() {}
 
-	virtual void draw(IRender* render) {}
+	virtual void draw(IRender* render);
 
     virtual void add_child( Widget* node );
 
@@ -86,9 +81,9 @@ public:
 
     Widget* get_parent();
 
-    Widget* get_child( basic::uint32 index );
+    Widget* get_child( uint32_t index );
 
-    basic::uint32 get_child_count() const;
+    uint32_t get_child_count() const;
 
     void set_press_action(const basic::String& action_name);
 
@@ -103,6 +98,8 @@ public:
     glm::vec2 convert_to_world_space( const glm::vec2& pos ) const;
 
     glm::vec2 get_world_position() const;
+
+	glm::vec2 get_local_position() const;
 
     glm::vec2 get_left_top_world_position() const;
 
@@ -129,33 +126,29 @@ protected:
 
     virtual void on_key_pressed(input::KeyCode btn, basic::int16 sym);
 
-    void update_rect();
+    const ICamera* get_camera() const;
 
-    glm::mat4 get_matrix() const;
+    core::WidgetSystem* get_widget_system();
 
-    ICamera* get_camera();
-
-	void update_mat();
-
-    RootWidget* get_root();
+	void _initialize_debug_rect();
 
 protected:
-    RootWidget* m_root;
-private:
-	glm::mat4 m_mat;
-    glm::vec2 m_pos;
-    glm::vec2 m_size;
+    core::WidgetSystem* m_root;
+	Rect m_world_space_rect;
+
+    glm::vec2 m_local_pos;
     glm::vec2 m_anchor_point;
-    Rect m_rect;
+   
     Widget* m_parent;
     std::vector<Widget*> m_children;
-    ICamera* m_camera;
+    const ICamera* m_camera;
     
     basic::String m_press_action_name;
     bool m_visible;
 
-protected:
     AlignH m_horizontal;
     AlignV m_vertical;
     ResourceStorage* m_storage;
+
+	class DrawingRect* m_debug_rect;
 };

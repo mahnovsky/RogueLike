@@ -70,6 +70,8 @@ bool is_call_success();
 
 	Result create_program();
 
+	void use_program(Handle program);
+
 	void delete_program(Handle program);
 
 	Result create_shader(ShaderType type);

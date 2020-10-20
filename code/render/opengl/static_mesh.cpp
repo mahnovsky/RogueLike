@@ -25,7 +25,7 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 	m_element_size = data.vertex_data.item_size;
 
 	bool result = m_vbo.init_raw(ogl::BufferType::Array, usage, 
-		data.vertex_data.data, 
+		data.vertex_data.data.get(), 
 		data.vertex_data.count, 
 		data.vertex_data.item_size);
 	if (!result)
@@ -57,7 +57,7 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 	return true;
 }
 
-bool StaticMesh::load(ResourceStorage* rs)
+bool StaticMesh::load(core::ResourceStorage* rs)
 {
 	auto file_name = get_file_name();
 

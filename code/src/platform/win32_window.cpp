@@ -95,7 +95,9 @@ bool Win32_Window::init( int width, int height, const char* const title )
     m_class_name += "_ClassName";
     m_instance = g_instance;
 
-    m_wnd_class.style = CS_HREDRAW | CS_VREDRAW;
+	m_wnd_class.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+	m_wnd_class.hCursor = LoadCursor(NULL, IDC_ARROW);
+    m_wnd_class.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     m_wnd_class.lpfnWndProc = &Win32_Window::WindowProc;
     m_wnd_class.hInstance = m_instance;
     m_wnd_class.lpszClassName = m_class_name.get_cstr();
@@ -137,7 +139,8 @@ bool Win32_Window::init( int width, int height, const char* const title )
 
     if( result )
     {
-        ShowWindow(m_handle, SW_SHOW);
+		//ShowCursor(FALSE);
+        ShowWindow(m_handle, SW_NORMAL);
 	    SetForegroundWindow(m_handle);
 	    SetFocus(m_handle);
 	    UpdateWindow(m_handle);
