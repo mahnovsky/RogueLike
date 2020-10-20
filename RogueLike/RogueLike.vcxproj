@@ -90,7 +90,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -131,6 +131,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
+    <ClCompile Include="..\code\core\systems\widget_system.cpp" />
+    <ClCompile Include="..\code\core\system_manager.cpp" />
     <ClCompile Include="..\code\game.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
     <ClCompile Include="..\code\render\opengl\glbuffer.cpp" />
@@ -162,8 +165,6 @@
     <ClCompile Include="..\code\src\platform\win32_time.cpp" />
     <ClCompile Include="..\code\src\platform\win32_window.cpp" />
     <ClCompile Include="..\code\src\render_system.cpp" />
-    <ClCompile Include="..\code\src\resource_storage.cpp" />
-    <ClCompile Include="..\code\src\root_widget.cpp" />
     <ClCompile Include="..\code\src\sprite.cpp" />
     <ClCompile Include="..\code\src\text_component.cpp" />
     <ClCompile Include="..\code\src\texture.cpp" />
@@ -178,6 +179,11 @@
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\code\core\stdext.hpp" />
+    <ClInclude Include="..\code\core\system.hpp" />
+    <ClInclude Include="..\code\core\systems\resource_storage.hpp" />
+    <ClInclude Include="..\code\core\systems\widget_system.hpp" />
+    <ClInclude Include="..\code\core\system_manager.hpp" />
     <ClInclude Include="..\code\game\game_instance.hpp" />
     <ClInclude Include="..\code\include\basic\common.hpp" />
     <ClInclude Include="..\code\include\basic\debug.hpp" />
@@ -202,8 +208,6 @@
     <ClInclude Include="..\code\include\generic\type_info.hpp" />
     <ClInclude Include="..\code\include\octree.h" />
     <ClInclude Include="..\code\include\render_system.hpp" />
-    <ClInclude Include="..\code\include\resource_storage.hpp" />
-    <ClInclude Include="..\code\include\root_widget.hpp" />
     <ClInclude Include="..\code\include\sprite.hpp" />
     <ClInclude Include="..\code\include\text_component.hpp" />
     <ClInclude Include="..\code\include\texture.hpp" />

@@ -49,6 +49,12 @@
     <Filter Include="code\include\render\opengl">
       <UniqueIdentifier>{e0380346-ef1b-429a-9071-6b81e90d5f3b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\core">
+      <UniqueIdentifier>{f9858961-f6bc-4972-8ee0-75518a1e05ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\core\systems">
+      <UniqueIdentifier>{102f67b8-e308-4e85-a834-3f8252141d4e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp">
@@ -108,16 +114,10 @@
     <ClCompile Include="..\code\src\basic\debug.cpp">
       <Filter>code\src\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\resource_storage.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\config.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\widget.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\root_widget.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\input.cpp">
@@ -186,6 +186,15 @@
     <ClCompile Include="..\code\render\opengl\opengl_render.cpp">
       <Filter>code\src\render\opengl</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\core\system_manager.cpp">
+      <Filter>code\core\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\systems\resource_storage.cpp">
+      <Filter>code\core\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\systems\widget_system.cpp">
+      <Filter>code\core\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -241,9 +250,6 @@
     </ClInclude>
     <ClInclude Include="..\code\include\basic\debug.hpp">
       <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\resource_storage.hpp">
-      <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\basic\memory.hpp">
       <Filter>code\include\basic</Filter>
@@ -327,8 +333,20 @@
     <ClInclude Include="..\code\render\opengl\static_mesh.hpp">
       <Filter>code\include\render\opengl</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\root_widget.hpp">
-      <Filter>code\include</Filter>
+    <ClInclude Include="..\code\core\system.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\system_manager.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\systems\resource_storage.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\systems\widget_system.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\stdext.hpp">
+      <Filter>code\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
