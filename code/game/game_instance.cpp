@@ -389,9 +389,12 @@ void GameInstance::init( )
 void
 GameInstance::draw( IRender* render ) const
 {
-    //m_render_system->draw( m_ecs );
-
-	m_ui_root->get_root_widget()->draw(render);
+	auto& mng = m_engine->get_system_manager();
+	if (mng.get_lifecycle_state() == core::LifecycleState::Initialized)
+	{
+		m_render_system->draw(m_ecs);
+		m_ui_root->get_root_widget()->draw(render);
+	}
 }
 
 static void highlight_selected(PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
@@ -428,7 +431,7 @@ static void highlight_selected(PerspectiveCamera* game_camera, float width, floa
 	}
 }
 
-void GameInstance::frame(float delta) const
+void GameInstance::frame(float delta)
 {
 	static int prev_object_count;
 	print_fps(prev_object_count);
@@ -469,7 +472,7 @@ void GameInstance::frame(float delta) const
 				tr->set_position(pos);
 			}
 
-
+			
 			auto pos = tr->get_position();
 			auto fw = tr->get_forward();
 			mc->move_direction = fw;
@@ -479,6 +482,8 @@ void GameInstance::frame(float delta) const
 			auto cam_pos = pos + dist;
 
 			m_game_camera->init(cam_pos, pos, up);
+
+			set_camera_to_entity(m_player);
 		}
 	}
 	
@@ -510,6 +515,13 @@ GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 	const float vel = 100.f;
 	switch (code)
 	{
+	case input::KeyCode::Tab: {
+		const std::vector<Entity*> ents = m_ecs->get_entities<Entity>();
+		m_ent_index = m_ent_index < ents.size() ? m_ent_index : 0;
+		m_player = ents[m_ent_index];
+
+		++m_ent_index;
+	} break;
 	case input::KeyCode::A: mc->angle_speed = 10.f; break;
 	case input::KeyCode::D: mc->angle_speed = -10.f; break;
 	case input::KeyCode::W: mc->move_speed = vel; break;
@@ -579,6 +591,19 @@ void GameInstance::print_fps(int objects) const
 	basic::String::format(buff, BUFF_SIZE, "draw objects: %u", objects);
 	if (m_mem_text)
 		m_mem_text->set_text(buff);*/
+}
+
+void GameInstance::set_camera_to_entity(const Entity* ent)
+{
+	auto ent_transform = ent->get_component<Transform>();
+	auto pos = ent_transform->get_position();
+	auto fw = ent_transform->get_forward();
+
+	glm::vec3 up = { 0.f, 1.f, 0.f };
+	glm::vec3 dist = -fw * 20.f + up * 7.f;
+	auto cam_pos = pos + dist;
+
+	m_game_camera->init(cam_pos, pos, up);
 }
 
 	

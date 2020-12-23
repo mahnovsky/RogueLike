@@ -1,4 +1,9 @@
 #include "opengl_wrapper.hpp"
+#ifdef _DEBUG
+	#define OGL_LOG(...) LOG(__VA_ARGS__)
+#else
+	#define OGL_LOG(...)
+#endif
 
 namespace ogl
 {
@@ -24,6 +29,7 @@ namespace ogl
 		
 		if (is_call_success())
 		{
+			OGL_LOG("Create vao %d", vao);
 			return vao;
 		}
 
@@ -32,12 +38,16 @@ namespace ogl
 
 	void delete_vertex_array(Handle vao)
 	{
+		OGL_LOG("Delete vao %d", vao);
+
 		glDeleteVertexArrays(1, &vao);
 		CHECK_LAST_CALL();
 	}
 
 	void bind_vertex_array(Handle vao)
 	{
+		bool err = glGetError() == GL_NO_ERROR;
+		ASSERT(err);
 		glBindVertexArray(vao);
 		CHECK_LAST_CALL();
 	}
@@ -49,6 +59,7 @@ namespace ogl
 		glGenBuffers(1, &buffer);
 		if (is_call_success() && update_buffer(buffer, desc))
 		{
+			OGL_LOG("ogl buffer created %d", buffer);
 			return buffer;
 		}
 
@@ -69,6 +80,8 @@ namespace ogl
 
 	void delete_buffer(Handle handle)
 	{
+		OGL_LOG("Delete ogl buffer %d", handle);
+
 		glDeleteBuffers(1, &handle);
 		CHECK_LAST_CALL();
 	}
@@ -110,6 +123,8 @@ namespace ogl
 
 	void delete_program(Handle program)
 	{
+		OGL_LOG("Delete ogl program %d", program);
+
 		glDeleteProgram(program);
 		CHECK_LAST_CALL();
 	}
@@ -127,6 +142,8 @@ namespace ogl
 
 	void delete_shader(Handle handle)
 	{
+		OGL_LOG("Delete ogl shader %d", handle);
+
 		glDeleteShader(handle);
 		CHECK_LAST_CALL();
 	}
@@ -251,6 +268,18 @@ namespace ogl
 		std::int32_t pos = get_uniform(program, name);
 
 		glUniform1i(pos, v);
+		CHECK_LAST_CALL();
+	}
+
+	void bind_texture(uint32_t target, Handle texture)
+	{
+		glBindTexture(target, texture);
+		CHECK_LAST_CALL();
+	}
+
+	void active_texture(uint32_t texture)
+	{
+		glActiveTexture(texture);
 		CHECK_LAST_CALL();
 	}
 }

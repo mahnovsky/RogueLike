@@ -6,7 +6,7 @@
 
 #include "type_registration.hpp"
 #include "generic/generic_object.hpp"
-#include "generic/pool.hpp"
+#include "pool.hpp"
 #include "render_system.hpp"
 
 struct ViewFrustum;
@@ -193,7 +193,7 @@ public:
 	GENERIC_OBJECT_IMPL(Octree, NS_SYSTEM_TYPE);
 
 	Octree(EcsManager* manager, const Box& b);
-	~Octree() override {}
+	~Octree() override = default;
 
 	OctreeNode* create_node(const Box& enclosing_box, OctreeNode* parent, int layer);
 

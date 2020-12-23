@@ -21,7 +21,7 @@ public:
 
 	virtual void update_mesh_data() = 0;
 
-	virtual void set_vertex_draw_mode(VertexDrawMode mode) = 0;
+	virtual void set_vertex_draw_mode(::VertexDrawMode mode) = 0;
 
 	virtual void set_vertex_buffer_usage(VertexBufferUsage usage) = 0;
 

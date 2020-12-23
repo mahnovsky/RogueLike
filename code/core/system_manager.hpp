@@ -47,6 +47,8 @@ namespace core
 
 		void shutdown();
 
+		LifecycleState get_lifecycle_state() const;
+
 	private:
 		LifecycleState m_state;
 		std::vector<ISystem*> m_systems;

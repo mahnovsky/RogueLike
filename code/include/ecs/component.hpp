@@ -19,7 +19,8 @@ public:
 
 	bool is_contain(const T* element) const
 	{
-		uint32_t offset = element - m_elements;
+		const uint32_t offset = element - m_elements;
+
 		return (offset >= 0 && offset < (sizeof(T) * m_max_count));
 	}
 
@@ -40,7 +41,7 @@ public:
 
 	T* create(uint32_t index)
 	{
-		if (index < m_max_count, m_free_elements[index])
+		if (index < m_max_count && m_free_elements[index])
 		{
 			m_free_elements[index] = false;
 			return new (m_elements + index) T();

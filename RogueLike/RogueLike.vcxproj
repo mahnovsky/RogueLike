@@ -179,6 +179,7 @@
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
     <ClInclude Include="..\code\core\system.hpp" />
     <ClInclude Include="..\code\core\systems\resource_storage.hpp" />
@@ -204,7 +205,6 @@
     <ClInclude Include="..\code\include\frustum.hpp" />
     <ClInclude Include="..\code\include\generic\generic_object.hpp" />
     <ClInclude Include="..\code\include\generic\generic_object_manager.hpp" />
-    <ClInclude Include="..\code\include\generic\pool.hpp" />
     <ClInclude Include="..\code\include\generic\type_info.hpp" />
     <ClInclude Include="..\code\include\octree.h" />
     <ClInclude Include="..\code\include\render_system.hpp" />
@@ -222,6 +222,7 @@
     <ClInclude Include="..\code\render\opengl\glbuffer.hpp" />
     <ClInclude Include="..\code\render\opengl\glshader.hpp" />
     <ClInclude Include="..\code\render\opengl\gltypes.hpp" />
+    <ClInclude Include="..\code\render\opengl\opengl_render.hpp" />
     <ClInclude Include="..\code\render\opengl\opengl_wrapper.hpp" />
     <ClInclude Include="..\code\render\opengl\resource_shader.hpp" />
     <ClInclude Include="..\code\render\opengl\static_mesh.hpp" />

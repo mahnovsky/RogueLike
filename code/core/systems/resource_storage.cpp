@@ -82,7 +82,7 @@ namespace core
 		{
 			m_resources.push_back(resource);
 
-			LOG("\tResource \"%s\" loaded successfully", resource->get_file_name().data());
+			LOG("Resource \"%s\" loaded successfully", resource->get_file_name().data());
 		}
 		return is_loaded;
 	}

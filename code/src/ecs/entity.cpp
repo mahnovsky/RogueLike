@@ -51,6 +51,22 @@ IGenericObject* Entity::get_component(size_t type_index)
 	return nullptr;
 }
 
+const IGenericObject* Entity::get_component(size_t type_index) const
+{
+	if (is_component_exist(type_index))
+	{
+		const auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](const IGenericObject* obj)
+			{
+				return type_index == obj->type_index();
+			});
+
+		if (it != m_components.end())
+			return *it;
+	}
+
+	return nullptr;
+}
+
 EcsManager* Entity::get_manager() const
 {
 	return m_manager;

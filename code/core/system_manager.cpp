@@ -79,4 +79,9 @@ namespace core
 		m_state = LifecycleState::Shotdowned;
 	}
 
+	LifecycleState SystemManager::get_lifecycle_state() const
+	{
+		return m_state;
+	}
+
 }

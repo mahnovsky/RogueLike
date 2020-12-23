@@ -342,6 +342,10 @@ void OctreeNode::fill_octant(std::array<Box, 8>& octant) const
 
 void OctreeNode::remove_object(OctreeObject* obj)
 {
+	if (m_objects.empty())
+	{
+		return;
+	}
 	auto it = std::find(m_objects.begin(), m_objects.end(), obj);
 	
 	if (it != m_objects.end())

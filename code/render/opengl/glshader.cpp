@@ -4,14 +4,15 @@
 namespace ogl
 {
 	Shader::Shader(ShaderType type)
-		:m_handle(INVALID_HANDLE)
+		:m_handle(OGL_INVALID_HANDLE)
 		,m_type(type)
 	{
 	}
 
 	Shader::~Shader()
 	{
-		if (m_handle != INVALID_HANDLE)
+		LOG("OGL Shader destroyed");
+		if (m_handle != OGL_INVALID_HANDLE)
 		{
 			delete_shader(m_handle);
 		}

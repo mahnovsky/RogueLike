@@ -20,6 +20,7 @@ bool is_call_success();
 	{\
 		LOG("OpenGL error 0x%X\n", (unsigned)g_OpenGLError); \
 		g_OpenGLError = GL_NO_ERROR; \
+		if(BREAK_ON_ERROR) \
 		ASSERT(false); \
 	}
 
@@ -103,4 +104,8 @@ bool is_call_success();
 	void set_uniform(Handle program, const char* name, const glm::mat4& mat);
 
 	void set_uniform(Handle program, const char* name, std::int32_t v);
+
+	void bind_texture(uint32_t target, Handle texture);
+
+	void active_texture(uint32_t sample);
 }

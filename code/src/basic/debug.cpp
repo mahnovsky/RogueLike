@@ -59,7 +59,7 @@ log( int line, const char* file, const char* const func, const char* format, ...
 
 #ifdef __WINDOWS__
 	OutputDebugStringA(buffer);
-	OutputDebugStringA("\n");
+	OutputDebugStringA("\n\t");
 #else
     puts( buffer );
 #endif
@@ -70,7 +70,7 @@ log( int line, const char* file, const char* const func, const char* format, ...
 
 #ifdef __WINDOWS__
 	OutputDebugStringA(buffer);
-	OutputDebugStringA("\n");
+	OutputDebugStringA("\n\n");
 #else
 	puts(buffer);
 	fflush(stdout);

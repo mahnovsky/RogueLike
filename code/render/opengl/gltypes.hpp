@@ -22,7 +22,7 @@ extern "C" {
 #include <GL/gl.h>
 #endif
 
-#define INVALID_HANDLE 0
+#define OGL_INVALID_HANDLE 0
 
 namespace ogl
 {

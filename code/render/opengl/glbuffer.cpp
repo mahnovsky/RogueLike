@@ -4,7 +4,8 @@
 namespace ogl
 {
 	Buffer::Buffer()
-		: m_handle(INVALID_HANDLE)
+		: m_handle(OGL_INVALID_HANDLE)
+		, m_element_count(0)
 		, m_buffer_type(BufferType::Array)
 		, m_buffer_usage(BufferUsage::Static)
 	{
@@ -12,7 +13,7 @@ namespace ogl
 
 	Buffer::~Buffer()
 	{
-		if (m_handle != INVALID_HANDLE)
+		if (m_handle != OGL_INVALID_HANDLE)
 		{
 			delete_buffer(m_handle);
 		}

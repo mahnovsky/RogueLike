@@ -29,6 +29,8 @@ public:
 
 	IGenericObject* get_component(size_t type_index);
 
+	const IGenericObject* get_component(size_t type_index) const;
+
 	EcsManager* get_manager() const;
 
 	std::vector<IGenericObject*> get_components() const;
@@ -37,6 +39,12 @@ public:
 	T* get_component()
 	{
 		return dynamic_cast<T*>(get_component(TypeInfo<T, NS_COMPONENT_TYPE>::type_index));
+	}
+
+	template <class T>
+	const T* get_component() const
+	{
+		return dynamic_cast<const T*>(get_component(TypeInfo<T, NS_COMPONENT_TYPE>::type_index));
 	}
 
 	template <class T, class ... Args>

@@ -19,7 +19,7 @@ public:
 
     void draw( IRender* render ) const;
 
-    void frame( float delta ) const;
+    void frame( float delta );
 
     void key_pressed( input::KeyCode code, basic::int16 key ) override;
 
@@ -29,6 +29,8 @@ public:
 
 private:
     void print_fps( int objects) const;
+
+	void set_camera_to_entity(const Entity* ent);
 
 private:
     Engine* m_engine;
@@ -60,4 +62,5 @@ private:
 	glm::vec2 m_end_pos;
 
 	class MoveSystem* m_move_system;
+	int m_ent_index = 0;
 };

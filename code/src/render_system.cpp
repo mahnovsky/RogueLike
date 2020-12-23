@@ -74,6 +74,7 @@ RenderSystem::RenderSystem(EcsManager* ecs)
     : m_ecs(ecs)
 	, m_render(nullptr)
 	, m_camera( nullptr )
+	, m_draw_object_count(0)
 {
 }
 
@@ -94,6 +95,7 @@ void RenderSystem::draw( EcsManager* ecs ) const
 
 	auto octree = ecs->get_system<Octree>();
 	const auto& res = m_camera->get_visible_objects(octree);
+
 
 	if(res.empty())
 	{

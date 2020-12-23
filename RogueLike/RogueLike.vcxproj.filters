@@ -37,14 +37,8 @@
     <Filter Include="code\src\generic">
       <UniqueIdentifier>{b6567b03-1d23-45e4-aafc-3e3f43b9046d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="code\src\render">
-      <UniqueIdentifier>{aed3c336-4e49-4c7e-823b-3287f14b6a2d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="code\include\render">
       <UniqueIdentifier>{d3caf49e-5230-4ad9-92ec-c21831459a20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="code\src\render\opengl">
-      <UniqueIdentifier>{92237544-1009-4700-8154-f98688669c11}</UniqueIdentifier>
     </Filter>
     <Filter Include="code\include\render\opengl">
       <UniqueIdentifier>{e0380346-ef1b-429a-9071-6b81e90d5f3b}</UniqueIdentifier>
@@ -54,6 +48,12 @@
     </Filter>
     <Filter Include="code\core\systems">
       <UniqueIdentifier>{102f67b8-e308-4e85-a834-3f8252141d4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\render">
+      <UniqueIdentifier>{aed3c336-4e49-4c7e-823b-3287f14b6a2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\render\opengl">
+      <UniqueIdentifier>{92237544-1009-4700-8154-f98688669c11}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -163,28 +163,28 @@
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\render_system.cpp">
-      <Filter>code\src\render</Filter>
+      <Filter>code\render</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\render_common.cpp">
-      <Filter>code\src\render</Filter>
+      <Filter>code\render</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\opengl_wrapper.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\glbuffer.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\glshader.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\resource_shader.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\static_mesh.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\render\opengl\opengl_render.cpp">
-      <Filter>code\src\render\opengl</Filter>
+      <Filter>code\render\opengl</Filter>
     </ClCompile>
     <ClCompile Include="..\code\core\system_manager.cpp">
       <Filter>code\core\systems</Filter>
@@ -281,9 +281,6 @@
     <ClInclude Include="..\code\include\generic\generic_object.hpp">
       <Filter>code\include\generic</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\generic\pool.hpp">
-      <Filter>code\include\generic</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\include\generic\type_info.hpp">
       <Filter>code\include\generic</Filter>
     </ClInclude>
@@ -305,34 +302,7 @@
     <ClInclude Include="..\code\third_party\minz\miniz.h">
       <Filter>code\src\third_party</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\render_system.hpp">
-      <Filter>code\include\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\render.hpp">
-      <Filter>code\include\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\render_common.hpp">
-      <Filter>code\include\render</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\opengl\opengl_wrapper.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\opengl\gltypes.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\opengl\glbuffer.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\opengl\glshader.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\render\render_object_manager.hpp" />
-    <ClInclude Include="..\code\render\opengl\resource_shader.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\render\opengl\static_mesh.hpp">
-      <Filter>code\include\render\opengl</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\core\system.hpp">
       <Filter>code\core\systems</Filter>
     </ClInclude>
@@ -347,6 +317,39 @@
     </ClInclude>
     <ClInclude Include="..\code\core\stdext.hpp">
       <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\pool.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\render.hpp">
+      <Filter>code\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\render_common.hpp">
+      <Filter>code\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\include\render_system.hpp">
+      <Filter>code\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\glbuffer.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\glshader.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\gltypes.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\opengl_wrapper.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\resource_shader.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\static_mesh.hpp">
+      <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\opengl\opengl_render.hpp">
+      <Filter>code\render\opengl</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

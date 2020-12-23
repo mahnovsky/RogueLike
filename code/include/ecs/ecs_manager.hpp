@@ -3,7 +3,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "generic/pool.hpp"
+#include "pool.hpp"
 #include "generic_object_manager.hpp"
 
 #include "type_registration.hpp"
@@ -23,7 +23,14 @@ template <class T>
 class Container : public IContainer
 {
 public:
-	~Container() override = default;
+	~Container() override
+	{
+		auto&& objects = pool.get_objects();
+		for (auto obj : objects)
+		{
+			pool.free(obj);
+		}
+	}
 
 	void free(IGenericObject* ent) override
 	{
