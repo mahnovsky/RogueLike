@@ -73,13 +73,13 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_height( height )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
-    , m_ui_root( nullptr )
+    , m_widget_system( nullptr )
 	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
 {
 	auto& sm = engine->get_system_manager();
 	m_rs = sm.get_system<core::ResourceStorage>();
-	m_ui_root = sm.get_system<core::WidgetSystem>();
+	m_widget_system = sm.get_system<core::WidgetSystem>();
 }
 
 GameInstance::~GameInstance( )
@@ -280,56 +280,11 @@ void GameInstance::init( )
     
 	m_selection_rect = NEW_OBJ(DrawingRect, render);
 	glm::mat4 ui_vp;
-	m_ui_root->get_ui_camera()->get_matrix(ui_vp);
+	m_widget_system->get_ui_camera()->get_matrix(ui_vp);
 
 	m_selection_rect->set_view_projection_matrix(ui_vp);
 
-	m_fps_text = NEW_OBJ( WidgetText, m_ui_root);
-	m_fps_text->set_text("fps: ");
-	m_fps_text->set_color(g_ui_color);
-	m_fps_text->set_align(AlignH::Left);
-
-	m_ui_root->get_root_widget()->add_child(m_fps_text);
-	
-
-	/*
-    WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
-    WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
-    WidgetAction wa_close{"wa_close", &close_action, m_engine};
-    m_ui_root->add_action( wa_exit );
-    m_ui_root->add_action( wa_close );
-    m_ui_root->add_action( wa_open_menu );
-	m_ui_root->bind_key_action(input::KeyCode::Esc, wa_open_menu.name);
-    {
-        WidgetList* wnd = NEW_OBJ( WidgetList, m_manager, {400.f, 200.f} );
-
-        wnd->init( m_rs );
-        m_fps_text = NEW_OBJ( WidgetText, m_manager, {200, 40} );
-        m_fps_text->init( m_rs );
-        m_fps_text->set_text( "fps: " );
-		m_fps_text->set_color(g_ui_color);
-        m_fps_text->set_align( AlignH::Left );
-        wnd->add_child( m_fps_text );
-
-        m_mem_text = NEW_OBJ( WidgetText, m_manager, {400, 40} );
-        m_mem_text->init( m_rs );
-        m_mem_text->set_text( "memory usage: " );
-		m_mem_text->set_color(g_ui_color);
-        m_mem_text->set_align( AlignH::Left );
-        wnd->add_child( m_mem_text );
-
-        WidgetText* menu_btn = NEW_OBJ( WidgetText, m_manager, {200, 40} );
-
-        menu_btn->init( m_rs );
-        menu_btn->set_text( "MENU" );
-		menu_btn->set_color(g_ui_color);
-        menu_btn->set_align( AlignH::Center );
-        menu_btn->set_picture( texture );
-        wnd->set_press_action( "wa_open_menu" );
-        wnd->add_child( menu_btn );
-
-        m_ui_root->add_child( wnd );
-    }*/
+	initialize_ui();
     
 	for (int i = 0; i < 10; ++i)
 	{
@@ -393,7 +348,7 @@ GameInstance::draw( IRender* render ) const
 	if (mng.get_lifecycle_state() == core::LifecycleState::Initialized)
 	{
 		m_render_system->draw(m_ecs);
-		m_ui_root->get_root_widget()->draw(render);
+		m_widget_system->get_root_widget()->draw(render);
 	}
 }
 
@@ -567,6 +522,60 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 	{
 		m_selection_state = false;
 	}
+}
+
+void GameInstance::initialize_cams()
+{
+}
+
+void GameInstance::initialize_ui()
+{
+	m_fps_text = NEW_OBJ(WidgetText, m_widget_system);
+	m_fps_text->set_text("fps: 000");
+	m_fps_text->set_color(g_ui_color);
+	m_fps_text->set_align(Align::Right);
+
+	m_widget_system->get_root_widget()->add_child(m_fps_text);
+
+
+	/*
+	WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
+	WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
+	WidgetAction wa_close{"wa_close", &close_action, m_engine};
+	m_ui_root->add_action( wa_exit );
+	m_ui_root->add_action( wa_close );
+	m_ui_root->add_action( wa_open_menu );
+	m_ui_root->bind_key_action(input::KeyCode::Esc, wa_open_menu.name);
+	{
+		WidgetList* wnd = NEW_OBJ( WidgetList, m_manager, {400.f, 200.f} );
+
+		wnd->init( m_rs );
+		m_fps_text = NEW_OBJ( WidgetText, m_manager, {200, 40} );
+		m_fps_text->init( m_rs );
+		m_fps_text->set_text( "fps: " );
+		m_fps_text->set_color(g_ui_color);
+		m_fps_text->set_align( AlignH::Left );
+		wnd->add_child( m_fps_text );
+
+		m_mem_text = NEW_OBJ( WidgetText, m_manager, {400, 40} );
+		m_mem_text->init( m_rs );
+		m_mem_text->set_text( "memory usage: " );
+		m_mem_text->set_color(g_ui_color);
+		m_mem_text->set_align( AlignH::Left );
+		wnd->add_child( m_mem_text );
+
+		WidgetText* menu_btn = NEW_OBJ( WidgetText, m_manager, {200, 40} );
+
+		menu_btn->init( m_rs );
+		menu_btn->set_text( "MENU" );
+		menu_btn->set_color(g_ui_color);
+		menu_btn->set_align( AlignH::Center );
+		menu_btn->set_picture( texture );
+		wnd->set_press_action( "wa_open_menu" );
+		wnd->add_child( menu_btn );
+
+		m_ui_root->add_child( wnd );
+	}*/
 }
 
 void GameInstance::print_fps(int objects) const

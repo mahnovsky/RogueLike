@@ -18,7 +18,7 @@ public:
 
 	bool load(core::ResourceStorage*) ;
 
-    void update(const char* text, IRenderObject* out_object, glm::vec2& size);
+    void update(const char* text, uint32_t count, IRenderObject* out_object, glm::vec2& size);
 
     static Font* create( const char* file);
 

@@ -16,10 +16,11 @@ RenderComponent::~RenderComponent()
 {
 }
 
-void RenderComponent::initialize(IRenderObject* obj)
+void RenderComponent::initialize(IRenderObject* obj, uint32_t cam_index)
 {
 	m_render_object = obj;
 	obj->update_color(color);
+	obj->set_camera_index(cam_index);
 	
 	for (basic::uint32 i = 0; i < enum2num(RenderResourceType::Count); ++i)
 	{
@@ -87,6 +88,8 @@ void RenderSystem::initialize(IRender* render, ICamera* cam )
 {
 	m_render = render;
     m_camera = cam;
+
+	m_camera_index = m_render->add_camera(cam);
 }
 
 void RenderSystem::draw( EcsManager* ecs ) const
@@ -95,7 +98,6 @@ void RenderSystem::draw( EcsManager* ecs ) const
 
 	auto octree = ecs->get_system<Octree>();
 	const auto& res = m_camera->get_visible_objects(octree);
-
 
 	if(res.empty())
 	{
@@ -114,14 +116,14 @@ void RenderSystem::draw( EcsManager* ecs ) const
 		auto rc = ent->get_component<RenderComponent>();
 		if (!rc->m_render_object)
 		{
-			rc->initialize(m_render->create_object());
+			rc->initialize(m_render->create_object(), m_camera_index);
 		}
 
 		auto tr = ent->get_component<Transform>();
 		
 		if (tr)
 		{
-			rc->update_mvp(pv * tr->get_matrix());
+			rc->update_mvp(tr->get_matrix());
 
 			tr->is_changed = false;
 		}

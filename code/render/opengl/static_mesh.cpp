@@ -47,7 +47,7 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 	{
 		m_ibo.init<uint16_t>(
 			ogl::BufferType::Element,
-			ogl::BufferUsage::Static,
+			usage,
 			data.indices.data(),
 			data.indices.size());
 
@@ -55,6 +55,22 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 	}
 
 	return true;
+}
+
+void StaticMesh::update(const MeshData& data)
+{
+	m_element_size = data.vertex_data.item_size;
+
+	m_vbo.update(data.vertex_data.data.get(), data.vertex_data.count);
+
+	m_vertex_count = data.vertex_data.count;
+
+	if (!data.indices.empty())
+	{
+		m_ibo.update(data.indices.data(), data.indices.size());
+
+		m_index_count = data.indices.size();
+	}
 }
 
 bool StaticMesh::load(core::ResourceStorage* rs)

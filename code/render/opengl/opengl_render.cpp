@@ -24,6 +24,11 @@ extern "C" {
 
 #include <GL/gl.h>
 
+#define VIEW_PROJECT_UNIFORM "ViewProjection"
+#define MODEL_UNIFORM "Model"
+#define TEXTURE_SAMPLER_UNIFORM "texture_sampler"
+#define COLOR_UNIFORM "Color"
+
 //GLenum g_OpenGLError = GL_NO_ERROR;
 
 struct RenderObjectData
@@ -32,11 +37,11 @@ struct RenderObjectData
 	GLuint vao;
 	GLuint texture;
 	GLuint program;
-	GLuint vertex_count;
-	GLuint index_count;
+	GLuint element_count;
 	basic::Color color;
 	glm::mat4 mvp;
 	uint32_t flags;
+	uint32_t camera_index = 0;
 };
 
 class OpenGLRenderObject final : public IRenderObject
@@ -157,19 +162,41 @@ public:
 
 		if (m_instance.vao != OGL_INVALID_HANDLE)
 		{
-			m_mesh = std::make_shared<StaticMesh>("mesh");
-
-			if (m_mesh->init(data, m_buffer_usage))
+			if (!m_mesh)
 			{
-				setup_buffers();
+				m_mesh = std::make_shared<StaticMesh>("mesh");
+				if (m_mesh->init(data, m_buffer_usage))
+				{
+					setup_buffers();
+				}
 			}
+			else
+			{
+				ogl::bind_vertex_array(m_instance.vao);
+
+				m_mesh->update(data);
+				setup_element_cout();
+			}
+		}
+	}
+
+	void setup_element_cout()
+	{
+		if (m_mesh->get_index_count() > 0)
+		{
+			m_instance.element_count = m_mesh->get_index_count();
+			m_instance.flags |= ROF_INDEX_BUFFER;
+		}
+		else
+		{
+			m_instance.element_count = m_mesh->get_vertex_count();
+			m_instance.flags &= ~ROF_INDEX_BUFFER;
 		}
 	}
 
 	void setup_buffers()
 	{
-		m_instance.index_count = m_mesh->get_index_count();
-		m_instance.vertex_count = m_mesh->get_vertex_count();
+		setup_element_cout();
 
 		ogl::bind_vertex_array(m_instance.vao);
 		ogl::bind_buffer(m_mesh->get_vbo(), ogl::BufferType::Array);
@@ -222,6 +249,11 @@ public:
 		}
 	}
 
+	void set_camera_index(uint32_t index) override
+	{
+		m_instance.camera_index = index;
+	}
+
 	void set_vertex_draw_mode(::VertexDrawMode mode) override
 	{
 		m_instance.draw_mode = translate_draw_mode(mode);
@@ -261,7 +293,7 @@ public:
 
 	void set_render_state(uint32_t flag) override
 	{
-		m_instance.flags ^= flag;
+		m_instance.flags |= flag;
 	}
 
 private:
@@ -365,14 +397,17 @@ void OpenGLRender::clear()
 
 void OpenGLRender::present()
 {
-	present_objects();
+	if (!m_cams.empty())
+	{
+		present_objects();
 
-	present_color_texture();
+		present_color_texture();
 
-	ogl::bind_vertex_array(OGL_INVALID_HANDLE);
-	m_current_vao = OGL_INVALID_HANDLE;
-	ogl::use_program(OGL_INVALID_HANDLE);
-	m_current_program = OGL_INVALID_HANDLE;
+		ogl::bind_vertex_array(OGL_INVALID_HANDLE);
+		m_current_vao = OGL_INVALID_HANDLE;
+		ogl::use_program(OGL_INVALID_HANDLE);
+		m_current_program = OGL_INVALID_HANDLE;
+	}
 }
 
 void OpenGLRender::present_objects()
@@ -387,9 +422,9 @@ void OpenGLRender::present_objects()
 void OpenGLRender::apply_state_flags(uint32_t flags)
 {
 	std::pair<uint32_t, uint32_t> states[] = {
-		{RSF_BLEND, GL_BLEND},
-		{RSF_DEPTH_TEST, GL_DEPTH_TEST},
-		{RSF_CULL_TEST, GL_CULL_FACE}
+		{ROF_BLEND, GL_BLEND},
+		{ROF_DEPTH_TEST, GL_DEPTH_TEST},
+		{ROF_CULL_TEST, GL_CULL_FACE}
 	};
 	for (uint32_t i = 0; i < 3; ++i)
 	{
@@ -403,7 +438,6 @@ void OpenGLRender::apply_state_flags(uint32_t flags)
 void OpenGLRender::draw_instance(const RenderObjectData& render_data)
 {
 	auto program = render_data.program;
-
 	//apply_state_flags(render_data.flags);
 	if (m_current_vao != render_data.vao)
 	{
@@ -415,6 +449,13 @@ void OpenGLRender::draw_instance(const RenderObjectData& render_data)
 	{
 		ogl::use_program(program);
 		m_current_program = program;
+
+		update_view_projection_matrix(render_data);
+	}
+
+	if (render_data.camera_index != m_prev_camera_index)
+	{
+		update_view_projection_matrix(render_data);
 	}
 
 	if (render_data.texture)
@@ -423,22 +464,22 @@ void OpenGLRender::draw_instance(const RenderObjectData& render_data)
 		bind_texture(GL_TEXTURE_2D, render_data.texture);
 	}
 
-	set_uniform(program, "MVP", render_data.mvp);
-	set_uniform(program, "Color", render_data.color);
-	set_uniform(program, "texture_sampler", 0);
+	set_uniform(program, MODEL_UNIFORM, render_data.mvp);
+	set_uniform(program, COLOR_UNIFORM, render_data.color);
+	set_uniform(program, TEXTURE_SAMPLER_UNIFORM, 0);
 
-	GLenum mode = static_cast<GLenum>(render_data.draw_mode);
+	const GLenum mode = static_cast<GLenum>(render_data.draw_mode);
 
-	if (render_data.index_count > 0)
+	if (render_data.flags & ROF_INDEX_BUFFER)
 	{
-		glDrawElements(mode, render_data.index_count, GL_UNSIGNED_SHORT, nullptr);
-		CHECK_LAST_CALL();
+		glDrawElements(mode, render_data.element_count, GL_UNSIGNED_SHORT, nullptr);
 	}
 	else
 	{
-		glDrawArrays(mode, 0, render_data.vertex_count);
-		CHECK_LAST_CALL();
+		glDrawArrays(mode, 0, render_data.element_count);
 	}
+
+	CHECK_LAST_CALL();
 }
 
 IRenderObject* OpenGLRender::create_object()
@@ -544,6 +585,23 @@ void OpenGLRender::add_to_frame(IRenderObject* object)
 		static_cast<void*>(object));
 
 	m_present_objects.push_back(ogl_object);
+}
+
+int32_t OpenGLRender::add_camera(ICamera* camera)
+{
+	int32_t next_index = m_cams.size();
+	m_cams.push_back(camera);
+	return next_index;
+}
+
+void OpenGLRender::update_view_projection_matrix(const RenderObjectData& render_data)
+{
+	ICamera* current_cam = m_cams[render_data.camera_index];
+	glm::mat4 vp;
+	current_cam->get_matrix(vp);
+	set_uniform(render_data.program, VIEW_PROJECT_UNIFORM, vp);
+
+	m_prev_camera_index = render_data.camera_index;
 }
 
 IRender* IRender::create()

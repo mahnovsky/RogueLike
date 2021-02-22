@@ -398,9 +398,17 @@ void DrawingRect::set_size(const glm::vec2& size)
 	m_need_update = true;
 }
 
+void DrawingRect::set_camera_index(uint32_t index)
+{
+	if (m_rect_object)
+	{
+		m_rect_object->set_camera_index(index);
+	}
+}
+
 void DrawingRect::set_view_projection_matrix(const glm::mat4& vp)
 {
-	m_view_projection = vp;
+	//m_view_projection = vp;
 	m_need_update = true;
 }
 
@@ -440,7 +448,7 @@ void DrawingRect::update_rect()
 
 	setup_vertices(data.vertex_data, m_vertices);
 	
-	m_rect_object->update_mvp(m_view_projection);
+	m_rect_object->update_mvp(glm::mat4(1.f));
 
 	m_rect_object->update_mesh_data();
 
@@ -453,6 +461,7 @@ void DrawingRect::init_rect()
 	{
 		m_rect_object = m_render->create_object();
 	}
+
 	m_rect_object->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
 	m_rect_object->set_vertex_draw_mode(VertexDrawMode::LineStrip);
 	m_rect_object->set_resource(RenderResourceType::ShaderProgram, "default");

@@ -13,6 +13,8 @@ public:
 
 	bool init(const MeshData& data, ogl::BufferUsage usage);
 
+	void update(const MeshData& data);
+
 	bool load(core::ResourceStorage* rs);
 
     uint32_t get_vertex_count( ) const;

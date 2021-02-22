@@ -19,6 +19,8 @@ WidgetText::WidgetText(core::WidgetSystem* root)
 	, m_text_size()
 	, m_color{ 255, 255, 255, 255 }
 {
+	ASSERT(root != nullptr);
+	initialize();
 }
 
 WidgetText::~WidgetText()
@@ -62,16 +64,9 @@ basic::Color WidgetText::get_color() const
 	return m_color;
 }
 
-void WidgetText::set_align(AlignH horizontal)
+void WidgetText::set_align(Align align)
 {
-    m_horizontal = horizontal;
-
-    apply_align();
-}
-
-void WidgetText::set_align(AlignV vertical)
-{
-    m_vertical = vertical;
+    m_align = align;
 
     apply_align();
 }
@@ -81,15 +76,15 @@ void WidgetText::update()
     if(!m_text.empty() && m_text_render)
     {
 		glm::mat4 vp;
-		m_root->get_ui_camera()->get_matrix(vp);
+		//m_root->get_ui_camera()->get_matrix(vp);
 
 		glm::vec3 pos = glm::vec3(get_local_position(), 0.f);
-		glm::mat4 mvp = vp * glm::translate(glm::mat4{ 1.f }, pos);
+		glm::mat4 mvp = glm::translate(glm::mat4{ 1.f }, pos);
 
 		m_text_render->update_mvp(mvp);
 		m_text_render->update_color(m_color);
-		m_text_render->set_render_state(RSF_CULL_TEST);
-		m_font->update(m_text.c_str(), m_text_render, m_text_size);
+		m_text_render->set_render_state(ROF_CULL_TEST);
+		m_font->update(m_text.c_str(), m_text.size(), m_text_render, m_text_size);
 		set_size(m_text_size);
 
         apply_align();
@@ -102,18 +97,14 @@ void WidgetText::apply_align()
     float x_align = 0;//-(size.x - m_text_size.x) / 2;
     float y_align = -(size.y - m_text_size.y) / 2 - m_text_size.y;
 
-    switch (m_horizontal)
+    switch (m_align)
     {
-    case AlignH::Center: x_align = -(size.x - m_text_size.x) / 2; break;
-    case AlignH::Left: x_align = 0; break;
-    case AlignH::Right: x_align = -(size.x - m_text_size.x); break;
-    }
-
-    switch (m_vertical)
-    {
-    case AlignV::Center: y_align = -(size.y - m_text_size.y) / 2 - m_text_size.y; break;
-    case AlignV::Top: y_align = -m_text_size.y; break;
-    case AlignV::Bottom: y_align = -(m_text_size.y + (size.y - m_text_size.y)); break;
+    case Align::Center: x_align = -(size.x - m_text_size.x) / 2; break;
+    case Align::Left: x_align = 0; break;
+    case Align::Right: x_align = -(size.x - m_text_size.x); break;
+    //case Align::Center: y_align = -(size.y - m_text_size.y) / 2 - m_text_size.y; break;
+    case Align::Top: y_align = -m_text_size.y; break;
+    case Align::Bottom: y_align = -(m_text_size.y + (size.y - m_text_size.y)); break;
     }
 
     glm::vec3 pos{ x_align, y_align, 0.f};
@@ -126,7 +117,7 @@ void WidgetText::draw(IRender* render)
 	if (!m_text_render)
 	{
 		m_text_render = render->create_object();
-		
+		m_text_render->set_camera_index(m_root->get_camera_index());
 		update();
 	}
 	render->add_to_frame(m_text_render);

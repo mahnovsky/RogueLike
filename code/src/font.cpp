@@ -6,6 +6,9 @@
 #include "texture.hpp"
 #include "render.hpp"
 
+#undef min
+#undef max
+
 namespace
 {
 #define STB_TRUETYPE_IMPLEMENTATION
@@ -68,7 +71,7 @@ bool Font::load( core::ResourceStorage* storage )
     return false;
 }
 
-void Font::update( const char* text, IRenderObject* text_object, glm::vec2& size )
+void Font::update( const char* text, uint32_t count, IRenderObject* text_object, glm::vec2& size )
 {
     if ( !text || !text_object )
     {
@@ -80,7 +83,6 @@ void Font::update( const char* text, IRenderObject* text_object, glm::vec2& size
 
     float x = 0;
     float y = 0;
-    uint16_t offset = 0;
 	auto& mesh_data = text_object->get_mesh_data();
 	mesh_data.indices.clear();
 
@@ -88,62 +90,42 @@ void Font::update( const char* text, IRenderObject* text_object, glm::vec2& size
 	text_object->set_resource(RenderResourceType::Texture, m_texture_name);
 	text_object->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
 
-    while ( *( text + offset ) )
+    for (int i = 0; i < count; ++i )
     {
-        char ch = *( text + offset );
-        if ( !ch )
-        {
-            break;
-        }
+        int ch = *( text + i );
+		if (ch < 32)
+		{
+			continue;
+		}
 
-        if ( ch >= 32 )
-        {
-            ::stbtt_aligned_quad q;
-            int w = static_cast< int >( m_texture->get_width( ) );
-            int h = static_cast< int >( m_texture->get_height( ) );
+		::stbtt_aligned_quad q;
+		int w = static_cast<int>(m_texture->get_width());
+		int h = static_cast<int>(m_texture->get_height());
 
-            stbtt_GetBakedQuad(
-                    static_cast< ::stbtt_bakedchar* >( m_cdata ), w, h, ch - 32, &x, &y, &q, 1 );
+		stbtt_GetBakedQuad(
+			static_cast<::stbtt_bakedchar*>(m_cdata), w, h, ch - 32, &x, &y, &q, 1);
 
-            auto xmin = q.x0;
-            auto xmax = q.x1;
-            auto ymin = -q.y1;
-            auto ymax = -q.y0;
-            float height = fabs(ymin - ymax);
-            if ( size.y < height )
-            {
-                size.y = height;
-            }
-            glm::vec3 p0 = {xmin, ymin, 0};
-            glm::vec3 p1 = {xmin, ymax, 0};
-            glm::vec3 p2 = {xmax, ymax, 0};
-            glm::vec3 p3 = {xmax, ymin, 0};
-			/*
-			info.uvs[0] = { quad.s0, quad.t1 };
-			info.uvs[1] = { quad.s0, quad.t0 };
-			info.uvs[2] = { quad.s1, quad.t0 };
-			info.uvs[3] = { quad.s1, quad.t1 };*/
+		auto xmin = q.x0;
+		auto xmax = q.x1;
+		auto ymin = -q.y1;
+		auto ymax = -q.y0;
+		float height = fabs(ymin - ymax);
+		size.y = size.y < height ? height : size.y;
+		
+		Vertex_T vertices[] = { 
+			{ {xmin, ymin, 0}, {q.s0, q.t1} },
+			{ {xmin, ymax, 0}, {q.s0, q.t0} },
+			{ {xmax, ymax, 0}, {q.s1, q.t0} },
+			{ {xmax, ymin, 0}, {q.s1, q.t1} },
+		};
+		vb.insert(vb.end(), std::begin(vertices), std::end(vertices));
+		// https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp
 
-            glm::vec2 t0 = {q.s0, q.t1};
-            glm::vec2 t1 = {q.s0, q.t0};
-            glm::vec2 t2 = {q.s1, q.t0};
-            glm::vec2 t3 = {q.s1, q.t1};
+		uint16_t offset = i * 4;
+		uint16_t indx[] = { offset, offset + 1, offset + 2, 0 + offset, offset + 2, offset + 3 };
+		mesh_data.indices.insert(mesh_data.indices.end(), std::begin(indx), std::end(indx));
+	}
 
-            /* https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp*/
-            vb.push_back( {p0, t0} );
-            vb.push_back( {p1, t1} );
-            vb.push_back( {p2, t2} );
-            vb.push_back( {p3, t3} );
-
-			mesh_data.indices.push_back( 0 + offset * 4 );
-			mesh_data.indices.push_back( 1 + offset * 4 );
-			mesh_data.indices.push_back( 2 + offset * 4 );
-			mesh_data.indices.push_back( 0 + offset * 4 );
-			mesh_data.indices.push_back( 2 + offset * 4 );
-			mesh_data.indices.push_back( 3 + offset * 4 );
-        }
-        ++offset;
-    }
     size.x = x;
 	
 	setup_vertices(mesh_data.vertex_data, std::move(vb));
@@ -155,4 +137,5 @@ Font* Font::create( const char* file )
 {
     return NEW_OBJ( Font, file );
 }
+
 }

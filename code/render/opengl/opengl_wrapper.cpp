@@ -11,7 +11,8 @@ namespace ogl
 
 	bool is_call_success()
 	{
-		bool result = glGetError() == GL_NO_ERROR;
+		g_OpenGLError = glGetError();
+		bool result = g_OpenGLError == GL_NO_ERROR;
 
 		if (!result && BREAK_ON_ERROR)
 		{
@@ -68,12 +69,19 @@ namespace ogl
 
 	bool update_buffer(Handle handle, const BufferDescription& desc)
 	{
-		bind_buffer(handle, static_cast<BufferType>(desc.buffer_type));
-
 		const uint32_t btype = static_cast<uint32_t>(desc.buffer_type);
 		const GLenum busage = static_cast<GLenum>(desc.buffer_usage);
 
-		glBufferData(btype, desc.size, desc.data, busage);
+		bind_buffer(handle, desc.buffer_type);
+
+		if (desc.submit)
+		{
+			glBufferSubData(btype, 0, desc.size, desc.data);
+		}
+		else
+		{
+			glBufferData(btype, desc.size, desc.data, busage);
+		}
 
 		return is_call_success();
 	}

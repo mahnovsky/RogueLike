@@ -6,6 +6,7 @@ namespace ogl
 	Buffer::Buffer()
 		: m_handle(OGL_INVALID_HANDLE)
 		, m_element_count(0)
+		, m_element_size(0)
 		, m_buffer_type(BufferType::Array)
 		, m_buffer_usage(BufferUsage::Static)
 	{
@@ -24,6 +25,7 @@ namespace ogl
 		m_buffer_type = buffer_type;
 		m_buffer_usage = buffer_usage;
 		m_element_count = count;
+		m_element_size = item_size;
 
 		BufferDescription desc;
 		desc.buffer_type = buffer_type;
@@ -42,13 +44,16 @@ namespace ogl
 		return false;
 	}
 
-	void Buffer::update(const void* data_ptr, std::uint32_t size)
+	void Buffer::update(const void* data_ptr, std::uint32_t count)
 	{
+		
 		BufferDescription desc;
 		desc.buffer_type = m_buffer_type;
 		desc.buffer_usage = m_buffer_usage;
 		desc.data = data_ptr;
-		desc.size = size;
+		desc.size = count * m_element_size;
+		desc.submit = count <= m_element_count;
+		m_element_count = count;
 
 		update_buffer(m_handle, desc);
 	}

@@ -26,6 +26,8 @@ public:
 	virtual void set_vertex_buffer_usage(VertexBufferUsage usage) = 0;
 
 	virtual void set_render_state(uint32_t flag) = 0;
+
+	virtual void set_camera_index(uint32_t index) = 0;
 };
 
 class IRender
@@ -40,6 +42,8 @@ public:
     virtual void present() = 0;
 
 	virtual void add_to_frame(IRenderObject* object) = 0;
+
+	virtual int32_t add_camera(ICamera* camera) = 0;
 
 	virtual IRenderObject* create_object() = 0;
 

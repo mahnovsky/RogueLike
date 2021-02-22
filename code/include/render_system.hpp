@@ -17,7 +17,7 @@ public:
 	RenderComponent(Entity* ent);
 	~RenderComponent() override;
 
-	void initialize(IRenderObject* obj);
+	void initialize(IRenderObject* obj, uint32_t cam_index);
 
 	void update_color() const;
 
@@ -71,5 +71,6 @@ private:
 	EcsManager* m_ecs;
 	IRender* m_render;
     ICamera* m_camera;
+	uint32_t m_camera_index;
 	mutable int m_draw_object_count;
 };

@@ -50,11 +50,12 @@ enum class VertexDataType
 	UnsignedInt
 };
 
-enum RenderStateFlags
+enum RenderObjectFlags
 {
-	RSF_BLEND = 0x1,
-	RSF_DEPTH_TEST = 0x2,
-	RSF_CULL_TEST = 0x4
+	ROF_BLEND = 0x1,
+	ROF_DEPTH_TEST = 0x2,
+	ROF_CULL_TEST = 0x4,
+	ROF_INDEX_BUFFER = 0x8
 };
 
 enum VertexFormat
@@ -133,6 +134,8 @@ public:
 
 	void set_size(const glm::vec2& size);
 
+	void set_camera_index(uint32_t index);
+
 	void set_view_projection_matrix(const glm::mat4& vp);
 
 	void draw();
@@ -147,6 +150,5 @@ private:
 	VertexBuffer m_vertices;
 	glm::vec2 m_pos;
 	glm::vec2 m_size;
-	glm::mat4 m_view_projection;
 	bool m_need_update;
 };

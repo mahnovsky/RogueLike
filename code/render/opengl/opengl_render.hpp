@@ -37,8 +37,12 @@ public:
 
 	void add_to_frame(IRenderObject* object) override;
 
+	int32_t add_camera(ICamera* camera) override;
+
+	void update_view_projection_matrix(const RenderObjectData& render_data);
+
 private:
-	bool m_use_fbo = false;
+	bool m_use_fbo = true;
 	GLint m_width;
 	GLint m_height;
 	GLuint m_fbo;
@@ -56,4 +60,7 @@ private:
 	std::vector<IRenderObject*> m_objects_to_destroy;
 
 	uint32_t m_current_state = 0;
+
+	std::vector<ICamera*> m_cams;
+	uint32_t m_prev_camera_index = 0;
 };

@@ -27,6 +27,10 @@ public:
 
     friend void open_menu_action( Widget* w, void* user_data );
 
+	void initialize_cams();
+
+	void initialize_ui();
+
 private:
     void print_fps( int objects) const;
 
@@ -47,7 +51,7 @@ private:
     WidgetText* m_fps_text;
     WidgetText* m_mem_text;
     RenderNode* m_cow;
-    core::WidgetSystem* m_ui_root;
+    core::WidgetSystem* m_widget_system;
 	EcsManager* m_ecs;
     class RenderSystem* m_render_system;
 

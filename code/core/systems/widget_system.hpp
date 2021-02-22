@@ -29,6 +29,8 @@ namespace core
 
 		void shutdown() override;
 
+		uint32_t get_camera_index() const;
+
 		const ICamera* get_ui_camera() const;
 
 		IEngine* get_engine();
@@ -42,6 +44,7 @@ namespace core
 		IEngine* m_engine;
 		ICamera* m_ui_camera;
 		Widget* m_root_widget;
+		uint32_t m_camera_index;
 	};
 
 }

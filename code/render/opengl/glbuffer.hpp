@@ -20,7 +20,7 @@ namespace ogl
 
 		bool init_raw(BufferType buffer_type, BufferUsage buffer_usage, const void* data_ptr, uint32_t count, uint32_t item_size);
 
-		void update(const void* data_ptr, uint32_t size);
+		void update(const void* data_ptr, uint32_t count);
 
 		void bind();
 
@@ -31,6 +31,7 @@ namespace ogl
 	private:
 		Handle m_handle;
 		uint32_t m_element_count;
+		uint32_t m_element_size;
 		BufferType m_buffer_type;
 		BufferUsage m_buffer_usage;
 	};

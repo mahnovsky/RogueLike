@@ -20,15 +20,17 @@ namespace stdext
 		return std::find(cont.begin(), cont.end(), item) != cont.end();
 	}
 
+	/* Push new item in vector if item dont contains in vector. 
+		Return true if item actualy pushed. */
 	template <class Item, class Alloc>
 	bool push_unique(std::vector<Item, Alloc>& cont, Item& item)
 	{
-		const bool unique = !is_contains(cont, item);
-		if (unique)
+		const bool contains = is_contains(cont, item);
+		if (!contains)
 		{
 			cont.push_back(item);
 		}
-		return unique;
+		return !contains;
 	}
 
 	template <class Item, class Alloc>

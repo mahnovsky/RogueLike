@@ -17,8 +17,7 @@ Widget::Widget(core::WidgetSystem* root)
     , m_children( )
 	, m_camera(root->get_ui_camera())
     , m_visible( true )
-    , m_horizontal( AlignH::Center )
-    , m_vertical( AlignV::Center )
+    , m_align( Align::Center )
     , m_storage( nullptr )
 	, m_debug_rect(nullptr)
 {
@@ -56,7 +55,12 @@ void Widget::add_child( Widget* node )
 
 	if (stdext::push_unique(m_children, node))
 	{
-		node->initialize();
+		ASSERT(node->m_parent != this);
+		if (node->m_parent != nullptr)
+		{
+			node->remove_from_parent();
+		}
+		node->m_parent = this;
 	}
 }
 
@@ -91,7 +95,7 @@ bool Widget::is_contains( Widget* child )
     return stdext::is_contains(m_children, child);
 }
 
-bool Widget::get_child_index( Widget* node, basic::uint32& out_index ) const
+bool Widget::get_child_index( Widget* node, uint32_t& out_index ) const
 {
     if ( node->get_parent( ) != this )
     {
@@ -203,18 +207,19 @@ bool Widget::get_visible( ) const
     return m_visible;
 }
 
-AlignH Widget::get_horizontal_align( ) const
+Align Widget::get_align( ) const
 {
-    return m_horizontal;
+    return m_align;
 }
 
-AlignV Widget::get_vertical_align( ) const
+void Widget::set_align(Align align)
 {
-    return m_vertical;
+	m_align = align;
 }
 
 void Widget::set_picture( Texture* tex )
 {
+
 }
 
 void Widget::on_mouse_pressed( input::MouseButton btn, basic::int32 x, basic::int32 y )
@@ -271,5 +276,6 @@ void Widget::_initialize_debug_rect()
 		glm::mat4 vp;
 		m_root->get_ui_camera()->get_matrix(vp);
 		m_debug_rect->set_view_projection_matrix(vp);
+		m_debug_rect->set_camera_index(m_root->get_camera_index());
 	}
 }

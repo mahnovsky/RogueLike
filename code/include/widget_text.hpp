@@ -4,6 +4,13 @@
 
 #include "widget.hpp"
 
+struct TextData
+{
+	std::string text;
+	std::string font_name;
+	int32_t font_size;
+};
+
 class WidgetText : public Widget
 {
 public:
@@ -11,7 +18,7 @@ public:
 
     ~WidgetText() override;
 
-    void initialize() override;
+    void initialize();
 
     void set_text(const std::string& text);
 
@@ -19,9 +26,8 @@ public:
 
     basic::Color get_color( ) const;
 
-    void set_align(AlignH horizontal);
-
-    void set_align(AlignV vertical);
+    void set_align(Align align);
+	
 private:
     void update();
 

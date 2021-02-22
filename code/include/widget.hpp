@@ -10,18 +10,13 @@
 
 class IEngine;
 
-enum class AlignH
+enum class Align
 {
     Center,
     Left,
-    Right
-};
-
-enum class AlignV
-{
-    Center,
-    Top,
-    Bottom
+	Top,
+    Right,
+	Bottom
 };
 
 struct Rect
@@ -63,7 +58,7 @@ public:
 
     virtual ~Widget();
 
-	virtual void initialize() {}
+	//virtual void initialize() {}
 
 	virtual void draw(IRender* render);
 
@@ -77,7 +72,7 @@ public:
 
     bool is_contains( Widget* child );
 
-    bool get_child_index( Widget* node, basic::uint32 &out_index ) const;
+    bool get_child_index( Widget* node, uint32_t &out_index ) const;
 
     Widget* get_parent();
 
@@ -109,13 +104,9 @@ public:
 
     bool get_visible() const;
 
-    AlignH get_horizontal_align() const;
+    Align get_align() const;
 
-    void set_align(AlignH horizontal);
-
-    AlignV get_vertical_align() const;
-
-    void set_align(AlignV vertical);
+    void set_align(Align align);
 
     void set_picture(Texture* tex );
 
@@ -146,8 +137,7 @@ protected:
     basic::String m_press_action_name;
     bool m_visible;
 
-    AlignH m_horizontal;
-    AlignV m_vertical;
+    Align m_align;
     ResourceStorage* m_storage;
 
 	class DrawingRect* m_debug_rect;

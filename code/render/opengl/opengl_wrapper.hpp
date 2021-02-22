@@ -41,6 +41,7 @@ bool is_call_success();
 		BufferUsage buffer_usage;
 		const void* data;
 		uint32_t size;
+		bool submit = false;
 	};
 
 	Result create_vertex_array();
