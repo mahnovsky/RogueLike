@@ -1,6 +1,7 @@
 #include "camera.hpp"
 #include "transform.hpp"
 #include "frustum.hpp"
+#include <glm/gtx/projection.hpp>
 
 #undef near
 #undef far
@@ -115,9 +116,10 @@ std::vector<OctreeObject*> PerspectiveCamera::select_objects(glm::vec2 view_size
 		if (obj->is_exist(ShapeType::Sphere))
 		{
 			auto sphere = obj->get_sphere();
-
+			glm::vec3 closed_pos = glm::normalize(glm::cross(glm::normalize(m_position - m_direction), m_up)) * sphere.radius;
+			
 			glm::vec2 vp_pos = convert_world_to_screen(sphere.pos, m_projection, m_view, view_size, {});
-			glm::vec2 vp_right_pos = convert_world_to_screen(sphere.pos + glm::vec3(1.f, 0.f, 0.f) * sphere.radius, 
+			glm::vec2 vp_right_pos = convert_world_to_screen(sphere.pos + closed_pos,
 				m_projection, m_view, view_size, {});
 
 			float radius = glm::length(vp_pos - vp_right_pos);

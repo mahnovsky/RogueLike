@@ -276,6 +276,6 @@ void Widget::_initialize_debug_rect()
 		glm::mat4 vp;
 		m_root->get_ui_camera()->get_matrix(vp);
 		m_debug_rect->set_view_projection_matrix(vp);
-		m_debug_rect->set_camera_index(m_root->get_camera_index());
+		m_debug_rect->set_camera_index(m_root->get_ui_camera()->get_camera_index());
 	}
 }

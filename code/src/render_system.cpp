@@ -89,7 +89,7 @@ void RenderSystem::initialize(IRender* render, ICamera* cam )
 	m_render = render;
     m_camera = cam;
 
-	m_camera_index = m_render->add_camera(cam);
+	m_render->add_camera(cam);
 }
 
 void RenderSystem::draw( EcsManager* ecs ) const
@@ -116,7 +116,7 @@ void RenderSystem::draw( EcsManager* ecs ) const
 		auto rc = ent->get_component<RenderComponent>();
 		if (!rc->m_render_object)
 		{
-			rc->initialize(m_render->create_object(), m_camera_index);
+			rc->initialize(m_render->create_object(), m_camera->get_camera_index());
 		}
 
 		auto tr = ent->get_component<Transform>();

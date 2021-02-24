@@ -371,9 +371,34 @@ std::vector< VertexFMT > get_fmt_list( const Vertex_T* )
     return res;
 }
 
+// -------------------------------
+DrawablePrirmitive::DrawablePrirmitive(IRender* render, ICamera* camera)
+	: m_render(render)
+	, m_camera(camera)
+	, m_object(render->create_object())
+	, m_vertices()
+{
+	m_object->set_camera_index(camera->get_camera_index());
+}
+
+DrawablePrirmitive::~DrawablePrirmitive()
+{
+	m_render->delete_object(m_object);
+}
+
+void DrawablePrirmitive::apply_builder(IPrimitiveBuilder& builder)
+{
+	builder.build_primitive(m_render, m_object, m_vertices);
+}
+
+void DrawablePrirmitive::draw()
+{
+	m_render->add_to_frame(m_object);
+}
+
 DrawingRect::DrawingRect(IRender* render)
 	:m_render(render)
-	,m_rect_object(nullptr)
+	,m_rect_object(render->create_object())
 	,m_vertices()
 	,m_pos()
 	,m_size(1.f, 1.f)
@@ -469,3 +494,12 @@ void DrawingRect::init_rect()
 
 	update_rect();
 }
+
+DrawingCircle::DrawingCircle(IRender* render)
+{
+}
+
+DrawingCircle::~DrawingCircle()
+{
+}
+

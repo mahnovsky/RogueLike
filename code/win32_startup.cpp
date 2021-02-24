@@ -29,7 +29,7 @@ int __stdcall WinMain( HINSTANCE instance,
 	
 	if (engine->init(1024, 768, "RogueLike"))
 	{
-		while (engine->update());
+		while (engine->is_runned() && engine->update());
 
 		engine->cleanup();
 	}

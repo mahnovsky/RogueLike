@@ -37,7 +37,7 @@ public:
 
 	void add_to_frame(IRenderObject* object) override;
 
-	int32_t add_camera(ICamera* camera) override;
+	void add_camera(ICamera* camera) override;
 
 	void update_view_projection_matrix(const RenderObjectData& render_data);
 

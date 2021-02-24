@@ -124,6 +124,29 @@ std::vector< VertexFMT > get_fmt_list( const Vertex_T* );
 
 bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh );
 
+class IPrimitiveBuilder
+{
+public:
+	virtual void build_primitive(IRender* render, IRenderObject* obj, VertexBuffer& vertex_buffer) = 0;
+};
+
+class DrawablePrirmitive
+{
+public:
+	DrawablePrirmitive(IRender* render, ICamera* camera);
+	~DrawablePrirmitive();
+	
+	void apply_builder(IPrimitiveBuilder& builder);
+
+	void draw();
+
+protected:
+	IRender* m_render;
+	ICamera* m_camera;
+	IRenderObject* m_object;
+	VertexBuffer m_vertices;
+};
+
 class DrawingRect
 {
 public:
@@ -151,4 +174,19 @@ private:
 	glm::vec2 m_pos;
 	glm::vec2 m_size;
 	bool m_need_update;
+};
+
+class DrawingCircle
+{
+public:
+	DrawingCircle(IRender* render);
+	~DrawingCircle();
+
+
+
+private:
+	IRender* m_render;
+	IRenderObject* m_rect_object;
+	VertexBuffer m_vertices;
+	float m_radius;
 };

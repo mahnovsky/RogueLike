@@ -16,7 +16,7 @@ void Engine::out_of_memory()
     {
         _instance->m_callbacks[ OutOfMemory ]( _instance );
     }
-    _instance->m_quit = true; 
+    _instance->m_is_runned = true; 
 }
 
 static void dummy( Engine* ){}
@@ -26,7 +26,7 @@ Engine::Engine( int argc, char** argv )
 	, m_window( nullptr ) 
     , m_render( nullptr )
     , m_input(nullptr)
-    , m_quit( false )
+    , m_is_runned( true )
     , m_callbacks()
     , m_cmd_args()
     , m_time( 0.0 )
@@ -125,7 +125,7 @@ bool Engine::update()
         fps_counter = 0;
     }
 
-    return !m_quit;
+    return m_is_runned;
 }
 
 void Engine::cleanup()
@@ -159,7 +159,7 @@ void Engine::set_callback( EngineCallbackType type, engine_callback callback )
 
 void Engine::shutdown()
 {
-    m_quit = true;
+    m_is_runned = false;
 }
 
 IRender* Engine::get_render()
@@ -183,6 +183,11 @@ glm::vec2 Engine::get_window_size() const
 double Engine::get_frame_time() const
 {
     return m_delta;
+}
+
+bool Engine::is_runned() const
+{
+    return m_is_runned;
 }
 
 basic::uint32 Engine::get_fps() const

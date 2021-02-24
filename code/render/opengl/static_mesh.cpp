@@ -3,6 +3,7 @@
 #include "render_common.hpp"
 #include "OpenFBX/ofbx.h"
 #include "fbx_helper.hpp"
+#include <glm/glm.hpp>
 
 StaticMesh::StaticMesh( const char* name )
     : FileResource( name )
@@ -54,6 +55,8 @@ bool StaticMesh::init(const MeshData& data, ogl::BufferUsage usage)
 		m_index_count = data.indices.size();
 	}
 
+	update_bounding_sphere(data);
+
 	return true;
 }
 
@@ -71,6 +74,8 @@ void StaticMesh::update(const MeshData& data)
 
 		m_index_count = data.indices.size();
 	}
+
+	update_bounding_sphere(data);
 }
 
 bool StaticMesh::load(core::ResourceStorage* rs)
@@ -124,4 +129,47 @@ uint32_t StaticMesh::get_element_size() const
 const std::vector<VertexFMT>& StaticMesh::get_fmt_list() const
 {
 	return m_fmt_list;
+}
+
+float StaticMesh::get_bounding_sphere_radius() const
+{
+	return m_bounding_sphere_radius;
+}
+
+void StaticMesh::update_bounding_sphere(const MeshData& data)
+{
+	uint32_t step = data.vertex_data.item_size;
+	void* ptr = data.vertex_data.data.get();
+	for (uint32_t i = 0; i < data.vertex_data.count; ++i)
+	{
+		auto vec = static_cast<glm::vec3*>(ptr);
+		ptr = static_cast<char*>(ptr) + step;
+		if (vec->x < m_min_corner.x)
+		{
+			m_min_corner.x = vec->x;
+		}
+		if (vec->y < m_min_corner.y)
+		{
+			m_min_corner.y = vec->y;
+		}
+		if (vec->z < m_min_corner.z)
+		{
+			m_min_corner.z = vec->z;
+		}
+
+		if (vec->x > m_max_corner.x)
+		{
+			m_max_corner.x = vec->x;
+		}
+		if (vec->y > m_max_corner.y)
+		{
+			m_max_corner.y = vec->y;
+		}
+		if (vec->z > m_max_corner.z)
+		{
+			m_max_corner.z = vec->z;
+		}
+	}
+	
+	m_bounding_sphere_radius = glm::length( (m_max_corner - m_min_corner) / 2.f );
 }

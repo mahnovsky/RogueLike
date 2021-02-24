@@ -117,7 +117,7 @@ void WidgetText::draw(IRender* render)
 	if (!m_text_render)
 	{
 		m_text_render = render->create_object();
-		m_text_render->set_camera_index(m_root->get_camera_index());
+		m_text_render->set_camera_index(m_root->get_ui_camera()->get_camera_index());
 		update();
 	}
 	render->add_to_frame(m_text_render);

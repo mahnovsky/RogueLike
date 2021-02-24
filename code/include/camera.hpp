@@ -29,6 +29,19 @@ public:
     static glm::vec3 convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos );
 
     static glm::vec3 convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos );
+
+	void set_camera_index(uint32_t index)
+	{
+		m_camera_index = index;
+	}
+
+	uint32_t get_camera_index() const
+	{
+		return m_camera_index;
+	}
+
+private:
+	uint32_t m_camera_index;
 };
 
 class PerspectiveCamera : public ICamera

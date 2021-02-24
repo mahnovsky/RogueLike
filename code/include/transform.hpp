@@ -12,12 +12,6 @@ public:
     Transform( Entity* ent );
 	~Transform() override;
 
-    void set_parent( Transform* parent );
-
-    void add_child( Transform* child );
-
-    void remove( Transform* child );
-
     void set_position( const glm::vec3& pos );
 
     glm::vec3 get_position( ) const;
@@ -42,9 +36,6 @@ private:
     void update_final_matrix() const;
 
 	mutable glm::mat4 m_final_mat;
-
-    Transform* m_parent;
-	basic::Vector< Transform* > m_children;
     
     glm::vec3 m_pos;
     glm::vec3 m_euler_angles;

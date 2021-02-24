@@ -50,6 +50,8 @@ public:
     virtual basic::uint32 get_fps() const = 0;
 
 	virtual core::SystemManager& get_system_manager() = 0;
+
+    virtual bool is_runned() const = 0;
 };
 
 class Engine 
@@ -83,6 +85,8 @@ public:
 
     double get_frame_time() const override;
 
+    bool is_runned() const override;
+
     basic::uint32 get_fps() const;
 
     GenericObjectManager* get_object_manager() { return m_object_manager; }
@@ -107,7 +111,7 @@ private:
 
     input::Input* m_input;
 
-    bool m_quit;
+    bool m_is_runned;
 
     engine_callback m_callbacks[Count];
 

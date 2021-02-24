@@ -4,10 +4,11 @@
 #include "entity.hpp"
 #include "octree.h"
 
+#include <glm/gtc/quaternion.hpp>
+
 Transform::Transform(Entity* ent)
 	: Component(ent)
 	, m_final_mat(1.f)
-	, m_parent(nullptr)
 	, m_pos()
 	, m_euler_angles()
 	, m_pivot_point()
@@ -18,47 +19,6 @@ Transform::Transform(Entity* ent)
 
 Transform::~Transform()
 {
-	if (!m_children.is_empty())
-	{
-		for (auto child : m_children)
-		{
-			if (child->m_parent == nullptr)
-				continue;
-			ASSERT(child->m_parent == this);
-			child->m_parent = nullptr;
-		}
-	}
-	if (m_parent)
-	{
-		m_parent->remove(this);
-	}
-}
-
-void Transform::set_parent(Transform* parent)
-{
-	ASSERT(parent);
-	if (m_parent)
-	{
-		m_parent->remove(this);
-	}
-	m_parent = parent;
-
-	update_final_matrix();
-}
-
-void Transform::add_child(Transform* child)
-{
-	m_children.push(child);
-
-	child->set_parent(this);
-}
-
-void Transform::remove(Transform* child)
-{
-	ASSERT(child->m_parent == this);
-	m_children.remove_by_value(child);
-
-	child->m_parent = nullptr;
 }
 
 void
@@ -140,22 +100,21 @@ void Transform::update_final_matrix() const
 {
 	if (is_changed)
 	{
-		glm::mat4 const identity(1.f);
+		const glm::mat4 scale = glm::scale(glm::toMat4(m_quat), m_scale);
+		//const glm::mat4 pivot = glm::translate(scale, -m_pivot_point);
+		
+		m_final_mat = glm::translate(m_pos) * scale;
+		
 
-		const glm::mat4 pivot = glm::translate(identity, -m_pivot_point);
-		const glm::mat4 translate = glm::translate(identity, m_pos);
-		const glm::mat4 rot = glm::mat4_cast(m_quat);
-		const glm::mat4 scale = glm::scale(identity, m_scale);
-
-		m_final_mat = translate * rot * pivot * scale;
+		//m_final_mat = translate * rot * pivot * scale;
 
 		is_changed = false;
 	}
-
+	/*
 	if (m_parent)
 	{
 		m_final_mat = m_final_mat * m_parent->get_matrix();
-	}
+	}*/
 
 	/*for (Transform* child : m_children)
 	{

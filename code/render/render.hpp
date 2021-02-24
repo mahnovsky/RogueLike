@@ -28,6 +28,8 @@ public:
 	virtual void set_render_state(uint32_t flag) = 0;
 
 	virtual void set_camera_index(uint32_t index) = 0;
+
+	virtual uint32_t get_camera_index() const = 0;
 };
 
 class IRender
@@ -43,7 +45,7 @@ public:
 
 	virtual void add_to_frame(IRenderObject* object) = 0;
 
-	virtual int32_t add_camera(ICamera* camera) = 0;
+	virtual void add_camera(ICamera* camera) = 0;
 
 	virtual IRenderObject* create_object() = 0;
 

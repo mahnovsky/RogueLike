@@ -162,8 +162,7 @@ rnd( )
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
 
-Entity*
-make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* texture = nullptr )
+Entity* make_ent(EcsManager* ecs, core::ResourceStorage* storage, const char* mesh, const char* shader, const char* texture = nullptr )
 {
 	auto ent = ecs->create_entity<Entity>();
 	
@@ -176,19 +175,19 @@ make_ent(EcsManager* ecs, const char* mesh, const char* shader, const char* text
     const float scale = rnd( ) * 5.f;
     tr->set_scale( {scale, scale, scale} );
 
-	Sphere s;
-	s.pos = pos;
-	float a = scale / 2;
-	s.radius = glm::sqrt(a*a / 2);
-	
-	auto bounding = ent->add_component<OctreeObject>(s);
-	auto octree = ecs->get_system<Octree>();
-	octree->add_object(bounding);
-
     auto rc = ent->add_component< RenderComponent >( );
 
 	rc->set_resource_name(RenderResourceType::ShaderProgram, shader);
 	rc->set_resource_name(RenderResourceType::StaticMesh, mesh);
+
+	std::shared_ptr<StaticMesh> mesh_instance = storage->get_resorce<StaticMesh>(mesh);
+	Sphere s;
+	s.pos = pos;
+	s.radius = mesh_instance->get_bounding_sphere_radius() * scale;
+
+	auto bounding = ent->add_component<OctreeObject>(s);
+	auto octree = ecs->get_system<Octree>();
+	octree->add_object(bounding);
 
 	if (texture)
 	{
@@ -279,16 +278,13 @@ void GameInstance::init( )
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     
 	m_selection_rect = NEW_OBJ(DrawingRect, render);
-	glm::mat4 ui_vp;
-	m_widget_system->get_ui_camera()->get_matrix(ui_vp);
-
-	m_selection_rect->set_view_projection_matrix(ui_vp);
+	m_selection_rect->set_camera_index(m_widget_system->get_ui_camera()->get_camera_index());
 
 	initialize_ui();
     
 	for (int i = 0; i < 10; ++i)
 	{
-		auto cow = make_ent(m_ecs, "meshes/cube.fbx", "default");
+		auto cow = make_ent(m_ecs, m_rs, "meshes/cube.fbx", "default");
 		auto rc = cow->get_component<RenderComponent>();
 		if(rc)
 		{
@@ -296,7 +292,7 @@ void GameInstance::init( )
 		}
 	}
 
-	m_player = make_ent(m_ecs, "meshes/cube.fbx", "default");
+	m_player = make_ent(m_ecs, m_rs, "meshes/cube.fbx", "default");
 	if (m_player)
 	{
 		auto mc = m_player->get_component< MoveComponent >();

@@ -14,7 +14,6 @@ namespace core
 		, m_engine(nullptr)
 		, m_ui_camera(nullptr)
 		, m_root_widget(nullptr)
-		, m_camera_index(0)
 	{
 	}
 
@@ -33,7 +32,7 @@ namespace core
 		m_ui_camera = NEW_OBJ(OrthoCamera, size.x, size.y, 0.f, 100.f);
 		glm::vec3 zero;
 		m_ui_camera->init(zero, zero, zero);
-		m_camera_index = m_engine->get_render()->add_camera(m_ui_camera);
+		m_engine->get_render()->add_camera(m_ui_camera);
 
 		m_root_widget = NEW_OBJ(Widget, this);
 		m_root_widget->set_size(size);
@@ -45,11 +44,6 @@ namespace core
 		m_engine->get_input()->remove_listener(this);
 
 		DELETE_OBJ(m_root_widget);
-	}
-
-	uint32_t WidgetSystem::get_camera_index() const
-	{
-		return m_camera_index;
 	}
 
 	const ICamera* WidgetSystem::get_ui_camera() const

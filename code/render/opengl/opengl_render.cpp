@@ -254,6 +254,11 @@ public:
 		m_instance.camera_index = index;
 	}
 
+	uint32_t get_camera_index() const
+	{
+		return m_instance.camera_index;
+	}
+
 	void set_vertex_draw_mode(::VertexDrawMode mode) override
 	{
 		m_instance.draw_mode = translate_draw_mode(mode);
@@ -501,6 +506,7 @@ void OpenGLRender::delete_object(IRenderObject* obj)
 	OpenGLRenderObject* render_obj = dynamic_cast<OpenGLRenderObject*>(obj);
 	if (render_obj && stdext::remove(m_objects, render_obj))
 	{
+		const uint32_t cam_index = obj->get_camera_index();
 		stdext::remove(m_present_objects, render_obj);
 		g_object_pool->free(render_obj);
 	}
@@ -587,11 +593,11 @@ void OpenGLRender::add_to_frame(IRenderObject* object)
 	m_present_objects.push_back(ogl_object);
 }
 
-int32_t OpenGLRender::add_camera(ICamera* camera)
+void OpenGLRender::add_camera(ICamera* camera)
 {
 	int32_t next_index = m_cams.size();
 	m_cams.push_back(camera);
-	return next_index;
+	camera->set_camera_index(next_index);
 }
 
 void OpenGLRender::update_view_projection_matrix(const RenderObjectData& render_data)
