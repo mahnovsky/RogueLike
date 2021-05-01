@@ -1,7 +1,10 @@
 #include "entity.hpp"
 #include "basic/debug.hpp"
+#include "component.hpp"
 
-Entity::Entity(EcsManager* mng): m_manager(mng)
+Entity::Entity(EntityComponentManager* mng)
+	: m_manager(mng)
+	, m_parent(nullptr)
 {
 }
 
@@ -21,7 +24,7 @@ bool Entity::is_component_exist(size_t type_index) const
 	return (test_flag & m_components_flag) > 0;
 }
 
-void Entity::add_component(IGenericObject* comp)
+void Entity::add_component(Component* comp)
 {
 	int type_index = comp->type_index();
 	ASSERT(type_index < sizeof(uint64_t));
@@ -35,7 +38,7 @@ void Entity::add_component(IGenericObject* comp)
 	m_components.push_back(comp);
 }
 
-IGenericObject* Entity::get_component(size_t type_index)
+Component* Entity::get_component(size_t type_index)
 {
 	if (is_component_exist(type_index))
 	{
@@ -51,7 +54,7 @@ IGenericObject* Entity::get_component(size_t type_index)
 	return nullptr;
 }
 
-const IGenericObject* Entity::get_component(size_t type_index) const
+const Component* Entity::get_component(size_t type_index) const
 {
 	if (is_component_exist(type_index))
 	{
@@ -67,12 +70,12 @@ const IGenericObject* Entity::get_component(size_t type_index) const
 	return nullptr;
 }
 
-EcsManager* Entity::get_manager() const
+EntityComponentManager* Entity::get_manager() const
 {
 	return m_manager;
 }
 
-std::vector<IGenericObject*> Entity::get_components() const
+std::vector<Component*> Entity::get_components() const
 {
 	return m_components;
 }
@@ -100,10 +103,24 @@ void Entity::remove_child(Entity* child)
 {
 	ASSERT(child != nullptr);
 	ASSERT(child->m_parent == this);
+
 	auto it = std::find(m_children.begin(), m_children.end(), child);
 	if (it != m_children.end())
 	{
 		m_children.erase(it);
 		child->m_parent = nullptr;
+	}
+}
+
+void Entity::send_component_event(Component* sender, ComponentEvent event_type)
+{
+	const TypeIndex type_index = sender->type_index();
+
+	for (auto component : m_components)
+	{
+		if (component->is_listen_component(type_index))
+		{
+			component->on_event(sender, event_type);
+		}
 	}
 }

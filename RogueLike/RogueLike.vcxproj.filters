@@ -34,9 +34,6 @@
     <Filter Include="code\include\generic">
       <UniqueIdentifier>{b6d272f6-f0eb-478a-903a-72810b8dd68b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="code\src\generic">
-      <UniqueIdentifier>{b6567b03-1d23-45e4-aafc-3e3f43b9046d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="code\include\render">
       <UniqueIdentifier>{d3caf49e-5230-4ad9-92ec-c21831459a20}</UniqueIdentifier>
     </Filter>
@@ -147,9 +144,6 @@
     <ClCompile Include="..\code\src\octree.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\generic\generic_object_manager.cpp">
-      <Filter>code\src\generic</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\text_component.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
@@ -195,6 +189,7 @@
     <ClCompile Include="..\code\core\systems\widget_system.cpp">
       <Filter>code\core\systems</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\include\ecs\component.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -282,9 +277,6 @@
       <Filter>code\include\generic</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\generic\type_info.hpp">
-      <Filter>code\include\generic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\generic\generic_object_manager.hpp">
       <Filter>code\include\generic</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\ecs\ecs_manager.hpp">

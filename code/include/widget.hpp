@@ -6,7 +6,7 @@
 
 #include "generic_object.hpp"
 #include "type_registration.hpp"
-#include "generic_object_manager.hpp"
+#include "generic_object.hpp"
 
 class IEngine;
 

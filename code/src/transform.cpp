@@ -25,15 +25,8 @@ void
 Transform::set_position(const glm::vec3& pos)
 {
 	m_pos = pos;
-	if (m_entity)
-	{
-		auto bound = m_entity->get_component<OctreeObject>();
-		if (bound)
-		{
-			bound->set_position({ pos.x, pos.y, pos.z });
-		}
-	}
-
+	
+	m_entity->send_component_event(this, ComponentEvent::Updated);
 	is_changed = true;
 }
 
@@ -56,16 +49,27 @@ glm::vec3 Transform::get_pivot_point() const
 
 void Transform::set_euler_angles(const glm::vec3& angles)
 {
-	m_euler_angles = angles;
 	m_quat = glm::quat(angles);
 
+	m_entity->send_component_event(this, ComponentEvent::Updated);
 	is_changed = true;
+}
+
+glm::quat Transform::get_quaternion() const
+{
+	return m_quat;
+}
+
+void Transform::set_quaternion(glm::quat rotation)
+{
+	m_quat = rotation;
 }
 
 void Transform::set_scale(const glm::vec3& scale)
 {
 	m_scale = scale;
 
+	m_entity->send_component_event(this, ComponentEvent::Updated);
 	is_changed = true;
 }
 
@@ -83,17 +87,14 @@ glm::mat4 Transform::get_matrix() const
 
 glm::vec3 Transform::get_euler_angles() const
 {
-	return m_euler_angles;
+	return glm::eulerAngles(m_quat);
 }
 
 glm::vec3 Transform::get_forward() const
 {
-	glm::vec3 forward;
-	forward.x = glm::sin(m_euler_angles.y);
-	forward.y = -glm::tan(m_euler_angles.x);
-	forward.z = glm::cos(m_euler_angles.y);
+	glm::vec3 forward = glm::vec3(1.f, 0.f, 0.f);
 
-	return forward;
+	return glm::rotate(m_quat, forward);
 }
 
 void Transform::update_final_matrix() const
@@ -101,23 +102,13 @@ void Transform::update_final_matrix() const
 	if (is_changed)
 	{
 		const glm::mat4 scale = glm::scale(glm::toMat4(m_quat), m_scale);
+		
 		//const glm::mat4 pivot = glm::translate(scale, -m_pivot_point);
 		
 		m_final_mat = glm::translate(m_pos) * scale;
 		
-
 		//m_final_mat = translate * rot * pivot * scale;
 
 		is_changed = false;
 	}
-	/*
-	if (m_parent)
-	{
-		m_final_mat = m_final_mat * m_parent->get_matrix();
-	}*/
-
-	/*for (Transform* child : m_children)
-	{
-		child->update_final_matrix();
-	}*/
 }

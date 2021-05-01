@@ -2,6 +2,8 @@
 #include "transform.hpp"
 #include "frustum.hpp"
 #include <glm/gtx/projection.hpp>
+#include "render_common.hpp"
+#include "render.hpp"
 
 #undef near
 #undef far
@@ -107,9 +109,11 @@ glm::vec2 convert_world_to_screen(
 	return vp_pos;
 }
 
-std::vector<OctreeObject*> PerspectiveCamera::select_objects(glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom)
+std::vector<OctreeObject*> PerspectiveCamera::select_objects(IRender* render, glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom)
 {
 	std::vector<OctreeObject*> result;
+	
+	m_free_debug_objects = std::move(m_debug_objects);
 
 	for (auto obj : m_last_visible_objects)
 	{
@@ -123,6 +127,8 @@ std::vector<OctreeObject*> PerspectiveCamera::select_objects(glm::vec2 view_size
 				m_projection, m_view, view_size, {});
 
 			float radius = glm::length(vp_pos - vp_right_pos);
+			glm::vec2 sphere_center = vp_pos;
+			draw_debug_circle(render, { sphere_center, 0.f }, radius);
 
 			auto center = left_top + (right_bottom - left_top) / 2.f;
 			auto dir = glm::normalize(center - vp_pos);
@@ -134,10 +140,39 @@ std::vector<OctreeObject*> PerspectiveCamera::select_objects(glm::vec2 view_size
 			{
 				result.push_back(obj);
 			}
+			else
+			{
+				float r2 = radius * radius;
+				if (glm::distance2(left_top, sphere_center) < r2 || glm::distance2(right_bottom, sphere_center) < r2)
+				{
+					result.push_back(obj);
+				}
+			}
 		}
 	}
 
 	return result;
+}
+
+void PerspectiveCamera::draw_debug_circle(IRender* render, const glm::vec3& pos, float radius)
+{
+	IRenderObject* debug_view = nullptr;
+	if (!m_free_debug_objects.empty())
+	{
+		debug_view = m_free_debug_objects.back();
+		m_free_debug_objects.pop_back();
+	}
+	if (!debug_view)
+	{
+		debug_view = render->create_object();
+		debug_view->set_camera_index(0);
+		debug_view->update_color({ 255,255,0,100 });
+	}
+	m_debug_objects.push_back(debug_view);
+
+	build_circle(debug_view, radius, 36, DrawMode::Fill);
+	setup_position(debug_view, pos);
+	render->add_to_frame(debug_view);
 }
 
 void

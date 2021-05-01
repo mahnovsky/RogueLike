@@ -27,7 +27,7 @@ TextComponent::~TextComponent()
 
 void TextComponent::init( core::ResourceStorage * storage )
 {
-	m_font = storage->get_resorce<se::Font>(m_font_file.get_cstr());
+	m_font = storage->get_resorce<se::Font>(m_font_file.c_str());
 	if (m_font)
 	{
 		update();
@@ -73,7 +73,7 @@ void TextComponent::draw( ICamera* cam )
 
 void TextComponent::update( )
 {
-    if ( m_font && !m_text.is_empty( ) )
+    if ( m_font && !m_text.empty( ) )
     {
     }
 }

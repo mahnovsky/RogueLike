@@ -114,6 +114,8 @@ void setup_vertices(VertexData& out, const VertexBuffer& vertices);
 
 void setup_vertices(VertexData& out, const VertexBufferT& vertices);
 
+void setup_vertices(VertexData& out, const VertexBufferP& vertices);
+
 std::vector<VertexFMT> get_vertex_format_description(uint32_t format_flags);
 
 std::vector< VertexFMT > get_fmt_list( const glm::vec3* );
@@ -124,27 +126,10 @@ std::vector< VertexFMT > get_fmt_list( const Vertex_T* );
 
 bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh );
 
-class IPrimitiveBuilder
+class IVertexFactory
 {
 public:
-	virtual void build_primitive(IRender* render, IRenderObject* obj, VertexBuffer& vertex_buffer) = 0;
-};
-
-class DrawablePrirmitive
-{
-public:
-	DrawablePrirmitive(IRender* render, ICamera* camera);
-	~DrawablePrirmitive();
-	
-	void apply_builder(IPrimitiveBuilder& builder);
-
-	void draw();
-
-protected:
-	IRender* m_render;
-	ICamera* m_camera;
-	IRenderObject* m_object;
-	VertexBuffer m_vertices;
+	virtual void apply_vertices(IRenderObject* obj) = 0;
 };
 
 class DrawingRect
@@ -176,17 +161,17 @@ private:
 	bool m_need_update;
 };
 
-class DrawingCircle
+constexpr float kMinCircleRadius = 0.0001f;
+constexpr float kDefaultCircleRadius = 1.f;
+constexpr uint32_t kMinCircleSectorCount = 4;
+constexpr uint32_t kDefaultCircleSectorCount = 36;
+
+enum class DrawMode
 {
-public:
-	DrawingCircle(IRender* render);
-	~DrawingCircle();
-
-
-
-private:
-	IRender* m_render;
-	IRenderObject* m_rect_object;
-	VertexBuffer m_vertices;
-	float m_radius;
+	Wire,
+	Fill
 };
+
+void build_circle(IRenderObject* obj, float radius, uint32_t sector_count = kDefaultCircleSectorCount, DrawMode mode = DrawMode::Wire);
+void build_rect(IRenderObject* obj, const glm::vec2& left_bottom, const glm::vec2& right_top, DrawMode mode = DrawMode::Wire);
+void setup_position(IRenderObject* obj, const glm::vec3& pos);

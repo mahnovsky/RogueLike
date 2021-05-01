@@ -4,10 +4,11 @@
 #include <algorithm>
 
 #include "pool.hpp"
-#include "generic_object_manager.hpp"
 
 #include "type_registration.hpp"
+#include "generic/generic_object.hpp"
 
+class IGenericObject;
 class Entity;
 
 
@@ -47,13 +48,12 @@ public:
 	Pool<T> pool;
 };
 
-class EcsManager
+class EntityComponentManager
 {
 public:
-	EcsManager(GenericObjectManager* object_manager)
-		:m_object_manager(object_manager)
+	EntityComponentManager()
 	{}
-	~EcsManager()
+	~EntityComponentManager()
 	{
 		auto cont = std::move(m_systems);
 		for (auto sys : cont)
@@ -80,8 +80,6 @@ public:
 		auto cont = dynamic_cast<Container<T>*>(m_ent_containers[index].get());
 
 		T* ent = cont->pool.alloc(this, args ...);
-
-		m_object_manager->add_object(ent);
 
 		return ent;
 	}
@@ -113,8 +111,6 @@ public:
 		auto cont = dynamic_cast<Container<T>*>(m_comp_containers[index].get());
 
 		T* comp = cont->pool.alloc(ent, args ...);
-
-		m_object_manager->add_object(comp);
 
 		return comp;
 	}
@@ -165,8 +161,6 @@ public:
 
 		m_systems.emplace_back(system);
 
-		m_object_manager->add_object(system);
-
 		return system;
 	}
 
@@ -187,7 +181,6 @@ public:
 	}
 
 private:
-	GenericObjectManager* m_object_manager;
 	std::vector<std::unique_ptr<IContainer>> m_ent_containers;
 	std::vector<std::unique_ptr<IContainer>> m_comp_containers;
 

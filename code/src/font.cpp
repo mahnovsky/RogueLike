@@ -122,7 +122,7 @@ void Font::update( const char* text, uint32_t count, IRenderObject* text_object,
 		// https://github.com/0xc0dec/demos/blob/master/src/StbTrueType.cpp
 
 		uint16_t offset = i * 4;
-		uint16_t indx[] = { offset, offset + 1, offset + 2, 0 + offset, offset + 2, offset + 3 };
+		uint16_t indx[] = { offset, offset + 1, offset + 2, offset, offset + 2, offset + 3 };
 		mesh_data.indices.insert(mesh_data.indices.end(), std::begin(indx), std::end(indx));
 	}
 

@@ -21,7 +21,7 @@ namespace stdext
 	}
 
 	/* Push new item in vector if item dont contains in vector. 
-		Return true if item actualy pushed. */
+		Return true if item actually pushed. */
 	template <class Item, class Alloc>
 	bool push_unique(std::vector<Item, Alloc>& cont, Item& item)
 	{

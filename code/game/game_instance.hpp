@@ -6,7 +6,6 @@
 #include "engine.hpp"
 #include "input.hpp"
 #include "resource_storage.hpp"
-#include "generic_object_manager.hpp"
 #include "system_manager.hpp"
 
 class GameInstance : public input::InputListener
@@ -38,7 +37,6 @@ private:
 
 private:
     Engine* m_engine;
-    GenericObjectManager* m_object_manager;
     core::ResourceStorage* m_rs;
     PerspectiveCamera* m_game_camera;
     
@@ -52,14 +50,15 @@ private:
     WidgetText* m_mem_text;
     RenderNode* m_cow;
     core::WidgetSystem* m_widget_system;
-	EcsManager* m_ecs;
+	EntityComponentManager* m_ecs;
     class RenderSystem* m_render_system;
 
     Entity* m_player;
 
 	bool m_is_menu_opened = false;
 
-	DrawingRect* m_selection_rect;
+	//DrawingRect* m_selection_rect;
+    IRenderObject* m_selection_rect;
 
 	bool m_selection_state = false;
 	glm::vec2 m_start_pos;

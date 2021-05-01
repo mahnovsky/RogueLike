@@ -136,6 +136,8 @@ public:
 
 	const Sphere& get_sphere() const;
 
+	void on_event(Component* sender, ComponentEvent event_type) override;
+
 private:
 	class OctreeNode* m_owner;
 
@@ -192,7 +194,7 @@ class Octree : public IGenericObject
 public:
 	GENERIC_OBJECT_IMPL(Octree, NS_SYSTEM_TYPE);
 
-	Octree(EcsManager* manager, const Box& b);
+	Octree(EntityComponentManager* manager, const Box& b);
 	~Octree() override = default;
 
 	OctreeNode* create_node(const Box& enclosing_box, OctreeNode* parent, int layer);
@@ -212,7 +214,7 @@ public:
 	void on_object_out(OctreeObject* object);
 
 private:
-	EcsManager* m_manager;
+	EntityComponentManager* m_manager;
 	Pool<OctreeNode> m_node_pool;
 	Pool<OctreeObject> m_object_pool;
 	std::vector<OctreeObject*> m_out_objects;

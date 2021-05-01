@@ -7,13 +7,14 @@
 
 #include "generic/generic_object.hpp"
 #include "ecs_manager.hpp"
+#include "component.hpp"
 
 class Entity : public IGenericObject
 {
 public:
 	GENERIC_OBJECT_IMPL(Entity, NS_ENTITY_TYPE);
 
-	Entity(EcsManager* mng);
+	Entity(EntityComponentManager* mng);
 
 	~Entity() override;
 
@@ -25,15 +26,15 @@ public:
 
 	bool is_component_exist(size_t type_index) const;
 
-	void add_component(IGenericObject* comp);
+	void add_component(Component* comp);
 
-	IGenericObject* get_component(size_t type_index);
+	Component* get_component(size_t type_index);
 
-	const IGenericObject* get_component(size_t type_index) const;
+	const Component* get_component(size_t type_index) const;
 
-	EcsManager* get_manager() const;
+	EntityComponentManager* get_manager() const;
 
-	std::vector<IGenericObject*> get_components() const;
+	std::vector<Component*> get_components() const;
 
 	template <class T>
 	T* get_component()
@@ -52,7 +53,7 @@ public:
 	{
 		T* comp = m_manager->create_component<T, Args ...>(this, args ...);
 
-		add_component(comp);
+		add_component(dynamic_cast<Component*>(comp));
 
 		return comp;
 	}
@@ -63,10 +64,12 @@ public:
 
 	void remove_child(Entity* child);
 
+	void send_component_event(Component* sender, ComponentEvent event_type);
+
 private:
-	EcsManager* m_manager;
+	EntityComponentManager* m_manager;
 	uint64_t m_components_flag = 0;
-	std::vector<IGenericObject*> m_components;
+	std::vector<Component*> m_components;
 
 	Entity* m_parent;
 	std::vector<Entity*> m_children;

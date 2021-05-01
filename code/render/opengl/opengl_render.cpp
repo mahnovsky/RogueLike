@@ -55,10 +55,13 @@ public:
 		, m_program(nullptr)
 		, m_texture(nullptr)
 		, m_instance()
+		, m_buffer_usage(BufferUsage::Static)
 	{
 		memset(&m_instance, 0, sizeof(RenderObjectData));
 		m_instance.draw_mode = ogl::VertexDrawMode::Triangles;
 		m_instance.flags = 0;
+		m_instance.mvp = glm::mat4(1.f);
+		m_instance.color = {255,255,255,255};
 	}
 
 	~OpenGLRenderObject() override

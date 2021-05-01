@@ -1,7 +1,7 @@
 #pragma once
 
 #include "type_registration.hpp"
-#include "generic_object_manager.hpp"
+#include "generic_object.hpp"
 #include "defines.hpp"
 
 class TextComponent : public IGenericObject
@@ -34,9 +34,9 @@ private:
 
 	std::shared_ptr<se::Font> m_font;
 
-	basic::String m_font_file;
+	std::string m_font_file;
 
-    basic::String m_text;
+    std::string m_text;
 
     float m_font_size;
 };

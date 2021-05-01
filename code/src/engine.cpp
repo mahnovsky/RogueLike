@@ -32,8 +32,7 @@ Engine::Engine( int argc, char** argv )
     , m_time( 0.0 )
     , m_delta( 0.0 )
     , m_fps( 0 )
-    , m_object_manager(NEW_OBJ(GenericObjectManager))
-    , m_ecs(NEW_OBJ(EcsManager, m_object_manager))
+    , m_ecs(NEW_OBJ(EntityComponentManager))
 	, IEngine(m_system_manager)
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
@@ -56,7 +55,6 @@ Engine::Engine( int argc, char** argv )
 Engine::~Engine()
 {
 	DELETE_OBJ(m_ecs);
-	DELETE_OBJ(m_object_manager);
 }
 
 bool Engine::init(int width, int height, const char *wnd_title)

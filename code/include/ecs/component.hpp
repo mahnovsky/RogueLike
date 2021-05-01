@@ -1,6 +1,7 @@
 #pragma once
 
 #include "generic/generic_object.hpp"
+#include <cmath>
 
 template <class T>
 class Buffer
@@ -121,10 +122,23 @@ private:
 	std::vector<Buffer<T>> m_buffers;
 };
 
+enum class ComponentEvent
+{
+	Attached,
+	Dettached,
+	Updated
+};
+
+#define MAX_COMPONENT_COUNT 64
+
 class Component : public IGenericObject
 {
 public:
-	Component(Entity* ent):m_entity(ent){}
+	Component(Entity* ent)
+		: m_entity(ent)
+		, m_listen_components(0)
+	{}
+
 	~Component() override = default;
 
 	Entity* get_entity() const
@@ -132,6 +146,37 @@ public:
 		return m_entity;
 	}
 
+	bool is_listen_component(TypeIndex component_type) const
+	{
+		const uint64_t flag = 1ULL << component_type;
+
+		return flag & m_listen_components;
+	}
+
+	void add_listen_component(TypeIndex component_type)
+	{
+		const uint64_t flag = 1ULL << component_type;
+
+		m_listen_components |= flag;
+	}
+
+	template <class T>
+	void add_listen_component()
+	{
+		const TypeIndex component_type = TypeInfo<T, NS_COMPONENT_TYPE>::type_index;
+		//ASSERT(component_type != INVALID_TYPE_INDEX);
+
+		add_listen_component(component_type);
+	}
+
+	uint64_t get_listen_components() const 
+	{
+		return m_listen_components;
+	}
+
+	virtual void on_event(Component* sender, ComponentEvent event_type) {};
+
 protected:
 	Entity* m_entity;
+	uint64_t m_listen_components;
 };

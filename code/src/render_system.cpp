@@ -10,7 +10,8 @@ RenderComponent::RenderComponent(Entity* ent)
 	:Component(ent)
 	, transform(nullptr)
 	, m_render_object(nullptr)
-{}
+{
+}
 
 RenderComponent::~RenderComponent()
 {
@@ -33,6 +34,8 @@ void RenderComponent::initialize(IRenderObject* obj, uint32_t cam_index)
 			obj->set_resource(type, name);
 		}
 	}
+
+	add_listen_component<Transform>();
 }
 
 void RenderComponent::update_color() const
@@ -71,7 +74,18 @@ void RenderComponent::set_color(basic::Color color)
 	update_color();
 }
 
-RenderSystem::RenderSystem(EcsManager* ecs)
+void RenderComponent::on_event(Component* sender, ComponentEvent event_type)
+{
+	if (sender->type_index() == TypeInfo<Transform, NS_COMPONENT_TYPE>::type_index &&
+		event_type == ComponentEvent::Updated)
+	{
+		Transform* transform = fast_cast<Transform, NS_COMPONENT_TYPE>(sender);
+
+		m_render_object->update_mvp( transform->get_matrix() );
+	}
+}
+
+RenderSystem::RenderSystem(EntityComponentManager* ecs)
     : m_ecs(ecs)
 	, m_render(nullptr)
 	, m_camera( nullptr )
@@ -92,7 +106,7 @@ void RenderSystem::initialize(IRender* render, ICamera* cam )
 	m_render->add_camera(cam);
 }
 
-void RenderSystem::draw( EcsManager* ecs ) const
+void RenderSystem::draw( EntityComponentManager* ecs ) const
 {
     ASSERT( m_camera );
 
@@ -103,10 +117,6 @@ void RenderSystem::draw( EcsManager* ecs ) const
 	{
 		return;
 	}
-
-	glm::mat4 pv(1.f);
-
-	m_camera->get_matrix(pv);
 
 	m_draw_object_count = 0;
 	for(auto oc : res)
@@ -119,18 +129,12 @@ void RenderSystem::draw( EcsManager* ecs ) const
 			rc->initialize(m_render->create_object(), m_camera->get_camera_index());
 		}
 
-		auto tr = ent->get_component<Transform>();
+		/*auto tr = ent->get_component<Transform>();
 		
 		if (tr)
 		{
 			rc->update_mvp(tr->get_matrix());
-
-			tr->is_changed = false;
-		}
-		else
-		{
-			rc->update_mvp(pv);
-		}
+		}*/
 
 		m_render->add_to_frame(rc->m_render_object);
 

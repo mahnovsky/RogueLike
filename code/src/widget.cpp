@@ -5,7 +5,6 @@
 #include "widget_system.hpp"
 #include "opengl/resource_shader.hpp"
 #include "transform.hpp"
-#include "generic_object_manager.hpp"
 
 #include "engine.hpp"
 #include "render.hpp"

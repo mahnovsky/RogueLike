@@ -30,6 +30,8 @@ public:
 	void set_resource_name(RenderResourceType type, const std::string& name);
 
 	void set_color(basic::Color color);
+
+	void on_event(Component* sender, ComponentEvent event_type) override;
 	
 	friend class RenderSystem;
 
@@ -56,21 +58,20 @@ public:
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem(RenderSystem&&) noexcept = delete;
 
-    RenderSystem(EcsManager* ecs);
+    RenderSystem(EntityComponentManager* ecs);
     ~RenderSystem( ) override = default;
 
 	void update(float dt);
 
     void initialize( IRender* render, ICamera* cam );
 
-    void draw(EcsManager* ecs) const;
+    void draw(EntityComponentManager* ecs) const;
 
 	int get_draw_object_count() const;
 
 private:
-	EcsManager* m_ecs;
+	EntityComponentManager* m_ecs;
 	IRender* m_render;
     ICamera* m_camera;
-	uint32_t m_camera_index;
 	mutable int m_draw_object_count;
 };

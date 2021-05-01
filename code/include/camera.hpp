@@ -64,7 +64,9 @@ public:
 
 	const std::vector<OctreeObject*>& get_visible_objects(Octree* octree) const override;
 
-	std::vector<OctreeObject*> select_objects(glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom);
+	std::vector<OctreeObject*> select_objects(IRender* render, glm::vec2 view_size, glm::vec2 left_top, glm::vec2 right_bottom);
+
+    void draw_debug_circle(IRender* render, const glm::vec3& pos, float radius);
 
 private:
     void update( );
@@ -81,6 +83,8 @@ private:
 	float m_radius;
 
 	mutable std::vector<OctreeObject*> m_last_visible_objects;
+    std::vector<IRenderObject*> m_debug_objects;
+    std::vector<IRenderObject*> m_free_debug_objects;
 };
 
 #undef near

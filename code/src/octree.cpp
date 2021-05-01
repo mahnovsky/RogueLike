@@ -26,6 +26,7 @@ OctreeObject::OctreeObject(Entity* ent, const Box& box)
     , m_shape(box)
     , m_shape_type(ShapeType::Box)
 {
+	add_listen_component<Transform>();
 }
 
 OctreeObject::OctreeObject(Entity* ent, const Sphere& s)
@@ -34,6 +35,7 @@ OctreeObject::OctreeObject(Entity* ent, const Sphere& s)
     , m_shape(s)
     , m_shape_type(ShapeType::Sphere)
 {
+	add_listen_component<Transform>();
 }
 
 OctreeObject::~OctreeObject()
@@ -102,19 +104,31 @@ bool OctreeObject::hit_test(const ViewFrustum& frustum) const
 
 void OctreeObject::set_position(const glm::vec3& pos)
 {
+	bool was_changed = false;
+
 	if (m_shape_type == ShapeType::Box)
 	{
 		auto halfs = m_shape.box.size() / 2.f;
 
+		glm::vec3 prev_min = m_shape.box.min;
+		glm::vec3 prev_max = m_shape.box.max;
+
 		m_shape.box.min = pos - halfs;
 		m_shape.box.max = pos + halfs;
+
+		was_changed = glm::all(glm::notEqual(m_shape.box.min, prev_min)) &&
+			glm::all(glm::notEqual(m_shape.box.max, prev_max));
 	}
 	else
 	{
+		was_changed = glm::all(glm::notEqual(m_shape.sphere.pos, pos));
 		m_shape.sphere.pos = pos;
 	}
-	if(m_owner)
+
+	if (was_changed && m_owner)
+	{
 		m_owner->update(this);
+	}
 }
 
 void OctreeObject::set_radius(float radius)
@@ -146,6 +160,17 @@ const Box& OctreeObject::get_box() const
 const Sphere& OctreeObject::get_sphere() const
 {
 	return m_shape.sphere;
+}
+
+void OctreeObject::on_event(Component* sender, ComponentEvent event_type)
+{
+	if (sender->type_index() == TypeInfo<Transform, NS_COMPONENT_TYPE>::type_index &&
+		event_type == ComponentEvent::Updated)
+	{
+		auto transform = fast_cast<Transform, NS_COMPONENT_TYPE>(sender);
+
+		set_position(transform->get_position());
+	}
 }
 
 OctreeNode::OctreeNode(Octree* tree, const Box& enclosing_box, uint16_t index, OctreeNode* parent)
@@ -374,7 +399,7 @@ void OctreeNode::remove_child(OctreeNode* node, uint16_t index)
 	}
 }
 
-Octree::Octree(EcsManager* manager, const Box& b)
+Octree::Octree(EntityComponentManager* manager, const Box& b)
 	: m_manager(manager)
 	, m_root(m_node_pool.alloc(this, b, 0, nullptr))
 {

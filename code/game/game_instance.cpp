@@ -37,7 +37,7 @@ class MoveSystem : public IGenericObject
 public:
 	GENERIC_OBJECT_IMPL(MoveSystem, NS_SYSTEM_TYPE);
 
-	MoveSystem(EcsManager* ecs)
+	MoveSystem(EntityComponentManager* ecs)
 		: m_ecs(ecs)
 	{}
 
@@ -55,18 +55,20 @@ public:
 
 					glm::vec3 angles = tr->get_euler_angles();
 					angles.y += (mc->angle_speed * dt);
-					tr->set_euler_angles(angles);
+
+					tr->set_quaternion(glm::angleAxis(angles.y, glm::vec3(0.f, 1.f, 0.f)));
+					
+					//tr->set_euler_angles(angles);
 				}
 			});
 	}
 
 public:
-	EcsManager* m_ecs;
+	EntityComponentManager* m_ecs;
 };
 
 GameInstance::GameInstance( Engine* engine, float width, float height )
     : m_engine( engine )
-	, m_object_manager(engine->get_object_manager())
     , m_rs(nullptr)
     , m_game_camera( NEW_OBJ( PerspectiveCamera, 45.f, width / height, 1.f, 200.f ) )
     , m_width( width )
@@ -76,6 +78,7 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_widget_system( nullptr )
 	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
+	,m_selection_rect(nullptr)
 {
 	auto& sm = engine->get_system_manager();
 	m_rs = sm.get_system<core::ResourceStorage>();
@@ -85,9 +88,8 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
 GameInstance::~GameInstance( )
 {
     //SAFE_RELEASE( m_ui_root );
-	
+	m_engine->get_render()->delete_object(m_selection_rect);
 	DELETE_OBJ( m_game_camera );
-	DELETE_OBJ(m_selection_rect);
 }
 
 static void
@@ -162,7 +164,7 @@ rnd( )
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
 
-Entity* make_ent(EcsManager* ecs, core::ResourceStorage* storage, const char* mesh, const char* shader, const char* texture = nullptr )
+Entity* make_ent(EntityComponentManager* ecs, core::ResourceStorage* storage, const char* mesh, const char* shader, const char* texture = nullptr )
 {
 	auto ent = ecs->create_entity<Entity>();
 	
@@ -277,8 +279,12 @@ void GameInstance::init( )
 
     m_game_camera->init( m_cam_pos, {0.f, 0.f, 0.f}, {0.f, 1.f, 0.f} );
     
-	m_selection_rect = NEW_OBJ(DrawingRect, render);
+	/*m_selection_rect = NEW_OBJ(DrawingRect, render);
+	m_selection_rect->set_camera_index(m_widget_system->get_ui_camera()->get_camera_index());*/
+	m_selection_rect = render->create_object();
 	m_selection_rect->set_camera_index(m_widget_system->get_ui_camera()->get_camera_index());
+	m_selection_rect->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
+	m_selection_rect->update_color({ 0,255,0,100 });
 
 	initialize_ui();
     
@@ -337,8 +343,7 @@ void GameInstance::init( )
     m_engine->get_input( )->add_listener( this );
 }
 
-void
-GameInstance::draw( IRender* render ) const
+void GameInstance::draw( IRender* render ) const
 {
 	auto& mng = m_engine->get_system_manager();
 	if (mng.get_lifecycle_state() == core::LifecycleState::Initialized)
@@ -348,7 +353,7 @@ GameInstance::draw( IRender* render ) const
 	}
 }
 
-static void highlight_selected(PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
+static void highlight_selected(IRender* render, PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
 {
 	static std::vector<OctreeObject*> objects;
 
@@ -370,7 +375,7 @@ static void highlight_selected(PerspectiveCamera* game_camera, float width, floa
 	right_bottom.x = max(start.x, end.x);
 	right_bottom.y = min(start.y, end.y);
 
-	objects = game_camera->select_objects({ width, height }, left_top, right_bottom);
+	objects = game_camera->select_objects(render, { width, height }, left_top, right_bottom);
 	for (auto obj : objects)
 	{
 		auto ent = obj->get_entity();
@@ -401,7 +406,7 @@ void GameInstance::frame(float delta)
 
 			const float vel = 60.f;
 			const float angle_vel = 5.f;
-
+			
 			if (input->is_key_pressed(input::KeyCode::A))
 				mc->angle_speed = angle_vel;
 			if (input->is_key_pressed(input::KeyCode::D))
@@ -446,10 +451,9 @@ void GameInstance::frame(float delta)
 
 	if (m_selection_state)
 	{
-		m_selection_rect->set_position(m_start_pos);
-		m_selection_rect->set_size(m_end_pos - m_start_pos);
-		m_selection_rect->draw();
-		highlight_selected(m_game_camera, m_width, m_height, m_start_pos, m_end_pos);
+		build_rect(m_selection_rect, m_start_pos, m_end_pos, DrawMode::Fill);
+		m_engine->get_render()->add_to_frame(m_selection_rect);
+		highlight_selected(m_engine->get_render(), m_game_camera, m_width, m_height, m_start_pos, m_end_pos);
 	}
 }
 

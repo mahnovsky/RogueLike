@@ -4,6 +4,7 @@
 #include "defines.hpp"
 #include "component.hpp"
 
+
 class Transform : public Component
 {
 public:
@@ -21,6 +22,10 @@ public:
     glm::vec3 get_pivot_point( ) const;
 
     void set_euler_angles( const glm::vec3& angles );
+
+    glm::quat get_quaternion() const;
+
+    void set_quaternion(glm::quat rotation);
 
     void set_scale( const glm::vec3& scale );
 

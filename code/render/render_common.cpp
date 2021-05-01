@@ -8,6 +8,7 @@
 #include "render.hpp"
 
 #include <iostream>
+#include "glm/ext.hpp"
 
 struct EnableArrayBuffer
 {
@@ -253,6 +254,27 @@ void setup_vertices(VertexData& out, const VertexBufferT& vertices)
 	}
 }
 
+void setup_vertices(VertexData& out, const VertexBufferP& vertices)
+{
+	if (out.data != nullptr &&
+		out.count >= vertices.size() &&
+		out.item_size == sizeof(Vertex_T))
+	{
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data.get(), vertices.data(), bytes);
+	}
+	else
+	{
+		out.format = VF_XYZ;
+		out.count = vertices.size();
+		out.item_size = sizeof(glm::vec3);
+		out.data = { basic::mem_alloc(out.count * out.item_size), deleter };
+
+		const size_t bytes = static_cast<size_t>(out.count) * out.item_size;
+		memcpy(out.data.get(), vertices.data(), bytes);
+	}
+}
+
 // order pos, color, uv, normals
 std::vector<VertexFMT> get_vertex_format_description(uint32_t format_flags)
 {
@@ -372,29 +394,6 @@ std::vector< VertexFMT > get_fmt_list( const Vertex_T* )
 }
 
 // -------------------------------
-DrawablePrirmitive::DrawablePrirmitive(IRender* render, ICamera* camera)
-	: m_render(render)
-	, m_camera(camera)
-	, m_object(render->create_object())
-	, m_vertices()
-{
-	m_object->set_camera_index(camera->get_camera_index());
-}
-
-DrawablePrirmitive::~DrawablePrirmitive()
-{
-	m_render->delete_object(m_object);
-}
-
-void DrawablePrirmitive::apply_builder(IPrimitiveBuilder& builder)
-{
-	builder.build_primitive(m_render, m_object, m_vertices);
-}
-
-void DrawablePrirmitive::draw()
-{
-	m_render->add_to_frame(m_object);
-}
 
 DrawingRect::DrawingRect(IRender* render)
 	:m_render(render)
@@ -495,11 +494,76 @@ void DrawingRect::init_rect()
 	update_rect();
 }
 
-DrawingCircle::DrawingCircle(IRender* render)
+void build_circle(IRenderObject* obj, float radius, uint32_t sector_count, DrawMode mode)
 {
+	ASSERT(radius > kMinCircleRadius);
+	ASSERT(sector_count >= kMinCircleSectorCount);
+
+	static VertexBufferP vertices;
+	vertices.resize((uint64_t)sector_count * 2 + 1);
+
+	const float step = 2 * radius / sector_count;
+	const float r2 = radius * radius;
+
+	//float x = -m_radius;
+
+	for (uint32_t i = 0; i <= sector_count; ++i)
+	{
+		const float x = i * step - radius;
+		const float x2 = x * x;
+		const float y = glm::sqrt(r2 - x2);
+		vertices[i] = { x, y, 0.f };
+		if (i != 36)
+		{
+			const uint32_t index = sector_count * 2 - i;
+			vertices[index] = { x, -y, 0.f };
+		}
+	}
+	VertexDrawMode draw_mode = mode == DrawMode::Wire ? VertexDrawMode::LineStrip : VertexDrawMode::TriangleFan;
+	obj->set_vertex_draw_mode(draw_mode);
+	obj->set_resource(RenderResourceType::ShaderProgram, "default");
+
+	MeshData& data = obj->get_mesh_data();
+	setup_vertices(data.vertex_data, vertices);
+	obj->update_mesh_data();
 }
 
-DrawingCircle::~DrawingCircle()
+void build_rect(IRenderObject* obj, const glm::vec2& left_bottom, const glm::vec2& right_top, DrawMode mode)
 {
+	VertexDrawMode draw_mode = mode == DrawMode::Wire ? VertexDrawMode::LineStrip : VertexDrawMode::TriangleFan;
+	obj->set_vertex_draw_mode(draw_mode);
+	obj->set_resource(RenderResourceType::ShaderProgram, "default");
+
+	auto& data = obj->get_mesh_data();
+
+	static VertexBufferP vertices;
+	if (vertices.size() < 5)
+	{
+		vertices.resize(5);
+	}
+	glm::vec3 pos;
+	
+	// left-bottom
+	vertices[0] = { left_bottom.x, left_bottom.y, 0.f };
+
+	// left-top
+	vertices[1] = { left_bottom.x, right_top.y, 0.f };
+
+	// right-top
+	vertices[2] = { right_top.x, right_top.y, 0.f };
+
+	// right-bottom
+	vertices[3] = { right_top.x, left_bottom.y, 0.f };
+
+	// left-bottom
+	vertices[4] = { left_bottom.x, left_bottom.y, 0.f };
+
+	setup_vertices(data.vertex_data, vertices);
+
+	obj->update_mesh_data();
 }
 
+void setup_position(IRenderObject* obj, const glm::vec3& pos)
+{
+	obj->update_mvp(glm::translate(pos));
+}

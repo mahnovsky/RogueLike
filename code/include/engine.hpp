@@ -87,11 +87,9 @@ public:
 
     bool is_runned() const override;
 
-    basic::uint32 get_fps() const;
+    uint32_t get_fps() const;
 
-    GenericObjectManager* get_object_manager() { return m_object_manager; }
-
-    EcsManager* get_ecs() { return m_ecs; }
+    EntityComponentManager* get_ecs() { return m_ecs; }
 
 	core::SystemManager& get_system_manager() { return m_system_manager; }
 
@@ -121,9 +119,7 @@ private:
 
     double m_delta;
 
-    basic::uint32 m_fps;
+    uint32_t m_fps;
 
-    GenericObjectManager* m_object_manager;
-
-    EcsManager* m_ecs;
+    EntityComponentManager* m_ecs;
 };
