@@ -9,15 +9,18 @@ using std::int32_t;
 using Handle = uint32_t;
 using Result = std::optional<Handle>;
 
+#if defined(__WINDOWS__)
+#include <Windows.h>
+#endif
+
 extern "C" {
-//#define GLEW_STATIC
+#define GLEW_STATIC
+//#include <winnt.h>
 #include <GL/glew.h>
 }
 
-#ifdef __WINDOWS__
+#if defined(__WINDOWS__)
 #include <GL/GL.h>
-#include <GL/wglew.h>
-#include <windows.h>
 #else
 #include <GL/gl.h>
 #endif
