@@ -3,8 +3,8 @@
 #include <string>
 
 #include "type_info.hpp"
-#include "basic/memory.hpp"
-#include "basic/debug.hpp"
+#include "memory.hpp"
+#include "debug.hpp"
 
 class IGenericObject
 {

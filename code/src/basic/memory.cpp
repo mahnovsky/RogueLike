@@ -1,6 +1,6 @@
-#include "basic/memory.hpp"
-#include "basic/debug.hpp"
-#include "basic/vector.hpp"
+#include "memory.hpp"
+#include "debug.hpp"
+#include "vector.hpp"
 
 #include <malloc.h>
 #include <math.h>
@@ -10,6 +10,8 @@
 
 namespace basic
 {
+    void* _mem_alloc(memory_size bytes);
+
 template < class T >
 static T*
 ptr_plus( void* ptr, size_t offset )
@@ -240,8 +242,7 @@ public:
         return index - 1;
     }
 
-    void*
-    alloc( memory_size size )
+    void* alloc( memory_size size )
     {
         if ( !is_manager_alive || size == 0 )
         {
@@ -309,27 +310,34 @@ private:
 
 } static memory_manager;
 
-void*
-_mem_alloc( memory_size bytes )
+void* _mem_alloc(memory_size bytes)
 {
-    if ( bytes == 0 )
+    if (bytes == 0)
     {
         return nullptr;
     }
 
     memory_size out_bytes = 0;
-    void* res = internal_malloc( bytes, out_bytes );
+    void* res = internal_malloc(bytes, out_bytes);
 
-    if ( !res && g_out_of_memory_callback )
+    if (!res && g_out_of_memory_callback)
     {
-        g_out_of_memory_callback( );
+        g_out_of_memory_callback();
     }
 
     return res;
 }
 
-void*
-_mem_realloc( void* ptr, memory_size bytes )
+void* mem_alloc( memory_size bytes, const char* const file, int line )
+{
+#ifdef MEMORY_ALLOCATION_CHECK
+    return _checked_mem_alloc(bytes, file, line);
+#else
+    return _mem_alloc(bytes);
+#endif
+}
+
+void* _mem_realloc( void* ptr, memory_size bytes )
 {
     ASSERT( bytes > 0 );
 
@@ -356,14 +364,25 @@ _mem_realloc( void* ptr, memory_size bytes )
     return res;
 }
 
-void
-_mem_free( void* ptr )
+void* mem_realloc(void* ptr, memory_size bytes, const char* const file, int line)
 {
-	memory_manager.free_chunck(internal_get_chunk(ptr));
+#if MEMORY_ALLOCATION_CHECK
+    return _checked_mem_realloc(ptr, bytes, file, line);
+#else
+    return _mem_realloc(ptr, bytes);
+#endif
 }
 
-void*
-_checked_mem_alloc( memory_size bytes, const char* file, int line )
+void mem_free(void* ptr)
+{
+#if MEMORY_ALLOCATION_CHECK
+    memory_manager.free_chunck(internal_get_chunk(ptr));
+#else
+    wrapper_free(ptr);
+#endif
+}
+
+void* _checked_mem_alloc( memory_size bytes, const char* const file, int line )
 {
     void* ptr = memory_manager.alloc( bytes );
 

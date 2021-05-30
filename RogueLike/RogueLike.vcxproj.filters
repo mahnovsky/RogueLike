@@ -7,14 +7,8 @@
     <Filter Include="code\src">
       <UniqueIdentifier>{2beb9d1a-5319-4254-bb86-1a9e9b800ae8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="code\src\platform">
-      <UniqueIdentifier>{bec68dbf-d41a-40b7-b6aa-a19cec6c39a3}</UniqueIdentifier>
-    </Filter>
     <Filter Include="code\include">
       <UniqueIdentifier>{a8427720-6f1d-4f3a-936f-09b1eedb1157}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="code\include\basic">
-      <UniqueIdentifier>{d1c88780-2910-432a-97ce-9de6653cc48e}</UniqueIdentifier>
     </Filter>
     <Filter Include="code\src\basic">
       <UniqueIdentifier>{77577800-b920-4714-a7b0-300ac0116efe}</UniqueIdentifier>
@@ -52,6 +46,12 @@
     <Filter Include="code\render\opengl">
       <UniqueIdentifier>{92237544-1009-4700-8154-f98688669c11}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\platform">
+      <UniqueIdentifier>{03046715-c2a2-4746-81fd-c8391fe25c0e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\basic">
+      <UniqueIdentifier>{d1c88780-2910-432a-97ce-9de6653cc48e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp">
@@ -84,9 +84,6 @@
     <ClCompile Include="..\code\src\transform.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\platform\win32_window.cpp">
-      <Filter>code\src\platform</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\basic\file.cpp">
       <Filter>code\src\basic</Filter>
     </ClCompile>
@@ -95,12 +92,6 @@
     </ClCompile>
     <ClCompile Include="..\code\game\game_instance.cpp">
       <Filter>code\game</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\platform\win32_file.cpp">
-      <Filter>code\src\platform</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\platform\win32_time.cpp">
-      <Filter>code\src\platform</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\basic\string.cpp">
       <Filter>code\src\basic</Filter>
@@ -190,6 +181,15 @@
       <Filter>code\core\systems</Filter>
     </ClCompile>
     <ClCompile Include="..\code\include\ecs\component.cpp" />
+    <ClCompile Include="..\code\platform\windows\win32_file.cpp">
+      <Filter>code\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\platform\windows\win32_time.cpp">
+      <Filter>code\platform</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\platform\windows\win32_window.cpp">
+      <Filter>code\platform</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -219,35 +219,8 @@
     <ClInclude Include="..\code\include\world.hpp">
       <Filter>code\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\include\basic\file.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\image.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\pool.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\string.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\time.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\types.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\vector.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\game\game_instance.hpp">
       <Filter>code\game</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\debug.hpp">
-      <Filter>code\include\basic</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\memory.hpp">
-      <Filter>code\include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\widget.hpp">
       <Filter>code\include</Filter>
@@ -263,9 +236,6 @@
     </ClInclude>
     <ClInclude Include="..\code\include\ecs\component.hpp">
       <Filter>code\include\ecs</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\basic\common.hpp">
-      <Filter>code\include\basic</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\octree.h">
       <Filter>code\include</Filter>
@@ -342,6 +312,51 @@
     </ClInclude>
     <ClInclude Include="..\code\render\opengl\opengl_render.hpp">
       <Filter>code\render\opengl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\archive.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\common.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\convert.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\debug.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\file.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\hash_map.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\image.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\json_document.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\json_object.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\memory.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\pair.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\string.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\time.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\types.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\vector.hpp">
+      <Filter>code\basic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

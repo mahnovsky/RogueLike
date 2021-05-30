@@ -53,7 +53,7 @@ inline Vec3 operator / (const Vec3& v1, float k) noexcept
 struct Sphere
 {
 	glm::vec3 pos;
-	float radius;
+	float radius = 0.f;
 
 	Sphere() = default;
 };

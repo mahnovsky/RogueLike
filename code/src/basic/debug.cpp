@@ -1,4 +1,4 @@
-#include "basic/debug.hpp"
+#include "debug.hpp"
 
 #include "stb/stb_sprintf.h"
 

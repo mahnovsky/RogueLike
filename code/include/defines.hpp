@@ -43,7 +43,7 @@ class Font;
 
 #include "stdext.hpp"
 
-#include "basic/common.hpp"
+#include "common.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 

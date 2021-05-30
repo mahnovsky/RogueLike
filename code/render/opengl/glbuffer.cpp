@@ -46,7 +46,6 @@ namespace ogl
 
 	void Buffer::update(const void* data_ptr, std::uint32_t count)
 	{
-		
 		BufferDescription desc;
 		desc.buffer_type = m_buffer_type;
 		desc.buffer_usage = m_buffer_usage;

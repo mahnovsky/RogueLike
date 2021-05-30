@@ -4,9 +4,9 @@
 
 #ifdef _DEBUG
 
-#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
-#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
-#define mem_free _mem_free
+//#define mem_alloc( bytes ) _checked_mem_alloc( bytes, __FILE__, __LINE__ )
+//#define mem_realloc( ptr, bytes ) _checked_mem_realloc( ptr, bytes, __FILE__, __LINE__ )
+//#define mem_free _mem_free
 
 #elif 0
 #include <stdio.h>
@@ -26,19 +26,21 @@
 
 #endif
 
+#define MEMORY_ALLOCATION_CHECK 1
+
 namespace basic
 {
 using memory_size = uint32;
 using ref_count = int32;
 using mem_out_callback = void ( * )( );
 
-void* _mem_alloc( memory_size bytes );
+void* mem_alloc( memory_size bytes, const char* const file = __FILE__, int line = __LINE__);
 
-void* _mem_realloc( void* ptr, memory_size bytes );
+void mem_free(void* ptr);
 
-void _mem_free( void* mem );
+void* mem_realloc( void* ptr, memory_size bytes, const char* const file = __FILE__, int line = __LINE__);
 
-void* _checked_mem_alloc( memory_size bytes, const char* file, int line );
+void* _checked_mem_alloc( memory_size bytes, const char* const file, int line );
 
 void* _checked_mem_realloc( void* ptr, memory_size bytes, const char* file, int line );
 

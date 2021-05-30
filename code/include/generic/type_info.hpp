@@ -1,6 +1,6 @@
 #pragma once
 
-#include "basic/types.hpp"
+#include "types.hpp"
 
 using TypeIndex = uint64_t;
 

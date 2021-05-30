@@ -4,7 +4,6 @@
 #include <algorithm>
 
 #include "pool.hpp"
-
 #include "type_registration.hpp"
 #include "generic/generic_object.hpp"
 

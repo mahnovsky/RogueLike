@@ -1,6 +1,6 @@
 #include "opengl_render.hpp"
-#include "basic/file.hpp"
-#include "basic/vector.hpp"
+#include "file.hpp"
+#include "vector.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include "camera.hpp"

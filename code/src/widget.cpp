@@ -27,7 +27,12 @@ Widget::~Widget( )
 {
 	if (m_debug_rect)
 	{
-		DELETE_OBJ(m_debug_rect);
+		IEngine* engine = m_root->get_engine();
+		IRender* render = engine->get_render();
+		if (render)
+		{
+			render->delete_object(m_debug_rect);
+		}
 	}
 	for (Widget* child : m_children)
 	{
@@ -39,7 +44,8 @@ void Widget::draw(IRender* render)
 {
 	if (m_debug_rect)
 	{
-		m_debug_rect->draw();
+		render->add_to_frame(m_debug_rect);
+		//m_debug_rect->draw();
 	}
 
 	for (auto child : m_children)
@@ -145,7 +151,8 @@ void Widget::set_position( const glm::vec2& pos )
 	}
 	if (m_debug_rect)
 	{
-		m_debug_rect->set_position(m_world_space_rect.pos + glm::vec2(0.5f, 0.5f));
+		//m_debug_rect->set_position(m_world_space_rect.pos + glm::vec2(0.5f, 0.5f));
+		setup_position(m_debug_rect, glm::vec3(m_world_space_rect.pos + glm::vec2(0.5f, 0.5f), 0.f));
 	}
 }
 
@@ -160,7 +167,8 @@ void Widget::set_size( const glm::vec2& size )
 
 	if (m_debug_rect)
 	{
-		m_debug_rect->set_size(size - glm::vec2(1.0f, 1.0f));
+		//m_debug_rect->set_size(size - glm::vec2(1.0f, 1.0f));
+		_initialize_debug_rect();
 	}
 }
 
@@ -269,12 +277,19 @@ void Widget::_initialize_debug_rect()
 	IRender* render = engine->get_render();
 	if ( render )
 	{
-		m_debug_rect = NEW_OBJ(DrawingRect, render);
+		/*m_debug_rect = NEW_OBJ(DrawingRect, render);
 		m_debug_rect->set_position(m_world_space_rect.pos);
 		m_debug_rect->set_size(m_world_space_rect.size);
 		glm::mat4 vp;
 		m_root->get_ui_camera()->get_matrix(vp);
 		m_debug_rect->set_view_projection_matrix(vp);
-		m_debug_rect->set_camera_index(m_root->get_ui_camera()->get_camera_index());
+		m_debug_rect->set_camera_index(m_root->get_ui_camera()->get_camera_index());*/
+		if (!m_debug_rect)
+		{
+			m_debug_rect = render->create_object();
+			m_debug_rect->update_color({ 0, 255, 0, 200 });
+		}
+
+		build_rect(m_debug_rect, m_world_space_rect.pos, m_world_space_rect.size);
 	}
 }

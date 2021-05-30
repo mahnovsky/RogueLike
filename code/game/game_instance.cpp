@@ -25,6 +25,8 @@ public:
 
 	MoveComponent(Entity* ent)
 		:Component(ent)
+		, angle_speed(0.f)
+		, move_speed(0.f)
 	{}
 
 	float angle_speed;
@@ -78,7 +80,8 @@ GameInstance::GameInstance( Engine* engine, float width, float height )
     , m_widget_system( nullptr )
 	, m_ecs(engine->get_ecs())
 	, m_player(nullptr)
-	,m_selection_rect(nullptr)
+	, m_selection_rect(nullptr)
+	, m_cow(nullptr)
 {
 	auto& sm = engine->get_system_manager();
 	m_rs = sm.get_system<core::ResourceStorage>();
@@ -258,7 +261,7 @@ static void init_selection_rect(IRenderObject* so, const ICamera* cam)
 
 void GameInstance::init( )
 {
-    srand( time( nullptr ) );
+    srand( static_cast<uint32_t>(time( nullptr )) );
 	std::shared_ptr<Texture> texture = m_rs->get_resorce< Texture >("btn.png");
 
 	m_ecs = m_engine->get_ecs();
@@ -498,8 +501,8 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 		mouse_event.button == input::MouseButton::Left)
 	{
 		m_selection_state = true;
-		m_start_pos.x = mouse_event.pos_x;
-		m_start_pos.y = m_height - mouse_event.pos_y;
+		m_start_pos.x = static_cast<float>(mouse_event.pos_x);
+		m_start_pos.y = static_cast<float>(m_height - mouse_event.pos_y);
 	}
 
 	if (mouse_event.type == input::MouseEventType::Moved &&
@@ -513,8 +516,8 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 		{
 			m_selection_state = false;
 		}
-		m_end_pos.x = mouse_event.pos_x;
-		m_end_pos.y = m_height - mouse_event.pos_y;
+		m_end_pos.x = static_cast<float>(mouse_event.pos_x);
+		m_end_pos.y = static_cast<float>(m_height - mouse_event.pos_y);
 	}
 
 	if (mouse_event.type == input::MouseEventType::Released &&

@@ -139,6 +139,6 @@ protected:
 
     Align m_align;
     ResourceStorage* m_storage;
-
-	class DrawingRect* m_debug_rect;
+    IRenderObject* m_debug_rect;
+	//class DrawingRect* m_debug_rect;
 };

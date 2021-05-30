@@ -1,5 +1,5 @@
-#include "basic/image.hpp"
-#include "basic/debug.hpp"
+#include "image.hpp"
+#include "debug.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb/stb_image.h"

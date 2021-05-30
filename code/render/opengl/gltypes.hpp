@@ -10,7 +10,7 @@ using Handle = uint32_t;
 using Result = std::optional<Handle>;
 
 extern "C" {
-#define GLEW_STATIC
+//#define GLEW_STATIC
 #include <GL/glew.h>
 }
 

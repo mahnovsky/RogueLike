@@ -1,7 +1,7 @@
 #include "resource_shader.hpp"
 
 #include "GL/glew.h"
-#include "basic/file.hpp"
+#include "file.hpp"
 #include "config.hpp"
 
 #include "render_common.hpp"

@@ -26,11 +26,14 @@ namespace stdext
 	bool push_unique(std::vector<Item, Alloc>& cont, Item& item)
 	{
 		const bool contains = is_contains(cont, item);
-		if (!contains)
+		if (!is_contains(cont, item))
 		{
 			cont.push_back(item);
+
+			return true;
 		}
-		return !contains;
+
+		return false;
 	}
 
 	template <class Item, class Alloc>

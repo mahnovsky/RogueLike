@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <cassert>
-#include "basic/memory.hpp"
+#include "memory.hpp"
 
 template <class T>
 class Pool

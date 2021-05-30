@@ -1,6 +1,6 @@
 #include "system_manager.hpp"
 
-#include "basic/debug.hpp"
+#include "debug.hpp"
 
 namespace core
 {

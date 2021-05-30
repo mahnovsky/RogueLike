@@ -1,6 +1,6 @@
-#include "basic/convert.hpp"
-#include "basic/debug.hpp"
-#include "basic/string.hpp"
+#include "convert.hpp"
+#include "debug.hpp"
+#include "string.hpp"
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/integer.hpp>

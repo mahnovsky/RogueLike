@@ -1,8 +1,8 @@
 #include "engine.hpp"
 #include "window.hpp"
-#include "basic/debug.hpp"
-#include "basic/string.hpp"
-#include "basic/time.hpp"
+#include "debug.hpp"
+#include "string.hpp"
+#include "time.hpp"
 #include "timer_manager.hpp"
 
 #include "render.hpp"

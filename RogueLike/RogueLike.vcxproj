@@ -69,7 +69,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -90,7 +92,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party\StromLib;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party\StromLib;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
@@ -141,6 +143,9 @@
     <ClCompile Include="..\code\game.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
     <ClCompile Include="..\code\include\ecs\component.cpp" />
+    <ClCompile Include="..\code\platform\windows\win32_file.cpp" />
+    <ClCompile Include="..\code\platform\windows\win32_time.cpp" />
+    <ClCompile Include="..\code\platform\windows\win32_window.cpp" />
     <ClCompile Include="..\code\render\opengl\glbuffer.cpp" />
     <ClCompile Include="..\code\render\opengl\glshader.cpp" />
     <ClCompile Include="..\code\render\opengl\opengl_render.cpp" />
@@ -165,9 +170,6 @@
     <ClCompile Include="..\code\src\glew.c" />
     <ClCompile Include="..\code\src\input.cpp" />
     <ClCompile Include="..\code\src\octree.cpp" />
-    <ClCompile Include="..\code\src\platform\win32_file.cpp" />
-    <ClCompile Include="..\code\src\platform\win32_time.cpp" />
-    <ClCompile Include="..\code\src\platform\win32_window.cpp" />
     <ClCompile Include="..\code\src\render_system.cpp" />
     <ClCompile Include="..\code\src\sprite.cpp" />
     <ClCompile Include="..\code\src\text_component.cpp" />
@@ -183,6 +185,21 @@
     <ClCompile Include="..\code\win32_startup.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\code\basic\archive.hpp" />
+    <ClInclude Include="..\code\basic\common.hpp" />
+    <ClInclude Include="..\code\basic\convert.hpp" />
+    <ClInclude Include="..\code\basic\debug.hpp" />
+    <ClInclude Include="..\code\basic\file.hpp" />
+    <ClInclude Include="..\code\basic\hash_map.hpp" />
+    <ClInclude Include="..\code\basic\image.hpp" />
+    <ClInclude Include="..\code\basic\json_document.hpp" />
+    <ClInclude Include="..\code\basic\json_object.hpp" />
+    <ClInclude Include="..\code\basic\memory.hpp" />
+    <ClInclude Include="..\code\basic\pair.hpp" />
+    <ClInclude Include="..\code\basic\string.hpp" />
+    <ClInclude Include="..\code\basic\time.hpp" />
+    <ClInclude Include="..\code\basic\types.hpp" />
+    <ClInclude Include="..\code\basic\vector.hpp" />
     <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
     <ClInclude Include="..\code\core\system.hpp" />
@@ -190,16 +207,6 @@
     <ClInclude Include="..\code\core\systems\widget_system.hpp" />
     <ClInclude Include="..\code\core\system_manager.hpp" />
     <ClInclude Include="..\code\game\game_instance.hpp" />
-    <ClInclude Include="..\code\include\basic\common.hpp" />
-    <ClInclude Include="..\code\include\basic\debug.hpp" />
-    <ClInclude Include="..\code\include\basic\file.hpp" />
-    <ClInclude Include="..\code\include\basic\image.hpp" />
-    <ClInclude Include="..\code\include\basic\memory.hpp" />
-    <ClInclude Include="..\code\include\basic\pool.hpp" />
-    <ClInclude Include="..\code\include\basic\string.hpp" />
-    <ClInclude Include="..\code\include\basic\time.hpp" />
-    <ClInclude Include="..\code\include\basic\types.hpp" />
-    <ClInclude Include="..\code\include\basic\vector.hpp" />
     <ClInclude Include="..\code\include\camera.hpp" />
     <ClInclude Include="..\code\include\ecs\component.hpp" />
     <ClInclude Include="..\code\include\ecs\ecs_manager.hpp" />

@@ -1,5 +1,5 @@
 #include "entity.hpp"
-#include "basic/debug.hpp"
+#include "debug.hpp"
 #include "component.hpp"
 
 Entity::Entity(EntityComponentManager* mng)
