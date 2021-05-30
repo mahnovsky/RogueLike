@@ -15,7 +15,6 @@ using Result = std::optional<Handle>;
 
 extern "C" {
 #define GLEW_STATIC
-//#include <winnt.h>
 #include <GL/glew.h>
 }
 
