@@ -10,9 +10,6 @@
     <Filter Include="code\include">
       <UniqueIdentifier>{a8427720-6f1d-4f3a-936f-09b1eedb1157}</UniqueIdentifier>
     </Filter>
-    <Filter Include="code\src\basic">
-      <UniqueIdentifier>{77577800-b920-4714-a7b0-300ac0116efe}</UniqueIdentifier>
-    </Filter>
     <Filter Include="code\game">
       <UniqueIdentifier>{35aa6373-4101-4019-8029-85b319a11016}</UniqueIdentifier>
     </Filter>
@@ -52,6 +49,9 @@
     <Filter Include="code\basic">
       <UniqueIdentifier>{d1c88780-2910-432a-97ce-9de6653cc48e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\platform\windows">
+      <UniqueIdentifier>{b91279a7-4541-4b92-9f9c-ad97b60802cd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\game.cpp">
@@ -84,23 +84,8 @@
     <ClCompile Include="..\code\src\transform.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\basic\file.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\image.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\game\game_instance.cpp">
       <Filter>code\game</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\string.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\memory.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\debug.cpp">
-      <Filter>code\src\basic</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\config.cpp">
       <Filter>code\src</Filter>
@@ -120,17 +105,8 @@
     <ClCompile Include="..\code\third_party\cJSON\cJSON.c">
       <Filter>code\src\third_party</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\basic\json_document.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\json_object.cpp">
-      <Filter>code\src\basic</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\ecs\entity.cpp">
       <Filter>code\src\ecs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\basic\convert.cpp">
-      <Filter>code\src\basic</Filter>
     </ClCompile>
     <ClCompile Include="..\code\src\octree.cpp">
       <Filter>code\src</Filter>
@@ -182,13 +158,37 @@
     </ClCompile>
     <ClCompile Include="..\code\include\ecs\component.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_file.cpp">
-      <Filter>code\platform</Filter>
+      <Filter>code\platform\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\code\platform\windows\win32_time.cpp">
-      <Filter>code\platform</Filter>
+      <Filter>code\platform\windows</Filter>
     </ClCompile>
     <ClCompile Include="..\code\platform\windows\win32_window.cpp">
-      <Filter>code\platform</Filter>
+      <Filter>code\platform\windows</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\memory.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\debug.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\convert.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\json_object.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\file.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\string.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\image.cpp">
+      <Filter>code\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\json_document.cpp">
+      <Filter>code\basic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

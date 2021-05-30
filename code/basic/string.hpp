@@ -65,7 +65,7 @@ public:
 
 		for (auto& item : splits)
 		{
-			Type t_item = string_to<Type>(item, status);
+			Type t_item = string_to<Type>(std::string_view(item.get_cstr(), item.get_size()), status);
 
 			if(status != conv::ConvStatus::Ok)
 			{

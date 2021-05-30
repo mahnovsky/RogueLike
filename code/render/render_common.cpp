@@ -110,13 +110,13 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh )
         {
 			basic::conv::ConvStatus status;
 
-			float x1 = basic::string_to<float>(items[1], status);
+			float x1 = basic::string_to<float>(std::string_view(items[1].get_cstr(), items[1].get_size()), status);
 			ASSERT(status == basic::conv::ConvStatus::Ok);
 
-			float y1 = basic::string_to<float>(items[2], status);
+			float y1 = basic::string_to<float>(std::string_view(items[2].get_cstr(), items[2].get_size()), status);
 			ASSERT(status == basic::conv::ConvStatus::Ok);
 
-			float z1 = basic::string_to<float>(items[3], status);
+			float z1 = basic::string_to<float>(std::string_view(items[3].get_cstr(), items[3].get_size()), status);
 			ASSERT(status == basic::conv::ConvStatus::Ok);
 			
 
@@ -125,8 +125,8 @@ bool load_mesh( std::vector< uint8_t > data, MeshData& out_mesh )
         else if ( items.front( ) == "vt" && items.get_size( ) > 2 )
         {
 			basic::conv::ConvStatus status;
-			auto tx = basic::string_to<float>(items[1], status);
-			auto ty = basic::string_to<float>(items[2], status);
+			auto tx = basic::string_to<float>(std::string_view(items[1].get_cstr(), items[1].get_size()), status);
+			auto ty = basic::string_to<float>(std::string_view(items[2].get_cstr(), items[2].get_size()), status);
 
             tex_coords.push( {tx, ty} );
         }

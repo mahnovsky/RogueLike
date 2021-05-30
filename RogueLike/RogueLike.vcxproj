@@ -137,6 +137,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\code\basic\convert.cpp" />
+    <ClCompile Include="..\code\basic\debug.cpp" />
+    <ClCompile Include="..\code\basic\file.cpp" />
+    <ClCompile Include="..\code\basic\image.cpp" />
+    <ClCompile Include="..\code\basic\json_document.cpp" />
+    <ClCompile Include="..\code\basic\json_object.cpp" />
+    <ClCompile Include="..\code\basic\memory.cpp" />
+    <ClCompile Include="..\code\basic\string.cpp" />
     <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
     <ClCompile Include="..\code\core\systems\widget_system.cpp" />
     <ClCompile Include="..\code\core\system_manager.cpp" />
@@ -153,14 +161,6 @@
     <ClCompile Include="..\code\render\opengl\resource_shader.cpp" />
     <ClCompile Include="..\code\render\opengl\static_mesh.cpp" />
     <ClCompile Include="..\code\render\render_common.cpp" />
-    <ClCompile Include="..\code\src\basic\convert.cpp" />
-    <ClCompile Include="..\code\src\basic\debug.cpp" />
-    <ClCompile Include="..\code\src\basic\file.cpp" />
-    <ClCompile Include="..\code\src\basic\image.cpp" />
-    <ClCompile Include="..\code\src\basic\json_document.cpp" />
-    <ClCompile Include="..\code\src\basic\json_object.cpp" />
-    <ClCompile Include="..\code\src\basic\memory.cpp" />
-    <ClCompile Include="..\code\src\basic\string.cpp" />
     <ClCompile Include="..\code\src\camera.cpp" />
     <ClCompile Include="..\code\src\config.cpp" />
     <ClCompile Include="..\code\src\ecs\entity.cpp" />
