@@ -96,11 +96,6 @@ public:
 
     void trim();
 
-    /*operator const char_t* () const
-    {
-        return m_buffer.get_raw();
-    }*/
-
     static uint32 read_line(char_t* cstr, uint32 max_size, String& out);
 
     static bool format( char_t* buffer, uint32 size, const char* const fmt, ... );

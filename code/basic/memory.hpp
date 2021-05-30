@@ -30,7 +30,7 @@
 
 namespace basic
 {
-using memory_size = uint32;
+using memory_size = size_t;
 using ref_count = int32;
 using mem_out_callback = void ( * )( );
 
@@ -61,22 +61,19 @@ void* wrapper_realloc( void* ptr, size_t size );
 void wrapper_free( void* ptr );
 
 template < class T >
-uint32
-size_of( )
+uint32 size_of( )
 {
     return sizeof( T );
 }
 
 template < class T, class T1, class... Args >
-uint32
-size_of( )
+uint32 size_of( )
 {
     return sizeof( T ) + size_of< T1, Args... >( );
 }
 
 template < typename... Args >
-void*
-alloc_objects( const char* file, int line )
+void* alloc_objects( const char* file, int line )
 {
     uint32 size = size_of< Args... >( );  //::size();
 
@@ -84,8 +81,7 @@ alloc_objects( const char* file, int line )
 }
 
 template < typename T, typename... Args >
-T*
-init_object( void* ptr, uint32& offset, Args... args )
+T* init_object( void* ptr, uint32& offset, Args... args )
 {
     uint32 off = offset;
     offset += sizeof( T );
@@ -94,8 +90,7 @@ init_object( void* ptr, uint32& offset, Args... args )
 }
 
 template < typename T >
-void
-delete_obj( T* ptr )
+void delete_obj( T* ptr )
 {
     if ( ptr )
     {
@@ -105,10 +100,10 @@ delete_obj( T* ptr )
 }
 }
 
-void* operator new( std::size_t n );
+//void* operator new( size_t n ) noexcept;
 void operator delete( void* p ) noexcept;
 
-void* operator new[]( std::size_t s );
+//void* operator new[]( size_t s ) noexcept;
 void operator delete[]( void* p ) noexcept;
 
 #define ALLOC_OBJECTS( ... ) basic::alloc_objects< __VA_ARGS__ >( __FILE__, __LINE__ )

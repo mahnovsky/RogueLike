@@ -475,26 +475,27 @@ wrapper_free( void* ptr )
 }
 }
 
-void*
-operator new( std::size_t n )
+extern "C++"
 {
-    return basic::mem_alloc( static_cast< basic::memory_size >( n ) );
-}
+#pragma push_macro("new")
+    _NODISCARD _Ret_maybenull_ _Success_(return != NULL) _Post_writable_byte_size_(n) _VCRT_ALLOCATOR
+    void* operator new(size_t n, ::std::nothrow_t const&) noexcept
+    {
+        return basic::mem_alloc(static_cast<basic::memory_size>(n));
+    }
 
-void
-operator delete( void* p ) noexcept
-{
-    basic::mem_free( p );
-}
+    void operator delete(void* p, ::std::nothrow_t const&) noexcept
+    {
+        basic::mem_free(p);
+    }
+    _NODISCARD _Ret_maybenull_ _Success_(return != NULL) _Post_writable_byte_size_(s) _VCRT_ALLOCATOR
+    void* operator new[](size_t s, ::std::nothrow_t const&) noexcept
+    {
+        return basic::mem_alloc(static_cast<basic::memory_size>(s));
+    }
 
-void*
-operator new[]( std::size_t s )
-{
-    return basic::mem_alloc( static_cast< basic::memory_size >( s ) );
-}
-
-void
-operator delete[]( void* p ) noexcept
-{
-    basic::mem_free( p );
+    void operator delete[](void* p, ::std::nothrow_t const&) noexcept
+    {
+        basic::mem_free(p);
+    }
 }

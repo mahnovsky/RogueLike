@@ -32,7 +32,7 @@ public:
             bool b;
             float f;
             void* d;
-        } o;
+        } o = {0.f};
         std::string s;
     };
 

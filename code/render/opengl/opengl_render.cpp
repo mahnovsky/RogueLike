@@ -18,7 +18,6 @@
 using namespace ogl;
 
 extern "C" {
-#define GLEW_STATIC
 #include <GL/glew.h>
 }
 

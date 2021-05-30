@@ -6,7 +6,7 @@ namespace core
 {
 #define AS_STRING(SUID) #SUID
 
-	const char* system_names[SUID_Max] =
+	const char* system_names[static_cast<uint32_t>(SystemUID::SUID_Max)] =
 	{
 		AS_STRING(SUID_EngineSystem),
 		AS_STRING(SUID_AssetSystem),
@@ -36,18 +36,18 @@ namespace core
 		LOG("Added system");
 		ASSERT(m_state == LifecycleState::Created);
 		SystemUID uid = system->get_uid();
-		const size_t need_size = (uid + 1);
+		const size_t need_size = (static_cast<uint32_t>(uid) + 1);
 		if (m_systems.size() < need_size)
 		{
 			m_systems.resize(need_size);
 		}
 
-		m_systems[uid] = system;
+		m_systems[static_cast<uint32_t>(uid)] = system;
 	}
 
 	ISystem* SystemManager::get_system(SystemUID uid)
 	{
-		return m_systems[uid];
+		return m_systems[static_cast<uint32_t>(uid)];
 	}
 
 	void SystemManager::initialize()

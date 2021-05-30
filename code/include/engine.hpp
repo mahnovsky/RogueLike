@@ -20,11 +20,11 @@ using engine_callback = void (*)( class Engine* );
 
 
 class IEngine 
-	: public core::TSystem<IEngine, core::SUID_EngineSystem>
+	: public core::TSystem<IEngine, core::SystemUID::SUID_EngineSystem>
 {
 public:
 	IEngine(core::SystemManager& manager)
-		:core::TSystem<IEngine, core::SUID_EngineSystem>(manager)
+		:core::TSystem<IEngine, core::SystemUID::SUID_EngineSystem>(manager)
 	{}
 
     virtual ~IEngine() = default;

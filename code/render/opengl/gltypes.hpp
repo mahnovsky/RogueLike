@@ -11,10 +11,10 @@ using Result = std::optional<Handle>;
 
 #if defined(__WINDOWS__)
 #include <Windows.h>
+#include <winnt.h>
 #endif
 
 extern "C" {
-#define GLEW_STATIC
 #include <GL/glew.h>
 }
 

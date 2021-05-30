@@ -4,7 +4,7 @@ namespace core
 {
 	class SystemManager;
 
-	enum SystemUID
+	enum class SystemUID
 	{
 		SUID_EngineSystem,
 		SUID_AssetSystem,
@@ -12,7 +12,7 @@ namespace core
 		SUID_Max
 	};
 
-	extern const char* system_names[SUID_Max];
+	extern const char* system_names[static_cast<uint32_t>(SystemUID::SUID_Max)];
 
 	class ISystem
 	{
@@ -58,7 +58,7 @@ namespace core
 
 		const char* get_name() const
 		{
-			return system_names[UID];
+			return system_names[static_cast<uint32_t>(UID)];
 		}
 
 		static const SystemUID UID;
