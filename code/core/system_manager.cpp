@@ -36,7 +36,7 @@ namespace core
 		LOG("Added system");
 		ASSERT(m_state == LifecycleState::Created);
 		SystemUID uid = system->get_uid();
-		const size_t need_size = (static_cast<uint32_t>(uid) + 1);
+		const size_t need_size = (static_cast<uint32_t>(uid) + 1u);
 		if (m_systems.size() < need_size)
 		{
 			m_systems.resize(need_size);

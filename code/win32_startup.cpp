@@ -1,40 +1,28 @@
+#include "engine.hpp"
+#include "core.hpp"
 
 #include <windows.h>
 
-#include "engine.hpp"
-#include "system_manager.hpp"
-
-#include "widget_system.hpp"
-#include "resource_storage.hpp"
-
-void game_init(Engine*);
+void game_init();
+int game_loop();
 
 HINSTANCE g_instance;
 
-int __stdcall WinMain( HINSTANCE instance,
-                       HINSTANCE prev_instance,
-                       LPSTR cmd,
-                       int show )
+int __stdcall WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_opt_  HINSTANCE hPrevInstance,
+	_In_ LPSTR lpCmdLine,
+    _In_ int nCmdShow )
 {
-    g_instance = instance;
+    g_instance = hInstance;
 	
-	IEngine* engine = NEW_OBJ(Engine, 0, nullptr);
+	game_init();
 
-	core::SystemManager& system_manager = engine->get_system_manager();
-
-	system_manager.add_system<core::ResourceStorage>();
-	system_manager.add_system<core::WidgetSystem>();
-
-	engine->set_callback(Init, &game_init);
-	
-	if (engine->init(1024, 768, "RogueLike"))
+	int exit_code = game_loop();
+	if (exit_code < 0)
 	{
-		while (engine->is_runned() && engine->update());
-
-		engine->cleanup();
+		return EXIT_FAILURE;
 	}
-
-	DELETE_OBJ(engine);
 
 	return EXIT_SUCCESS;
 }

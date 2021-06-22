@@ -11,7 +11,7 @@
 class GameInstance : public input::InputListener
 {
 public:
-    GameInstance( Engine* engine, float width, float height );
+    GameInstance( IEngine* engine, float width, float height );
     ~GameInstance( );
 
     void init( );
@@ -36,7 +36,7 @@ private:
 	void set_camera_to_entity(const Entity* ent);
 
 private:
-    Engine* m_engine;
+    IEngine* m_engine;
     core::ResourceStorage* m_rs;
     PerspectiveCamera* m_game_camera;
     

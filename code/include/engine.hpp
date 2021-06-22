@@ -16,7 +16,7 @@ enum EngineCallbackType
     Count
 };
 
-using engine_callback = void (*)( class Engine* );
+using engine_callback = void (*)( class IEngine* );
 
 
 class IEngine 
@@ -52,6 +52,8 @@ public:
 	virtual core::SystemManager& get_system_manager() = 0;
 
     virtual bool is_runned() const = 0;
+
+    virtual class EntityComponentManager* get_ecs() = 0;
 };
 
 class Engine 

@@ -145,6 +145,7 @@
     <ClCompile Include="..\code\basic\json_object.cpp" />
     <ClCompile Include="..\code\basic\memory.cpp" />
     <ClCompile Include="..\code\basic\string.cpp" />
+    <ClCompile Include="..\code\core\systems\file_system.cpp" />
     <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
     <ClCompile Include="..\code\core\systems\widget_system.cpp" />
     <ClCompile Include="..\code\core\system_manager.cpp" />
@@ -200,9 +201,11 @@
     <ClInclude Include="..\code\basic\time.hpp" />
     <ClInclude Include="..\code\basic\types.hpp" />
     <ClInclude Include="..\code\basic\vector.hpp" />
+    <ClInclude Include="..\code\core\core.hpp" />
     <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
     <ClInclude Include="..\code\core\system.hpp" />
+    <ClInclude Include="..\code\core\systems\file_system.hpp" />
     <ClInclude Include="..\code\core\systems\resource_storage.hpp" />
     <ClInclude Include="..\code\core\systems\widget_system.hpp" />
     <ClInclude Include="..\code\core\system_manager.hpp" />

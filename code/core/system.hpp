@@ -4,11 +4,12 @@ namespace core
 {
 	class SystemManager;
 
-	enum class SystemUID
+	enum class SystemUID : uint32_t
 	{
 		SUID_EngineSystem,
 		SUID_AssetSystem,
 		SUID_WidgetSystem,
+		SUID_FileSystem,
 		SUID_Max
 	};
 

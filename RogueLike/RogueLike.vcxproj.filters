@@ -190,6 +190,9 @@
     <ClCompile Include="..\code\basic\json_document.cpp">
       <Filter>code\basic</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\core\systems\file_system.cpp">
+      <Filter>code\core\systems</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -357,6 +360,12 @@
     </ClInclude>
     <ClInclude Include="..\code\basic\vector.hpp">
       <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\systems\file_system.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\core.hpp">
+      <Filter>code\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -19,7 +19,7 @@ void Engine::out_of_memory()
     _instance->m_is_runned = true; 
 }
 
-static void dummy( Engine* ){}
+static void dummy( IEngine* ){}
 
 Engine::Engine( int argc, char** argv )
     : m_system_manager()
@@ -128,11 +128,6 @@ bool Engine::update()
 
 void Engine::cleanup()
 {
-    if( m_callbacks[ Clean ] )
-    {
-        m_callbacks[ Clean ]( this );
-    }
-
     DELETE_OBJ(m_input);
     m_input = nullptr;
     DELETE_OBJ(m_render);

@@ -69,7 +69,7 @@ public:
 	EntityComponentManager* m_ecs;
 };
 
-GameInstance::GameInstance( Engine* engine, float width, float height )
+GameInstance::GameInstance( IEngine* engine, float width, float height )
     : m_engine( engine )
     , m_rs(nullptr)
     , m_game_camera( NEW_OBJ( PerspectiveCamera, 45.f, width / height, 1.f, 200.f ) )
