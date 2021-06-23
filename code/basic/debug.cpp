@@ -34,8 +34,7 @@ uint32 str_length(const char* cstring, memory_size max_len )
     return static_cast<uint32>( strnlen( cstring, max_len ) );
 }
 
-char*
-str_copy( const char* cstr, memory_size max_len )
+char* str_copy( const char* cstr, memory_size max_len )
 {
     size_t size = str_length( cstr, max_len );
 
@@ -50,8 +49,7 @@ str_copy( const char* cstr, memory_size max_len )
     return res;
 }
 
-void
-log( int line, const char* file, const char* const func, const char* format, ... )
+void log( int line, const char* file, const char* const func, const char* format, ... )
 {
     char buffer[ MAX_BUFFER_LEN ];
 

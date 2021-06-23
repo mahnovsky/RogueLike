@@ -16,7 +16,7 @@ void Engine::out_of_memory()
     {
         _instance->m_callbacks[ OutOfMemory ]( _instance );
     }
-    _instance->m_is_runned = true; 
+    _instance->m_is_runned = false;
 }
 
 static void dummy( IEngine* ){}
@@ -188,8 +188,7 @@ basic::uint32 Engine::get_fps() const
     return m_fps;
 }
 
-void
-Engine::process_event( )
+void Engine::process_event( )
 {
     m_window->process_events( m_input );
 

@@ -156,7 +156,6 @@
     <ClCompile Include="..\code\core\systems\widget_system.cpp">
       <Filter>code\core\systems</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\include\ecs\component.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_file.cpp">
       <Filter>code\platform\windows</Filter>
     </ClCompile>
@@ -192,6 +191,12 @@
     </ClCompile>
     <ClCompile Include="..\code\core\systems\file_system.cpp">
       <Filter>code\core\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\file_name.cpp">
+      <Filter>code\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\path.cpp">
+      <Filter>code\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +370,15 @@
       <Filter>code\core\systems</Filter>
     </ClInclude>
     <ClInclude Include="..\code\core\core.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\file_name.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\path.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\file_node.hpp">
       <Filter>code\core</Filter>
     </ClInclude>
   </ItemGroup>

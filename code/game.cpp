@@ -2,6 +2,7 @@
 #include "game/game_instance.hpp"
 #include "sprite.hpp"
 #include "core.hpp"
+#include "path.hpp"
 
 static GameInstance* g_game_instance;
 static IEngine* g_engine;
@@ -19,7 +20,7 @@ static void game_free()
     g_engine = nullptr;
 }
 
-void game_init()
+void game_init(core::Path root)
 {
     g_engine = NEW_OBJ(Engine, 0, nullptr);
 

@@ -2,16 +2,14 @@
 
 namespace core
 {
-	std::string Path::m_separator = "/";
-
 	FileSystem::FileSystem(SystemManager& manager)
 		:TSystem<FileSystem, SystemUID::SUID_FileSystem>(manager)
 	{
-
 	}
 
 	void FileSystem::initialize()
 	{
+		
 	}
 
 	void FileSystem::shutdown()
@@ -21,7 +19,14 @@ namespace core
 	void FileSystem::destroy()
 	{
 	}
-	void FileSystem::mount(const Path& file)
+
+	IFileNode* FileSystem::get_node(const Path& path)
+	{
+
+		return nullptr;
+	}
+
+	void FileSystem::mount(const Path& file_path)
 	{
 	}
 }

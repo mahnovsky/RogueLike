@@ -4,8 +4,7 @@
 
 namespace basic
 {
-static void*
-alloc( size_t sz )
+static void* alloc( size_t sz )
 {
     return basic::mem_alloc( static_cast< basic::uint32 >( sz ) );
 }

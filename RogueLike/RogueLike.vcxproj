@@ -145,13 +145,14 @@
     <ClCompile Include="..\code\basic\json_object.cpp" />
     <ClCompile Include="..\code\basic\memory.cpp" />
     <ClCompile Include="..\code\basic\string.cpp" />
+    <ClCompile Include="..\code\core\file_name.cpp" />
+    <ClCompile Include="..\code\core\path.cpp" />
     <ClCompile Include="..\code\core\systems\file_system.cpp" />
     <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
     <ClCompile Include="..\code\core\systems\widget_system.cpp" />
     <ClCompile Include="..\code\core\system_manager.cpp" />
     <ClCompile Include="..\code\game.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
-    <ClCompile Include="..\code\include\ecs\component.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_file.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_time.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_window.cpp" />
@@ -202,6 +203,9 @@
     <ClInclude Include="..\code\basic\types.hpp" />
     <ClInclude Include="..\code\basic\vector.hpp" />
     <ClInclude Include="..\code\core\core.hpp" />
+    <ClInclude Include="..\code\core\file_name.hpp" />
+    <ClInclude Include="..\code\core\file_node.hpp" />
+    <ClInclude Include="..\code\core\path.hpp" />
     <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
     <ClInclude Include="..\code\core\system.hpp" />

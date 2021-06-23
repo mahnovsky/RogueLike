@@ -1,5 +1,9 @@
 #pragma once
 
+#include "memory.hpp"
+
+#include <stdint.h>
+
 namespace core
 {
 	class SystemManager;
