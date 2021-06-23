@@ -7,6 +7,7 @@
 #include "file_node.hpp"
 
 #include <memory>
+#include <map>
 
 namespace core
 {
@@ -22,12 +23,18 @@ namespace core
 
 		void destroy() override;
 
-		IFileNode* get_node(const Path& path);
+		Path get_binary_directory() const;
+
+		Path get_content_directory() const;
+
+		std::unique_ptr<IFileNode> open_file_node(const Path& path);
 
 		void mount(const Path& file_path);
 
 	private:
-		std::unique_ptr<IFileNode> m_root;
+		Path m_binary_directory;
+		Path m_content_directory;
+		std::map<std::string, std::unique_ptr<IFileNode>> m_mounted;
 	};
 }
 

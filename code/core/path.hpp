@@ -40,7 +40,11 @@ namespace core
 
 		std::string_view get_root_name() const;
 
-		static Path parse(const std::string& raw_path);
+		void remove_last();
+
+		static Path add(Path base, const std::string_view dir);
+
+		static Path parse(const std::string& raw_path, std::string_view in_separator = "");
 
 	private:
 		static std::string m_separator;

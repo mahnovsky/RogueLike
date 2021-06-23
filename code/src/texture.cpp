@@ -65,7 +65,7 @@ bool Texture::load( core::ResourceStorage* storage )
 		}
 	}
 
-    std::vector< uint8_t > data = basic::get_file_content( file.c_str( ) );
+    std::vector< uint8_t > data = core::get_file_content( file.c_str( ) );
 
     basic::Image img;
     if ( !data.empty( ) && basic::load_image( std::move( data ), img ) )

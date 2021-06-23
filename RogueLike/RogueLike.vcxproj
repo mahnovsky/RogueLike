@@ -139,12 +139,12 @@
   <ItemGroup>
     <ClCompile Include="..\code\basic\convert.cpp" />
     <ClCompile Include="..\code\basic\debug.cpp" />
-    <ClCompile Include="..\code\basic\file.cpp" />
     <ClCompile Include="..\code\basic\image.cpp" />
     <ClCompile Include="..\code\basic\json_document.cpp" />
     <ClCompile Include="..\code\basic\json_object.cpp" />
     <ClCompile Include="..\code\basic\memory.cpp" />
     <ClCompile Include="..\code\basic\string.cpp" />
+    <ClCompile Include="..\code\core\file.cpp" />
     <ClCompile Include="..\code\core\file_name.cpp" />
     <ClCompile Include="..\code\core\path.cpp" />
     <ClCompile Include="..\code\core\systems\file_system.cpp" />
@@ -191,7 +191,6 @@
     <ClInclude Include="..\code\basic\common.hpp" />
     <ClInclude Include="..\code\basic\convert.hpp" />
     <ClInclude Include="..\code\basic\debug.hpp" />
-    <ClInclude Include="..\code\basic\file.hpp" />
     <ClInclude Include="..\code\basic\hash_map.hpp" />
     <ClInclude Include="..\code\basic\image.hpp" />
     <ClInclude Include="..\code\basic\json_document.hpp" />
@@ -203,6 +202,7 @@
     <ClInclude Include="..\code\basic\types.hpp" />
     <ClInclude Include="..\code\basic\vector.hpp" />
     <ClInclude Include="..\code\core\core.hpp" />
+    <ClInclude Include="..\code\core\file.hpp" />
     <ClInclude Include="..\code\core\file_name.hpp" />
     <ClInclude Include="..\code\core\file_node.hpp" />
     <ClInclude Include="..\code\core\path.hpp" />

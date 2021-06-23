@@ -1,4 +1,5 @@
 #include "path.hpp"
+#include "file.hpp"
 
 namespace core
 {
@@ -94,23 +95,47 @@ namespace core
 		return "";
 	}
 
-	Path Path::parse(const std::string& raw_path)
+	void Path::remove_last()
+	{
+		if (!m_path.empty())
+		{
+			m_path.pop_back();
+		}
+	}
+
+	Path Path::add(Path base, const std::string_view dir)
+	{
+		Path new_path = base;
+		new_path.append(dir);
+		return std::move(new_path);
+	}
+
+	Path Path::parse(const std::string& raw_path, std::string_view in_separator)
 	{
 		Path result;
 		size_t pos = 0;
+		std::string_view separator = in_separator.empty() ? m_separator : in_separator;
 		while (pos != std::string::npos)
 		{
 			size_t prev_pos = pos;
-			pos = raw_path.find(m_separator, prev_pos);
+			pos = raw_path.find(separator, prev_pos);
 			if(pos == std::string::npos)
 			{
-				//TODO: need to parse filename
+				std::string name = raw_path.substr(prev_pos);
+				if (is_dir_exist(raw_path.c_str()))
+				{
+					result.append(name);
+				}
+				else
+				{
+					result.set_file_name(FileName::parse(name));
+				}
 				break;
 			}
 
 			result.append(raw_path.substr(prev_pos, pos - prev_pos));
 
-			pos += m_separator.size();
+			pos += separator.size();
 		}
 
 		return std::move(result);

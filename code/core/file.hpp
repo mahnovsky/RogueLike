@@ -6,16 +6,21 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
-namespace basic
+namespace core
 {
 
-std::vector<uint8> get_file_content( const char* file_name );
+std::vector<uint8_t> get_file_content( const char* file_name );
 
-bool is_dir_exist( const char* path );
+bool is_dir_exist( const char* raw_path);
+
+bool is_path_valid(const char* raw_path);
+
+std::unique_ptr<IFileNode> open_file(const Path& path);
+
+Path get_binary_path();
 
 extern std::string g_data_path;
 
 }
-
-core::IFileNode* open_file(const core::Path& path);

@@ -177,9 +177,6 @@
     <ClCompile Include="..\code\basic\json_object.cpp">
       <Filter>code\basic</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\basic\file.cpp">
-      <Filter>code\basic</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\basic\string.cpp">
       <Filter>code\basic</Filter>
     </ClCompile>
@@ -196,6 +193,9 @@
       <Filter>code\core</Filter>
     </ClCompile>
     <ClCompile Include="..\code\core\path.cpp">
+      <Filter>code\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\file.cpp">
       <Filter>code\core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -333,9 +333,6 @@
     <ClInclude Include="..\code\basic\debug.hpp">
       <Filter>code\basic</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\basic\file.hpp">
-      <Filter>code\basic</Filter>
-    </ClInclude>
     <ClInclude Include="..\code\basic\hash_map.hpp">
       <Filter>code\basic</Filter>
     </ClInclude>
@@ -379,6 +376,9 @@
       <Filter>code\core</Filter>
     </ClInclude>
     <ClInclude Include="..\code\core\file_node.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\file.hpp">
       <Filter>code\core</Filter>
     </ClInclude>
   </ItemGroup>

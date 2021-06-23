@@ -12,7 +12,7 @@ Config::~Config( )
 
 bool Config::load( core::ResourceStorage* )
 {
-   auto data = basic::get_file_content( get_file_name( ).data() );
+   auto data = core::get_file_content( get_file_name( ).data() );
 
     if ( !data.empty( ) && m_doc.load( reinterpret_cast< char* >( data.data( ) ) ) )
     {

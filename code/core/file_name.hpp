@@ -19,6 +19,8 @@ namespace core
 
 		std::string_view get_extension() const;
 
+		static FileName parse(const std::string& file_name);
+
 	private:
 		std::string m_name;
 		std::string m_ext;

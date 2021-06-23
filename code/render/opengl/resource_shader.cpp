@@ -42,7 +42,7 @@ namespace ogl
 		auto file = get_file_name();
 		ASSERT(!file.empty());
 
-		auto data = basic::get_file_content(file.data());
+		auto data = core::get_file_content(file.data());
 
 		if (!data.empty())
 		{

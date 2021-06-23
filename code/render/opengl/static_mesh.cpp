@@ -83,7 +83,7 @@ bool StaticMesh::load(core::ResourceStorage* rs)
 	auto file_name = get_file_name();
 
 	MeshData mesh_data;
-	auto data = basic::get_file_content(file_name.data());
+	auto data = core::get_file_content(file_name.data());
 
 	ofbx::IScene* scene = nullptr;
 	std::uint64_t fbx_load_flags = static_cast<std::uint64_t>(ofbx::LoadFlags::TRIANGULATE);

@@ -29,4 +29,18 @@ namespace core
 	{
 		return m_ext;
 	}
+
+	FileName FileName::parse(const std::string& file_name)
+	{
+		size_t pos = file_name.find('.');
+		std::string name;
+		std::string ext;
+		if (pos != std::string::npos)
+		{
+			name = file_name.substr(0, pos);
+			ext = file_name.substr(pos + 1);
+		}
+
+		return {name, ext};
+	}
 }

@@ -45,7 +45,7 @@ bool Font::load( core::ResourceStorage* storage )
 
     std::string path = "fonts/"s + get_file_name().data();
     
-    auto data = basic::get_file_content( path.c_str( ) );
+    auto data = core::get_file_content( path.c_str( ) );
 
     if ( !data.empty( ) )
     {
