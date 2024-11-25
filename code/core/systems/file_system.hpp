@@ -12,22 +12,20 @@
 namespace core
 {
 	class FileSystem
-		: public TSystem< FileSystem, SystemUID::SUID_FileSystem>
+		: public TSystem<FileSystem, SystemUID::SUID_FileSystem>
 	{
 	public:
 		FileSystem(SystemManager& manager);
 
-		void initialize() override;
+		void initialize(IGlobalContext* context) override;
 
 		void shutdown() override;
-
-		void destroy() override;
 
 		Path get_binary_directory() const;
 
 		Path get_content_directory() const;
 
-		std::unique_ptr<IFileNode> open_file_node(const Path& path);
+		FileNodePtr open_file_node(const Path& path);
 
 		void mount(const Path& file_path);
 

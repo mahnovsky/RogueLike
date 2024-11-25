@@ -50,8 +50,7 @@ public:
 class EntityComponentManager
 {
 public:
-	EntityComponentManager()
-	{}
+	EntityComponentManager() = default;
 	~EntityComponentManager()
 	{
 		auto cont = std::move(m_systems);
@@ -64,7 +63,7 @@ public:
 	template <class T, class ... Args>
 	T* create_entity(Args ... args)
 	{
-		const auto index = TypeInfo<T, NS_ENTITY_TYPE>::type_index;
+		const auto index = TypeInfo<T, EntityType>::type_index;
 
 		if(m_ent_containers.size() < (index + 1))
 		{
@@ -95,7 +94,7 @@ public:
 	template <class T, class ... Args>
 	T* create_component(Entity* ent, Args ... args)
 	{
-		const auto index = TypeInfo<T, NS_COMPONENT_TYPE>::type_index;
+		const auto index = TypeInfo<T, ComponentType>::type_index;
 
 		if (m_comp_containers.size() < (index + 1))
 		{
@@ -117,7 +116,7 @@ public:
 	template <class T>
 	std::vector<T*> get_components() const
 	{
-		const size_t index = TypeInfo<T, NS_COMPONENT_TYPE>::type_index;
+		const size_t index = TypeInfo<T, ComponentType>::type_index;
 
 		auto cont = dynamic_cast<Container<T>*>(m_comp_containers[index].get());
 
@@ -127,7 +126,7 @@ public:
 	template <class T>
 	std::vector<T*> get_entities() const
 	{
-		const size_t index = TypeInfo<T, NS_ENTITY_TYPE>::type_index;
+		const size_t index = TypeInfo<T, EntityType>::type_index;
 
 		auto cont = dynamic_cast<Container<T>*>(m_ent_containers[index].get());
 
@@ -137,7 +136,7 @@ public:
 	template <class T, class Func>
 	void foreach_component( Func f)
 	{
-		const size_t index = TypeInfo<T, NS_COMPONENT_TYPE>::type_index;
+		const size_t index = TypeInfo<T, ComponentType>::type_index;
 
 		auto cont = dynamic_cast<Container<T>*>(m_comp_containers[index].get());
 
@@ -149,7 +148,7 @@ public:
 	{
 		auto it = std::find_if(m_systems.begin(), m_systems.end(), [](IGenericObject* obj)
 			{
-				return obj->type_index() == TypeInfo<T, NS_SYSTEM_TYPE>::type_index;
+				return obj->type_index() == TypeInfo<T, SystemType>::type_index;
 			});
 		if (it != m_systems.end())
 		{
@@ -168,7 +167,7 @@ public:
 	{
 		auto it = std::find_if(m_systems.begin(), m_systems.end(), [](IGenericObject* obj)
 			{
-				return TypeInfo<T, NS_SYSTEM_TYPE>::type_index == obj->type_index();
+				return TypeInfo<T, SystemType>::type_index == obj->type_index();
 			});
 
 		if(it != m_systems.end())

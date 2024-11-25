@@ -220,7 +220,7 @@ public:
     {
         if ( realloc( ) && m_size > 0 )
         {
-			Selector<T, std::is_pod<T>::value>::copy(m_data, other.m_data, m_size);
+			Selector<T, std::is_trivial<T>::value>::copy(m_data, other.m_data, m_size);
         }
     }
 
@@ -476,7 +476,7 @@ public:
         }
 
         T* last = m_data + m_size;
-		Selector<T, std::is_pod_v<T>>::construct(last, 1);
+		Selector<T, std::is_trivial<T>::value>::construct(last, 1);
 
         ( *last ) = std::move( item );
         ++m_size;
@@ -526,7 +526,7 @@ public:
 
         T* last = m_data + m_size;
 
-		Selector<T, std::is_pod_v<T>>::construct(last, 1, args ...);
+		Selector<T, std::is_trivial<T>::value>::construct(last, 1, args ...);
 
         ++m_size;
     }
@@ -626,7 +626,7 @@ public:
         {
             T* pos = m_data + index;
             uint32 move_count = m_size - ( index + 1 );
-            Selector< T, std::is_pod<T>::value >::destruct( pos, 1 );
+            Selector< T, std::is_trivial<T>::value >::destruct( pos, 1 );
             ASSERT( m_size > 0 );
             if ( m_size > 1 && index < ( m_size - 1 ) )
             {
@@ -693,7 +693,7 @@ public:
     void
     clear( )
     {
-		Selector< T, std::is_pod<T>::value >::destruct(m_data, m_size);
+		Selector< T, std::is_trivial<T>::value>::destruct(m_data, m_size);
         m_size = 0;
     }
 

@@ -13,75 +13,60 @@ namespace core
 		AS_STRING(SUID_WidgetSystem)
 	};
 
-	SystemManager::SystemManager()
-		:m_state(LifecycleState::Created)
-		,m_systems()
+	SystemManager::SystemManager(IGlobalContext* context)
+		:_context(context)
+		,_systems()
 	{
 		LOG("SystemManager created");
 	}
 
 	SystemManager::~SystemManager()
 	{
-		LOG("Destroy all systems");
-		ASSERT(m_state == LifecycleState::Shotdowned);
-		for (ISystem* system : m_systems)
-		{
-			system->destroy();
-		}
-		m_state = LifecycleState::Destroyed;
 	}
 
 	void SystemManager::add_system(ISystem* system)
 	{
-		LOG("Added system");
-		ASSERT(m_state == LifecycleState::Created);
 		SystemUID uid = system->get_uid();
-		const size_t need_size = (static_cast<uint32_t>(uid) + 1u);
-		if (m_systems.size() < need_size)
+		const size_t need_size = (static_cast<size_t>(uid) + 1u);
+		if (_systems.size() < need_size)
 		{
-			m_systems.resize(need_size);
+			_systems.resize(need_size);
 		}
+		assert(_systems[static_cast<size_t>(uid)] == nullptr);
+		_systems[static_cast<size_t>(uid)] = system;
 
-		m_systems[static_cast<uint32_t>(uid)] = system;
+		_initialize_systems.push_back(system);
 	}
 
 	ISystem* SystemManager::get_system(SystemUID uid)
 	{
-		return m_systems[static_cast<uint32_t>(uid)];
+		return _systems[static_cast<uint32_t>(uid)];
 	}
 
-	void SystemManager::initialize()
+	void SystemManager::update()
 	{
-		LOG("Initialize all systems");
-		ASSERT(m_state == LifecycleState::Created);
-
-		for (ISystem* system : m_systems)
+		if (!_initialize_systems.empty())
 		{
-			if (system)
+			for (auto system : _initialize_systems)
 			{
-				system->initialize();
+				system->initialize(_context);
 			}
+			_initialize_systems.clear();
 		}
-		m_state = LifecycleState::Initialized;
 	}
 
 	void SystemManager::shutdown()
 	{
 		LOG("Shutdown all systems");
-		ASSERT(m_state == LifecycleState::Initialized);
-		for (ISystem* system : m_systems)
+		for (ISystem* system : _systems)
 		{
 			if (system)
 			{
 				system->shutdown();
+
+				basic::Memory::Delete(system);
 			}
 		}
-		m_state = LifecycleState::Shotdowned;
+		_systems.clear();
 	}
-
-	LifecycleState SystemManager::get_lifecycle_state() const
-	{
-		return m_state;
-	}
-
 }

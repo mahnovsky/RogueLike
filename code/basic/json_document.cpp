@@ -134,7 +134,7 @@ JsonDocument::load( const char* string )
 JsonObject*
 JsonDocument::create( )
 {
-    JsonObject* obj = NEW_OBJ( JsonObject );
+    JsonObject* obj = basic::Memory::New<JsonObject>().Get();
 
     m_objects.push( obj );
 

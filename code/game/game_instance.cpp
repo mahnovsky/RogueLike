@@ -1,5 +1,8 @@
 #include "game_instance.hpp"
 
+#include "iglobal_context.hpp"
+
+#include "camera.hpp"
 #include "render_common.hpp"
 #include "widget_system.hpp"
 #include "texture.hpp"
@@ -14,6 +17,7 @@
 #include "opengl/static_mesh.hpp"
 #include "text_component.hpp"
 #include "transform.hpp"
+#include "iglobal_context.hpp"
 
 #include <ctime>
 
@@ -21,7 +25,7 @@
 class MoveComponent : public Component
 {
 public:
-	GENERIC_OBJECT_IMPL(MoveComponent, NS_COMPONENT_TYPE);
+	GENERIC_OBJECT_IMPL(MoveComponent, ComponentType);
 
 	MoveComponent(Entity* ent)
 		:Component(ent)
@@ -37,7 +41,7 @@ public:
 class MoveSystem : public IGenericObject
 {
 public:
-	GENERIC_OBJECT_IMPL(MoveSystem, NS_SYSTEM_TYPE);
+	GENERIC_OBJECT_IMPL(MoveSystem, SystemType);
 
 	MoveSystem(EntityComponentManager* ecs)
 		: m_ecs(ecs)
@@ -83,9 +87,7 @@ GameInstance::GameInstance( IEngine* engine, float width, float height )
 	, m_selection_rect(nullptr)
 	, m_cow(nullptr)
 {
-	auto& sm = engine->get_system_manager();
-	m_rs = sm.get_system<core::ResourceStorage>();
-	m_widget_system = sm.get_system<core::WidgetSystem>();
+	
 }
 
 GameInstance::~GameInstance( )
@@ -95,13 +97,10 @@ GameInstance::~GameInstance( )
 	DELETE_OBJ( m_game_camera );
 }
 
-static void
-exit_action( Widget* w, void* ud )
+static void exit_action( Widget* w, void* ud )
 {
     //LOG( "on widget clicked tag %d", w->get_tag( ) );
     Engine* engine = static_cast< Engine* >( ud );
-
-    engine->shutdown( );
 }
 
 static void
@@ -161,8 +160,7 @@ void open_menu_action( Widget* w, void* user_data )
     gi->m_ui_root->add_child( wnd );
 }
 */
-static float
-rnd( )
+static float rnd( )
 {
     return static_cast< float >( rand( ) ) / RAND_MAX;
 }
@@ -185,7 +183,7 @@ Entity* make_ent(EntityComponentManager* ecs, core::ResourceStorage* storage, co
 	rc->set_resource_name(RenderResourceType::ShaderProgram, shader);
 	rc->set_resource_name(RenderResourceType::StaticMesh, mesh);
 
-	std::shared_ptr<StaticMesh> mesh_instance = storage->get_resorce<StaticMesh>(mesh);
+	std::shared_ptr<StaticMesh> mesh_instance = storage->get_resource<StaticMesh>(mesh);
 	Sphere s;
 	s.pos = pos;
 	s.radius = mesh_instance->get_bounding_sphere_radius() * scale;
@@ -259,10 +257,16 @@ static void init_selection_rect(IRenderObject* so, const ICamera* cam)
 	update_selection_rect(so, cam, { 10.f, 10.f }, { 500.f, 500.f });
 }
 
-void GameInstance::init( )
+void GameInstance::initialize( )
 {
     srand( static_cast<uint32_t>(time( nullptr )) );
-	std::shared_ptr<Texture> texture = m_rs->get_resorce< Texture >("btn.png");
+
+	auto context = core::IGlobalContext::GetInstance();
+	auto systems = context->get_system_manager();
+
+	m_rs = systems->get_system<core::ResourceStorage>();
+	m_widget_system = systems->get_system<core::WidgetSystem>();
+	std::shared_ptr<Texture> texture = m_rs->get_resource< Texture >("btn.png");
 
 	m_ecs = m_engine->get_ecs();
 
@@ -301,7 +305,7 @@ void GameInstance::init( )
 		}
 	}
 
-	m_player = make_ent(m_ecs, m_rs, "meshes/cube.fbx", "default");
+	m_player = make_ent(m_ecs, m_rs, "meshes/gun.fbx", "default");
 	if (m_player)
 	{
 		auto mc = m_player->get_component< MoveComponent >();
@@ -315,7 +319,7 @@ void GameInstance::init( )
 		{
 			tr->set_euler_angles({ 0.f, 0.f, 0.f });
 			tr->set_position({ 10.f, 0.f, 10.f });
-			tr->set_scale({ 3.5f, 3.5f, 3.5f });
+			tr->set_scale({ 0.02f, 0.02f, 0.02f });
 		}
 		auto rc = m_player->get_component<RenderComponent>();
 		rc->set_color({ 130, 0, 80, 255 });
@@ -346,14 +350,10 @@ void GameInstance::init( )
     m_engine->get_input( )->add_listener( this );
 }
 
-void GameInstance::draw( IRender* render ) const
+void GameInstance::draw( IRender* render )
 {
-	auto& mng = m_engine->get_system_manager();
-	if (mng.get_lifecycle_state() == core::LifecycleState::Initialized)
-	{
-		m_render_system->draw(m_ecs);
-		m_widget_system->get_root_widget()->draw(render);
-	}
+	m_render_system->draw(m_ecs);
+	m_widget_system->get_root_widget()->draw(render);
 }
 
 static void highlight_selected(IRender* render, PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
@@ -390,7 +390,7 @@ static void highlight_selected(IRender* render, PerspectiveCamera* game_camera, 
 	}
 }
 
-void GameInstance::frame(float delta)
+void GameInstance::update(float delta)
 {
 	static int prev_object_count;
 	print_fps(prev_object_count);
@@ -460,8 +460,7 @@ void GameInstance::frame(float delta)
 	}
 }
 
-void
-GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
+void GameInstance::key_pressed( input::KeyCode code, basic::int16 key )
 {
 	auto mc = m_player->get_component< MoveComponent >();
 	auto tr = m_player->get_component< Transform >();
@@ -583,26 +582,18 @@ void GameInstance::initialize_ui()
 
 void GameInstance::print_fps(int objects) const
 {
-	constexpr int BUFF_SIZE = 256;
-	static basic::char_t buff[BUFF_SIZE];
-	static basic::uint32 fps;
-
-	if (fps != m_engine->get_fps())
+	if (!m_fps_text)
 	{
-		fps = m_engine->get_fps();
-
-		if (m_fps_text)
-		{
-			if (basic::String::format(buff, BUFF_SIZE, "fps: %u", fps))
-			{
-				m_fps_text->set_text(buff);
-			}
-		}
+		return;
 	}
-	/*
-	basic::String::format(buff, BUFF_SIZE, "draw objects: %u", objects);
-	if (m_mem_text)
-		m_mem_text->set_text(buff);*/
+
+	const auto context = core::IGlobalContext::GetInstance();
+	const auto fps = context->get_engine()->get_fps();
+
+	std::array<char, 256> buff;
+	basic::String::format(buff, "fps: %u", fps);
+
+	m_fps_text->set_text({ buff.begin(), buff.end() });
 }
 
 void GameInstance::set_camera_to_entity(const Entity* ent)

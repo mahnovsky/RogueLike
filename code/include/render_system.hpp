@@ -12,7 +12,7 @@ class RenderComponent;
 class RenderComponent : public Component
 {
 public:
-	GENERIC_OBJECT_IMPL(RenderComponent, NS_COMPONENT_TYPE);
+	GENERIC_OBJECT_IMPL(RenderComponent, ComponentType);
 
 	RenderComponent(Entity* ent);
 	~RenderComponent() override;
@@ -53,7 +53,7 @@ private:
 class RenderSystem : public IGenericObject
 {
 public:
-	GENERIC_OBJECT_IMPL(RenderSystem, NS_SYSTEM_TYPE);
+	GENERIC_OBJECT_IMPL(RenderSystem, SystemType);
 
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem(RenderSystem&&) noexcept = delete;

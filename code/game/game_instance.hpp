@@ -2,36 +2,39 @@
 
 #include "defines.hpp"
 
+#include "igame_instance.hpp"
 #include "camera.hpp"
 #include "engine.hpp"
 #include "input.hpp"
 #include "resource_storage.hpp"
 #include "system_manager.hpp"
 
-class GameInstance : public input::InputListener
+class GameInstance 
+    : public core::IGameInstance
+    , public input::InputListener
 {
 public:
     GameInstance( IEngine* engine, float width, float height );
-    ~GameInstance( );
+    ~GameInstance( ) override;
 
-    void init( );
+    void initialize() override;
 
-    void draw( IRender* render ) const;
+    void draw( IRender* render ) override;
 
-    void frame( float delta );
+    void update( float delta ) override;
 
     void key_pressed( input::KeyCode code, basic::int16 key ) override;
 
 	void on_mouse_event(const input::MouseEvent& mouse_event) override;
 
-    friend void open_menu_action( Widget* w, void* user_data );
+    //friend void open_menu_action( Widget* w, void* user_data );
 
 	void initialize_cams();
 
 	void initialize_ui();
 
 private:
-    void print_fps( int objects) const;
+    void print_fps(int objects) const;
 
 	void set_camera_to_entity(const Entity* ent);
 

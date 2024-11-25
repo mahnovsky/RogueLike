@@ -5,6 +5,8 @@
 
 namespace core
 {
+	class IGlobalContext;
+
 	enum class LifecycleState
 	{
 		Created,
@@ -16,7 +18,7 @@ namespace core
 	class SystemManager
 	{
 	public:
-		SystemManager();
+		SystemManager(IGlobalContext* context);
 		SystemManager(const SystemManager&) = delete;
 		SystemManager(SystemManager&&) = delete;
 		~SystemManager();
@@ -43,14 +45,13 @@ namespace core
 			return nullptr;
 		}
 
-		void initialize();
+		void update();
 
 		void shutdown();
 
-		LifecycleState get_lifecycle_state() const;
-
 	private:
-		LifecycleState m_state;
-		std::vector<ISystem*> m_systems;
+		IGlobalContext* _context;
+		std::vector<ISystem*> _initialize_systems;
+		std::vector<ISystem*> _systems;
 	};
 }

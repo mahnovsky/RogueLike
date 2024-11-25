@@ -25,7 +25,7 @@ namespace core
 		WidgetSystem(SystemManager& manager);
 		~WidgetSystem() override;
 
-		void initialize() override;
+		void initialize(IGlobalContext* context) override;
 
 		void shutdown() override;
 

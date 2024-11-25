@@ -295,7 +295,7 @@ namespace basic
         va_list args;
         va_start( args, fmt );
 
-        int result = stbsp_vsnprintf( buffer, static_cast<int>(size), fmt, args );
+        const int result = stbsp_vsnprintf( buffer, static_cast<int>(size), fmt, args );
 
         va_end( args );
 

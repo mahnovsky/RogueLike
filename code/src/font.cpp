@@ -35,7 +35,7 @@ Font::~Font( )
 
 bool Font::load( core::ResourceStorage* storage )
 {
-    m_shader = storage->get_resorce< ogl::ShaderProgram >( "text" );
+    m_shader = storage->get_resource< ogl::ShaderProgram >( "text" );
     if ( !m_shader )
     {
         LOG( "Failed load text shader" );

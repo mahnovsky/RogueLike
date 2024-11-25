@@ -20,7 +20,7 @@ public:
 
     void initialize();
 
-    void set_text(const std::string& text);
+    void set_text(const std::string_view& text);
 
     void set_color(const basic::Color& color);
 

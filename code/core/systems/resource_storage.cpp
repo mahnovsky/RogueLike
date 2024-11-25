@@ -20,18 +20,13 @@ namespace core
 		timer_manager.add(2.f, &update_cached_resources, this, -1);
 	}
 
-	void ResourceStorage::initialize()
+	void ResourceStorage::initialize(IGlobalContext* context)
 	{
 	}
 
 	void ResourceStorage::shutdown()
 	{
 		update_cached_resources(this);
-	}
-
-	void ResourceStorage::destroy()
-	{
-		DELETE_OBJ(this);
 	}
 
 	bool ResourceStorage::add_resource(FileResourcePtr file_resource)

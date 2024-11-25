@@ -4,6 +4,7 @@
 #include "resource_storage.hpp"
 #include "ecs_manager.hpp"
 #include "system_manager.hpp"
+#include "iglobal_context.hpp"
 
 enum EngineCallbackType 
 {
@@ -18,20 +19,12 @@ enum EngineCallbackType
 
 using engine_callback = void (*)( class IEngine* );
 
-
 class IEngine 
-	: public core::TSystem<IEngine, core::SystemUID::SUID_EngineSystem>
 {
 public:
-	IEngine(core::SystemManager& manager)
-		:core::TSystem<IEngine, core::SystemUID::SUID_EngineSystem>(manager)
-	{}
-
     virtual ~IEngine() = default;
 
-	virtual void initialize() override {}
-
-    virtual bool init(int width, int height, const char* wnd_title) = 0;
+    virtual bool initialize(int width, int height, const char* wnd_title) = 0;
 
     virtual bool update() = 0;
 
@@ -49,8 +42,6 @@ public:
 
     virtual basic::uint32 get_fps() const = 0;
 
-	virtual core::SystemManager& get_system_manager() = 0;
-
     virtual bool is_runned() const = 0;
 
     virtual class EntityComponentManager* get_ecs() = 0;
@@ -64,20 +55,16 @@ public:
 	Engine(const Engine&) = delete;
 	Engine(Engine&&) noexcept = delete;
 
-    Engine( int argv, char** argc );
-    ~Engine() override;
+    Engine( core::IGlobalContext* context );
+    ~Engine() override = default;
 
-    bool init(int width, int height, const char* wnd_title) override;
+    bool initialize(int width, int height, const char* wnd_title) override;
 
     bool update() override;
 
     void cleanup() override;
 
     void set_callback( EngineCallbackType type, engine_callback callback ) override;
-
-    void shutdown() override;
-
-	void destroy() override {}
 
     IRender* get_render() override;
 
@@ -89,21 +76,21 @@ public:
 
     bool is_runned() const override;
 
-    uint32_t get_fps() const;
+    uint32_t get_fps() const override;
 
-    EntityComponentManager* get_ecs() { return m_ecs; }
-
-	core::SystemManager& get_system_manager() { return m_system_manager; }
+    EntityComponentManager* get_ecs() override { return m_ecs; }
 
 private:
     void process_event( );
     
     static void out_of_memory();
 
+    void update_fps();
+
 private:
     static Engine* _instance;
 
-	core::SystemManager m_system_manager;
+    core::IGlobalContext* _context;
 
     IWindow* m_window;
 
@@ -115,11 +102,11 @@ private:
 
     engine_callback m_callbacks[Count];
 
-    basic::Vector<basic::String> m_cmd_args;
+    std::vector<std::string> m_cmd_args;
 
-    double m_time;
+    double m_fps_time;
 
-    double m_delta;
+    double m_frame_time;
 
     uint32_t m_fps;
 

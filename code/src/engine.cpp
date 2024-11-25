@@ -8,6 +8,8 @@
 #include "render.hpp"
 #include "window.hpp"
 
+#include "iglobal_context.hpp"
+
 Engine* Engine::_instance;
 
 void Engine::out_of_memory()
@@ -19,21 +21,35 @@ void Engine::out_of_memory()
     _instance->m_is_runned = false;
 }
 
+void Engine::update_fps()
+{
+	static basic::uint32 fps_counter;
+
+	m_fps_time += m_frame_time;
+	++fps_counter;
+
+	if (m_fps_time >= 1000.0)
+	{
+		m_fps = fps_counter;
+		m_fps_time = 0.0;
+		fps_counter = 0;
+	}
+}
+
 static void dummy( IEngine* ){}
 
-Engine::Engine( int argc, char** argv )
-    : m_system_manager()
-	, m_window( nullptr ) 
+Engine::Engine( core::IGlobalContext* context )
+    : _context(context)
+    , m_window( nullptr ) 
     , m_render( nullptr )
     , m_input(nullptr)
     , m_is_runned( true )
     , m_callbacks()
     , m_cmd_args()
-    , m_time( 0.0 )
-    , m_delta( 0.0 )
+    , m_fps_time( 0.0 )
+    , m_frame_time( 0.0 )
     , m_fps( 0 )
     , m_ecs(NEW_OBJ(EntityComponentManager))
-	, IEngine(m_system_manager)
 {
     ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
 
@@ -42,22 +58,9 @@ Engine::Engine( int argc, char** argv )
 
     m_callbacks[Frame] = &dummy;
     m_callbacks[Draw] = &dummy;
-
-    basic::uint32 uargc = argc < 0 ? 0 : static_cast<basic::uint32>(argc);
-    for( basic::uint32 i = 0; i < uargc; ++i )
-    {
-       m_cmd_args.emplace( argv[i] );
-    }
-
-	m_system_manager.add_system(this);
 }
 
-Engine::~Engine()
-{
-	DELETE_OBJ(m_ecs);
-}
-
-bool Engine::init(int width, int height, const char *wnd_title)
+bool Engine::initialize(int width, int height, const char *wnd_title)
 {
 	m_input = input::Input::create();
 
@@ -70,7 +73,9 @@ bool Engine::init(int width, int height, const char *wnd_title)
     }
 
     m_render = IRender::create();
-	core::ResourceStorage* rs = m_system_manager.get_system<core::ResourceStorage>();
+
+    core::SystemManager* systems = _context->get_system_manager();
+	core::ResourceStorage* rs = systems->get_system<core::ResourceStorage>();
 
     if( !m_render->init( rs, width, height ) )
     {
@@ -79,7 +84,7 @@ bool Engine::init(int width, int height, const char *wnd_title)
         return false;
     }
 
-	m_system_manager.initialize();
+	systems->update();
 
     if( m_callbacks[ Init ])
     {
@@ -94,9 +99,7 @@ bool Engine::init(int width, int height, const char *wnd_title)
 
 bool Engine::update()
 {
-    static basic::uint32 fps_counter;
-
-    double begin = basic::get_milliseconds();
+    const double frame_begin = basic::get_milliseconds();
 
     process_event( );
 
@@ -112,16 +115,9 @@ bool Engine::update()
 
 	m_window->swap_buffers();
 
-    m_delta = basic::get_milliseconds() - begin;
-    m_time += m_delta;
-
-    ++fps_counter;
-    if( m_time >= 1000.0 )
-    {
-        m_fps = fps_counter;
-        m_time = 0.0;
-        fps_counter = 0;
-    }
+    m_frame_time = basic::get_milliseconds() - frame_begin;
+    
+    update_fps();
 
     return m_is_runned;
 }
@@ -134,7 +130,8 @@ void Engine::cleanup()
     m_render = nullptr;
     DELETE_OBJ(m_window);
     m_window = nullptr;
-
+    DELETE_OBJ(m_ecs);
+    
     LOG( "Engine free done. Memory usage %lu",
         basic::get_memory_usage() );
 }
@@ -148,11 +145,6 @@ void Engine::set_callback( EngineCallbackType type, engine_callback callback )
     }
 
     m_callbacks[ index ] = callback;
-}
-
-void Engine::shutdown()
-{
-    m_is_runned = false;
 }
 
 IRender* Engine::get_render()
@@ -175,7 +167,7 @@ glm::vec2 Engine::get_window_size() const
 
 double Engine::get_frame_time() const
 {
-    return m_delta;
+    return m_frame_time;
 }
 
 bool Engine::is_runned() const
@@ -194,7 +186,7 @@ void Engine::process_event( )
 
     if( m_window->is_quit() )
     {
-		m_system_manager.shutdown();
+        m_is_runned = false;
     }
 }
 

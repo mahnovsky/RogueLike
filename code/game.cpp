@@ -3,6 +3,7 @@
 #include "sprite.hpp"
 #include "core.hpp"
 #include "path.hpp"
+#include <set>
 
 static GameInstance* g_game_instance;
 static IEngine* g_engine;
@@ -16,39 +17,35 @@ static void game_free()
     g_game_instance = nullptr;
 
     g_engine->cleanup();
-    DELETE_OBJ(g_engine);
+    basic::Memory::Delete(g_engine);
     g_engine = nullptr;
+
+    basic::Memory::PrintMemStats();
 }
 
 void game_init(core::Path root)
 {
-    g_engine = NEW_OBJ(Engine, 0, nullptr);
+    const auto context = core::IGlobalContext::GetInstance();
+    auto systems = context->get_system_manager();
 
-    core::SystemManager& system_manager = g_engine->get_system_manager();
+    g_engine = context->get_engine();
 
-    system_manager.add_system<core::FileSystem>();
-    system_manager.add_system<core::ResourceStorage>();
-    system_manager.add_system<core::WidgetSystem>();
+    glm::vec2 size = g_engine->get_window_size();
 
-    if (g_engine->init(1024, 768, "RogueLike"))
-    {
-        glm::vec2 size = g_engine->get_window_size();
+    g_game_instance = NEW_OBJ(GameInstance, g_engine, size.x, size.y);
 
-        g_game_instance = NEW_OBJ(GameInstance, g_engine, size.x, size.y);
+    g_engine->set_callback(Draw, &game_draw);
+    g_engine->set_callback(Frame, &game_frame);
+    //g_engine->set_callback(Clean, &game_free);
 
-        g_engine->set_callback(Draw, &game_draw);
-        g_engine->set_callback(Frame, &game_frame);
-        //g_engine->set_callback(Clean, &game_free);
-
-        g_game_instance->init();
-    }
+    g_game_instance->initialize();
 }
 
 static void game_frame( IEngine* engine )
 {
-    float delta = static_cast< float >( engine->get_frame_time( ) ) / 1000;
+    const double delta = engine->get_frame_time( ) / 1000.0;
 
-    g_game_instance->frame( delta );
+    g_game_instance->update( static_cast<float>(delta) );
 }
 
 static void game_draw( IEngine* engine )

@@ -10,6 +10,7 @@ out vec4 in_color;
 //uniform mat4 MVP;
 uniform mat4 ViewProjection;
 uniform mat4 Model;
+uniform float TimeSends;
 
 void main()
 {

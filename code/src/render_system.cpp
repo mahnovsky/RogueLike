@@ -76,10 +76,10 @@ void RenderComponent::set_color(basic::Color color)
 
 void RenderComponent::on_event(Component* sender, ComponentEvent event_type)
 {
-	if (sender->type_index() == TypeInfo<Transform, NS_COMPONENT_TYPE>::type_index &&
+	if (sender->type_index() == TypeInfo<Transform, ComponentType>::type_index &&
 		event_type == ComponentEvent::Updated)
 	{
-		Transform* transform = fast_cast<Transform, NS_COMPONENT_TYPE>(sender);
+		Transform* transform = fast_cast<Transform, ComponentType>(sender);
 
 		m_render_object->update_mvp( transform->get_matrix() );
 	}

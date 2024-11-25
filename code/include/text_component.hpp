@@ -7,11 +7,11 @@
 class TextComponent : public IGenericObject
 {
 public:
-    GENERIC_OBJECT_IMPL(TextComponent, NS_COMPONENT_TYPE);
+    GENERIC_OBJECT_IMPL(TextComponent, ComponentType);
 
     TextComponent( Entity* ent );
     TextComponent(Entity* ent, const char* font_file);
-	~TextComponent();
+	~TextComponent() override;
 
 	void init(core::ResourceStorage* storage);
 

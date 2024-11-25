@@ -12,7 +12,7 @@
 class Entity : public IGenericObject
 {
 public:
-	GENERIC_OBJECT_IMPL(Entity, NS_ENTITY_TYPE);
+	GENERIC_OBJECT_IMPL(Entity, ComponentType);
 
 	Entity(EntityComponentManager* mng);
 
@@ -21,7 +21,7 @@ public:
 	template <class T>
 	bool is_component_exist() const
 	{
-		return is_component_exist(TypeInfo<T, NS_COMPONENT_TYPE>::type_index);
+		return is_component_exist(TypeInfo<T, ComponentType>::type_index);
 	}
 
 	bool is_component_exist(size_t type_index) const;
@@ -39,13 +39,13 @@ public:
 	template <class T>
 	T* get_component()
 	{
-		return dynamic_cast<T*>(get_component(TypeInfo<T, NS_COMPONENT_TYPE>::type_index));
+		return dynamic_cast<T*>(get_component(TypeInfo<T, ComponentType>::type_index));
 	}
 
 	template <class T>
 	const T* get_component() const
 	{
-		return dynamic_cast<const T*>(get_component(TypeInfo<T, NS_COMPONENT_TYPE>::type_index));
+		return dynamic_cast<const T*>(get_component(TypeInfo<T, ComponentType>::type_index));
 	}
 
 	template <class T, class ... Args>

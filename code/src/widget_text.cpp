@@ -34,7 +34,7 @@ void WidgetText::initialize()
 
 	if (!m_font && storage)
 	{
-		m_font = storage->get_resorce<se::Font>(m_font_name.c_str());
+		m_font = storage->get_resource<se::Font>(m_font_name.c_str());
 
 		if (m_font)
 		{
@@ -43,7 +43,7 @@ void WidgetText::initialize()
 	}
 }
 
-void WidgetText::set_text(const std::string& text)
+void WidgetText::set_text(const std::string_view& text)
 {
     m_text = text;
 

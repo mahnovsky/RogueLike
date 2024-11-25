@@ -97,8 +97,9 @@ private:
 
 class JsonObject
 {
-    JsonObject();
 public:
+    JsonObject();
+
     bool is_object() const;
 
     bool to_bool() const;

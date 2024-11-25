@@ -25,12 +25,6 @@
     <Filter Include="code\include\generic">
       <UniqueIdentifier>{b6d272f6-f0eb-478a-903a-72810b8dd68b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="code\include\render">
-      <UniqueIdentifier>{d3caf49e-5230-4ad9-92ec-c21831459a20}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="code\include\render\opengl">
-      <UniqueIdentifier>{e0380346-ef1b-429a-9071-6b81e90d5f3b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="code\core">
       <UniqueIdentifier>{f9858961-f6bc-4972-8ee0-75518a1e05ec}</UniqueIdentifier>
     </Filter>
@@ -51,6 +45,9 @@
     </Filter>
     <Filter Include="code\platform\windows">
       <UniqueIdentifier>{b91279a7-4541-4b92-9f9c-ad97b60802cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="code\plugins">
+      <UniqueIdentifier>{0913f6d8-072d-4acb-a8db-994c666e047a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -198,6 +195,15 @@
     <ClCompile Include="..\code\core\file.cpp">
       <Filter>code\core</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\plugins\MPQ.cpp">
+      <Filter>code\plugins</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\iglobal_context.cpp">
+      <Filter>code\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\game\game_application.cpp">
+      <Filter>code\game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -272,7 +278,6 @@
     <ClInclude Include="..\code\third_party\minz\miniz.h">
       <Filter>code\src\third_party</Filter>
     </ClInclude>
-    <ClInclude Include="..\code\render\render_object_manager.hpp" />
     <ClInclude Include="..\code\core\system.hpp">
       <Filter>code\core\systems</Filter>
     </ClInclude>
@@ -380,6 +385,24 @@
     </ClInclude>
     <ClInclude Include="..\code\core\file.hpp">
       <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\plugins\MPQ.hpp">
+      <Filter>code\plugins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\iglobal_context.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\igame_instance.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\render\render_object_manager.hpp">
+      <Filter>code\render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\game\game_application.hpp">
+      <Filter>code\game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\crc32.hpp">
+      <Filter>code\basic</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

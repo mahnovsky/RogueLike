@@ -74,7 +74,7 @@ namespace ogl
 
 	bool ShaderProgram::load(core::ResourceStorage* storage)
 	{
-		std::shared_ptr<Config> config = storage->get_resorce< Config >("shaders/programs.conf");
+		std::shared_ptr<Config> config = storage->get_resource< Config >("shaders/programs.conf");
 
 		if (config)
 		{
@@ -98,8 +98,8 @@ namespace ogl
 				return false;
 			}
 
-			std::shared_ptr<BaseShader> vertex = storage->get_resorce< BaseShader >(vertex_file.c_str());
-			std::shared_ptr<BaseShader> fragment = storage->get_resorce< BaseShader >(fragment_file.c_str());
+			std::shared_ptr<BaseShader> vertex = storage->get_resource< BaseShader >(vertex_file.c_str());
+			std::shared_ptr<BaseShader> fragment = storage->get_resource< BaseShader >(fragment_file.c_str());
 
 			return init(vertex, fragment);
 		}

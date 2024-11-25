@@ -2,6 +2,10 @@
 #include "file.hpp"
 #include "file_node.hpp"
 
+
+#include "MPQ.hpp"
+
+
 namespace core
 {
 	FileSystem::FileSystem(SystemManager& manager)
@@ -9,7 +13,7 @@ namespace core
 	{
 	}
 
-	void FileSystem::initialize()
+	void FileSystem::initialize(IGlobalContext* context)
 	{
 		Path base_path = get_binary_path();
 		m_content_directory = Path({}, std::vector<std::string>(base_path.begin(), base_path.end()));
@@ -25,7 +29,7 @@ namespace core
 
 			if (is_dir_exist(raw_path.c_str()))
 			{
-				m_content_directory = content_path;
+				m_content_directory = Path::parse(raw_path);
 				break;
 			}
 
@@ -43,10 +47,6 @@ namespace core
 	{
 	}
 
-	void FileSystem::destroy()
-	{
-	}
-
 	Path FileSystem::get_binary_directory() const
 	{
 		return m_binary_directory;
@@ -57,7 +57,7 @@ namespace core
 		return m_content_directory;
 	}
 
-	std::unique_ptr<IFileNode> FileSystem::open_file_node(const Path& path)
+	FileNodePtr FileSystem::open_file_node(const Path& path)
 	{
 		if (path.is_valid())
 		{
@@ -66,7 +66,8 @@ namespace core
 			auto it = m_mounted.find(root);
 			if (it != m_mounted.end())
 			{
-				return it->second->get_child_node(path);
+				
+				return it->second->get_child_node(path.subpath(1));
 			}
 			else
 			{
@@ -78,5 +79,14 @@ namespace core
 
 	void FileSystem::mount(const Path& file_path)
 	{
+		if (file_path.is_valid())
+		{
+			std::unique_ptr<IFileNode> archive{ new MPQArchive(file_path) };
+			
+			if (archive->is_valid())
+			{
+				m_mounted.emplace( file_path.get_name(), std::move(archive) );
+			}
+		}
 	}
 }

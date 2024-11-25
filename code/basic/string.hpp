@@ -4,6 +4,7 @@
 #include "vector.hpp"
 #include "convert.hpp"
 
+
 namespace basic
 {
 using char_t = char;
@@ -99,6 +100,12 @@ public:
     static uint32 read_line(char_t* cstr, uint32 max_size, String& out);
 
     static bool format( char_t* buffer, uint32 size, const char* const fmt, ... );
+
+    template <size_t N, class ... Args>
+    static void format(std::array<char, N>& buff, const char* fmt, Args ... args)
+    {
+		format(buff.data(), N, fmt, args...);
+    }
 
 private:
     void push_cend();

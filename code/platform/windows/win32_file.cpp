@@ -22,6 +22,48 @@ namespace core
 		return (dwAttrib != INVALID_FILE_ATTRIBUTES);
 	}
 
+	class WinFileNode;
+
+	class WinFileIterator : public IFileIterator
+	{
+	public:
+		WinFileIterator(Path path)
+			:m_file(INVALID_HANDLE_VALUE)
+			,m_path(path)
+		{
+			std::string raw_path = m_path.get_raw_path() + "*";
+			
+			m_file = FindFirstFileA(raw_path.c_str(), &m_current_find_data);
+		}
+
+		~WinFileIterator()
+		{
+			FindClose(m_file);
+			m_file = INVALID_HANDLE_VALUE;
+		}
+
+		core::FileNodePtr get();
+
+		virtual void next() override
+		{
+			if (m_file && !FindNextFileA(m_file, &m_current_find_data))
+			{
+				m_file = INVALID_HANDLE_VALUE;
+			}
+		}
+
+		bool is_valid() const override
+		{
+			return m_file != INVALID_HANDLE_VALUE;
+		}
+
+	private:
+		HANDLE m_file;
+		Path m_path;
+		WIN32_FILE_ATTRIBUTE_DATA m_attribs;
+		WIN32_FIND_DATA m_current_find_data;
+	};
+
 	class WinFileNode : public core::IFileNode
 	{
 	public:
@@ -35,6 +77,7 @@ namespace core
 			if (m_handle)
 			{
 				CloseHandle(m_handle);
+				m_handle = nullptr;
 			}
 		}
 
@@ -51,19 +94,12 @@ namespace core
 			return FileNodeType::File;
 		}
 
-		const Path get_path() const override
+		Path get_path() const override
 		{
 			return m_path;
 		}
 
-		std::vector<IFileNode*> get_children() const override
-		{
-			std::vector<IFileNode*> res;
-
-			return std::move(res);
-		}
-
-		std::string_view get_name() const override
+		std::string get_name() const override
 		{
 			return m_path.get_name();
 		}
@@ -86,7 +122,7 @@ namespace core
 			}
 		}
 
-		std::unique_ptr<IFileNode> get_child_node(Path path) const override
+		FileNodePtr get_child_node(Path path) const override
 		{
 			std::string full_path = path.get_raw_file_path();
 			if (is_dir_exist(full_path.c_str()))
@@ -96,6 +132,11 @@ namespace core
 			return nullptr;
 		}
 
+		FileIterator get_iterator(const std::string& mask) const override
+		{
+			return FileIterator(new WinFileIterator(m_path));
+		}
+
 	private:
 		HANDLE m_handle;
 		core::Path m_path;
@@ -103,10 +144,10 @@ namespace core
 
 	std::unique_ptr<IFileNode> open_file(const core::Path& path)
 	{
-		const std::string raw_path = path.get_raw_file_path();
+		const std::string raw_path = path.get_raw_path();
 		if (is_path_valid(raw_path.c_str()))
 		{
-			HANDLE hFile = CreateFile(raw_path.c_str(),
+			HANDLE hFile = CreateFile(path.get_raw_file_path().c_str(),
 				// 0, //GENERIC_READ,
 				GENERIC_READ | GENERIC_WRITE,
 				// 0, //FILE_SHARE_READ, //FILE_SHARE_DELETE | FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -134,4 +175,13 @@ namespace core
 		return {};
 	}
 
+	FileNodePtr WinFileIterator::get()
+	{
+		Path file_path = m_path;
+		file_path.remove_last();
+		file_path.set_file_name({m_current_find_data.cFileName});
+		return open_file(file_path);
+	}
+
 }
+

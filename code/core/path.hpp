@@ -13,12 +13,24 @@ namespace core
 		Path(const FileName& file_name);
 		Path(const FileName& file_name, const std::vector<std::string>& path);
 		Path(const std::initializer_list<std::string>& path);
+		Path(const Path&) = default;
+		Path(Path&& path);
+
+		Path& operator = (const Path& other) {
+			m_path = other.m_path;
+			m_file_name = other.m_file_name;
+			return *this;
+		}
 
 		bool is_valid() const;
 
-		std::string get_raw_path() const;
+		Path subpath(size_t pos, size_t count = std::string::npos) const;
 
-		std::string get_raw_file_path() const;
+		std::string get_raw_path(char separator = 0) const;
+
+		std::string get_raw_file_path(const char separator = 0) const;
+
+		std::wstring get_raw_file_path_wide() const;
 
 		void set_file_name(const FileName file_name);
 
@@ -36,7 +48,7 @@ namespace core
 
 		Path get_parent() const;
 
-		std::string_view get_name() const;
+		std::string get_name() const;
 
 		std::string_view get_root_name() const;
 
@@ -45,6 +57,10 @@ namespace core
 		static Path add(Path base, const std::string_view dir);
 
 		static Path parse(const std::string& raw_path, std::string_view in_separator = "");
+
+		static std::string get_patform_separator();
+
+		const FileName& get_filename() const;
 
 	private:
 		static std::string m_separator;

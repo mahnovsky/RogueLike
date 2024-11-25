@@ -5,10 +5,10 @@
 #include "component.hpp"
 
 
-class Transform : public Component
+class Transform : public TGenericObject<Transform, ComponentType, Component, "Transform">
 {
 public:
-	GENERIC_OBJECT_IMPL(Transform, NS_COMPONENT_TYPE);
+	GENERIC_OBJECT_IMPL(Transform, ComponentType);
 
     Transform( Entity* ent );
 	~Transform() override;

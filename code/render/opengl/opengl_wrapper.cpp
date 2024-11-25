@@ -11,12 +11,12 @@ namespace ogl
 
 	bool is_call_success()
 	{
-		g_OpenGLError = glGetError();
+		GLenum g_OpenGLError = glGetError();
 		bool result = g_OpenGLError == GL_NO_ERROR;
 
 		if (!result && BREAK_ON_ERROR)
 		{
-			LOG("OpenGL error 0x%X\n", (unsigned)g_OpenGLError);
+			LOG("OpenGL error 0x%X\n", g_OpenGLError);
 			ASSERT(false);
 		}
 
@@ -285,9 +285,9 @@ namespace ogl
 		CHECK_LAST_CALL();
 	}
 
-	void active_texture(uint32_t texture)
+	void active_texture(uint32_t sample)
 	{
-		glActiveTexture(texture);
+		glActiveTexture(sample);
 		CHECK_LAST_CALL();
 	}
 }

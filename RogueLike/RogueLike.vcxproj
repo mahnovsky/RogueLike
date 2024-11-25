@@ -28,26 +28,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
@@ -92,17 +92,19 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party\StromLib;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;user32.lib;gdi32.lib;StormLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;user32.lib;gdi32.lib;StormLibDAD.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
-      <AdditionalLibraryDirectories>$(SolutionDir)code\third_party\StormLib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)code\third_party\StormLib\bin\StormLib\x64\DebugAD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <PreBuildEvent>
-      <Command>copy /y $(SolutionDir)code\third_party\StormLib\Debug $(OutDir)</Command>
+      <Command>
+      </Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,13 +129,15 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>opengl32.lib;user32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)code\third_party\StormLib\bin\StormLib\</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -146,16 +150,19 @@
     <ClCompile Include="..\code\basic\string.cpp" />
     <ClCompile Include="..\code\core\file.cpp" />
     <ClCompile Include="..\code\core\file_name.cpp" />
+    <ClCompile Include="..\code\core\iglobal_context.cpp" />
     <ClCompile Include="..\code\core\path.cpp" />
     <ClCompile Include="..\code\core\systems\file_system.cpp" />
     <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
     <ClCompile Include="..\code\core\systems\widget_system.cpp" />
     <ClCompile Include="..\code\core\system_manager.cpp" />
     <ClCompile Include="..\code\game.cpp" />
+    <ClCompile Include="..\code\game\game_application.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_file.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_time.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_window.cpp" />
+    <ClCompile Include="..\code\plugins\MPQ.cpp" />
     <ClCompile Include="..\code\render\opengl\glbuffer.cpp" />
     <ClCompile Include="..\code\render\opengl\glshader.cpp" />
     <ClCompile Include="..\code\render\opengl\opengl_render.cpp" />
@@ -190,6 +197,7 @@
     <ClInclude Include="..\code\basic\archive.hpp" />
     <ClInclude Include="..\code\basic\common.hpp" />
     <ClInclude Include="..\code\basic\convert.hpp" />
+    <ClInclude Include="..\code\basic\crc32.hpp" />
     <ClInclude Include="..\code\basic\debug.hpp" />
     <ClInclude Include="..\code\basic\hash_map.hpp" />
     <ClInclude Include="..\code\basic\image.hpp" />
@@ -205,6 +213,8 @@
     <ClInclude Include="..\code\core\file.hpp" />
     <ClInclude Include="..\code\core\file_name.hpp" />
     <ClInclude Include="..\code\core\file_node.hpp" />
+    <ClInclude Include="..\code\core\igame_instance.hpp" />
+    <ClInclude Include="..\code\core\iglobal_context.hpp" />
     <ClInclude Include="..\code\core\path.hpp" />
     <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
@@ -213,6 +223,7 @@
     <ClInclude Include="..\code\core\systems\resource_storage.hpp" />
     <ClInclude Include="..\code\core\systems\widget_system.hpp" />
     <ClInclude Include="..\code\core\system_manager.hpp" />
+    <ClInclude Include="..\code\game\game_application.hpp" />
     <ClInclude Include="..\code\game\game_instance.hpp" />
     <ClInclude Include="..\code\include\camera.hpp" />
     <ClInclude Include="..\code\include\ecs\component.hpp" />
@@ -236,6 +247,7 @@
     <ClInclude Include="..\code\include\widget_text.hpp" />
     <ClInclude Include="..\code\include\window.hpp" />
     <ClInclude Include="..\code\include\world.hpp" />
+    <ClInclude Include="..\code\plugins\MPQ.hpp" />
     <ClInclude Include="..\code\render\opengl\glbuffer.hpp" />
     <ClInclude Include="..\code\render\opengl\glshader.hpp" />
     <ClInclude Include="..\code\render\opengl\gltypes.hpp" />

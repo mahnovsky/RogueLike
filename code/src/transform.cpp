@@ -7,7 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 Transform::Transform(Entity* ent)
-	: Component(ent)
+	: TGenericObject<Transform, ComponentType, Component, "Transform">(ent)
 	, m_final_mat(1.f)
 	, m_pos()
 	, m_euler_angles()

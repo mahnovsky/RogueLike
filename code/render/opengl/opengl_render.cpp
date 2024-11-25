@@ -50,11 +50,11 @@ public:
 
 	OpenGLRenderObject(core::ResourceStorage* rs)
 		: m_rs(rs)
+		, m_buffer_usage(BufferUsage::Static)
 		, m_mesh(nullptr)
 		, m_program(nullptr)
 		, m_texture(nullptr)
 		, m_instance()
-		, m_buffer_usage(BufferUsage::Static)
 	{
 		memset(&m_instance, 0, sizeof(RenderObjectData));
 		m_instance.draw_mode = ogl::VertexDrawMode::Triangles;
@@ -106,7 +106,7 @@ public:
 
 	void update_mesh(const std::string& name)
 	{
-		m_mesh = m_rs->get_resorce<StaticMesh>(name.c_str());
+		m_mesh = m_rs->get_resource<StaticMesh>(name.c_str());
 		if (m_mesh)
 		{
 			if (m_instance.vao != OGL_INVALID_HANDLE)
@@ -126,7 +126,7 @@ public:
 
 	void update_program(const std::string& name)
 	{
-		m_program = m_rs->get_resorce<ogl::ShaderProgram>(name.c_str());
+		m_program = m_rs->get_resource<ogl::ShaderProgram>(name.c_str());
 		if (m_program)
 		{
 			m_instance.program = m_program->get_handle();
@@ -146,7 +146,7 @@ public:
 
 	void update_texture(const std::string& name)
 	{
-		m_texture = m_rs->get_resorce<Texture>(name.c_str());
+		m_texture = m_rs->get_resource<Texture>(name.c_str());
 		if (m_texture)
 		{
 			m_instance.texture = m_texture->get_handle();
@@ -256,7 +256,7 @@ public:
 		m_instance.camera_index = index;
 	}
 
-	uint32_t get_camera_index() const
+	uint32_t get_camera_index() const override
 	{
 		return m_instance.camera_index;
 	}
@@ -382,6 +382,8 @@ bool OpenGLRender::init(core::ResourceStorage* rs, int width, int height)
 	/*TODO:
 	glEnable( GL_CULL_FACE );
 	glCullFace(GL_BACK);*/
+
+	//wglSwapIntervalEXT(0);
 
 
 	init_fbo();
@@ -520,6 +522,7 @@ void OpenGLRender::init_fbo()
 	{
 		return;
 	}
+
 	glGenFramebuffers(1, &m_fbo);
 	glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
 
@@ -558,7 +561,7 @@ void OpenGLRender::init_fbo()
 
 	glBindVertexArray(0);
 
-	m_post_program = m_rs->get_resorce<ogl::ShaderProgram>("post_effect");
+	m_post_program = m_rs->get_resource<ogl::ShaderProgram>("post_effect");
 	ASSERT(m_post_program != nullptr);
 }
 

@@ -1,13 +1,13 @@
-#include "engine.hpp"
-#include "core.hpp"
-
-#include <windows.h>
 #include "path.hpp"
-
-void game_init(core::Path);
-int game_loop();
+#include "game/game_application.hpp"
+#include "game/game_instance.hpp"
+#include <windows.h>
 
 HINSTANCE g_instance;
+
+
+void game_init(core::Path root);
+int game_loop();
 
 int __stdcall WinMain(
 	_In_ HINSTANCE hInstance,
@@ -15,8 +15,9 @@ int __stdcall WinMain(
 	_In_ LPSTR lpCmdLine,
     _In_ int nCmdShow )
 {
-    g_instance = hInstance;
-	char exeDirectory[1024]; //to store the directory
+	g_instance = hInstance;
+
+	char exeDirectory[1024];
 	DWORD ret = GetModuleFileName(NULL, exeDirectory, 1024);
 	core::Path root;
 	if (ret)
@@ -24,13 +25,16 @@ int __stdcall WinMain(
 		root = core::Path::parse(std::string(exeDirectory, exeDirectory + ret));
 	}
 	
-	game_init(root);
+	GameApplication app(root);
 
-	int exit_code = game_loop();
-	if (exit_code < 0)
+	app.initialize({ 1024, 768 }, "Cossacs");
+	
+	while (app.is_running())
 	{
-		return EXIT_FAILURE;
+		app.update();
 	}
+
+	app.cleanup();
 
 	return EXIT_SUCCESS;
 }

@@ -5,34 +5,34 @@
 #include "stb/stb_image.h"
 
 #include <vector>
-
-bool load_image( std::vector<uint8_t> data, basic::Image& out_image )
+namespace stb_impl
 {
-    int x, y, components;
-    stbi_uc* unpack_image = stbi_load_from_memory( data.data(),
-                                                   static_cast<int>(data.size()),
-                                                   &x, &y, &components, 0 );
+	bool load_image(std::vector<uint8_t> data, basic::Image& out_image)
+	{
+		int x, y, components;
+		const stbi_uc* unpack_image = stbi_load_from_memory(data.data(),
+			static_cast<int>(data.size()),
+			&x, &y, &components, 0);
 
+		if (unpack_image)
+		{
+			out_image.data.resize(x * y * components);
+			std::copy_n(unpack_image, (x * y * components), out_image.data.begin());
+			//out_image.data = std::vector<uint8_t>( unpack_image, static_cast<basic::uint32>(x * y * components) );
+			out_image.width = static_cast<basic::uint32>(x);
+			out_image.height = static_cast<basic::uint32>(y);
+			out_image.components = static_cast<basic::uint32>(components);
+		}
 
-    if( unpack_image )
-    {
-        out_image.data.resize(x * y * components);
-        std::copy(unpack_image, unpack_image + (x * y * components), out_image.data.begin());
-        //out_image.data = std::vector<uint8_t>( unpack_image, static_cast<basic::uint32>(x * y * components) );
-        out_image.width = static_cast<basic::uint32>(x);
-        out_image.height = static_cast<basic::uint32>(y);
-        out_image.components = static_cast<basic::uint32>(components);
-    }
-
-    return true;
-}
+		return true;
+	}
+} // namespace stb_impl
 
 namespace basic
 {
 
-static const size_t MIN_IMAGE_SIZE = 64;
-
-static const size_t BMP_HEADER_SIZE = 54;
+static constexpr size_t MIN_IMAGE_SIZE = 64;
+static constexpr size_t BMP_HEADER_SIZE = 54;
 
 bool load_bmp( std::vector<uint8> data, Image& out_image )
 {
@@ -44,8 +44,8 @@ bool load_bmp( std::vector<uint8> data, Image& out_image )
 
     uint32 data_offset = *reinterpret_cast<uint32*>(&header[0x0A]);
     uint32 image_size = *reinterpret_cast<uint32*>(&header[0x22]);
-    uint32 width = *reinterpret_cast<uint32*>(&header[0x12]);
-    uint32 height = *reinterpret_cast<uint32*>(&header[0x16]);
+	const uint32 width = *reinterpret_cast<uint32*>(&header[0x12]);
+	const uint32 height = *reinterpret_cast<uint32*>(&header[0x16]);
 
     if( image_size == 0 )
     {
@@ -58,9 +58,8 @@ bool load_bmp( std::vector<uint8> data, Image& out_image )
 
     if( (image_size + BMP_HEADER_SIZE) <= data.size() )
     {
-        //out_image.data.init( data.get_raw() + data_offset, image_size );
         out_image.data.resize(image_size);
-        std::copy(data.data(), data.data() + image_size, out_image.data.begin());
+        std::copy_n(data.data(), image_size, out_image.data.begin());
         out_image.width = width;
         out_image.height = height;
         out_image.components = 3;
@@ -79,7 +78,7 @@ bool load_image(std::vector<uint8_t> data, Image& out_image )
         return false;
     }
 
-    return ::load_image( std::move( data ), out_image );
+    return stb_impl::load_image( std::move( data ), out_image );
 }
 
 }

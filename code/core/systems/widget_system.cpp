@@ -22,10 +22,9 @@ namespace core
 		DELETE_OBJ(m_ui_camera);
 	}
 
-	void WidgetSystem::initialize()
+	void WidgetSystem::initialize(IGlobalContext* context)
 	{
-		m_engine = get_system_manager().get_system<IEngine>();
-
+	        m_engine = context->get_engine();
 		m_engine->get_input()->add_listener(this);
 
 		const glm::vec2 size = m_engine->get_window_size();

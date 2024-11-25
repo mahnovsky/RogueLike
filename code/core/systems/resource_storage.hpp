@@ -34,17 +34,14 @@ namespace core
 		ResourceStorage(SystemManager& manager);
 
 
-		void initialize() override;
+		void initialize(IGlobalContext* context) override;
 
 		void shutdown() override;
-
-		void destroy() override;
-
 
 		bool add_resource(FileResourcePtr file_resource);
 
 		template < class T, class ... Args >
-		std::shared_ptr<T> get_resorce(const char* file, Args ... args)
+		std::shared_ptr<T> get_resource(const char* file, Args ... args)
 		{
 			std::shared_ptr<T> res = std::dynamic_pointer_cast<T>(find_resource(file));
 

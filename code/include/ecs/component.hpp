@@ -163,7 +163,7 @@ public:
 	template <class T>
 	void add_listen_component()
 	{
-		const TypeIndex component_type = TypeInfo<T, NS_COMPONENT_TYPE>::type_index;
+		const TypeIndex component_type = TypeInfo<T, ComponentType>::type_index;
 		//ASSERT(component_type != INVALID_TYPE_INDEX);
 
 		add_listen_component(component_type);

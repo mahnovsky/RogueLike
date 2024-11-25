@@ -23,33 +23,73 @@ namespace core
 		: m_path(path.begin(), path.end())
 	{}
 
+	Path::Path(Path&& path)
+		: m_file_name(path.m_file_name)
+	{
+		m_path.swap(path.m_path);
+	}
+
 	bool Path::is_valid() const
 	{
 		return !m_path.empty();
 	}
 
-	std::string Path::get_raw_path() const
+	Path Path::subpath(size_t pos, size_t count /*= std::numeric_limits<size_t>::max()*/) const
 	{
-		std::string path;
-		for (auto& name : m_path)
+		if (m_path.size() > pos)
 		{
-			path.append(name);
-			path.append(m_separator);
+			Path path;
+			for (size_t i = pos; i < m_path.size(); ++i)
+			{
+				path.append(m_path[i]);
+			}
+			return std::move(path);
+		}
+
+		return {};
+	}
+
+	std::string Path::get_raw_path(char separator) const
+	{
+		std::string sep = std::move(separator == 0 ? m_separator : std::string(1, separator));
+
+		std::string path;
+		for (size_t i = 0; i < m_path.size(); ++i)
+		{
+			path.append(m_path[i]);
+			if ((i + 1) < m_path.size())
+			{
+				path.append(sep);
+			}
 		}
 		return std::move(path);
 	}
 
-	std::string Path::get_raw_file_path() const
+	std::string Path::get_raw_file_path(const char separator) const
 	{
-		std::string file_path = get_raw_path();
+		std::string file_path = get_raw_path(separator);
 
-		std::string file_name = m_file_name.get_name_with_ext();
-		if (!file_name.empty())
+		if (m_file_name.is_valid())
 		{
-			file_path.append(file_name);
+			std::string file_name = m_file_name.get_name_with_ext();
+			if (!file_name.empty())
+			{
+				if (!file_path.empty())
+				{
+					file_path.append(std::move(separator == 0 ? m_separator : std::string(1, separator)));
+				}
+				file_path.append(file_name);
+			}
 		}
 
 		return std::move(file_path);
+	}
+
+	std::wstring Path::get_raw_file_path_wide() const
+	{
+		std::string raw_path = get_raw_file_path();
+
+		return std::wstring(raw_path.begin(), raw_path.end());
 	}
 
 	void Path::set_file_name(const FileName file_name)
@@ -72,11 +112,11 @@ namespace core
 		return Path{};
 	}
 
-	std::string_view Path::get_name() const
+	std::string Path::get_name() const
 	{
 		if (m_file_name.is_valid())
 		{
-			return m_file_name.get_name();
+			return m_file_name.get_name_with_ext();
 		}
 		if (!m_path.empty())
 		{
@@ -121,14 +161,17 @@ namespace core
 			pos = raw_path.find(separator, prev_pos);
 			if(pos == std::string::npos)
 			{
-				std::string name = raw_path.substr(prev_pos);
-				if (is_dir_exist(raw_path.c_str()))
+				if (prev_pos < raw_path.size())
 				{
-					result.append(name);
-				}
-				else
-				{
-					result.set_file_name(FileName::parse(name));
+					std::string name = raw_path.substr(prev_pos);
+					if (is_dir_exist(raw_path.c_str()))
+					{
+						result.append(name);
+					}
+					else
+					{
+						result.set_file_name(FileName::parse(name));
+					}
 				}
 				break;
 			}
@@ -140,4 +183,15 @@ namespace core
 
 		return std::move(result);
 	}
+
+	std::string Path::get_patform_separator()
+	{
+		return m_separator;
+	}
+
+	const core::FileName& Path::get_filename() const
+	{
+		return m_file_name;
+	}
+
 }

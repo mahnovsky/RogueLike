@@ -27,7 +27,7 @@ TextComponent::~TextComponent()
 
 void TextComponent::init( core::ResourceStorage * storage )
 {
-	m_font = storage->get_resorce<se::Font>(m_font_file.c_str());
+	m_font = storage->get_resource<se::Font>(m_font_file.c_str());
 	if (m_font)
 	{
 		update();

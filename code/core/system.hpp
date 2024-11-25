@@ -7,6 +7,7 @@
 namespace core
 {
 	class SystemManager;
+	class IGlobalContext;
 
 	enum class SystemUID : uint32_t
 	{
@@ -24,11 +25,9 @@ namespace core
 	public:
 		virtual ~ISystem() = default;
 
-		virtual void initialize() = 0;
+		virtual void initialize(IGlobalContext* context) = 0;
 
 		virtual void shutdown() = 0;
-
-		virtual void destroy() = 0;
 
 		virtual SystemUID get_uid() const = 0;
 
@@ -44,11 +43,6 @@ namespace core
 		TSystem(SystemManager& manager)
 			:m_system_manager(manager)
 		{
-		}
-
-		void destroy() override
-		{
-			DELETE_OBJ(this);
 		}
 
 		SystemUID get_uid() const override

@@ -51,7 +51,7 @@ bool Input::is_key_pressed(input::KeyCode code) const
 
 Input *Input::create()
 {
-    return NEW_OBJ(Input);
+    return basic::Memory::New<Input>().Get();
 }
 
 }

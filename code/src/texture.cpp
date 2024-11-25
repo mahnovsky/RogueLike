@@ -39,7 +39,7 @@ bool Texture::load( core::ResourceStorage* storage )
 		std::string info_name = file.substr(0, index);
 		info_name += ".conf";
 
-		const auto conf = storage->get_resorce< Config >(info_name.c_str());
+		const auto conf = storage->get_resource< Config >(info_name.c_str());
 
 		if (conf)
 		{
@@ -48,19 +48,16 @@ bool Texture::load( core::ResourceStorage* storage )
 			for (const basic::JsonObject* frame : frames_array)
 			{
 				TextureRect rect;
-				do
-				{
-#define CHECK( exp ) \
-    if ( !( exp ) )  \
-        break;
-					CHECK(frame->get("x", rect.x))
-					CHECK(frame->get("y", rect.y));
-					CHECK(frame->get("w", rect.w));
-					CHECK(frame->get("h", rect.h));
-					CHECK(frame->get("name", rect.name));
-					m_rects.push(rect);
-#undef CHECK
-				} while (0);
+				bool success =
+					frame->get("x", rect.x) &&
+					frame->get("y", rect.y) &&
+					frame->get("w", rect.w) &&
+					frame->get("h", rect.h) &&
+					frame->get("name", rect.name);
+                if (success)
+                {
+                    m_rects.push(rect);
+                }
 			}
 		}
 	}
@@ -78,8 +75,7 @@ bool Texture::load( core::ResourceStorage* storage )
     return false;
 }
 
-Texture*
-Texture::create( const char* file )
+Texture* Texture::create( const char* file )
 {
     Texture* tex = NEW_OBJ( Texture, file );
 
@@ -91,8 +87,7 @@ void Texture::init( basic::Image image )
     init( image.width, image.height, std::move( image.data ), image.components );
 }
 
-void
-Texture::init( basic::uint32 width,
+void Texture::init( basic::uint32 width,
                basic::uint32 height,
                std::vector< uint8_t > image_data,
                basic::uint32 cc )
@@ -128,8 +123,7 @@ Texture::init( basic::uint32 width,
     unbind( );
 }
 
-void
-Texture::init_font( basic::uint32 width,
+void Texture::init_font( basic::uint32 width,
                     basic::uint32 height,
                     std::vector< uint8_t > image_data )
 {
@@ -159,8 +153,7 @@ Texture::init_font( basic::uint32 width,
     unbind( );
 }
 
-void
-Texture::set( basic::uint32 width, basic::uint32 height, basic::uint32 handle, basic::uint32 cc )
+void Texture::set( basic::uint32 width, basic::uint32 height, basic::uint32 handle, basic::uint32 cc )
 {
     m_width = width;
     m_height = height;
@@ -168,34 +161,29 @@ Texture::set( basic::uint32 width, basic::uint32 height, basic::uint32 handle, b
     m_texture = handle;
 }
 
-void
-Texture::bind( ) const
+void Texture::bind( ) const
 {
     glActiveTexture( GL_TEXTURE0 );
 
     glBindTexture( GL_TEXTURE_2D, m_texture );
 }
 
-void
-Texture::unbind( ) const
+void Texture::unbind( ) const
 {
     glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
-basic::uint32
-Texture::get_width( ) const
+basic::uint32 Texture::get_width( ) const
 {
     return m_width;
 }
 
-basic::uint32
-Texture::get_height( ) const
+basic::uint32 Texture::get_height( ) const
 {
     return m_height;
 }
 
-bool
-Texture::get_rect( const char* key, TextureRect& out_rect ) const
+bool Texture::get_rect( const char* key, TextureRect& out_rect ) const
 {
     for ( auto& rect : m_rects )
     {
@@ -208,15 +196,14 @@ Texture::get_rect( const char* key, TextureRect& out_rect ) const
     return false;
 }
 
-bool
-Texture::get_rect( basic::uint32 index, TextureRect& out_rect ) const
+bool Texture::get_rect(basic::uint32 index, TextureRect& out_rect) const
 {
-    if ( index < m_rects.get_size( ) )
-    {
-        out_rect = m_rects[ index ];
-        return true;
-    }
-    return false;
+	if (index < m_rects.get_size())
+	{
+		out_rect = m_rects[index];
+		return true;
+	}
+	return false;
 }
 
 GLuint Texture::get_handle() const

@@ -15,7 +15,7 @@ struct Vec3
 {
 	float x, y, z;
 
-	Vec3() = default;
+	//Vec3() = default;
 
 	float sq_len() const
 	{
@@ -102,7 +102,7 @@ enum class ShapeType : short
 class OctreeObject : public Component
 {
 public:
-	GENERIC_OBJECT_IMPL(OctreeObject, NS_COMPONENT_TYPE);
+	GENERIC_OBJECT_IMPL(OctreeObject, ComponentType);
 
 	OctreeObject(Entity* ent, const Box& box);
 
@@ -189,10 +189,10 @@ private:
 	std::vector<OctreeObject*> m_objects;
 };
 
-class Octree : public IGenericObject
+class Octree : public TGenericObject<Octree, SystemType>
 {
 public:
-	GENERIC_OBJECT_IMPL(Octree, NS_SYSTEM_TYPE);
+	//GENERIC_OBJECT_IMPL(Octree, SystemType);
 
 	Octree(EntityComponentManager* manager, const Box& b);
 	~Octree() override = default;

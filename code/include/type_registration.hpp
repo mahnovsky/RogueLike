@@ -2,20 +2,16 @@
 
 #include "type_info.hpp"
 
-#define NS_ENTITY_TYPE 1
-
-enum EntityTypeIndex
+enum EntityType
 {
 	ETI_Entity,
 	ETI_Actor
 };
 
-REGISTRY_TYPE(Entity, ETI_Entity, NS_ENTITY_TYPE);
-REGISTRY_TYPE(Actor, ETI_Actor, NS_ENTITY_TYPE);
+REGISTRY_TYPE(Entity, ETI_Entity, EntityType);
+REGISTRY_TYPE(Actor, ETI_Actor, EntityType);
 
-#define NS_COMPONENT_TYPE 2
-
-enum ComponentTypeIndex
+enum ComponentType
 {
 	CTI_Transform,
 	CTI_Render,
@@ -25,16 +21,14 @@ enum ComponentTypeIndex
 	CTI_Text
 };
 
-REGISTRY_TYPE(RenderComponent, CTI_Render, NS_COMPONENT_TYPE);
-REGISTRY_TYPE(Transform, CTI_Transform, NS_COMPONENT_TYPE);
-REGISTRY_TYPE(MoveComponent, CTI_Move, NS_COMPONENT_TYPE);
-REGISTRY_TYPE(OctreeObject, CTI_OctreeObject, NS_COMPONENT_TYPE);
-REGISTRY_TYPE(Widget, CTI_Widget, NS_COMPONENT_TYPE);
-REGISTRY_TYPE(TextComponent, CTI_Text, NS_COMPONENT_TYPE);
+REGISTRY_TYPE(RenderComponent, CTI_Render, ComponentType);
+REGISTRY_TYPE(Transform, CTI_Transform, ComponentType);
+REGISTRY_TYPE(MoveComponent, CTI_Move, ComponentType);
+REGISTRY_TYPE(OctreeObject, CTI_OctreeObject, ComponentType);
+REGISTRY_TYPE(Widget, CTI_Widget, ComponentType);
+REGISTRY_TYPE(TextComponent, CTI_Text, ComponentType);
 
-#define NS_SYSTEM_TYPE 3
-
-enum SystemTypeIndex
+enum SystemType
 {
 	STI_Render,
 	STI_Move,
@@ -42,7 +36,7 @@ enum SystemTypeIndex
 	STI_ResourceStorage
 };
 
-REGISTRY_TYPE(RenderSystem, STI_Render, NS_SYSTEM_TYPE);
-REGISTRY_TYPE(MoveSystem, STI_Move, NS_SYSTEM_TYPE);
-REGISTRY_TYPE(Octree, STI_Octree, NS_SYSTEM_TYPE);
-REGISTRY_TYPE(ResourceStorage, STI_ResourceStorage, NS_SYSTEM_TYPE);
+REGISTRY_TYPE(RenderSystem, STI_Render, SystemType);
+REGISTRY_TYPE(MoveSystem, STI_Move, SystemType);
+REGISTRY_TYPE(Octree, STI_Octree, SystemType);
+REGISTRY_TYPE(ResourceStorage, STI_ResourceStorage, SystemType);
