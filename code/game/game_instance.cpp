@@ -73,19 +73,22 @@ public:
 	EntityComponentManager* m_ecs;
 };
 
-GameInstance::GameInstance( IEngine* engine, float width, float height )
-    : m_engine( engine )
+GameInstance::GameInstance( )
+    : m_engine(nullptr)
     , m_rs(nullptr)
-    , m_game_camera( NEW_OBJ( PerspectiveCamera, 45.f, width / height, 1.f, 200.f ) )
-    , m_width( width )
-    , m_height( height )
+    , m_game_camera( nullptr )
+    , m_width( 0 )
+    , m_height( 0 )
     , m_fps_text( nullptr )
     , m_mem_text( nullptr )
     , m_widget_system( nullptr )
-	, m_ecs(engine->get_ecs())
+	, m_ecs(nullptr)
+	, m_render_system(nullptr)
 	, m_player(nullptr)
-	, m_selection_rect(nullptr)
 	, m_cow(nullptr)
+	, m_selection_rect(nullptr)
+	, m_move_system(nullptr)
+	, m_start_game_event("start_game_event")
 {
 	
 }
@@ -103,8 +106,7 @@ static void exit_action( Widget* w, void* ud )
     Engine* engine = static_cast< Engine* >( ud );
 }
 
-static void
-close_action( Widget* w, void* user_data )
+static void close_action( Widget* w, void* user_data )
 {
     //LOG( "on widget clicked tag %d", w->get_tag( ) );
     if ( w->get_parent( ) )
@@ -262,6 +264,13 @@ void GameInstance::initialize( )
     srand( static_cast<uint32_t>(time( nullptr )) );
 
 	auto context = core::IGlobalContext::GetInstance();
+	m_engine = context->get_engine();
+
+	auto size = m_engine->get_window_size();
+	m_width = size.x;
+	m_height = size.y;
+	m_game_camera = NEW_OBJ(PerspectiveCamera, 45.f, size.x / size.y, 1.f, 200.f);
+
 	auto systems = context->get_system_manager();
 
 	m_rs = systems->get_system<core::ResourceStorage>();
@@ -294,7 +303,7 @@ void GameInstance::initialize( )
 	m_selection_rect->update_color({ 0,255,0,100 });
 
 	initialize_ui();
-    
+    /*
 	for (int i = 0; i < 10; ++i)
 	{
 		auto cow = make_ent(m_ecs, m_rs, "meshes/cube.fbx", "default");
@@ -345,15 +354,17 @@ void GameInstance::initialize( )
 
 		auto text = plane_ent->add_component<TextComponent>();
 		
-	}
+	}*/
     
     m_engine->get_input( )->add_listener( this );
+
+	LOG("GameInstance inititalize done, mem usage: %u", basic::get_memory_usage());
 }
 
 void GameInstance::draw( IRender* render )
 {
 	m_render_system->draw(m_ecs);
-	m_widget_system->get_root_widget()->draw(render);
+	m_widget_system->draw();
 }
 
 static void highlight_selected(IRender* render, PerspectiveCamera* game_camera, float width, float height, glm::vec2 start, glm::vec2 end)
@@ -447,8 +458,8 @@ void GameInstance::update(float delta)
 	}
 	
 
-	m_move_system->update(delta);
-	m_render_system->update(delta);
+	//m_move_system->update(delta);
+	//m_render_system->update(delta);
 
 	prev_object_count = m_render_system->get_draw_object_count();
 
@@ -526,10 +537,6 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 	}
 }
 
-void GameInstance::initialize_cams()
-{
-}
-
 void GameInstance::initialize_ui()
 {
 	m_fps_text = NEW_OBJ(WidgetText, m_widget_system);
@@ -539,45 +546,22 @@ void GameInstance::initialize_ui()
 
 	m_widget_system->get_root_widget()->add_child(m_fps_text);
 
+	const auto game_start = NEW_OBJ(WidgetButton, m_widget_system);
+	game_start->set_size({ 200.f, 50.f });
+	game_start->set_position({ 200.f, 200.f });
+	game_start->set_press_event_id("start_game_event");
+	game_start->initialize();
 
-	/*
-	WidgetAction wa_open_menu{"wa_open_menu", &open_menu_action, this};
-	WidgetAction wa_exit{"wa_exit", &exit_action, m_engine};
-	WidgetAction wa_close{"wa_close", &close_action, m_engine};
-	m_ui_root->add_action( wa_exit );
-	m_ui_root->add_action( wa_close );
-	m_ui_root->add_action( wa_open_menu );
-	m_ui_root->bind_key_action(input::KeyCode::Esc, wa_open_menu.name);
-	{
-		WidgetList* wnd = NEW_OBJ( WidgetList, m_manager, {400.f, 200.f} );
+	auto btn_text = NEW_OBJ(WidgetText, m_widget_system);
+	btn_text->set_text("game start");
+	btn_text->set_color(g_ui_color);
+	btn_text->set_align(Align::Right);
+	game_start->add_child(btn_text);
 
-		wnd->init( m_rs );
-		m_fps_text = NEW_OBJ( WidgetText, m_manager, {200, 40} );
-		m_fps_text->init( m_rs );
-		m_fps_text->set_text( "fps: " );
-		m_fps_text->set_color(g_ui_color);
-		m_fps_text->set_align( AlignH::Left );
-		wnd->add_child( m_fps_text );
+	m_widget_system->get_root_widget()->add_child(game_start);
 
-		m_mem_text = NEW_OBJ( WidgetText, m_manager, {400, 40} );
-		m_mem_text->init( m_rs );
-		m_mem_text->set_text( "memory usage: " );
-		m_mem_text->set_color(g_ui_color);
-		m_mem_text->set_align( AlignH::Left );
-		wnd->add_child( m_mem_text );
 
-		WidgetText* menu_btn = NEW_OBJ( WidgetText, m_manager, {200, 40} );
-
-		menu_btn->init( m_rs );
-		menu_btn->set_text( "MENU" );
-		menu_btn->set_color(g_ui_color);
-		menu_btn->set_align( AlignH::Center );
-		menu_btn->set_picture( texture );
-		wnd->set_press_action( "wa_open_menu" );
-		wnd->add_child( menu_btn );
-
-		m_ui_root->add_child( wnd );
-	}*/
+	m_start_game_event.bind(this, &GameInstance::on_start_button_pressed);
 }
 
 void GameInstance::print_fps(int objects) const
@@ -607,6 +591,11 @@ void GameInstance::set_camera_to_entity(const Entity* ent)
 	auto cam_pos = pos + dist;
 
 	m_game_camera->init(cam_pos, pos, up);
+}
+
+void GameInstance::on_start_button_pressed(ButtonEvent* ev)
+{
+	exit(0);
 }
 
 	

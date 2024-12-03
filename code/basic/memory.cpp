@@ -12,15 +12,16 @@ namespace basic
 {
 	Memory Memory::_instance;
 
+	void* _checked_mem_alloc(memory_size bytes, const char* const file, int line);
+
+	void* _checked_mem_realloc(void* ptr, memory_size bytes, const char* file, int line);
+
 	void Memory::PrintStats()
 	{
-		if (!_memCheck)
-		{
-			return;
-		}
+#ifdef MEMORY_ALLOCATION_CHECK
 
 		size_t lost_memory = 0;
-		for (auto&& [ptr, obj] : _objects)
+		for (auto& obj : _objects | std::views::values)
 		{
 			LOG("\tmemory leak %u bytes at address %x: %s: %d\n",
 				obj.size,
@@ -29,11 +30,12 @@ namespace basic
 				obj.location.line());
 
 			lost_memory += obj.size;
-
-			delete obj.ptr;
 		}
 
 		LOG("total lost memory %u\n", lost_memory);
+#else
+		LOG("MEMORY_ALLOCATION_CHECK not enabled\n");
+#endif
 	}
 
 	void* _mem_alloc(memory_size bytes);
@@ -62,8 +64,7 @@ namespace basic
 			return realloc(ptr, bytes);
 		}
 
-		static void
-			free_mem(void* ptr)
+		static void free_mem(void* ptr)
 		{
 			free(ptr);
 		}
@@ -77,20 +78,17 @@ namespace basic
 		int line;
 	};
 
-	static MemoryChunk*
-		internal_get_chunk(void* ptr)
+	static MemoryChunk* internal_get_chunk(void* ptr)
 	{
 		return ptr_minus< MemoryChunk >(ptr, sizeof(MemoryChunk));
 	}
 
-	static void*
-		internal_get_user_ptr(MemoryChunk* ptr)
+	static void* internal_get_user_ptr(MemoryChunk* ptr)
 	{
 		return ptr_plus< MemoryChunk >(ptr, sizeof(MemoryChunk));
 	}
 
-	static memory_size
-		internal_get_user_mem_size(void* ptr)
+	static memory_size internal_get_user_mem_size(void* ptr)
 	{
 		MemoryChunk* chunck = internal_get_chunk(ptr);
 
@@ -99,22 +97,19 @@ namespace basic
 
 	static mem_out_callback g_out_of_memory_callback;
 
-	static memory_size
-		get_mem_size(void* ptr)
+	static memory_size get_mem_size(void* ptr)
 	{
 		MemoryChunk* chunck = internal_get_chunk(ptr);
 
 		return chunck->chunk_size;
 	}
 
-	static void*
-		internal_get_base_ptr(void* ptr)
+	static void* internal_get_base_ptr(void* ptr)
 	{
 		return ptr_minus< void >(ptr, sizeof(MemoryChunk));
 	}
 
-	static void*
-		internal_malloc(memory_size bytes, memory_size& real_size)
+	static void* internal_malloc(memory_size bytes, memory_size& real_size)
 	{
 		const uint32 offset = sizeof(MemoryChunk);
 
@@ -133,8 +128,7 @@ namespace basic
 		return nullptr;
 	}
 
-	static void
-		internal_free(void* ptr, size_t& free_bytes)
+	static void internal_free(void* ptr, size_t& free_bytes)
 	{
 		free_bytes = get_mem_size(ptr);
 
@@ -174,8 +168,7 @@ namespace basic
 			//  add_buffer( );
 		}
 
-		void
-			add_buffer()
+		void add_buffer()
 		{
 			Buffer b;
 			b.buff = _mem_alloc(BUFFER_SIZE);
@@ -207,8 +200,7 @@ namespace basic
 			is_manager_alive = false;
 		}
 
-		void
-			add(MemoryChunk* chunk)
+		void add(MemoryChunk* chunk)
 		{
 			if (!is_manager_alive)
 				return;
@@ -222,8 +214,7 @@ namespace basic
 			m_chunks.push(chunk);
 		}
 
-		void
-			remove(MemoryChunk* chunk)
+		void remove(MemoryChunk* chunk)
 		{
 			if (!is_manager_alive)
 				return;
@@ -236,14 +227,12 @@ namespace basic
 			}
 		}
 
-		memory_size
-			get_mem_usage() const
+		memory_size get_mem_usage() const
 		{
 			return m_memory_usage;
 		}
 
-		MemoryChunk*
-			get_free_chunk(Vector< MemoryChunk*, InternalAllocator >& cont)
+		MemoryChunk* get_free_chunk(Vector< MemoryChunk*, InternalAllocator >& cont)
 		{
 			MemoryChunk* result = nullptr;
 			if (!cont.is_empty())
@@ -255,8 +244,7 @@ namespace basic
 			return result;
 		}
 
-		uint32
-			get_index(memory_size size, memory_size& need_size) const
+		uint32 get_index(memory_size size, memory_size& need_size) const
 		{
 			uint32 index = ceil(static_cast<float>(size) / MIN_BLOCK_SIZE);
 			need_size = index * MIN_BLOCK_SIZE;

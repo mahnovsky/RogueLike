@@ -49,11 +49,11 @@
     <Filter Include="code\plugins">
       <UniqueIdentifier>{0913f6d8-072d-4acb-a8db-994c666e047a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\core\widget">
+      <UniqueIdentifier>{58dcb33c-5fab-4337-ae80-ad6bdb0a3465}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\code\game.cpp">
-      <Filter>code</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\win32_startup.cpp">
       <Filter>code</Filter>
     </ClCompile>
@@ -87,16 +87,7 @@
     <ClCompile Include="..\code\src\config.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\code\src\widget.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
     <ClCompile Include="..\code\src\input.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\widget_list.cpp">
-      <Filter>code\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\code\src\widget_text.cpp">
       <Filter>code\src</Filter>
     </ClCompile>
     <ClCompile Include="..\code\third_party\cJSON\cJSON.c">
@@ -204,6 +195,24 @@
     <ClCompile Include="..\code\game\game_application.cpp">
       <Filter>code\game</Filter>
     </ClCompile>
+    <ClCompile Include="..\code\core\widget\widget.cpp">
+      <Filter>code\core\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\widget\widget_button.cpp">
+      <Filter>code\core\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\widget\widget_list.cpp">
+      <Filter>code\core\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\widget\widget_text.cpp">
+      <Filter>code\core\widget</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\systems\event_system.cpp">
+      <Filter>code\core\systems</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\core\ftransform.cpp">
+      <Filter>code\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\code\include\camera.hpp">
@@ -235,15 +244,6 @@
     </ClInclude>
     <ClInclude Include="..\code\game\game_instance.hpp">
       <Filter>code\game</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\widget.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\widget_list.hpp">
-      <Filter>code\include</Filter>
-    </ClInclude>
-    <ClInclude Include="..\code\include\widget_text.hpp">
-      <Filter>code\include</Filter>
     </ClInclude>
     <ClInclude Include="..\code\include\ecs\entity.hpp">
       <Filter>code\include\ecs</Filter>
@@ -403,6 +403,27 @@
     </ClInclude>
     <ClInclude Include="..\code\basic\crc32.hpp">
       <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\widget\widget.hpp">
+      <Filter>code\core\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\widget\widget_button.hpp">
+      <Filter>code\core\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\widget\widget_list.hpp">
+      <Filter>code\core\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\widget\widget_text.hpp">
+      <Filter>code\core\widget</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\systems\event_system.hpp">
+      <Filter>code\core\systems</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\event.hpp">
+      <Filter>code\core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\core\ftransform.h">
+      <Filter>code\core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

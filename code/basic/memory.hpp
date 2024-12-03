@@ -40,10 +40,6 @@ namespace basic
 
 	void* mem_realloc(void* ptr, memory_size bytes, const char* const file = __FILE__, int line = __LINE__);
 
-	void* _checked_mem_alloc(memory_size bytes, const char* const file, int line);
-
-	void* _checked_mem_realloc(void* ptr, memory_size bytes, const char* file, int line);
-
 	void* mem_move(void* destination, const void* source, memory_size bytes);
 
 	void* mem_copy(void* destination, const void* source, memory_size bytes);
@@ -60,44 +56,6 @@ namespace basic
 
 	void wrapper_free(void* ptr);
 
-	template < class T >
-	uint32 size_of()
-	{
-		return sizeof(T);
-	}
-
-	template < class T, class T1, class... Args >
-	uint32 size_of()
-	{
-		return sizeof(T) + size_of< T1, Args... >();
-	}
-
-	template < typename... Args >
-	void* alloc_objects(const char* file, int line)
-	{
-		uint32 size = size_of< Args... >();
-
-		return _checked_mem_alloc(size, file, line);
-	}
-
-	template < typename T, typename... Args >
-	T* init_object(void* ptr, uint32& offset, Args... args)
-	{
-		uint32 off = offset;
-		offset += sizeof(T);
-		char* cptr = static_cast<char*>(ptr);
-		return new (cptr + off) T(args...);
-	}
-
-	template < typename T >
-	void delete_obj(T* ptr)
-	{
-		if (ptr)
-		{
-			ptr->~T();
-			mem_free(ptr);
-		}
-	}
 
 	namespace defer
 	{
@@ -184,7 +142,7 @@ namespace basic
 				return shared;
 			}
 
-			friend class Memory;
+			friend struct Memory;
 		private:
 			std::tuple<Args ...> _args;
 			mutable Memory* _memory;
@@ -206,10 +164,11 @@ namespace basic
 				assert(pos != _instance._objects.end());
 				if (pos != _instance._objects.end() && object == pos->second.ptr)
 				{
-					delete object;
 					_instance._objects.erase(pos);
 				}
 			}
+
+			delete object;
 		}
 
 		static void PrintMemStats()

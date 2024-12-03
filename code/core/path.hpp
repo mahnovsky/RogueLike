@@ -14,7 +14,7 @@ namespace core
 		Path(const FileName& file_name, const std::vector<std::string>& path);
 		Path(const std::initializer_list<std::string>& path);
 		Path(const Path&) = default;
-		Path(Path&& path);
+		Path(Path&& path) noexcept;
 
 		Path& operator = (const Path& other) {
 			m_path = other.m_path;
@@ -32,7 +32,7 @@ namespace core
 
 		std::wstring get_raw_file_path_wide() const;
 
-		void set_file_name(const FileName file_name);
+		void set_file_name(const FileName& file_name);
 
 		void append(const std::string_view directory);
 

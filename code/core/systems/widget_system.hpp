@@ -5,6 +5,8 @@
 
 class IEngine;
 class Widget;
+class WidgetEvent;
+class IWidgetEventListener;
 
 class IRectPointerListener
 {
@@ -27,16 +29,22 @@ namespace core
 
 		void initialize(IGlobalContext* context) override;
 
+		void update() override;
+
+		void draw() override;
+
 		void shutdown() override;
 
 		const ICamera* get_ui_camera() const;
 
-		IEngine* get_engine();
+		IEngine* get_engine() const;
 
-		Widget* get_root_widget();
+		Widget* get_root_widget() const;
 
 	private:
 		void key_pressed(input::KeyCode code, basic::int16 key) override;
+
+		void on_mouse_event(const input::MouseEvent& mouse_event) override;
 
 	private:
 		IEngine* m_engine;

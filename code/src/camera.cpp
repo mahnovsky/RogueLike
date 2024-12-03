@@ -26,12 +26,7 @@ PerspectiveCamera::PerspectiveCamera(
 	m_offset = center.z;
 }
 
-PerspectiveCamera::~PerspectiveCamera( )
-{
-}
-
-void
-PerspectiveCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up )
+void PerspectiveCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up )
 {
     m_position = pos;
     m_direction = dir;
@@ -40,38 +35,33 @@ PerspectiveCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::
     update( );
 }
 
-void
-PerspectiveCamera::set_position( const glm::vec3& pos )
+void PerspectiveCamera::set_position( const glm::vec3& pos )
 {
     m_position = pos;
 
     update( );
 }
 
-void
-PerspectiveCamera::set_direction( const glm::vec3& dir )
+void PerspectiveCamera::set_direction( const glm::vec3& dir )
 {
     m_direction = dir;
 
     update( );
 }
 
-void
-PerspectiveCamera::set_up( const glm::vec3& up )
+void PerspectiveCamera::set_up( const glm::vec3& up )
 {
     m_up = up;
 
     update( );
 }
 
-void
-PerspectiveCamera::get_matrix( glm::mat4& out ) const
+void PerspectiveCamera::get_matrix( glm::mat4& out ) const
 {
     out = m_final;
 }
 
-glm::vec3
-PerspectiveCamera::get_position( ) const
+glm::vec3 PerspectiveCamera::get_position( ) const
 {
     return m_position;
 }
@@ -192,58 +182,46 @@ OrthoCamera::OrthoCamera( float width, float height, float near, float far )
 {
 }
 
-void
-OrthoCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up )
+void OrthoCamera::init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up )
 {
     m_position = pos;
 
     update( );
 }
 
-void
-OrthoCamera::update( )
+void OrthoCamera::update( )
 {
     m_projection = glm::ortho( 0.f, m_width, 0.f, m_height, m_near, m_far );
 
     m_view = glm::lookAt( m_position, glm::vec3( 0, 0, 0 ), glm::vec3( 0, -1, 0 ) );
 }
 
-void
-OrthoCamera::set_position( const glm::vec3& pos )
+void OrthoCamera::set_position( const glm::vec3& pos )
 {
     m_position = pos;
 
     update( );
 }
 
-void
-OrthoCamera::set_direction( const glm::vec3& dir )
+void OrthoCamera::set_direction( const glm::vec3& dir )
 {
 }
 
-void
-OrthoCamera::set_up( const glm::vec3& up )
+void OrthoCamera::set_up( const glm::vec3& up )
 {
 }
 
-glm::vec3
-OrthoCamera::get_position( ) const
+glm::vec3 OrthoCamera::get_position( ) const
 {
     return m_position;
 }
 
-void
-OrthoCamera::get_matrix( glm::mat4& out ) const
+void OrthoCamera::get_matrix( glm::mat4& out ) const
 {
     out = m_projection;
 }
 
-ICamera::~ICamera( )
-{
-}
-
-glm::vec3
-ICamera::convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos )
+glm::vec3 ICamera::convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos )
 {
     glm::mat4 pv;
     cam->get_matrix( pv );
@@ -252,8 +230,7 @@ ICamera::convert_to_world_space( ICamera* cam, const glm::vec3& screen_pos )
     return glm::vec4( screen_pos, 1.f ) * inv;
 }
 
-glm::vec3
-ICamera::convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos )
+glm::vec3 ICamera::convert_to_screen_space( ICamera* cam, const glm::vec3& world_pos )
 {
     glm::mat4 pv;
     cam->get_matrix( pv );

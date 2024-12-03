@@ -1,6 +1,25 @@
 #include "timer_manager.hpp"
 
-static const int MAX_REMOVED_TIMERS = 64;
+
+TimerInstance::TimerInstance(TimerManager* manager)
+	: m_manager(manager)
+{
+}
+
+TimerInstance::~TimerInstance()
+{
+	m_manager->destroy_timer(this);
+}
+
+void TimerInstance::start()
+{
+	m_manager->start_timer(this);
+}
+
+void TimerInstance::stop()
+{
+	
+}
 
 TimerManager& TimerManager::get()
 {
@@ -14,52 +33,35 @@ TimerManager::TimerManager()
     ,m_remove_timers()
 {}
 
-void TimerManager::add( const Timer& timer )
+TimerInstancePtr TimerManager::create_timer(std::chrono::seconds delay, timer_function func, void* user_data, int repeat)
 {
-    ASSERT( timer.func != nullptr );
+	const auto timer_it = alloc_timer();
 
-    if( !m_remove_timers.is_empty() )
-    {
-        basic::uint32 pos = m_remove_timers.back();
- 
-        ASSERT( pos < m_timers.get_size() );
-        ASSERT( m_timers[pos].is_removed == true );
+    timer_it->delay = delay;
+	timer_it->func = func;
+	timer_it->user_data = user_data;
+	timer_it->repeat_count = repeat;
+	timer_it->owner = NEW_OBJ(TimerInstance, this);
 
-        m_remove_timers.pop();
-
-        m_timers[pos] = timer;
-        m_timers[pos].timestamp = basic::get_milliseconds();
-    }
-    else
-    {
-        basic::uint32 pos = m_timers.get_size();
-        m_timers.push( timer );
-        m_timers[pos].timestamp = basic::get_milliseconds();
-    }
-}
-
-void TimerManager::add(float delay, timer_function func, void *user_data, int repeat)
-{
-    Timer t;
-    t.func = func;
-    t.delay = delay;
-    t.user_data = user_data;
-    t.repeat_count = repeat;
-
-    add( t );
+    return TimerInstancePtr{ timer_it->owner };
 }
 
 void TimerManager::update( )
 {
-    double current = basic::get_milliseconds();
+	const auto current = std::chrono::steady_clock::now();
 
-    for( basic::uint32 i = 0; i < m_timers.get_size(); ++i )
+    for(auto it = m_timers.begin(); it != m_timers.end(); ++it)
     {
-        Timer& timer = m_timers[i];
+        Timer& timer = *it;
 
-        float delta = static_cast<float>( current - timer.timestamp ) / 1000;
+        if (!it->owner) {
+			m_remove_timers.emplace_back(it);
+			continue;
+        }
 
-        if( !timer.is_removed && delta > timer.delay )
+        const auto delta = current - it->timestamp;
+
+        if(delta > timer.delay )
         {
             timer.func( timer.user_data );
             
@@ -70,50 +72,60 @@ void TimerManager::update( )
 
             if( timer.repeat_count == 0 )
             {
-                m_remove_timers.push( i ); 
-                timer.is_removed = true;
+				m_remove_timers.emplace_back(it);
 
                 continue;
             }
 
-            timer.timestamp = basic::get_milliseconds();
+            timer.timestamp = std::chrono::steady_clock::now();
         }
     }
 
-    remove_spant_timers();
+    remove_expired_timers();
 }
 
-void TimerManager::remove_spant_timers()
+void TimerManager::remove_expired_timers()
 {
-    if( !m_remove_timers.is_empty() && 
-        m_remove_timers.get_size() > MAX_REMOVED_TIMERS )
+	if (m_remove_timers.empty())
+	{
+        return;
+	}
+
+    for(const auto it : m_remove_timers)
     {
-        for( basic::uint32 i = 0; i < m_remove_timers.get_size(); ++i )
-        {
-            basic::uint32 index = m_remove_timers[i];
+		m_timers.erase(it);
+    }
 
-            m_timers.remove_by_index( index );
-        }
+    m_remove_timers.clear();
+}
 
-        m_remove_timers.clear();
+std::vector<TimerManager::Timer>::iterator TimerManager::alloc_timer()
+{
+	if (!m_remove_timers.empty())
+	{
+		const auto timer_it = m_remove_timers.back();
+		m_timers.pop_back();
+
+        return timer_it;
+	}
+
+
+	m_timers.emplace_back(Timer{});
+
+    return std::prev(m_timers.end());
+}
+
+void TimerManager::destroy_timer(TimerInstance* instance)
+{
+	const auto it = std::find_if(m_timers.begin(), m_timers.end(), [instance](const Timer& t) {
+		return t.owner == instance;
+	});
+
+    if (it != m_timers.end()) {
+		it->owner = nullptr;
     }
 }
 
-
-Timer::Timer()
-    :delay( 0.f )
-    ,func( nullptr )
-    ,user_data( nullptr )
-    ,repeat_count( 0 )
-    ,timestamp( 0 )
-    ,is_removed( false )
-{}
-
-Timer::Timer(float delay, timer_function func, void *data, int repeat)
-    :delay( delay )
-    ,func( func )
-    ,user_data( data )
-    ,repeat_count( repeat )
-    ,timestamp( 0 )
-    ,is_removed( false )
-{}
+void TimerManager::start_timer(TimerInstance* instance)
+{
+}

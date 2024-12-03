@@ -6,15 +6,14 @@
 #include "camera.hpp"
 #include "engine.hpp"
 #include "input.hpp"
-#include "resource_storage.hpp"
-#include "system_manager.hpp"
+#include "widget_button.hpp"
 
 class GameInstance 
     : public core::IGameInstance
     , public input::InputListener
 {
 public:
-    GameInstance( IEngine* engine, float width, float height );
+    GameInstance( );
     ~GameInstance( ) override;
 
     void initialize() override;
@@ -27,16 +26,14 @@ public:
 
 	void on_mouse_event(const input::MouseEvent& mouse_event) override;
 
-    //friend void open_menu_action( Widget* w, void* user_data );
-
-	void initialize_cams();
-
 	void initialize_ui();
 
 private:
     void print_fps(int objects) const;
 
 	void set_camera_to_entity(const Entity* ent);
+
+    void on_start_button_pressed(ButtonEvent* ev);
 
 private:
     IEngine* m_engine;
@@ -69,4 +66,6 @@ private:
 
 	class MoveSystem* m_move_system;
 	int m_ent_index = 0;
+
+    core::EventSubscription<ButtonEvent> m_start_game_event;
 };

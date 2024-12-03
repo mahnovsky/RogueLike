@@ -4,14 +4,13 @@
 #include "defines.hpp"
 #include "component.hpp"
 
-
 class Transform : public TGenericObject<Transform, ComponentType, Component, "Transform">
 {
 public:
 	GENERIC_OBJECT_IMPL(Transform, ComponentType);
 
     Transform( Entity* ent );
-	~Transform() override;
+	~Transform() override = default;
 
     void set_position( const glm::vec3& pos );
 

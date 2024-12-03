@@ -92,7 +92,7 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\core\widget;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;GLEW_STATIC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -129,7 +129,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\code\third_party\StormLib\src;$(ProjectDir)..\code\basic;$(ProjectDir)..\code\third_party\minz;$(ProjectDir)..\code\third_party;$(ProjectDir)..\code\include;$(ProjectDir)..\code\include\ecs;$(ProjectDir)..\code\core\widget;$(ProjectDir)..\code\render;$(ProjectDir)..\code\include\generic;$(ProjectDir)..\code\core;$(ProjectDir)..\code\core\systems;$(ProjectDir)..\code\plugins</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>__PRETTY_FUNCTION__=__FUNCTION__;_CRT_SECURE_NO_WARNINGS;__WINDOWS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
@@ -150,13 +150,18 @@
     <ClCompile Include="..\code\basic\string.cpp" />
     <ClCompile Include="..\code\core\file.cpp" />
     <ClCompile Include="..\code\core\file_name.cpp" />
+    <ClCompile Include="..\code\core\ftransform.cpp" />
     <ClCompile Include="..\code\core\iglobal_context.cpp" />
     <ClCompile Include="..\code\core\path.cpp" />
+    <ClCompile Include="..\code\core\systems\event_system.cpp" />
     <ClCompile Include="..\code\core\systems\file_system.cpp" />
     <ClCompile Include="..\code\core\systems\resource_storage.cpp" />
     <ClCompile Include="..\code\core\systems\widget_system.cpp" />
     <ClCompile Include="..\code\core\system_manager.cpp" />
-    <ClCompile Include="..\code\game.cpp" />
+    <ClCompile Include="..\code\core\widget\widget.cpp" />
+    <ClCompile Include="..\code\core\widget\widget_button.cpp" />
+    <ClCompile Include="..\code\core\widget\widget_list.cpp" />
+    <ClCompile Include="..\code\core\widget\widget_text.cpp" />
     <ClCompile Include="..\code\game\game_application.cpp" />
     <ClCompile Include="..\code\game\game_instance.cpp" />
     <ClCompile Include="..\code\platform\windows\win32_file.cpp" />
@@ -185,9 +190,6 @@
     <ClCompile Include="..\code\src\texture.cpp" />
     <ClCompile Include="..\code\src\timer_manager.cpp" />
     <ClCompile Include="..\code\src\transform.cpp" />
-    <ClCompile Include="..\code\src\widget.cpp" />
-    <ClCompile Include="..\code\src\widget_list.cpp" />
-    <ClCompile Include="..\code\src\widget_text.cpp" />
     <ClCompile Include="..\code\third_party\cJSON\cJSON.c" />
     <ClCompile Include="..\code\third_party\minz\miniz.c" />
     <ClCompile Include="..\code\third_party\OpenFBX\ofbx.cpp" />
@@ -210,19 +212,26 @@
     <ClInclude Include="..\code\basic\types.hpp" />
     <ClInclude Include="..\code\basic\vector.hpp" />
     <ClInclude Include="..\code\core\core.hpp" />
+    <ClInclude Include="..\code\core\event.hpp" />
     <ClInclude Include="..\code\core\file.hpp" />
     <ClInclude Include="..\code\core\file_name.hpp" />
     <ClInclude Include="..\code\core\file_node.hpp" />
+    <ClInclude Include="..\code\core\ftransform.h" />
     <ClInclude Include="..\code\core\igame_instance.hpp" />
     <ClInclude Include="..\code\core\iglobal_context.hpp" />
     <ClInclude Include="..\code\core\path.hpp" />
     <ClInclude Include="..\code\core\pool.hpp" />
     <ClInclude Include="..\code\core\stdext.hpp" />
     <ClInclude Include="..\code\core\system.hpp" />
+    <ClInclude Include="..\code\core\systems\event_system.hpp" />
     <ClInclude Include="..\code\core\systems\file_system.hpp" />
     <ClInclude Include="..\code\core\systems\resource_storage.hpp" />
     <ClInclude Include="..\code\core\systems\widget_system.hpp" />
     <ClInclude Include="..\code\core\system_manager.hpp" />
+    <ClInclude Include="..\code\core\widget\widget.hpp" />
+    <ClInclude Include="..\code\core\widget\widget_button.hpp" />
+    <ClInclude Include="..\code\core\widget\widget_list.hpp" />
+    <ClInclude Include="..\code\core\widget\widget_text.hpp" />
     <ClInclude Include="..\code\game\game_application.hpp" />
     <ClInclude Include="..\code\game\game_instance.hpp" />
     <ClInclude Include="..\code\include\camera.hpp" />
@@ -242,9 +251,6 @@
     <ClInclude Include="..\code\include\timer_manager.hpp" />
     <ClInclude Include="..\code\include\transform.hpp" />
     <ClInclude Include="..\code\include\type_registration.hpp" />
-    <ClInclude Include="..\code\include\widget.hpp" />
-    <ClInclude Include="..\code\include\widget_list.hpp" />
-    <ClInclude Include="..\code\include\widget_text.hpp" />
     <ClInclude Include="..\code\include\window.hpp" />
     <ClInclude Include="..\code\include\world.hpp" />
     <ClInclude Include="..\code\plugins\MPQ.hpp" />

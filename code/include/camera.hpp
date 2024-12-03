@@ -10,7 +10,7 @@
 class ICamera
 {
 public:
-    virtual ~ICamera( );
+    virtual ~ICamera( ) = default;
 
     virtual void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up ) = 0;
 
@@ -48,7 +48,7 @@ class PerspectiveCamera : public ICamera
 {
 public:
     PerspectiveCamera( float fov, float aspect, float near, float far );
-    ~PerspectiveCamera( ) override;
+    ~PerspectiveCamera( ) override = default;
 
     void init( const glm::vec3& pos, const glm::vec3& dir, const glm::vec3& up ) override;
 

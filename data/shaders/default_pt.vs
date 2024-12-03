@@ -11,7 +11,7 @@ uniform mat4 Model;
 
 void main()
 {
-	mat4 MVP = Model * ViewProjection;
+	mat4 MVP = ViewProjection * Model;
     gl_Position = MVP * vec4(position, 1.0);
 
     UV = vertexUV;

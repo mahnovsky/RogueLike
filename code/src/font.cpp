@@ -78,8 +78,8 @@ void Font::update( const char* text, uint32_t count, IRenderObject* text_object,
         return;
     }
 
-    VertexBufferT vb;
-    IndexBuffer ib;
+    static VertexBufferT vb;
+	vb.clear();
 
     float x = 0;
     float y = 0;

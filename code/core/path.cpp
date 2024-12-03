@@ -23,8 +23,8 @@ namespace core
 		: m_path(path.begin(), path.end())
 	{}
 
-	Path::Path(Path&& path)
-		: m_file_name(path.m_file_name)
+	Path::Path(Path&& path) noexcept
+		: m_file_name(std::move(path.m_file_name))
 	{
 		m_path.swap(path.m_path);
 	}
@@ -82,7 +82,7 @@ namespace core
 			}
 		}
 
-		return std::move(file_path);
+		return file_path;
 	}
 
 	std::wstring Path::get_raw_file_path_wide() const
@@ -92,7 +92,7 @@ namespace core
 		return std::wstring(raw_path.begin(), raw_path.end());
 	}
 
-	void Path::set_file_name(const FileName file_name)
+	void Path::set_file_name(const FileName& file_name)
 	{
 		m_file_name = file_name;
 	}
@@ -181,7 +181,7 @@ namespace core
 			pos += separator.size();
 		}
 
-		return std::move(result);
+		return result;
 	}
 
 	std::string Path::get_patform_separator()

@@ -10,6 +10,10 @@ namespace core
 	public:
 		FileName() = default;
 		FileName(const std::string_view name, const std::string_view ext = "");
+		FileName(FileName&& other) noexcept;
+		FileName(const FileName& other) = default;
+
+		FileName& operator=(const FileName& other) = default;
 
 		bool is_valid() const;
 

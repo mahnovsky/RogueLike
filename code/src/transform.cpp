@@ -17,12 +17,7 @@ Transform::Transform(Entity* ent)
 {
 }
 
-Transform::~Transform()
-{
-}
-
-void
-Transform::set_position(const glm::vec3& pos)
+void Transform::set_position(const glm::vec3& pos)
 {
 	m_pos = pos;
 	

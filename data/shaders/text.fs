@@ -9,5 +9,10 @@ uniform vec4 Color;
 
 void main()
 {
-    color = vec4( 1.0, 1.0, 1.0, texture(texture_sampler, UV).r ) * Color;
+    float alpha = texture(texture_sampler, UV).r;
+    if(alpha <= 0) {
+        discard;
+    }
+
+    color = vec4(Color.xyz, alpha);
 }

@@ -1,11 +1,7 @@
 #include "opengl_render.hpp"
-#include "file.hpp"
-#include "vector.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 #include "camera.hpp"
-#include "transform.hpp"
-#include "window.hpp"
 #include "render_system.hpp"
 #include "resource_storage.hpp"
 #include "texture.hpp"
@@ -383,7 +379,7 @@ bool OpenGLRender::init(core::ResourceStorage* rs, int width, int height)
 	glEnable( GL_CULL_FACE );
 	glCullFace(GL_BACK);*/
 
-	//wglSwapIntervalEXT(0);
+	wglSwapIntervalEXT(0);
 
 
 	init_fbo();
@@ -412,10 +408,7 @@ void OpenGLRender::present()
 
 		present_color_texture();
 
-		ogl::bind_vertex_array(OGL_INVALID_HANDLE);
-		m_current_vao = OGL_INVALID_HANDLE;
-		ogl::use_program(OGL_INVALID_HANDLE);
-		m_current_program = OGL_INVALID_HANDLE;
+		reset();
 	}
 }
 
@@ -510,7 +503,6 @@ void OpenGLRender::delete_object(IRenderObject* obj)
 	OpenGLRenderObject* render_obj = dynamic_cast<OpenGLRenderObject*>(obj);
 	if (render_obj && stdext::remove(m_objects, render_obj))
 	{
-		const uint32_t cam_index = obj->get_camera_index();
 		stdext::remove(m_present_objects, render_obj);
 		g_object_pool->free(render_obj);
 	}
@@ -592,7 +584,7 @@ void OpenGLRender::present_color_texture() const
 
 void OpenGLRender::add_to_frame(IRenderObject* object) 
 {
-	OpenGLRenderObject* ogl_object = static_cast<OpenGLRenderObject*>(
+	auto* ogl_object = static_cast<OpenGLRenderObject*>(
 		static_cast<void*>(object));
 
 	m_present_objects.push_back(ogl_object);
@@ -600,19 +592,27 @@ void OpenGLRender::add_to_frame(IRenderObject* object)
 
 void OpenGLRender::add_camera(ICamera* camera)
 {
-	int32_t next_index = m_cams.size();
+	const int32_t next_index = m_cams.size();
 	m_cams.push_back(camera);
 	camera->set_camera_index(next_index);
 }
 
 void OpenGLRender::update_view_projection_matrix(const RenderObjectData& render_data)
 {
-	ICamera* current_cam = m_cams[render_data.camera_index];
+	const ICamera* current_cam = m_cams[render_data.camera_index];
 	glm::mat4 vp;
 	current_cam->get_matrix(vp);
 	set_uniform(render_data.program, VIEW_PROJECT_UNIFORM, vp);
 
 	m_prev_camera_index = render_data.camera_index;
+}
+
+void OpenGLRender::reset()
+{
+	ogl::bind_vertex_array(OGL_INVALID_HANDLE);
+	m_current_vao = OGL_INVALID_HANDLE;
+	ogl::use_program(OGL_INVALID_HANDLE);
+	m_current_program = OGL_INVALID_HANDLE;
 }
 
 IRender* IRender::create()

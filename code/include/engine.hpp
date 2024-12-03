@@ -24,12 +24,6 @@ class IEngine
 public:
     virtual ~IEngine() = default;
 
-    virtual bool initialize(int width, int height, const char* wnd_title) = 0;
-
-    virtual bool update() = 0;
-
-    virtual void cleanup() = 0;
-
     virtual void set_callback( EngineCallbackType type, engine_callback callback ) = 0;
 
     virtual IRender* get_render() = 0;
@@ -48,21 +42,22 @@ public:
 };
 
 class Engine 
-	: public IEngine
+	: public core::TSystem<Engine, core::SystemUID::SUID_CoreSystem>
+	, public IEngine
 {
 public:
 	Engine() = delete;
 	Engine(const Engine&) = delete;
 	Engine(Engine&&) noexcept = delete;
 
-    Engine( core::IGlobalContext* context );
+    Engine(core::SystemManager& manager);
     ~Engine() override = default;
 
-    bool initialize(int width, int height, const char* wnd_title) override;
+    void initialize(core::IGlobalContext* context) override;
 
-    bool update() override;
+    void shutdown() override;
 
-    void cleanup() override;
+    void update() override;
 
     void set_callback( EngineCallbackType type, engine_callback callback ) override;
 
@@ -90,7 +85,7 @@ private:
 private:
     static Engine* _instance;
 
-    core::IGlobalContext* _context;
+    core::IGlobalContext* m_context;
 
     IWindow* m_window;
 

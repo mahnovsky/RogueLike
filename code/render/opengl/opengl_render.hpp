@@ -42,6 +42,9 @@ public:
 	void update_view_projection_matrix(const RenderObjectData& render_data);
 
 private:
+	void reset();
+
+private:
 	bool m_use_fbo = false;
 	GLint m_width;
 	GLint m_height;

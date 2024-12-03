@@ -25,10 +25,10 @@ int __stdcall WinMain(
 		root = core::Path::parse(std::string(exeDirectory, exeDirectory + ret));
 	}
 	
-	GameApplication app(root);
+	GameApplication app(root, NEW_OBJ(GameInstance));
 
 	app.initialize({ 1024, 768 }, "Cossacs");
-	
+
 	while (app.is_running())
 	{
 		app.update();

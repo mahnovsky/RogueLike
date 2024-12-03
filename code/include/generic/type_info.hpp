@@ -31,7 +31,7 @@ struct TypeInfo
 	static const N type_index;
 };
 
-#define INVALID_TYPE_INDEX -1
+constexpr auto INVALID_TYPE_INDEX = -1;
 
 template <class T, class N>
 const char* TypeInfo<T, N>::type_name = "Invalid";

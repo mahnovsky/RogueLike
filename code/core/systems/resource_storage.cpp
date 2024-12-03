@@ -17,11 +17,12 @@ namespace core
 	{
 		TimerManager& timer_manager = TimerManager::get();
 
-		timer_manager.add(2.f, &update_cached_resources, this, -1);
+		m_update_timer = timer_manager.create_timer(std::chrono::seconds { 2 }, &update_cached_resources, this, -1);
 	}
 
 	void ResourceStorage::initialize(IGlobalContext* context)
 	{
+		_context = context;
 	}
 
 	void ResourceStorage::shutdown()
@@ -47,7 +48,7 @@ namespace core
 		FileResource* result = nullptr;
 
 		auto it = std::find_if(m_resources.begin(), m_resources.end(), [file](const FileResourcePtr res) {
-			return res->get_file_name() == file;
+				return res->get_file_name() == file;
 			});
 
 		if (it != m_resources.end())
@@ -60,9 +61,9 @@ namespace core
 
 	void ResourceStorage::update_cached_resources(void* storage)
 	{
-		ResourceStorage* rs = static_cast<ResourceStorage*>(storage);
+		auto rs = static_cast<ResourceStorage*>(storage);
 
-		auto it = std::remove_if(rs->m_resources.begin(), rs->m_resources.end(), [](FileResourcePtr res)
+		const auto it = std::remove_if(rs->m_resources.begin(), rs->m_resources.end(), [](FileResourcePtr res)
 			{
 				return res.use_count() == 1;
 			});
@@ -72,7 +73,7 @@ namespace core
 
 	bool ResourceStorage::_inner_add_resource(FileResourcePtr resource)
 	{
-		bool is_loaded = resource->load(this);
+		const bool is_loaded = resource->load(this);
 		if (is_loaded)
 		{
 			m_resources.push_back(resource);

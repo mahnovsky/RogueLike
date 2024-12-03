@@ -33,9 +33,11 @@ enum SystemType
 	STI_Render,
 	STI_Move,
 	STI_Octree,
-	STI_ResourceStorage
+	STI_ResourceStorage,
+	STI_Event
 };
 
+REGISTRY_TYPE(EventSystem, STI_Event, SystemType);
 REGISTRY_TYPE(RenderSystem, STI_Render, SystemType);
 REGISTRY_TYPE(MoveSystem, STI_Move, SystemType);
 REGISTRY_TYPE(Octree, STI_Octree, SystemType);

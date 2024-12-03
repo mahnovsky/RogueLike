@@ -2,6 +2,7 @@
 
 #include "defines.hpp"
 #include "system.hpp"
+#include "timer_manager.hpp"
 
 #include <memory>
 
@@ -68,6 +69,8 @@ namespace core
 		bool _inner_add_resource(FileResourcePtr resource);
 
 	private:
+		IGlobalContext* _context;
 		std::vector< FileResourcePtr > m_resources;
+		TimerInstancePtr m_update_timer;
 	};
 }

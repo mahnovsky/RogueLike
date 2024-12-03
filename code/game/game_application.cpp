@@ -2,60 +2,60 @@
 
 #include "transform.hpp"
 #include "engine.hpp"
+#include "event_system.hpp"
 
-void game_init(core::Path root);
-int game_loop();
-
-GameApplication::GameApplication(const core::Path& root)
+GameApplication::GameApplication(const core::Path& root, core::IGameInstance* instance)
 	:_root_dir(std::move(root))
 	,_engine(nullptr)
-	,_game(nullptr)
+	,_game(instance)
 	,_systems(this)
 {
 	SetGlobalContext(this);
 }
 
-void GameApplication::initialize(glm::ivec2 screen_size, const char* title)
+bool GameApplication::initialize(glm::ivec2 screen_size, const char* title)
 {
-	Transform* tr = basic::Memory::New<Transform>(nullptr).Get();
-	LOG("RTTI test %s, %ull", tr->get_typename(), Transform::GetTypeHash());
+	LOG("Start game application %s", title);
 
-	_engine = basic::Memory::New<Engine>(this).Get();
+	_screen_size = screen_size;
+	_window_title = title;
 
+	_systems.add_system<Engine>();
+	_systems.add_system<core::EventSystem>();
 	_systems.add_system<core::FileSystem>();
 	_systems.add_system<core::ResourceStorage>();
 	_systems.add_system<core::WidgetSystem>();
 
-	_screen_size = screen_size;
+	_systems.initialize_systems();
 
-	if (_engine->initialize(_screen_size.x, _screen_size.y, title))
-	{
-		game_init(_root_dir);
-	}
+	_engine = _systems.get_system<Engine>();
+	_game->initialize();
+
+	return true;
 }
 
 void GameApplication::update()
 {
 	_systems.update();
 
-	if (!_engine->update())
-	{
-		_is_running = false;
-	}
+	_is_running = _engine->is_runned();
 }
 
 void GameApplication::cleanup()
 {
 	_systems.shutdown();
-	_engine->cleanup();
-	basic::Memory::Delete(_engine);
-
+	
 	basic::Memory::PrintMemStats();
 }
 
 bool GameApplication::is_running() const 
 {
 	return _is_running;
+}
+
+std::string_view GameApplication::get_window_title() const
+{
+	return _window_title;
 }
 
 glm::ivec2 GameApplication::get_screen_resolution() const

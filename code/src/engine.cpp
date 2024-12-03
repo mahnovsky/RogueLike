@@ -1,6 +1,7 @@
 #include "engine.hpp"
 #include "window.hpp"
 #include "debug.hpp"
+#include "igame_instance.hpp"
 #include "string.hpp"
 #include "time.hpp"
 #include "timer_manager.hpp"
@@ -38,8 +39,9 @@ void Engine::update_fps()
 
 static void dummy( IEngine* ){}
 
-Engine::Engine( core::IGlobalContext* context )
-    : _context(context)
+Engine::Engine(core::SystemManager& manager)
+    :TSystem(manager)
+	, m_context(nullptr)
     , m_window( nullptr ) 
     , m_render( nullptr )
     , m_input(nullptr)
@@ -60,31 +62,38 @@ Engine::Engine( core::IGlobalContext* context )
     m_callbacks[Draw] = &dummy;
 }
 
-bool Engine::initialize(int width, int height, const char *wnd_title)
+void Engine::initialize(core::IGlobalContext* context)
 {
+	m_context = context;
+
+    const auto res = m_context->get_screen_resolution();
+	const int width = res.x;
+	const int height = res.y;
+	const auto title = m_context->get_window_title();
+
 	m_input = input::Input::create();
 
     m_window = IWindow::create();
-    if( !m_window->init( width, height, wnd_title ) )
+	if (!m_window->init(width, height, title.data()))
     {
         LOG("Failed init window.");
 
-        return false;
+        return;
     }
 
     m_render = IRender::create();
 
-    core::SystemManager* systems = _context->get_system_manager();
-	core::ResourceStorage* rs = systems->get_system<core::ResourceStorage>();
+    core::SystemManager* systems = m_context->get_system_manager();
+	const auto rs = systems->get_system<core::ResourceStorage>();
 
     if( !m_render->init( rs, width, height ) )
     {
         LOG("Failed init render.");
 
-        return false;
+        return;
     }
 
-	systems->update();
+	//systems->update();
 
     if( m_callbacks[ Init ])
     {
@@ -93,17 +102,17 @@ bool Engine::initialize(int width, int height, const char *wnd_title)
 
     LOG( "Engine initialization done. Memory usage %lu",
         basic::get_memory_usage() );
-
-    return true;
 }
 
-bool Engine::update()
+void Engine::update()
 {
     const double frame_begin = basic::get_milliseconds();
 
     process_event( );
 
-    m_callbacks[ Frame ]( this );
+	const auto game = m_context->get_game_instance();
+
+    game->update(static_cast<float>(m_frame_time / 1000.0));
 
     TimerManager::get().update();
 
@@ -111,18 +120,16 @@ bool Engine::update()
 
     m_render->present();
 
-	m_callbacks[Draw](this);
+	game->draw(m_render);
 
 	m_window->swap_buffers();
 
     m_frame_time = basic::get_milliseconds() - frame_begin;
     
     update_fps();
-
-    return m_is_runned;
 }
 
-void Engine::cleanup()
+void Engine::shutdown()
 {
     DELETE_OBJ(m_input);
     m_input = nullptr;

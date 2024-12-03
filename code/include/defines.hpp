@@ -21,6 +21,7 @@ class Material;
 class Widget;
 class WidgetList;
 class WidgetText;
+class WidgetButton;
 class EcsManager;
 class World;
 class Entity;

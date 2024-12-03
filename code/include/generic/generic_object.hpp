@@ -35,7 +35,7 @@ public:
 		return TypeInfo<T, N>::type_index;
 	}
 
-	size_t get_type_hash() const {
+	size_t get_type_hash() const override {
 		return lit.get_hash();
 	}
 
@@ -48,7 +48,7 @@ T* fast_cast(IGenericObject* obj)
 {
 	ASSERT( (obj->type_index() == static_cast<size_t>(TypeInfo<T, N>::type_index)) );
 	
-	return reinterpret_cast<T*>(obj);
+	return static_cast<T*>(static_cast<void*>(obj));
 }
 
 

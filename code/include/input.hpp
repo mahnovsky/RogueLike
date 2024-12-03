@@ -1,6 +1,7 @@
 #pragma once
 
 #include "defines.hpp"
+#include "type_info.hpp"
 
 namespace input
 {

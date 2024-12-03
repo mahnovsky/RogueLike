@@ -5,7 +5,14 @@ namespace core
 	FileName::FileName(const std::string_view name, const std::string_view ext)
 		:m_name(name)
 		, m_ext(ext)
-	{}
+	{
+	}
+
+	FileName::FileName(FileName&& other) noexcept
+		:m_name(std::move(other.m_name))
+		,m_ext(std::move(other.m_ext))
+	{
+	}
 
 	bool FileName::is_valid() const
 	{
@@ -17,7 +24,7 @@ namespace core
 		std::string file_name{ m_name };
 		file_name.append(".");
 		file_name.append(m_ext);
-		return std::move(file_name);
+		return file_name;
 	}
 
 	std::string_view FileName::get_name() const

@@ -21,7 +21,7 @@ namespace core
 		SystemManager(IGlobalContext* context);
 		SystemManager(const SystemManager&) = delete;
 		SystemManager(SystemManager&&) = delete;
-		~SystemManager();
+		~SystemManager() = default;
 
 		template <class T>
 		void add_system()
@@ -32,7 +32,7 @@ namespace core
 
 		void add_system(ISystem* system);
 
-		ISystem* get_system(SystemUID uid);
+		ISystem* get_system(SystemUID uid) const;
 
 		template <class T>
 		T* get_system()
@@ -45,7 +45,11 @@ namespace core
 			return nullptr;
 		}
 
+		void initialize_systems();
+
 		void update();
+
+		void draw();
 
 		void shutdown();
 
@@ -54,4 +58,16 @@ namespace core
 		std::vector<ISystem*> _initialize_systems;
 		std::vector<ISystem*> _systems;
 	};
+	
+	template<class T>
+	T* get_system()
+	{
+		if (IGlobalContext* context = IGlobalContext::GetInstance()) {
+			if (const auto smanager = context->get_system_manager()) {
+				return smanager->get_system<T>();
+			}
+		}
+
+		return nullptr;
+	}
 }

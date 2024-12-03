@@ -536,29 +536,51 @@ void build_rect(IRenderObject* obj, const glm::vec2& left_bottom, const glm::vec
 
 	auto& data = obj->get_mesh_data();
 
-	static VertexBufferP vertices;
-	if (vertices.size() < 5)
-	{
-		vertices.resize(5);
-	}
-	glm::vec3 pos;
 	
-	// left-bottom
-	vertices[0] = { left_bottom.x, left_bottom.y, 0.f };
+	
+	if (mode == DrawMode::Wire) {
+		static VertexBufferP vertices;
+		vertices.resize(5);
+		// left-bottom
+		vertices[0] = { left_bottom.x, left_bottom.y, 0.f };
 
-	// left-top
-	vertices[1] = { left_bottom.x, right_top.y, 0.f };
+		// left-top
+		vertices[1] = { left_bottom.x, right_top.y, 0.f };
 
-	// right-top
-	vertices[2] = { right_top.x, right_top.y, 0.f };
+		// right-top
+		vertices[2] = { right_top.x, right_top.y, 0.f };
 
-	// right-bottom
-	vertices[3] = { right_top.x, left_bottom.y, 0.f };
+		// right-bottom
+		vertices[3] = { right_top.x, left_bottom.y, 0.f };
 
-	// left-bottom
-	vertices[4] = { left_bottom.x, left_bottom.y, 0.f };
+		// left-bottom
+		vertices[4] = { left_bottom.x, left_bottom.y, 0.f };
 
-	setup_vertices(data.vertex_data, vertices);
+		setup_vertices(data.vertex_data, vertices);
+	}
+	else {
+		static VertexBufferT vertices;
+		vertices.resize(4);
+		constexpr basic::Color white {255, 255, 255, 255 };
+		// left-bottom
+		vertices[0].pos = { left_bottom.x, left_bottom.y, 0.f };
+		vertices[0].uv = { 0.f, 1.f };
+		//vertices[0].color = white;
+		// left-top
+		vertices[1].pos = { left_bottom.x, right_top.y, 0.f };
+		vertices[1].uv = { 0.f, 0.f };
+		//vertices[1].color = white;
+		// right-top
+		vertices[2].pos = { right_top.x, right_top.y, 0.f };
+		vertices[2].uv = { 1.f, 0.f };
+		//vertices[2].color = white;
+		// right-bottom
+		vertices[3].pos = { right_top.x, left_bottom.y, 0.f };
+		vertices[3].uv = { 1.f, 1.f };
+		//vertices[3].color = white;
+		setup_vertices(data.vertex_data, vertices);
+	}
+	
 
 	obj->update_mesh_data();
 }
