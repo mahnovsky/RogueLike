@@ -48,15 +48,16 @@ bool Texture::load( core::ResourceStorage* storage )
 			for (const basic::JsonObject* frame : frames_array)
 			{
 				TextureRect rect;
-				bool success =
-					frame->get("x", rect.x) &&
-					frame->get("y", rect.y) &&
-					frame->get("w", rect.w) &&
-					frame->get("h", rect.h) &&
+				const bool success =
+					frame->get("x", rect.rect.pos.x) &&
+                    frame->get("y", rect.rect.pos.y) && 
+                    frame->get("w", rect.rect.size.x) && 
+                    frame->get("h", rect.rect.size.y) &&
 					frame->get("name", rect.name);
+
                 if (success)
                 {
-                    m_rects.push(rect);
+                    m_rects.push_back(rect);
                 }
 			}
 		}
@@ -87,10 +88,7 @@ void Texture::init( basic::Image image )
     init( image.width, image.height, std::move( image.data ), image.components );
 }
 
-void Texture::init( basic::uint32 width,
-               basic::uint32 height,
-               std::vector< uint8_t > image_data,
-               basic::uint32 cc )
+void Texture::init(uint32_t width, uint32_t height, std::vector< uint8_t > image_data, uint32_t cc)
 {
     m_width = width;
     m_height = height;
@@ -100,8 +98,8 @@ void Texture::init( basic::uint32 width,
 
     glBindTexture( GL_TEXTURE_2D, m_texture );
 
-    GLuint format = ( cc == 3 ? GL_RGB : GL_RGBA );
-    GLint internalFormat = ( format == GL_BGR ? GL_RGB8 : GL_RGBA8 );
+    const GLuint format = ( cc == 3 ? GL_RGB : GL_RGBA );
+    const GLint internalFormat = ( format == GL_BGR ? GL_RGB8 : GL_RGBA8 );
 
     glTexImage2D( GL_TEXTURE_2D,
                   0,
@@ -173,12 +171,12 @@ void Texture::unbind( ) const
     glBindTexture( GL_TEXTURE_2D, 0 );
 }
 
-basic::uint32 Texture::get_width( ) const
+uint32_t Texture::get_width() const
 {
     return m_width;
 }
 
-basic::uint32 Texture::get_height( ) const
+uint32_t Texture::get_height() const
 {
     return m_height;
 }
@@ -196,9 +194,9 @@ bool Texture::get_rect( const char* key, TextureRect& out_rect ) const
     return false;
 }
 
-bool Texture::get_rect(basic::uint32 index, TextureRect& out_rect) const
+bool Texture::get_rect(uint32_t index, TextureRect& out_rect) const
 {
-	if (index < m_rects.get_size())
+	if (index < m_rects.size())
 	{
 		out_rect = m_rects[index];
 		return true;
@@ -206,7 +204,7 @@ bool Texture::get_rect(basic::uint32 index, TextureRect& out_rect) const
 	return false;
 }
 
-GLuint Texture::get_handle() const
+uint32_t Texture::get_handle() const
 {
 	return m_texture;
 }

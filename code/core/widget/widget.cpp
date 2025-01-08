@@ -15,7 +15,8 @@ Widget::Widget(core::WidgetSystem* root)
     , m_parent( nullptr )
     , m_children( )
     , m_visible( true )
-    , m_align( Align::Center )
+    , m_horizontal_align( HAlign::Center )
+	, m_vertical_align(VAlign::Center)
     , m_storage( nullptr )
 	, m_debug_rect(nullptr)
 {
@@ -214,14 +215,24 @@ bool Widget::is_visible( ) const
     return m_visible;
 }
 
-Align Widget::get_align( ) const
+HAlign Widget::get_horizontal_align() const
 {
-    return m_align;
+    return m_horizontal_align;
 }
 
-void Widget::set_align(Align align)
+void Widget::set_horizontal_align(HAlign align)
 {
-	m_align = align;
+	m_horizontal_align = align;
+}
+
+VAlign Widget::get_vertical_align() const
+{
+	return m_vertical_align;
+}
+
+void Widget::set_vertical_align(VAlign align)
+{
+	m_vertical_align = align;
 }
 
 uint32_t Widget::get_camera_index() const
@@ -294,10 +305,47 @@ void Widget::_initialize_debug_rect()
 void Widget::update_transform()
 {
 	if (const Widget* parent = get_parent()) {
+
+		apply_align(m_transform, parent->get_size());
+
 		m_transform.update(parent->get_transform());
 	}
 	else {
 		m_transform.update(nullptr);
 	}
 
+}
+
+void Widget::apply_align(core::FTransform& transform, const glm::vec2& size) const
+{
+	const auto content_size = get_size();
+	float x_align = 0;
+	float y_align = 0;
+
+	switch (m_horizontal_align)
+	{
+		case HAlign::Center:
+			x_align = (size.x - content_size.x) / 2;
+			break;
+		case HAlign::Left:
+			x_align = 0;
+			break;
+		case HAlign::Right:
+			x_align = (size.x - content_size.x);
+			break;
+	}
+	switch (m_vertical_align)
+	{
+		case VAlign::Center:
+			y_align = (size.y - content_size.y) / 2;
+			break;
+		case VAlign::Top:
+			y_align = size.y - content_size.y;
+			break;
+		case VAlign::Bottom:
+			y_align = 0;
+			break;
+	}
+
+	transform.pos = { x_align, y_align, 0.f };
 }

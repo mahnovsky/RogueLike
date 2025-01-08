@@ -21,14 +21,12 @@ public:
 	char value[N];
 };
 
-using TypeIndex = uint64_t;
-
-
 template <class T, class N>
 struct TypeInfo
 {
 	static const char* type_name;
 	static const N type_index;
+	static const uint32_t type_hash;
 };
 
 constexpr auto INVALID_TYPE_INDEX = -1;
@@ -39,10 +37,26 @@ const char* TypeInfo<T, N>::type_name = "Invalid";
 template <class T, class N>
 const N TypeInfo<T, N>::type_index = static_cast<N>(INVALID_TYPE_INDEX);
 
-#define REGISTRY_TYPE(type, index, name_space) \
-class type; \
-template <> \
-const char* TypeInfo<type, name_space>::type_name = #type; \
-template <> \
-const name_space TypeInfo<type, name_space>::type_index = index; \
+template<class T, class N>
+const uint32_t TypeInfo<T, N>::type_hash = 0;
 
+#define CONCAT(A, B, C) A##B##C
+#define TO_STR(A) #A
+
+#define REGISTRY_TYPE(type, index, group) \
+class type; \
+	template <> \
+const char* TypeInfo<type, group>::type_name = #type;            \
+	template <> \
+const group TypeInfo<type, group>::type_index = index; \
+	template<>  \
+const uint32_t TypeInfo<type, group>::type_hash = COMPILE_TIME_CRC32_STR(#type);
+
+#define REGISTRY_TYPE_NS(ns, type, index, group) \
+	namespace ns { class type; } \
+	template<> \
+	const char* TypeInfo<ns::type, group>::type_name = #type; \
+	template<> \
+	const group TypeInfo<ns::type, group>::type_index = index; \
+	template<> \
+	const uint32_t TypeInfo<ns::type, group>::type_hash = COMPILE_TIME_CRC32_STR(TO_STR(ns::type));

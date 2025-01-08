@@ -15,9 +15,7 @@ namespace core
 	};
 
 	using EventId = std::string;
-
-	
-	class BaseEvent : public IGenericObject
+	class BaseEvent : public TGenericObject <BaseEvent, EventTypes, IGenericObject, "BaseEvent">
 	{
 	public:
 		GENERIC_OBJECT_IMPL(BaseEvent, EventTypes)
@@ -102,7 +100,7 @@ namespace core
 	private:
 		void on_event(BaseEvent* event) override
 		{
-			if (event->type_index() != TypeInfo<Event, EventTypes>::type_index) {
+			if (event->get_type_hash() != Event::get_type_hash_s()) {
 				return;
 			}
 
@@ -123,4 +121,3 @@ namespace core
 	};
 } // namespace core
 
-REGISTRY_TYPE(BaseEvent, core::ET_BASE_EVENT, core::EventTypes)

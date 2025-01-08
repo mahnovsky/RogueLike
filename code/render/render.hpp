@@ -1,8 +1,8 @@
 #pragma once
 
 #include "defines.hpp"
+#include "rect.hpp"
 #include "render_common.hpp"
-#include "resource_storage.hpp"
 
 class ICamera;
 

@@ -207,6 +207,7 @@
     <ClInclude Include="..\code\basic\json_object.hpp" />
     <ClInclude Include="..\code\basic\memory.hpp" />
     <ClInclude Include="..\code\basic\pair.hpp" />
+    <ClInclude Include="..\code\basic\rect.hpp" />
     <ClInclude Include="..\code\basic\string.hpp" />
     <ClInclude Include="..\code\basic\time.hpp" />
     <ClInclude Include="..\code\basic\types.hpp" />

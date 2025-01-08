@@ -16,7 +16,7 @@ class WidgetText : public Widget
 public:
     WidgetText(core::WidgetSystem* root);
 
-    ~WidgetText() override;
+    ~WidgetText() override = default;
 
     void initialize();
 
@@ -25,8 +25,6 @@ public:
     void set_color(const basic::Color& color);
 
     basic::Color get_color( ) const;
-
-    void set_align(Align align) override;
 	
 private:
     void update();
@@ -36,6 +34,7 @@ private:
 	void draw(IRender* render) override;
 
 private:
+	core::FTransform m_text_transform;
     std::string m_font_name;
     std::shared_ptr<se::Font> m_font;
 	std::string m_text;

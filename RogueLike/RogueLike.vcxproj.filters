@@ -425,5 +425,8 @@
     <ClInclude Include="..\code\core\ftransform.h">
       <Filter>code\core</Filter>
     </ClInclude>
+    <ClInclude Include="..\code\basic\rect.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -26,6 +26,15 @@ void WidgetButton::initialize()
 	setup_position(m_view, { m_world_space_rect.pos.x, m_world_space_rect.pos.y, 0.f});
 }
 
+void WidgetButton::set_texture(const std::string& texture_id)
+{
+	m_texture_name = texture_id;
+	if (!m_view) {
+		initialize();
+	}
+	m_view->set_resource(RenderResourceType::Texture, m_texture_name);
+}
+
 void WidgetButton::set_press_event_id(const core::EventId& event_id)
 {
 	m_press_event = event_id;
@@ -39,11 +48,8 @@ void WidgetButton::on_mouse_pressed(input::MouseButton btn, basic::int32 x, basi
 	}
 
 	if (hit_test({x, y})) {
-		auto ev = m_event_pool.alloc(m_press_event, ButtonEventType::Pressed);
-
-		event_system->raise_event(ev);
-
-		m_event_pool.free(ev);
+		
+		event_system->raise_event<ButtonEvent>(m_press_event, ButtonEventType::Pressed);
 	}
 }
 

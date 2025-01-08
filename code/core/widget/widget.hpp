@@ -4,41 +4,22 @@
 #include "input.hpp"
 #include "type_registration.hpp"
 #include "ftransform.h"
+#include "rect.hpp"
 
 class IEngine;
 
-enum class Align
+enum class HAlign
 {
 	Center,
 	Left,
-	Top,
-	Right,
-	Bottom
+	Right
 };
 
-struct Rect
+enum class VAlign
 {
-	glm::vec2 pos; // left-bottom
-	glm::vec2 size;
-
-	Rect() = default;
-	Rect(const glm::vec2& _size)
-		: pos()
-		, size(_size)
-	{
-	}
-
-	Rect(const glm::vec2& _pos, const glm::vec2& _size)
-		: pos(_pos)
-		, size(_size)
-	{
-	}
-
-	bool hit_test(const glm::vec2& point) const
-	{
-		glm::vec2 rt = pos + size;
-		return point.x >= pos.x && point.x <= rt.x && point.y >= pos.y && point.y <= rt.y;
-	}
+	Center,
+	Top,
+	Bottom
 };
 
 class Widget
@@ -94,9 +75,13 @@ public:
 
 	bool is_visible() const;
 
-	Align get_align() const;
+	HAlign get_horizontal_align() const;
 
-	virtual void set_align(Align align);
+	void set_horizontal_align(HAlign align);
+
+	VAlign get_vertical_align() const;	
+
+	void set_vertical_align(VAlign align);
 
 	uint32_t get_camera_index() const;
 
@@ -113,6 +98,8 @@ protected:
 
 	virtual void update_transform();
 
+	void apply_align(core::FTransform& transform, const glm::vec2& size) const;
+
 protected:
 	core::WidgetSystem* m_root;
 	core::FTransform m_transform;
@@ -121,7 +108,8 @@ protected:
 	Widget* m_parent;
 	std::vector<Widget*> m_children;
 	bool m_visible;
-	Align m_align;
+	HAlign m_horizontal_align;
+	VAlign m_vertical_align;
 	ResourceStorage* m_storage;
 	IRenderObject* m_debug_rect;
 };

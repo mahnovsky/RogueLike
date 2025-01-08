@@ -1,8 +1,9 @@
 #pragma once
+
 #include <vector>
 
 extern "C" {
-#include <GL/glew.h>
+	#include <GL/glew.h>
 }
 
 #ifdef __WINDOWS__

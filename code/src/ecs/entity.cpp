@@ -26,7 +26,7 @@ bool Entity::is_component_exist(size_t type_index) const
 
 void Entity::add_component(Component* comp)
 {
-	int type_index = comp->type_index();
+	int type_index = comp->get_type_index();
 	ASSERT(type_index < sizeof(uint64_t));
 
 	uint64_t test_flag = 1;
@@ -44,7 +44,7 @@ Component* Entity::get_component(size_t type_index)
 	{
 		auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](IGenericObject* obj)
 			{
-				return type_index == obj->type_index();
+				return type_index == obj->get_type_index();
 			});
 
 		if (it != m_components.end())
@@ -60,7 +60,7 @@ const Component* Entity::get_component(size_t type_index) const
 	{
 		const auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](const IGenericObject* obj)
 			{
-				return type_index == obj->type_index();
+				return type_index == obj->get_type_index();
 			});
 
 		if (it != m_components.end())
@@ -114,7 +114,7 @@ void Entity::remove_child(Entity* child)
 
 void Entity::send_component_event(Component* sender, ComponentEvent event_type)
 {
-	const TypeIndex type_index = sender->type_index();
+	const TypeIndex type_index = sender->get_type_index();
 
 	for (auto component : m_components)
 	{

@@ -88,7 +88,7 @@ GameInstance::GameInstance( )
 	, m_cow(nullptr)
 	, m_selection_rect(nullptr)
 	, m_move_system(nullptr)
-	, m_start_game_event("start_game_event")
+	, m_start_game_event("game_exit_event")
 {
 	
 }
@@ -275,7 +275,7 @@ void GameInstance::initialize( )
 
 	m_rs = systems->get_system<core::ResourceStorage>();
 	m_widget_system = systems->get_system<core::WidgetSystem>();
-	std::shared_ptr<Texture> texture = m_rs->get_resource< Texture >("btn.png");
+	//std::shared_ptr<Texture> texture = m_rs->get_resource< Texture >("btn.png");
 
 	m_ecs = m_engine->get_ecs();
 
@@ -537,29 +537,46 @@ void GameInstance::on_mouse_event(const input::MouseEvent& mouse_event)
 	}
 }
 
+Widget* make_button(core::WidgetSystem* system, const std::string& button_name)
+{
+	static float y_offset = 0;
+	
+	const auto button = NEW_OBJ(WidgetButton, system);
+	button->set_size({ 200.f, 50.f });
+	button->set_position({ 200.f, 200.f + y_offset });
+	button->set_press_event_id(button_name + "_event");
+	button->set_horizontal_align(HAlign::Left);
+	button->set_vertical_align(VAlign::Top);
+	button->set_texture("SoM_Icon_2.png");
+	button->initialize();
+
+	auto btn_text = NEW_OBJ(WidgetText, system);
+	btn_text->set_text(button_name);
+	btn_text->set_color(g_ui_color);
+	btn_text->set_horizontal_align(HAlign::Center);
+	btn_text->set_vertical_align(VAlign::Center);
+	button->add_child(btn_text);
+
+	y_offset += 80.f;
+
+	return button;
+}
+
 void GameInstance::initialize_ui()
 {
 	m_fps_text = NEW_OBJ(WidgetText, m_widget_system);
 	m_fps_text->set_text("fps: 000");
 	m_fps_text->set_color(g_ui_color);
-	m_fps_text->set_align(Align::Right);
+	m_fps_text->set_horizontal_align(HAlign::Right);
+	m_fps_text->set_vertical_align(VAlign::Top);
 
 	m_widget_system->get_root_widget()->add_child(m_fps_text);
 
-	const auto game_start = NEW_OBJ(WidgetButton, m_widget_system);
-	game_start->set_size({ 200.f, 50.f });
-	game_start->set_position({ 200.f, 200.f });
-	game_start->set_press_event_id("start_game_event");
-	game_start->initialize();
-
-	auto btn_text = NEW_OBJ(WidgetText, m_widget_system);
-	btn_text->set_text("game start");
-	btn_text->set_color(g_ui_color);
-	btn_text->set_align(Align::Right);
-	game_start->add_child(btn_text);
+	const auto game_start = make_button(m_widget_system, "game_start");
+	const auto game_exit = make_button(m_widget_system, "game_exit");
 
 	m_widget_system->get_root_widget()->add_child(game_start);
-
+	m_widget_system->get_root_widget()->add_child(game_exit);
 
 	m_start_game_event.bind(this, &GameInstance::on_start_button_pressed);
 }

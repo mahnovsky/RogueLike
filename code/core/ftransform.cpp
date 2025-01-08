@@ -29,8 +29,9 @@ namespace core
 	{
 		transform = get_rotation();
 		transform = glm::scale(transform, scale);
+		transform = glm::translate(transform, -pivot);
 		transform = glm::translate(transform, pos);
-
+		
 		if (parent) {
 			transform = parent->transform * transform;
 		}

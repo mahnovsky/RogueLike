@@ -43,7 +43,7 @@ bool Font::load( core::ResourceStorage* storage )
         return false;
     }
 
-    std::string path = "fonts/"s + get_file_name().data();
+    const std::string path = "fonts/"s + get_file_name().data();
     
     auto data = core::get_file_content( path.c_str( ) );
 
@@ -89,6 +89,8 @@ void Font::update( const char* text, uint32_t count, IRenderObject* text_object,
 	text_object->set_resource(RenderResourceType::ShaderProgram, "text");
 	text_object->set_resource(RenderResourceType::Texture, m_texture_name);
 	text_object->set_vertex_buffer_usage(VertexBufferUsage::Dynamic);
+	float min_y = 0;
+	float max_y = 0;
 
     for (int i = 0; i < count; ++i )
     {
@@ -109,8 +111,8 @@ void Font::update( const char* text, uint32_t count, IRenderObject* text_object,
 		auto xmax = q.x1;
 		auto ymin = -q.y1;
 		auto ymax = -q.y0;
-		float height = fabs(ymin - ymax);
-		size.y = size.y < height ? height : size.y;
+		min_y = min_y > ymin ? ymin : min_y;
+		max_y = max_y < ymax ? ymax : max_y;
 		
 		Vertex_T vertices[] = { 
 			{ {xmin, ymin, 0}, {q.s0, q.t1} },
@@ -127,8 +129,9 @@ void Font::update( const char* text, uint32_t count, IRenderObject* text_object,
 	}
 
     size.x = x;
+	size.y = fabs(max_y - min_y);
 	
-	setup_vertices(mesh_data.vertex_data, std::move(vb));
+	setup_vertices(mesh_data.vertex_data, vb);
 	
 	text_object->update_mesh_data();
 }

@@ -11,14 +11,13 @@ enum class ButtonEventType
 	Released
 };
 
-REGISTRY_TYPE(ButtonEvent, core::ET_WIDGET_BUTTON, core::EventTypes)
-class ButtonEvent : public core::BaseEvent
+//REGISTRY_TYPE(ButtonEvent, core::ET_WIDGET_BUTTON, core::EventTypes)
+class ButtonEvent : public TGenericObject<ButtonEvent, core::EventTypes, core::BaseEvent, "ButtonEvent">
 {
 public:
-	GENERIC_OBJECT_IMPL(ButtonEvent, core::EventTypes)
 
-	ButtonEvent(const core::BaseEvent& event_id, ButtonEventType event_type)
-		: core::BaseEvent(event_id)
+	ButtonEvent(const core::EventId& event_id, ButtonEventType event_type)
+		: Super(event_id)
 		,m_event_type(event_type)
 	{}
 
@@ -34,6 +33,8 @@ public:
 
 	void initialize();
 
+	void set_texture(const std::string& texture_id);
+
 	void set_press_event_id(const core::EventId& event_id);
 
 	void on_mouse_pressed(input::MouseButton btn, basic::int32 x, basic::int32 y) override;
@@ -41,7 +42,6 @@ public:
 	void draw(IRender* render) override;
 
 private:
-	static inline Pool<ButtonEvent> m_event_pool;
 	core::EventId m_press_event;
 
 	IRenderObject* m_view;

@@ -23,21 +23,19 @@ using std::uint64_t;
 
 
 template < class T, class U >
-T
-size_as( const basic::Vector< U >& v )
+T size_as( const basic::Vector< U >& v )
 {
     return static_cast< T >( v.get_size( ) );
 }
 
 template < class U >
-basic::uint32
-size( const basic::Vector< U >& v )
+uint32_t size( const basic::Vector< U >& v )
 {
     return v.get_size( );
 }
 
 template <class T>
-basic::uint32 constexpr enum2num(T e)
+uint32_t constexpr enum2num(T e)
 {
 	return static_cast<basic::uint32>(e);
 }

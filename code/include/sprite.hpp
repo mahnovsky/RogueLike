@@ -1,16 +1,17 @@
 #pragma once
 
 #include "defines.hpp"
+#include "rect.hpp"
 
 class Sprite
 {
 public:
     Sprite( );
-    ~Sprite();
+    ~Sprite() = default;
 
-    void init( Texture* texture );
+    void init(const std::string& texture_name, const Rect& texture_rect);
 
-    void draw( ICamera* camera, IRender* render );
+    void draw( IRender* render );
 
     void set_position( const glm::vec3& pos );
 
@@ -36,5 +37,6 @@ private:
     glm::vec3 m_size;
     glm::vec2 m_anchor;
     float m_angle;
-    basic::String m_frame_name;
+    std::string m_frame_name;
+	IRenderObject* m_render_object;
 };
