@@ -2,13 +2,12 @@
 
 #include "type_registration.hpp"
 #include "generic_object.hpp"
+#include "component.hpp"
 #include "defines.hpp"
 
-class TextComponent : public IGenericObject
+class TextComponent : public TGenericObject<TextComponent, Component, "TextComponent">
 {
 public:
-    GENERIC_OBJECT_IMPL(TextComponent, ComponentType);
-
     TextComponent( Entity* ent );
     TextComponent(Entity* ent, const char* font_file);
 	~TextComponent() override;

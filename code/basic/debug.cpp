@@ -16,14 +16,14 @@
 
 namespace basic
 {
-void
-assert_func( int line, const char* file, const char* function, const char* message )
+void assert_func( int line, const char* file, const char* function, const char* message )
 {
     LOG( "Assertion failed!" );
 	LOG( "\t%s : %d\n", file, line );
 	LOG( "\tfunction: %s\n", function );
 	LOG( "\tmessage: %s\n", message );
-    abort( );
+    //abort( );
+	std::terminate();
 }
 
 uint32 str_length(const char* cstring, memory_size max_len )

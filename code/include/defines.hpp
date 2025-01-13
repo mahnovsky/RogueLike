@@ -8,10 +8,11 @@ class Text;
 class Sprite;
 class SharedObject;
 class ObjectManager;
-class Engine;
+
 namespace core {
 	class ResourceStorage;
 	class WidgetSystem;
+	class Engine;
 }
 class IRender;
 class ICamera;

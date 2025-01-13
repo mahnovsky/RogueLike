@@ -1,7 +1,7 @@
 #include "game_instance.hpp"
 
 #include "iglobal_context.hpp"
-
+#include "engine.hpp"
 #include "camera.hpp"
 #include "render_common.hpp"
 #include "widget_system.hpp"
@@ -22,13 +22,12 @@
 #include <ctime>
 
 
-class MoveComponent : public Component
+class MoveComponent : public TGenericObject<MoveSystem, Component, "MoveComponent">
 {
 public:
-	GENERIC_OBJECT_IMPL(MoveComponent, ComponentType);
-
+	
 	MoveComponent(Entity* ent)
-		:Component(ent)
+		:Super(ent)
 		, angle_speed(0.f)
 		, move_speed(0.f)
 	{}
@@ -38,11 +37,9 @@ public:
 	glm::vec3 move_direction;
 };
 
-class MoveSystem : public IGenericObject
+class MoveSystem : public TGenericObject<MoveSystem, IGenericObject,"MoveSystem">
 {
 public:
-	GENERIC_OBJECT_IMPL(MoveSystem, SystemType);
-
 	MoveSystem(EntityComponentManager* ecs)
 		: m_ecs(ecs)
 	{}
@@ -103,7 +100,7 @@ GameInstance::~GameInstance( )
 static void exit_action( Widget* w, void* ud )
 {
     //LOG( "on widget clicked tag %d", w->get_tag( ) );
-    Engine* engine = static_cast< Engine* >( ud );
+	core::Engine* engine = static_cast<core::Engine* >( ud );
 }
 
 static void close_action( Widget* w, void* user_data )
@@ -263,7 +260,7 @@ void GameInstance::initialize( )
 {
     srand( static_cast<uint32_t>(time( nullptr )) );
 
-	auto context = core::IGlobalContext::GetInstance();
+	const auto context = core::IGlobalContext::GetInstance();
 	m_engine = context->get_engine();
 
 	auto size = m_engine->get_window_size();

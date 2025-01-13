@@ -52,6 +52,9 @@
     <Filter Include="code\core\widget">
       <UniqueIdentifier>{58dcb33c-5fab-4337-ae80-ad6bdb0a3465}</UniqueIdentifier>
     </Filter>
+    <Filter Include="code\scene2d">
+      <UniqueIdentifier>{6ab7590e-1bd5-4060-8e9d-72814b9af969}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\code\win32_startup.cpp">
@@ -212,6 +215,15 @@
     </ClCompile>
     <ClCompile Include="..\code\core\ftransform.cpp">
       <Filter>code\core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\scene2d\scene2d.cpp">
+      <Filter>code\scene2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\scene2d\node2d.cpp">
+      <Filter>code\scene2d</Filter>
+    </ClCompile>
+    <ClCompile Include="..\code\basic\hash_to_index.cpp">
+      <Filter>code\basic</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -426,6 +438,15 @@
       <Filter>code\core</Filter>
     </ClInclude>
     <ClInclude Include="..\code\basic\rect.hpp">
+      <Filter>code\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\scene2d\scene2d.hpp">
+      <Filter>code\scene2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\scene2d\node2d.hpp">
+      <Filter>code\scene2d</Filter>
+    </ClInclude>
+    <ClInclude Include="..\code\basic\hash_to_index.hpp">
       <Filter>code\basic</Filter>
     </ClInclude>
   </ItemGroup>

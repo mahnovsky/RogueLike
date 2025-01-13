@@ -8,11 +8,11 @@
 #include "generic/generic_object.hpp"
 #include "ecs_manager.hpp"
 #include "component.hpp"
+#include "hash_to_index.hpp"
 
-class Entity : public IGenericObject
+class Entity : public TGenericObject<Entity, IGenericObject, "Entity">
 {
 public:
-	GENERIC_OBJECT_IMPL(Entity, ComponentType);
 
 	Entity(EntityComponentManager* mng);
 
@@ -26,11 +26,13 @@ public:
 
 	bool is_component_exist(size_t type_index) const;
 
+	static uint32_t get_component_index(const Component* comp);
+
 	void add_component(Component* comp);
 
-	Component* get_component(size_t type_index);
+	Component* get_component(uint32_t type_index);
 
-	const Component* get_component(size_t type_index) const;
+	const Component* get_component(uint32_t type_index) const;
 
 	EntityComponentManager* get_manager() const;
 
@@ -67,9 +69,11 @@ public:
 	void send_component_event(Component* sender, ComponentEvent event_type);
 
 private:
+	static inline HashToIndex m_hash_to_index;
 	EntityComponentManager* m_manager;
 	uint64_t m_components_flag = 0;
 	std::vector<Component*> m_components;
+
 
 	Entity* m_parent;
 	std::vector<Entity*> m_children;

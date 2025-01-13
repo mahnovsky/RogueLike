@@ -20,7 +20,7 @@ bool GameApplication::initialize(glm::ivec2 screen_size, const char* title)
 	_screen_size = screen_size;
 	_window_title = title;
 
-	_systems.add_system<Engine>();
+	_systems.add_system<core::Engine>();
 	_systems.add_system<core::EventSystem>();
 	_systems.add_system<core::FileSystem>();
 	_systems.add_system<core::ResourceStorage>();
@@ -28,7 +28,7 @@ bool GameApplication::initialize(glm::ivec2 screen_size, const char* title)
 
 	_systems.initialize_systems();
 
-	_engine = _systems.get_system<Engine>();
+	_engine = _systems.get_system<core::Engine>();
 	_game->initialize();
 
 	return true;
@@ -63,7 +63,7 @@ glm::ivec2 GameApplication::get_screen_resolution() const
 	return _screen_size;
 }
 
-IEngine* GameApplication::get_engine()
+core::IEngine* GameApplication::get_engine()
 {
 	return _engine;
 }

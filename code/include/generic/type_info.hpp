@@ -4,7 +4,7 @@
 #include "crc32.hpp"
 #include <algorithm>
 
-template <size_t N>
+template <uint32_t N>
 class StringLiteral
 {
 public:
@@ -13,7 +13,12 @@ public:
 		std::copy_n(str, N, value);
 	}
 
-	constexpr size_t get_hash() const
+	constexpr std::string_view get_name() const
+	{
+		return value;
+	}
+
+	constexpr uint32_t get_hash() const
 	{
 		return COMPILE_TIME_CRC32_STR(value);
 	}

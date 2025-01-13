@@ -4,11 +4,9 @@
 #include "defines.hpp"
 #include "component.hpp"
 
-class Transform : public TGenericObject<Transform, ComponentType, Component, "Transform">
+class Transform : public TGenericObject<Transform, Component, "Transform">
 {
 public:
-	GENERIC_OBJECT_IMPL(Transform, ComponentType);
-
     Transform( Entity* ent );
 	~Transform() override = default;
 

@@ -9,11 +9,9 @@
 class IRenderObject;
 class RenderComponent;
 
-class RenderComponent : public Component
+class RenderComponent : public TGenericObject<RenderComponent, Component, "RenderComponent">
 {
 public:
-	GENERIC_OBJECT_IMPL(RenderComponent, ComponentType);
-
 	RenderComponent(Entity* ent);
 	~RenderComponent() override;
 
@@ -50,11 +48,9 @@ private:
 	basic::Color color = { 255, 255, 255, 255 };
 };
 
-class RenderSystem : public IGenericObject
+class RenderSystem : public TGenericObject<RenderSystem, IGenericObject, "RenderSystem">
 {
 public:
-	GENERIC_OBJECT_IMPL(RenderSystem, SystemType);
-
 	RenderSystem(const RenderSystem&) = delete;
 	RenderSystem(RenderSystem&&) noexcept = delete;
 

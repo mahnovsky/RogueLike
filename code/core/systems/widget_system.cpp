@@ -24,7 +24,7 @@ namespace core
 
 	void WidgetSystem::initialize(IGlobalContext* context)
 	{
-		m_engine = core::get_system<Engine>();
+		m_engine = core::get_system<core::Engine>();
 		m_engine->get_input()->add_listener(this);
 
 		const glm::vec2 size = m_engine->get_window_size();

@@ -7,7 +7,7 @@
 #include "camera.hpp"
 
 RenderComponent::RenderComponent(Entity* ent)
-	:Component(ent)
+	:Super(ent)
 	, transform(nullptr)
 	, m_render_object(nullptr)
 {
@@ -76,7 +76,7 @@ void RenderComponent::set_color(basic::Color color)
 
 void RenderComponent::on_event(Component* sender, ComponentEvent event_type)
 {
-	if (sender->get_type_index() == TypeInfo<Transform, ComponentType>::type_index &&
+	if (sender->get_meta_info()->hash == Transform::CLASS_META_INFO.hash &&
 		event_type == ComponentEvent::Updated)
 	{
 		Transform* transform = fast_cast<Transform, ComponentType>(sender);

@@ -24,11 +24,14 @@ bool Entity::is_component_exist(size_t type_index) const
 	return (test_flag & m_components_flag) > 0;
 }
 
+uint32_t Entity::get_component_index(const Component* comp)
+{
+	return m_hash_to_index.get_or_create_index(comp->get_meta_info()->hash);
+}
+
 void Entity::add_component(Component* comp)
 {
-	int type_index = comp->get_type_index();
-	ASSERT(type_index < sizeof(uint64_t));
-
+	const uint32_t type_index = get_component_index(comp);
 	uint64_t test_flag = 1;
 	test_flag <<= type_index;
 
@@ -38,13 +41,13 @@ void Entity::add_component(Component* comp)
 	m_components.push_back(comp);
 }
 
-Component* Entity::get_component(size_t type_index)
+Component* Entity::get_component(uint32_t type_index)
 {
 	if (is_component_exist(type_index))
 	{
-		auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](IGenericObject* obj)
+		auto it = std::find_if(m_components.begin(), m_components.end(), [type_index, this](Component* obj)
 			{
-				return type_index == obj->get_type_index();
+				return type_index == get_component_index(obj);
 			});
 
 		if (it != m_components.end())
@@ -54,13 +57,14 @@ Component* Entity::get_component(size_t type_index)
 	return nullptr;
 }
 
-const Component* Entity::get_component(size_t type_index) const
+const Component* Entity::get_component(uint32_t type_index) const
 {
 	if (is_component_exist(type_index))
 	{
-		const auto it = std::find_if(m_components.begin(), m_components.end(), [type_index](const IGenericObject* obj)
+		const auto it = std::find_if(m_components.begin(), m_components.end(), 
+			[type_index, this](const Component* obj)
 			{
-				return type_index == obj->get_type_index();
+				return type_index == get_component_index(obj);
 			});
 
 		if (it != m_components.end())
@@ -114,9 +118,9 @@ void Entity::remove_child(Entity* child)
 
 void Entity::send_component_event(Component* sender, ComponentEvent event_type)
 {
-	const TypeIndex type_index = sender->get_type_index();
+	const TypeIndex type_index = get_component_index(sender);
 
-	for (auto component : m_components)
+	for (const auto& component : m_components)
 	{
 		if (component->is_listen_component(type_index))
 		{

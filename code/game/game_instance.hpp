@@ -36,7 +36,7 @@ private:
     void on_start_button_pressed(ButtonEvent* ev);
 
 private:
-    IEngine* m_engine;
+    core::IEngine* m_engine;
     core::ResourceStorage* m_rs;
     PerspectiveCamera* m_game_camera;
     

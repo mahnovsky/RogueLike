@@ -8,56 +8,44 @@
 
 using TypeIndex = uint64_t;
 
+struct ObjectMetaInfo
+{
+	std::string_view name;
+	uint32_t hash;
+
+	constexpr ObjectMetaInfo(std::string_view name, uint32_t hash)
+		:name(name)
+		,hash(hash)
+	{}
+};
+
 class IGenericObject
 {
 public:
 	virtual ~IGenericObject() = default;
 
-	virtual const char* get_typename() const = 0;
-
-	virtual size_t get_type_index() const = 0;
-
-	virtual size_t get_type_hash() const = 0;
+	virtual const ObjectMetaInfo* get_meta_info() const = 0;
 };
 
-template <class T, class N, class P = IGenericObject, StringLiteral lit = "">
+template <class T, class P = IGenericObject, StringLiteral lit = "">
 class TGenericObject : public P
 {
 public:
-	using Super = TGenericObject<T, N, P, lit>;
+	using Super = TGenericObject<T, P, lit>;
+	static constexpr ObjectMetaInfo CLASS_META_INFO { lit.get_name(), lit.get_hash() };
 
 	template <typename ... Args>
 	TGenericObject(Args ... args)
 		:P(args ...)
 	{}
 
-	const char* get_typename() const override { 
-		return lit.value;
-	}
-
-	size_t get_type_index() const override {
-		return TypeInfo<T, N>::type_index;
-	}
-
-	size_t get_type_hash() const override {
-		return lit.get_hash();
-	}
-
-	static const char* get_type_name() { return lit.value; }
-	static size_t get_type_hash_s() { return lit.get_hash(); }
+	const ObjectMetaInfo* get_meta_info() const override { return &CLASS_META_INFO; }
 };
 
 template <class T, class N>
 T* fast_cast(IGenericObject* obj)
 {
-	ASSERT(obj->get_type_hash() == T::get_type_hash_s() );
+	ASSERT(obj->get_meta_info()->hash == T::CLASS_META_INFO.hash );
 	
 	return static_cast<T*>(static_cast<void*>(obj));
 }
-
-#define GENERIC_OBJECT_IMPL(type, ns) \
-const char* get_typename() const override \
-{ return TypeInfo<type, ns>::type_name; } \
-size_t get_type_index() const override \
-{ return TypeInfo<type, ns>::type_index; } \
-size_t get_type_hash() const override { return TypeInfo<type, ns>::type_hash; }

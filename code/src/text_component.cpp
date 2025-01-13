@@ -5,7 +5,8 @@
 #include "transform.hpp"
 
 TextComponent::TextComponent(Entity* ent)
-    : m_font( nullptr )
+	: Super(ent)
+	,m_font( nullptr )
 	, m_font_file("arial.ttf")
     , m_text()
     , m_font_size( 32.f )
@@ -13,7 +14,8 @@ TextComponent::TextComponent(Entity* ent)
 }
 
 TextComponent::TextComponent(Entity* ent, const char * font_file)
-	: m_font(nullptr)
+	: Super(ent)
+	,m_font(nullptr)
 	, m_font_file(font_file)
     , m_text()
 	, m_font_size(32.f)

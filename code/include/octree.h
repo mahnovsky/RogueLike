@@ -99,11 +99,9 @@ enum class ShapeType : short
 	Box
 };
 
-class OctreeObject : public Component
+class OctreeObject : public TGenericObject<OctreeObject, Component, "OctreeObject">
 {
 public:
-	GENERIC_OBJECT_IMPL(OctreeObject, ComponentType);
-
 	OctreeObject(Entity* ent, const Box& box);
 
 	OctreeObject(Entity* ent, const Sphere& box);
@@ -189,11 +187,9 @@ private:
 	std::vector<OctreeObject*> m_objects;
 };
 
-class Octree : public TGenericObject<Octree, SystemType>
+class Octree : public TGenericObject<Octree, IGenericObject, "Octree">
 {
 public:
-	//GENERIC_OBJECT_IMPL(Octree, SystemType);
-
 	Octree(EntityComponentManager* manager, const Box& b);
 	~Octree() override = default;
 

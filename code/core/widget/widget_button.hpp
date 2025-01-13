@@ -12,7 +12,7 @@ enum class ButtonEventType
 };
 
 //REGISTRY_TYPE(ButtonEvent, core::ET_WIDGET_BUTTON, core::EventTypes)
-class ButtonEvent : public TGenericObject<ButtonEvent, core::EventTypes, core::BaseEvent, "ButtonEvent">
+class ButtonEvent : public TGenericObject<ButtonEvent, core::BaseEvent, "ButtonEvent">
 {
 public:
 

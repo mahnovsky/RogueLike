@@ -13,7 +13,7 @@ WidgetButton::WidgetButton(core::WidgetSystem* widget)
 
 void WidgetButton::initialize()
 {
-	const auto render = core::get_system<Engine>()->get_render();
+	const auto render = core::get_system<core::Engine>()->get_render();
 
 	m_view = render->create_object();
 	build_rect(m_view, { 0.f, 0.f }, m_world_space_rect.size, DrawMode::Fill);

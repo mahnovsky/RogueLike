@@ -27,7 +27,7 @@ Widget::~Widget( )
 {
 	if (m_debug_rect)
 	{
-		IEngine* engine = m_root->get_engine();
+		core::IEngine* engine = m_root->get_engine();
 		IRender* render = engine->get_render();
 		if (render)
 		{
@@ -285,7 +285,7 @@ core::WidgetSystem* Widget::get_widget_system( ) const
 
 void Widget::_initialize_debug_rect()
 {
-	IEngine* engine = m_root->get_engine();
+	core::IEngine* engine = m_root->get_engine();
 	
 	if (IRender* render = engine->get_render())
 	{

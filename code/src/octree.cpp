@@ -21,7 +21,7 @@ bool hit_test(const Sphere& s, const Sphere& b)
 }
 
 OctreeObject::OctreeObject(Entity* ent, const Box& box)
-	: Component(ent)
+	: Super(ent)
 	, m_owner(nullptr)
     , m_shape(box)
     , m_shape_type(ShapeType::Box)
@@ -30,7 +30,7 @@ OctreeObject::OctreeObject(Entity* ent, const Box& box)
 }
 
 OctreeObject::OctreeObject(Entity* ent, const Sphere& s)
-	: Component(ent)
+	: Super(ent)
 	, m_owner(nullptr)
     , m_shape(s)
     , m_shape_type(ShapeType::Sphere)
@@ -164,7 +164,7 @@ const Sphere& OctreeObject::get_sphere() const
 
 void OctreeObject::on_event(Component* sender, ComponentEvent event_type)
 {
-	if (sender->get_type_index() == TypeInfo<Transform, ComponentType>::type_index &&
+	if (sender->get_meta_info()->hash == Transform::CLASS_META_INFO.hash &&
 		event_type == ComponentEvent::Updated)
 	{
 		auto transform = fast_cast<Transform, ComponentType>(sender);

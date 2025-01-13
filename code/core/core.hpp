@@ -7,3 +7,4 @@
 #include "resource_storage.hpp"
 #include "widget_system.hpp"
 #include "igame_instance.hpp"
+#include "engine.hpp"

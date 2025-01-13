@@ -2,8 +2,10 @@
 
 #include "input.hpp"
 #include "system.hpp"
-
-class IEngine;
+namespace core
+{
+	class IEngine;
+} // namespace core
 class Widget;
 class WidgetEvent;
 class IWidgetEventListener;

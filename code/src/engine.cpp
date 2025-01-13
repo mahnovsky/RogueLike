@@ -10,190 +10,193 @@
 #include "window.hpp"
 
 #include "iglobal_context.hpp"
-
-Engine* Engine::_instance;
-
-void Engine::out_of_memory()
+namespace core
 {
-    if( _instance->m_callbacks[ OutOfMemory ] )
-    {
-        _instance->m_callbacks[ OutOfMemory ]( _instance );
-    }
-    _instance->m_is_runned = false;
-}
 
-void Engine::update_fps()
-{
-	static basic::uint32 fps_counter;
+	Engine* Engine::_instance;
 
-	m_fps_time += m_frame_time;
-	++fps_counter;
-
-	if (m_fps_time >= 1000.0)
+	void Engine::out_of_memory()
 	{
-		m_fps = fps_counter;
-		m_fps_time = 0.0;
-		fps_counter = 0;
+		if (_instance->m_callbacks[OutOfMemory])
+		{
+			_instance->m_callbacks[OutOfMemory](_instance);
+		}
+		_instance->m_is_runned = false;
 	}
-}
 
-static void dummy( IEngine* ){}
+	void Engine::update_fps()
+	{
+		static basic::uint32 fps_counter;
 
-Engine::Engine(core::SystemManager& manager)
-    :TSystem(manager)
-	, m_context(nullptr)
-    , m_window( nullptr ) 
-    , m_render( nullptr )
-    , m_input(nullptr)
-    , m_is_runned( true )
-    , m_callbacks()
-    , m_cmd_args()
-    , m_fps_time( 0.0 )
-    , m_frame_time( 0.0 )
-    , m_fps( 0 )
-    , m_ecs(NEW_OBJ(EntityComponentManager))
-{
-    ASSERT_M( _instance == nullptr, "Only one instance of Engine can be exist" );
+		m_fps_time += m_frame_time;
+		++fps_counter;
 
-    _instance = this;
-    basic::mem_set_out_of_memory( &Engine::out_of_memory );
+		if (m_fps_time >= 1000.0)
+		{
+			m_fps = fps_counter;
+			m_fps_time = 0.0;
+			fps_counter = 0;
+		}
+	}
 
-    m_callbacks[Frame] = &dummy;
-    m_callbacks[Draw] = &dummy;
-}
+	static void dummy(IEngine*) {}
 
-void Engine::initialize(core::IGlobalContext* context)
-{
-	m_context = context;
+	Engine::Engine(core::SystemManager& manager)
+		: TSystem(manager)
+		, m_context(nullptr)
+		, m_window(nullptr)
+		, m_render(nullptr)
+		, m_input(nullptr)
+		, m_is_runned(true)
+		, m_callbacks()
+		, m_cmd_args()
+		, m_fps_time(0.0)
+		, m_frame_time(0.0)
+		, m_fps(0)
+		, m_ecs(NEW_OBJ(EntityComponentManager))
+	{
+		ASSERT_M(_instance == nullptr, "Only one instance of Engine can be exist");
 
-    const auto res = m_context->get_screen_resolution();
-	const int width = res.x;
-	const int height = res.y;
-	const auto title = m_context->get_window_title();
+		_instance = this;
+		basic::mem_set_out_of_memory(&Engine::out_of_memory);
 
-	m_input = input::Input::create();
+		m_callbacks[Frame] = &dummy;
+		m_callbacks[Draw] = &dummy;
+	}
 
-    m_window = IWindow::create();
-	if (!m_window->init(width, height, title.data()))
-    {
-        LOG("Failed init window.");
+	void Engine::initialize(core::IGlobalContext* context)
+	{
+		m_context = context;
 
-        return;
-    }
+		const auto res = m_context->get_screen_resolution();
+		const int width = res.x;
+		const int height = res.y;
+		const auto title = m_context->get_window_title();
 
-    m_render = IRender::create();
+		m_input = input::Input::create();
 
-    core::SystemManager* systems = m_context->get_system_manager();
-	const auto rs = systems->get_system<core::ResourceStorage>();
+		m_window = IWindow::create();
+		if (!m_window->init(width, height, title.data()))
+		{
+			LOG("Failed init window.");
 
-    if( !m_render->init( rs, width, height ) )
-    {
-        LOG("Failed init render.");
+			return;
+		}
 
-        return;
-    }
+		m_render = IRender::create();
 
-	//systems->update();
+		core::SystemManager* systems = m_context->get_system_manager();
+		const auto rs = systems->get_system<core::ResourceStorage>();
 
-    if( m_callbacks[ Init ])
-    {
-        m_callbacks[ Init ]( this );
-    }
+		if (!m_render->init(rs, width, height))
+		{
+			LOG("Failed init render.");
 
-    LOG( "Engine initialization done. Memory usage %lu",
-        basic::get_memory_usage() );
-}
+			return;
+		}
 
-void Engine::update()
-{
-    const double frame_begin = basic::get_milliseconds();
+		//systems->update();
 
-    process_event( );
+		if (m_callbacks[Init])
+		{
+			m_callbacks[Init](this);
+		}
 
-	const auto game = m_context->get_game_instance();
+		LOG("Engine initialization done. Memory usage %lu",
+			basic::get_memory_usage());
+	}
 
-    game->update(static_cast<float>(m_frame_time / 1000.0));
+	void Engine::update()
+	{
+		const double frame_begin = basic::get_milliseconds();
 
-    TimerManager::get().update();
+		process_event();
 
-    m_render->clear();
+		const auto game = m_context->get_game_instance();
 
-    m_render->present();
+		game->update(static_cast<float>(m_frame_time / 1000.0));
 
-	game->draw(m_render);
+		TimerManager::get().update();
 
-	m_window->swap_buffers();
+		m_render->clear();
 
-    m_frame_time = basic::get_milliseconds() - frame_begin;
-    
-    update_fps();
-}
+		m_render->present();
 
-void Engine::shutdown()
-{
-    DELETE_OBJ(m_input);
-    m_input = nullptr;
-    DELETE_OBJ(m_render);
-    m_render = nullptr;
-    DELETE_OBJ(m_window);
-    m_window = nullptr;
-    DELETE_OBJ(m_ecs);
-    
-    LOG( "Engine free done. Memory usage %lu",
-        basic::get_memory_usage() );
-}
+		game->draw(m_render);
 
-void Engine::set_callback( EngineCallbackType type, engine_callback callback )
-{
-    const size_t index = static_cast<size_t>( type );
-    if( m_callbacks[ index ] )
-    {
-        LOG( "callback type: %d override", index );
-    }
+		m_window->swap_buffers();
 
-    m_callbacks[ index ] = callback;
-}
+		m_frame_time = basic::get_milliseconds() - frame_begin;
 
-IRender* Engine::get_render()
-{
-    return m_render;
-}
+		update_fps();
+	}
 
-input::Input *Engine::get_input()
-{
-    return  m_input;
-}
+	void Engine::shutdown()
+	{
+		DELETE_OBJ(m_input);
+		m_input = nullptr;
+		DELETE_OBJ(m_render);
+		m_render = nullptr;
+		DELETE_OBJ(m_window);
+		m_window = nullptr;
+		DELETE_OBJ(m_ecs);
 
-glm::vec2 Engine::get_window_size() const
-{
-    int x, y;
-    m_window->get_size( x, y );
+		LOG("Engine free done. Memory usage %lu",
+			basic::get_memory_usage());
+	}
 
-    return glm::vec2(x, y);
-}
+	void Engine::set_callback(EngineCallbackType type, engine_callback callback)
+	{
+		const size_t index = static_cast<size_t>(type);
+		if (m_callbacks[index])
+		{
+			LOG("callback type: %d override", index);
+		}
 
-double Engine::get_frame_time() const
-{
-    return m_frame_time;
-}
+		m_callbacks[index] = callback;
+	}
 
-bool Engine::is_runned() const
-{
-    return m_is_runned;
-}
+	IRender* Engine::get_render()
+	{
+		return m_render;
+	}
 
-basic::uint32 Engine::get_fps() const
-{
-    return m_fps;
-}
+	input::Input* Engine::get_input()
+	{
+		return m_input;
+	}
 
-void Engine::process_event( )
-{
-    m_window->process_events( m_input );
+	glm::vec2 Engine::get_window_size() const
+	{
+		int x, y;
+		m_window->get_size(x, y);
 
-    if( m_window->is_quit() )
-    {
-        m_is_runned = false;
-    }
-}
+		return glm::vec2(x, y);
+	}
 
+	double Engine::get_frame_time() const
+	{
+		return m_frame_time;
+	}
+
+	bool Engine::is_runned() const
+	{
+		return m_is_runned;
+	}
+
+	basic::uint32 Engine::get_fps() const
+	{
+		return m_fps;
+	}
+
+	void Engine::process_event()
+	{
+		m_window->process_events(m_input);
+
+		if (m_window->is_quit())
+		{
+			m_is_runned = false;
+		}
+	}
+
+} // namespace core

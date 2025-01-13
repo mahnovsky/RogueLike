@@ -15,11 +15,9 @@ namespace core
 	};
 
 	using EventId = std::string;
-	class BaseEvent : public TGenericObject <BaseEvent, EventTypes, IGenericObject, "BaseEvent">
+	class BaseEvent : public TGenericObject <BaseEvent, IGenericObject, "BaseEvent">
 	{
 	public:
-		GENERIC_OBJECT_IMPL(BaseEvent, EventTypes)
-
 		BaseEvent(EventId event_id)
 			: m_event_id(std::move(event_id))
 		{
@@ -100,7 +98,7 @@ namespace core
 	private:
 		void on_event(BaseEvent* event) override
 		{
-			if (event->get_type_hash() != Event::get_type_hash_s()) {
+			if (event->get_meta_info()->hash != Event::CLASS_META_INFO.hash) {
 				return;
 			}
 

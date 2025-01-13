@@ -1,12 +1,10 @@
 #pragma once
 
 #include "defines.hpp"
-//#include "system_manager.hpp"
-
-class IEngine;
 
 namespace core
 {
+	class IEngine;
 	class IGameInstance;
 	class SystemManager;
 

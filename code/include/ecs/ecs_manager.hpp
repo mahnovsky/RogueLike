@@ -84,7 +84,8 @@ public:
 
 	void free_entity(IGenericObject* ent)
 	{
-		const auto index = ent->get_type_index();
+		const auto index = 0;
+		//ent->get_type_index();
 
 		assert(index < m_ent_containers.size());
 
@@ -148,7 +149,7 @@ public:
 	{
 		auto it = std::find_if(m_systems.begin(), m_systems.end(), [](IGenericObject* obj)
 			{
-				return obj->get_type_index() == TypeInfo<T, SystemType>::type_index;
+				return obj->get_meta_info()->hash == T::CLASS_META_INFO.hash;
 			});
 		if (it != m_systems.end())
 		{
@@ -167,7 +168,7 @@ public:
 	{
 		auto it = std::find_if(m_systems.begin(), m_systems.end(), [](IGenericObject* obj)
 			{
-				return TypeInfo<T, SystemType>::type_index == obj->get_type_index();
+				return obj->get_meta_info()->hash == T::CLASS_META_INFO.hash;
 			});
 
 		if(it != m_systems.end())
